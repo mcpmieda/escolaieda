@@ -1,300 +1,651 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
 
-<style>
+  <style>
+    :root{
+      --azul:#003366;
+      --azul2:#0b5aa3;
+      --fundo:#f4f6f8;
+      --texto:#1f2937;
+      --branco:#ffffff;
+      --verde:#25D366;
+      --sombra:0 10px 30px rgba(0,0,0,0.10);
+      --raio:18px;
+    }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
 
-body{
-font-family:Arial, sans-serif;
-background:#f4f6f8;
-color:#1f2937;
-line-height:1.6;
-}
+    html{
+      scroll-behavior:smooth;
+    }
 
-a{
-text-decoration:none;
-}
+    body{
+      font-family:Arial, sans-serif;
+      background:var(--fundo);
+      color:var(--texto);
+      line-height:1.6;
+    }
 
-.hero{
-position:relative;
-min-height:100vh;
-background:
-linear-gradient(rgba(0,32,71,0.72), rgba(0,51,102,0.78)),
-url("fundo_logo_ieda.jpg") center/cover no-repeat;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding:30px 20px;
-color:white;
-}
+    a{
+      text-decoration:none;
+    }
 
-.hero-content{
-max-width:900px;
-width:100%;
-}
+    img{
+      max-width:100%;
+      display:block;
+    }
 
-.logo{
-width:120px;
-background:rgba(255,255,255,0.12);
-padding:10px;
-border-radius:18px;
-box-shadow:0 10px 30px rgba(0,0,0,0.25);
-margin-bottom:20px;
-}
+    .topbar{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:1000;
+      background:rgba(0, 33, 71, 0.35);
+      backdrop-filter:blur(8px);
+      transition:0.3s;
+    }
 
-.hero h1{
-font-size:clamp(1.8rem,4vw,3rem);
-margin-bottom:12px;
-}
+    .topbar.scrolled{
+      background:rgba(0, 33, 71, 0.92);
+      box-shadow:0 4px 18px rgba(0,0,0,0.15);
+    }
 
-.hero p{
-font-size:clamp(1rem,2vw,1.2rem);
-max-width:700px;
-margin:0 auto 14px;
-}
+    .nav{
+      max-width:1150px;
+      margin:auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+    }
 
-.subtexto{
-opacity:0.95;
-margin-bottom:25px;
-}
+    .marca{
+      color:white;
+      font-weight:bold;
+      font-size:0.95rem;
+    }
 
-.botoes{
-display:flex;
-justify-content:center;
-gap:14px;
-flex-wrap:wrap;
-margin-top:10px;
-}
+    .menu{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
-.botao{
-display:inline-block;
-padding:12px 22px;
-border-radius:10px;
-font-weight:bold;
-transition:0.25s;
-}
+    .menu a{
+      color:white;
+      font-size:0.95rem;
+      font-weight:bold;
+      opacity:0.95;
+    }
 
-.botao-principal{
-background:white;
-color:#003366;
-}
+    .menu a:hover{
+      opacity:1;
+      text-decoration:underline;
+    }
 
-.botao-principal:hover{
-transform:translateY(-2px);
-box-shadow:0 8px 20px rgba(0,0,0,0.18);
-}
+    .hero{
+      min-height:100vh;
+      background:
+        linear-gradient(rgba(0,32,71,0.72), rgba(0,51,102,0.78)),
+        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:110px 20px 70px;
+      color:white;
+      position:relative;
+      overflow:hidden;
+    }
 
-.botao-secundario{
-background:rgba(255,255,255,0.15);
-color:white;
-border:1px solid rgba(255,255,255,0.4);
-}
+    .hero::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:-1px;
+      height:90px;
+      background:linear-gradient(to top, var(--fundo), rgba(244,246,248,0));
+    }
 
-.botao-secundario:hover{
-background:rgba(255,255,255,0.25);
-}
+    .hero-content{
+      position:relative;
+      z-index:1;
+      max-width:900px;
+      width:100%;
+    }
 
-.container{
-max-width:1100px;
-margin:auto;
-padding:60px 20px;
-}
+    .logo{
+      width:120px;
+      margin:0 auto 18px;
+      background:rgba(255,255,255,0.10);
+      padding:10px;
+      border-radius:20px;
+      box-shadow:0 10px 28px rgba(0,0,0,0.22);
+      animation:flutuar 3s ease-in-out infinite;
+    }
 
-.titulo-secao{
-text-align:center;
-margin-bottom:35px;
-}
+    .hero h1{
+      font-size:clamp(1.9rem, 4vw, 3.2rem);
+      margin-bottom:12px;
+    }
 
-.titulo-secao h2{
-font-size:2rem;
-color:#003366;
-margin-bottom:10px;
-}
+    .hero .sub{
+      font-size:clamp(1rem, 2vw, 1.15rem);
+      max-width:760px;
+      margin:0 auto 14px;
+      opacity:0.96;
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:22px;
-}
+    .hero p{
+      max-width:760px;
+      margin:0 auto 10px;
+    }
 
-.card{
-background:white;
-border-radius:16px;
-padding:24px;
-box-shadow:0 8px 24px rgba(0,0,0,0.08);
-transition:0.25s;
-}
+    .botoes{
+      margin-top:24px;
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
 
-.card:hover{
-transform:translateY(-4px);
-box-shadow:0 12px 28px rgba(0,0,0,0.12);
-}
+    .botao{
+      display:inline-block;
+      padding:13px 22px;
+      border-radius:12px;
+      font-weight:bold;
+      transition:0.25s;
+    }
 
-.card h3{
-color:#003366;
-margin-bottom:12px;
-}
+    .botao-principal{
+      background:white;
+      color:var(--azul);
+      box-shadow:0 8px 20px rgba(0,0,0,0.14);
+    }
 
-.faixa{
-background:linear-gradient(135deg,#003366,#0b5aa3);
-color:white;
-border-radius:20px;
-padding:35px 25px;
-text-align:center;
-}
+    .botao-principal:hover{
+      transform:translateY(-2px);
+    }
 
-.contato-card{
-background:white;
-border-radius:18px;
-padding:28px;
-box-shadow:0 8px 24px rgba(0,0,0,0.08);
-max-width:800px;
-margin:auto;
-text-align:center;
-}
+    .botao-secundario{
+      background:rgba(255,255,255,0.12);
+      color:white;
+      border:1px solid rgba(255,255,255,0.35);
+    }
 
-.contato-card h2{
-color:#003366;
-margin-bottom:16px;
-}
+    .botao-secundario:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.18);
+    }
 
-.contato-card p{
-margin:8px 0;
-font-size:1.05rem;
-}
+    .container{
+      max-width:1150px;
+      margin:auto;
+      padding:65px 20px;
+    }
 
-.whatsapp{
-display:inline-block;
-margin-top:15px;
-padding:12px 20px;
-background:#25D366;
-color:white;
-font-weight:bold;
-border-radius:10px;
-}
+    .titulo-secao{
+      text-align:center;
+      margin-bottom:34px;
+    }
 
-.whatsapp:hover{
-background:#1ebe5d;
-}
+    .titulo-secao h2{
+      color:var(--azul);
+      font-size:2rem;
+      margin-bottom:8px;
+    }
 
-footer{
-background:#002147;
-color:white;
-text-align:center;
-padding:22px 15px;
-margin-top:50px;
-}
+    .titulo-secao p{
+      max-width:760px;
+      margin:auto;
+      color:#5d6877;
+    }
 
-</style>
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:22px;
+    }
+
+    .card{
+      background:white;
+      border-radius:var(--raio);
+      padding:24px;
+      box-shadow:var(--sombra);
+      transition:0.3s;
+      border:1px solid rgba(0,0,0,0.04);
+    }
+
+    .card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 16px 35px rgba(0,0,0,0.12);
+    }
+
+    .card h3{
+      color:var(--azul);
+      margin-bottom:10px;
+      font-size:1.1rem;
+    }
+
+    .faixa{
+      background:linear-gradient(135deg, var(--azul), var(--azul2));
+      color:white;
+      border-radius:24px;
+      padding:36px 24px;
+      text-align:center;
+      box-shadow:0 16px 35px rgba(0,0,0,0.12);
+    }
+
+    .faixa h2{
+      font-size:1.8rem;
+      margin-bottom:10px;
+    }
+
+    .numeros{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      gap:18px;
+      margin-top:28px;
+    }
+
+    .numero{
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+      border-radius:18px;
+      padding:18px;
+    }
+
+    .numero strong{
+      display:block;
+      font-size:1.9rem;
+      margin-bottom:4px;
+    }
+
+    .contato-card{
+      background:white;
+      border-radius:22px;
+      padding:28px;
+      box-shadow:var(--sombra);
+      max-width:850px;
+      margin:auto;
+      text-align:center;
+    }
+
+    .contato-card h2{
+      color:var(--azul);
+      margin-bottom:14px;
+    }
+
+    .contato-card p{
+      margin:8px 0;
+    }
+
+    .contato-card a.email{
+      color:var(--azul2);
+      font-weight:bold;
+    }
+
+    .contato-card a.email:hover{
+      text-decoration:underline;
+    }
+
+    .whats-link{
+      display:inline-block;
+      margin-top:14px;
+      padding:12px 20px;
+      background:var(--verde);
+      color:white;
+      font-weight:bold;
+      border-radius:12px;
+      transition:0.25s;
+    }
+
+    .whats-link:hover{
+      transform:translateY(-2px);
+      filter:brightness(0.96);
+    }
+
+    footer{
+      background:#002147;
+      color:white;
+      text-align:center;
+      padding:26px 16px;
+      margin-top:40px;
+    }
+
+    .whatsapp-float{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:1001;
+      width:58px;
+      height:58px;
+      border-radius:50%;
+      background:#25D366;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.22);
+      animation:pulso 2s infinite;
+    }
+
+    .topo-btn{
+      position:fixed;
+      left:18px;
+      bottom:18px;
+      z-index:1001;
+      width:48px;
+      height:48px;
+      border:none;
+      border-radius:50%;
+      background:var(--azul);
+      color:white;
+      font-size:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.20);
+      display:none;
+      cursor:pointer;
+    }
+
+    .mostrar{
+      display:flex !important;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .reveal{
+      opacity:0;
+      transform:translateY(35px);
+      transition:opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.ativo{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    @keyframes flutuar{
+      0%,100%{ transform:translateY(0); }
+      50%{ transform:translateY(-6px); }
+    }
+
+    @keyframes pulso{
+      0%{ box-shadow:0 0 0 0 rgba(37,211,102,0.45); }
+      70%{ box-shadow:0 0 0 14px rgba(37,211,102,0); }
+      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
+    }
+
+    @media (max-width:780px){
+      .nav{
+        flex-direction:column;
+        align-items:center;
+      }
+
+      .menu{
+        justify-content:center;
+      }
+
+      .hero{
+        min-height:auto;
+        padding:140px 18px 80px;
+      }
+
+      .logo{
+        width:100px;
+      }
+
+      .container{
+        padding:50px 16px;
+      }
+
+      .card,
+      .contato-card,
+      .faixa{
+        padding:22px 18px;
+      }
+
+      .whatsapp-float{
+        width:56px;
+        height:56px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<header class="hero">
-<div class="hero-content">
+  <div class="topbar" id="topbar">
+    <nav class="nav">
+      <div class="marca">ESCOLA IÊDA MCPM</div>
+      <div class="menu">
+        <a href="#inicio">Início</a>
+        <a href="#sobre">Nossa Escola</a>
+        <a href="#informacoes">Informações</a>
+        <a href="#contato">Contato</a>
+      </div>
+    </nav>
+  </div>
 
-<img src="logo_escola.png" alt="Logo da Escola" class="logo">
+  <header class="hero" id="inicio">
+    <div class="hero-content reveal">
+      <img src="logo_escola.png" alt="Logo da Escola" class="logo">
 
-<h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
+      <h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
 
-<p class="subtexto">
-Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.
-</p>
+      <p class="sub">
+        Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.
+      </p>
 
-<p>
-Bem-vindo ao portal institucional da nossa escola.
-</p>
+      <p>
+        Bem-vindo ao portal institucional da nossa escola. Aqui você encontrará
+        informações importantes, canais de contato e conteúdos da comunidade escolar.
+      </p>
 
-<div class="botoes">
-<a href="#sobre" class="botao botao-principal">Conhecer a Escola</a>
-<a href="https://wa.me/5573998710105" class="botao botao-secundario">Falar no WhatsApp</a>
-</div>
+      <div class="botoes">
+        <a href="#sobre" class="botao botao-principal">Conhecer a Escola</a>
+        <a href="https://wa.me/5573998710105" class="botao botao-secundario" target="_blank">Falar no WhatsApp</a>
+      </div>
+    </div>
+  </header>
 
-</div>
-</header>
+  <main>
 
-<main>
+    <section class="container reveal" id="sobre">
+      <div class="titulo-secao">
+        <h2>Nossa Escola</h2>
+        <p>
+          Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com
+          a formação dos estudantes e com a participação da comunidade escolar.
+        </p>
+      </div>
 
-<section class="container" id="sobre">
+      <div class="grid">
+        <div class="card">
+          <h3>Portal Institucional</h3>
+          <p>
+            Este site foi criado para aproximar a escola das famílias, com um canal
+            simples, bonito e organizado para divulgar informações importantes.
+          </p>
+        </div>
 
-<div class="titulo-secao">
-<h2>Nossa Escola</h2>
-</div>
+        <div class="card">
+          <h3>Compromisso com a Educação</h3>
+          <p>
+            Valorizamos o ensino, a disciplina, o respeito, a convivência e a
+            formação cidadã dos nossos estudantes.
+          </p>
+        </div>
 
-<div class="grid">
+        <div class="card">
+          <h3>Comunicação com a Comunidade</h3>
+          <p>
+            Este espaço poderá reunir avisos, orientações, documentos, projetos e
+            outras informações de interesse da comunidade escolar.
+          </p>
+        </div>
+      </div>
+    </section>
 
-<div class="card">
-<h3>Portal Institucional</h3>
-<p>Este site aproxima a escola da comunidade escolar.</p>
-</div>
+    <section class="container reveal">
+      <div class="faixa">
+        <h2>Educar é construir o futuro</h2>
+        <p>
+          Nossa missão é contribuir para uma educação de qualidade, fortalecendo
+          valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.
+        </p>
 
-<div class="card">
-<h3>Compromisso com a Educação</h3>
-<p>Valorizamos ensino, disciplina e formação cidadã.</p>
-</div>
+        <div class="numeros">
+          <div class="numero">
+            <strong>1990</strong>
+            <span>Fundação</span>
+          </div>
+          <div class="numero">
+            <strong>6º ao 9º</strong>
+            <span>Ensino Fundamental</span>
+          </div>
+          <div class="numero">
+            <strong>24</strong>
+            <span>Professores</span>
+          </div>
+          <div class="numero">
+            <strong>44</strong>
+            <span>Funcionários</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="card">
-<h3>Comunicação com a Comunidade</h3>
-<p>Divulgação de avisos e informações importantes.</p>
-</div>
+    <section class="container reveal" id="informacoes">
+      <div class="titulo-secao">
+        <h2>Informações</h2>
+        <p>
+          Um espaço institucional pensado para centralizar conteúdos relevantes da escola.
+        </p>
+      </div>
 
-</div>
+      <div class="grid">
+        <div class="card">
+          <h3>Avisos</h3>
+          <p>
+            Comunicados importantes à comunidade escolar poderão ser publicados aqui
+            de forma clara e acessível.
+          </p>
+        </div>
 
-</section>
+        <div class="card">
+          <h3>Documentos</h3>
+          <p>
+            Futuramente, este portal poderá disponibilizar documentos, orientações,
+            cronogramas e materiais institucionais.
+          </p>
+        </div>
 
-<section class="container">
+        <div class="card">
+          <h3>Projetos e Ações</h3>
+          <p>
+            Espaço destinado à divulgação de atividades, iniciativas pedagógicas e
+            ações desenvolvidas pela escola.
+          </p>
+        </div>
+      </div>
+    </section>
 
-<div class="faixa">
+    <section class="container reveal" id="contato">
+      <div class="contato-card">
+        <h2>Contato</h2>
 
-<h2>Educar é construir o futuro</h2>
+        <p>
+          <strong>Email:</strong>
+          <a class="email" href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a>
+        </p>
 
-<p>
-Nossa missão é contribuir para uma educação de qualidade,
-fortalecendo valores e conhecimento.
-</p>
+        <p>
+          <strong>Telefone / WhatsApp:</strong>
+          <a class="email" href="https://wa.me/5573998710105" target="_blank">(73) 99871-0105</a>
+        </p>
 
-</div>
+        <a href="https://wa.me/5573998710105" class="whats-link" target="_blank">
+          Conversar pelo WhatsApp
+        </a>
 
-</section>
+        <p style="margin-top:16px;">
+          <strong>Endereço:</strong> Rua Clidenor de Oliveira, S/N – Centro<br>
+          Medeiros Neto - BA
+        </p>
+      </div>
+    </section>
 
-<section class="container" id="contato">
+  </main>
 
-<div class="contato-card">
+  <footer>
+    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
+  </footer>
 
-<h2>Contato</h2>
+  <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" aria-label="WhatsApp da escola">
+    ✆
+  </a>
 
-<p><strong>Email:</strong> secretaria@escolaieda.com</p>
+  <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
 
-<p><strong>Telefone / WhatsApp:</strong> (73) 99871-0105</p>
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const topbar = document.getElementById('topbar');
+    const topoBtn = document.getElementById('topoBtn');
 
-<a href="https://wa.me/5573998710105" class="whatsapp">
-Conversar pelo WhatsApp
-</a>
+    function revelarElementos(){
+      const alturaJanela = window.innerHeight;
 
-<p style="margin-top:15px;">
-Rua Clidenor de Oliveira, S/N – Centro<br>
-Medeiros Neto - BA
-</p>
+      reveals.forEach((el) => {
+        const topo = el.getBoundingClientRect().top;
+        if(topo < alturaJanela - 80){
+          el.classList.add('ativo');
+        }
+      });
+    }
 
-</div>
+    function efeitosScroll(){
+      if(window.scrollY > 30){
+        topbar.classList.add('scrolled');
+      }else{
+        topbar.classList.remove('scrolled');
+      }
 
-</section>
+      if(window.scrollY > 400){
+        topoBtn.classList.add('mostrar');
+      }else{
+        topoBtn.classList.remove('mostrar');
+      }
+    }
 
-</main>
+    topoBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
 
-<footer>
-<p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM</p>
-</footer>
+    window.addEventListener('scroll', () => {
+      revelarElementos();
+      efeitosScroll();
+    });
+
+    window.addEventListener('load', () => {
+      revelarElementos();
+      efeitosScroll();
+    });
+  </script>
 
 </body>
 </html>
