@@ -1,83 +1,361 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
 
-<style>
-body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    background:#f4f6f8;
-    text-align:center;
-    color:#222;
-}
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
 
-header{
-    background:#003366;
-    color:white;
-    padding:30px 20px;
-}
+    body{
+      font-family: Arial, sans-serif;
+      background:#f4f6f8;
+      color:#1f2937;
+      line-height:1.6;
+    }
 
-section{
-    padding:40px 20px;
-}
+    a{
+      text-decoration:none;
+    }
 
-footer{
-    background:#003366;
-    color:white;
-    padding:15px;
-}
+    .hero{
+      position:relative;
+      min-height:100vh;
+      background:
+        linear-gradient(rgba(0, 32, 71, 0.72), rgba(0, 51, 102, 0.78)),
+        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:30px 20px;
+      color:white;
+    }
 
-.card{
-    background:white;
-    margin:20px auto;
-    padding:20px;
-    max-width:600px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+    .hero-content{
+      max-width:900px;
+      width:100%;
+    }
 
-a{
-    color:#003366;
-    text-decoration:none;
-    font-weight:bold;
-}
+    .logo{
+      width:120px;
+      max-width:35vw;
+      background:rgba(255,255,255,0.12);
+      padding:10px;
+      border-radius:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      backdrop-filter:blur(2px);
+      margin-bottom:20px;
+    }
 
-a:hover{
-    text-decoration:underline;
-}
-</style>
+    .hero h1{
+      font-size:clamp(1.8rem, 4vw, 3.1rem);
+      margin-bottom:12px;
+      font-weight:700;
+    }
+
+    .hero p{
+      font-size:clamp(1rem, 2vw, 1.2rem);
+      max-width:700px;
+      margin:0 auto 14px;
+    }
+
+    .hero .subtexto{
+      opacity:0.95;
+      margin-bottom:28px;
+    }
+
+    .botoes{
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .botao{
+      display:inline-block;
+      padding:12px 22px;
+      border-radius:10px;
+      font-weight:bold;
+      transition:0.25s;
+    }
+
+    .botao-principal{
+      background:white;
+      color:#003366;
+    }
+
+    .botao-principal:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 20px rgba(0,0,0,0.18);
+    }
+
+    .botao-secundario{
+      background:rgba(255,255,255,0.12);
+      color:white;
+      border:1px solid rgba(255,255,255,0.35);
+    }
+
+    .botao-secundario:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.18);
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+      padding:60px 20px;
+    }
+
+    .titulo-secao{
+      text-align:center;
+      margin-bottom:35px;
+    }
+
+    .titulo-secao h2{
+      font-size:2rem;
+      color:#003366;
+      margin-bottom:10px;
+    }
+
+    .titulo-secao p{
+      color:#556070;
+      max-width:700px;
+      margin:auto;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:22px;
+    }
+
+    .card{
+      background:white;
+      border-radius:16px;
+      padding:24px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      transition:0.25s;
+    }
+
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 12px 28px rgba(0,0,0,0.12);
+    }
+
+    .card h3{
+      color:#003366;
+      margin-bottom:12px;
+      font-size:1.15rem;
+    }
+
+    .faixa{
+      background:linear-gradient(135deg, #003366, #0b5aa3);
+      color:white;
+      border-radius:20px;
+      padding:35px 25px;
+      text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    .faixa h2{
+      margin-bottom:10px;
+      font-size:1.8rem;
+    }
+
+    .faixa p{
+      max-width:800px;
+      margin:auto;
+      opacity:0.96;
+    }
+
+    .contato-card{
+      background:white;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      max-width:800px;
+      margin:0 auto;
+      text-align:center;
+    }
+
+    .contato-card h2{
+      color:#003366;
+      margin-bottom:16px;
+    }
+
+    .contato-card p{
+      margin:8px 0;
+      font-size:1.02rem;
+    }
+
+    .contato-card a{
+      color:#0b5aa3;
+      font-weight:bold;
+    }
+
+    footer{
+      background:#002147;
+      color:white;
+      text-align:center;
+      padding:22px 15px;
+      margin-top:50px;
+    }
+
+    footer p{
+      opacity:0.95;
+      font-size:0.96rem;
+    }
+
+    @media (max-width: 700px){
+      .hero{
+        min-height:auto;
+        padding:70px 18px;
+      }
+
+      .logo{
+        width:100px;
+      }
+
+      .container{
+        padding:45px 16px;
+      }
+
+      .card,
+      .contato-card,
+      .faixa{
+        padding:22px 18px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-    <h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
-    <p>Medeiros Neto - Bahia</p>
-</header>
+  <header class="hero">
+    <div class="hero-content">
+      <img src="logo_escola.png" alt="Logo da Escola" class="logo">
 
-<section>
+      <h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
 
-    <div class="card">
-        <h2>Bem-vindo ao nosso site</h2>
-        <p>Este é o portal institucional da escola.</p>
-        <p>Em breve publicaremos informações, avisos e documentos importantes.</p>
+      <p class="subtexto">
+        Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.
+      </p>
+
+      <p>
+        Bem-vindo ao portal institucional da nossa escola. Aqui você encontrará
+        informações, comunicados e conteúdos importantes para a comunidade escolar.
+      </p>
+
+      <div class="botoes">
+        <a href="#sobre" class="botao botao-principal">Conhecer a Escola</a>
+        <a href="#contato" class="botao botao-secundario">Entrar em Contato</a>
+      </div>
     </div>
+  </header>
 
-    <div class="card">
+  <main>
+
+    <section class="container" id="sobre">
+      <div class="titulo-secao">
+        <h2>Nossa Escola</h2>
+        <p>
+          Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com
+          a formação dos estudantes e com a participação da comunidade escolar.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Portal Institucional</h3>
+          <p>
+            Este site foi criado para aproximar a escola das famílias, oferecendo
+            um canal simples, moderno e organizado para divulgar informações importantes.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Compromisso com a Educação</h3>
+          <p>
+            Valorizamos o ensino, a disciplina, o respeito, a convivência e o
+            desenvolvimento integral dos nossos estudantes.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Comunicação com a Comunidade</h3>
+          <p>
+            Em breve, este espaço poderá reunir avisos, orientações, documentos,
+            projetos e outros conteúdos de interesse da comunidade escolar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="faixa">
+        <h2>Educar é construir o futuro</h2>
+        <p>
+          Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores,
+          conhecimento e responsabilidade social em cada etapa da formação do estudante.
+        </p>
+      </div>
+    </section>
+
+    <section class="container" id="informacoes">
+      <div class="titulo-secao">
+        <h2>Informações</h2>
+        <p>
+          Um espaço institucional pensado para centralizar conteúdos relevantes da escola.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Avisos</h3>
+          <p>
+            Comunicados importantes à comunidade escolar poderão ser publicados aqui
+            de forma clara e acessível.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Documentos</h3>
+          <p>
+            Futuramente, este portal poderá disponibilizar documentos, orientações,
+            cronogramas e materiais institucionais.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Projetos e Ações</h3>
+          <p>
+            Espaço destinado à divulgação de atividades, iniciativas pedagógicas e
+            ações desenvolvidas pela escola.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container" id="contato">
+      <div class="contato-card">
         <h2>Contato</h2>
-        <p>Email: <a href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a></p>
-        <p>Endereço: Rua Clidenor de Oliveira, S/N – Centro</p>
-        <p>Medeiros Neto - BA</p>
-    </div>
+        <p><strong>Email:</strong> <a href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a></p>
+        <p><strong>Endereço:</strong> Rua Clidenor de Oliveira, S/N – Centro</p>
+        <p><strong>Cidade:</strong> Medeiros Neto - BA</p>
+      </div>
+    </section>
 
-</section>
+  </main>
 
-<footer>
-    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM</p>
-</footer>
+  <footer>
+    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
+  </footer>
 
 </body>
 </html>
