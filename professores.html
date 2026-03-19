@@ -1,1 +1,867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professores | Escola Iêda</title>
+  <meta name="description" content="Conheça a equipe de professores da Escola Municipal Professora Iêda Alves de Oliveira MCPM." />
 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --azul-escuro: #0a2a66;
+      --azul: #1146a6;
+      --azul-claro: #3f7ae0;
+      --dourado: #f3c95d;
+      --branco: #ffffff;
+      --texto: #1f2937;
+      --texto-suave: #5b6472;
+      --fundo: #f4f7fb;
+      --card: rgba(255, 255, 255, 0.88);
+      --borda: rgba(17, 70, 166, 0.12);
+      --sombra: 0 14px 40px rgba(13, 34, 79, 0.14);
+      --sombra-hover: 0 18px 50px rgba(13, 34, 79, 0.22);
+      --radius: 24px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--texto);
+      background:
+        radial-gradient(circle at top left, rgba(63, 122, 224, 0.18), transparent 26%),
+        radial-gradient(circle at top right, rgba(243, 201, 93, 0.16), transparent 22%),
+        linear-gradient(180deg, #eef4ff 0%, #f7faff 45%, #f4f7fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-shape {
+      position: fixed;
+      inset: auto auto 8% -120px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(63, 122, 224, 0.18), transparent 70%);
+      filter: blur(18px);
+      z-index: 0;
+      pointer-events: none;
+      animation: floatShape 8s ease-in-out infinite;
+    }
+
+    .bg-shape.two {
+      inset: 18% -100px auto auto;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(243, 201, 93, 0.18), transparent 70%);
+      animation-delay: 1.5s;
+    }
+
+    @keyframes floatShape {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      background:
+        linear-gradient(135deg, rgba(10, 42, 102, 0.96), rgba(17, 70, 166, 0.92)),
+        url("fundo_logo_ieda.jpg") center/cover;
+      color: white;
+      padding: 28px 18px 56px;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(6, 24, 58, 0.25), rgba(6, 24, 58, 0.55));
+      z-index: -1;
+    }
+
+    .topbar {
+      max-width: 1200px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-area img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 6px;
+      backdrop-filter: blur(6px);
+    }
+
+    .logo-area .school-name {
+      line-height: 1.25;
+    }
+
+    .logo-area .school-name strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .logo-area .school-name span {
+      display: block;
+      font-size: 0.9rem;
+      opacity: 0.92;
+    }
+
+    .btn-voltar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.08);
+      padding: 12px 18px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      transition: 0.3s ease;
+      font-weight: bold;
+    }
+
+    .btn-voltar:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.55);
+    }
+
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      padding-top: 10px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.92);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: -34px auto 0;
+      padding: 0 16px 50px;
+    }
+
+    .painel {
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 26px;
+      box-shadow: var(--sombra);
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .barra-superior {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .busca-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .busca-box input {
+      width: 100%;
+      padding: 15px 18px 15px 48px;
+      border-radius: 16px;
+      border: 1px solid var(--borda);
+      background: rgba(255,255,255,0.92);
+      outline: none;
+      font-size: 1rem;
+      transition: 0.25s ease;
+      color: var(--texto);
+    }
+
+    .busca-box input:focus {
+      border-color: rgba(17, 70, 166, 0.35);
+      box-shadow: 0 0 0 4px rgba(17, 70, 166, 0.08);
+    }
+
+    .busca-icone {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.65;
+    }
+
+    .contador {
+      white-space: nowrap;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(17,70,166,0.08), rgba(243,201,93,0.16));
+      color: var(--azul-escuro);
+      font-weight: bold;
+      border: 1px solid rgba(17, 70, 166, 0.1);
+    }
+
+    .texto-apoio {
+      margin-top: 14px;
+      color: var(--texto-suave);
+      line-height: 1.6;
+      font-size: 0.96rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--borda);
+      border-radius: var(--radius);
+      box-shadow: var(--sombra);
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      opacity: 0;
+      transform: translateY(28px) scale(0.98);
+      backdrop-filter: blur(8px);
+    }
+
+    .card.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--sombra-hover);
+      border-color: rgba(17, 70, 166, 0.18);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--azul), var(--azul-claro), var(--dourado));
+      z-index: 2;
+    }
+
+    .foto-wrap {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #dce8ff, #f9fbff);
+      cursor: pointer;
+    }
+
+    .foto-wrap img {
+      width: 100%;
+      height: 290px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease, filter 0.35s ease;
+    }
+
+    .card:hover .foto-wrap img {
+      transform: scale(1.08);
+      filter: saturate(1.04);
+    }
+
+    .zoom-tip {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      background: rgba(10, 42, 102, 0.72);
+      color: white;
+      font-size: 0.8rem;
+      padding: 8px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: 0.3s ease;
+      pointer-events: none;
+    }
+
+    .card:hover .zoom-tip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .info {
+      padding: 18px 16px 20px;
+      text-align: center;
+    }
+
+    .info h3 {
+      font-size: 1.05rem;
+      line-height: 1.35;
+      color: var(--azul-escuro);
+      margin-bottom: 8px;
+      min-height: 2.7em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info p {
+      font-size: 0.94rem;
+      color: var(--texto-suave);
+      line-height: 1.5;
+    }
+
+    .selo {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(17,70,166,0.08);
+      color: var(--azul);
+      font-weight: bold;
+    }
+
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--texto-suave);
+      background: rgba(255,255,255,0.75);
+      border-radius: 22px;
+      box-shadow: var(--sombra);
+      border: 1px solid var(--borda);
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px 16px 40px;
+      color: var(--texto-suave);
+      font-size: 0.95rem;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 16, 36, 0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.28s ease;
+      z-index: 9999;
+      backdrop-filter: blur(6px);
+    }
+
+    .modal.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      position: relative;
+      width: min(95vw, 560px);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 26px;
+      padding: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      transform: scale(0.94);
+      transition: 0.28s ease;
+    }
+
+    .modal.open .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content img {
+      width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      display: block;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .modal-legenda {
+      text-align: center;
+      color: white;
+      margin-top: 14px;
+      font-weight: bold;
+      font-size: 1rem;
+      letter-spacing: 0.2px;
+    }
+
+    .fechar {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(10, 42, 102, 0.8);
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .fechar:hover {
+      transform: scale(1.08);
+      background: rgba(10, 42, 102, 1);
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 24px 14px 50px;
+      }
+
+      .hero p {
+        font-size: 0.97rem;
+      }
+
+      .foto-wrap img {
+        height: 270px;
+      }
+
+      .info h3 {
+        min-height: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-shape"></div>
+  <div class="bg-shape two"></div>
+
+  <header>
+    <div class="topbar">
+      <div class="logo-area">
+        <img src="logo_escola.png" alt="Logo da Escola Iêda" />
+        <div class="school-name">
+          <strong>Escola Municipal Professora Iêda Alves de Oliveira MCPM</strong>
+          <span>Conheça nossa equipe de professores</span>
+        </div>
+      </div>
+
+      <a href="index.html" class="btn-voltar">← Voltar ao site</a>
+    </div>
+
+    <div class="hero">
+      <div class="hero-badge">Nossa equipe docente</div>
+      <h1>Professores</h1>
+      <p>
+        Esta página apresenta os professores da Escola Iêda com um visual moderno,
+        organizado e pensado para facilitar a navegação no celular e no computador.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="painel">
+      <div class="barra-superior">
+        <div class="busca-box">
+          <span class="busca-icone">🔎</span>
+          <input type="text" id="buscaProfessor" placeholder="Pesquisar professor pelo nome..." />
+        </div>
+
+        <div class="contador">
+          <span id="contadorVisiveis">19</span> professores
+        </div>
+      </div>
+
+      <p class="texto-apoio">
+        Clique em uma foto para ampliar. Você também pode usar a busca para localizar rapidamente um professor.
+      </p>
+    </section>
+
+    <section class="grid" id="gridProfessores">
+      <article class="card" data-name="ALANNA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALANNA.jpg', 'ALANNA')">
+          <img src="imagens/professores/ALANNA.jpg" alt="Professora ALANNA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>ALANNA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="ALDANITA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALDANITA.jpg', 'ALDANITA')">
+          <img src="imagens/professores/ALDANITA.jpg" alt="Professora ALDANITA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>ALDANITA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="ANDRE">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ANDRE.jpg', 'ANDRE')">
+          <img src="imagens/professores/ANDRE.jpg" alt="Professor ANDRE" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>ANDRE</h3>
+          <p>Professor da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="ANSELMO">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ANSELMO.jpg', 'ANSELMO')">
+          <img src="imagens/professores/ANSELMO.jpg" alt="Professor ANSELMO" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>ANSELMO</h3>
+          <p>Professor da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="CARINE">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/CARINE.jpg', 'CARINE')">
+          <img src="imagens/professores/CARINE.jpg" alt="Professora CARINE" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>CARINE</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="CLEBER">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/CLEBER.jpg', 'CLEBER')">
+          <img src="imagens/professores/CLEBER.jpg" alt="Professor CLEBER" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>CLEBER</h3>
+          <p>Professor da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="COSMIRA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/COSMIRA.jpg', 'COSMIRA')">
+          <img src="imagens/professores/COSMIRA.jpg" alt="Professora COSMIRA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>COSMIRA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="EDILMA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/EDILMA.jpg', 'EDILMA')">
+          <img src="imagens/professores/EDILMA.jpg" alt="Professora EDILMA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>EDILMA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="FANIA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/FANIA.jpg', 'FANIA')">
+          <img src="imagens/professores/FANIA.jpg" alt="Professora FANIA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>FANIA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="IZABELLY">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/IZABELLY.jpg', 'IZABELLY')">
+          <img src="imagens/professores/IZABELLY.jpg" alt="Professora IZABELLY" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>IZABELLY</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="JULIA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/JULIA.jpg', 'JULIA')">
+          <img src="imagens/professores/JULIA.jpg" alt="Professora JULIA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>JULIA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="JUVENAL">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/JUVENAL.jpg', 'JUVENAL')">
+          <img src="imagens/professores/JUVENAL.jpg" alt="Professor JUVENAL" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>JUVENAL</h3>
+          <p>Professor da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="LURMARIA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/LURMARIA.jpg', 'LURMARIA')">
+          <img src="imagens/professores/LURMARIA.jpg" alt="Professora LURMARIA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>LURMARIA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="MARIA MELO">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/MARIA%20MELO.jpg', 'MARIA MELO')">
+          <img src="imagens/professores/MARIA%20MELO.jpg" alt="Professora MARIA MELO" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>MARIA MELO</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="MARIA QUITERIA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/MARIA_QUITERIA.jpg', 'MARIA QUITERIA')">
+          <img src="imagens/professores/MARIA_QUITERIA.jpg" alt="Professora MARIA QUITERIA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>MARIA QUITERIA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="NINA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/NINA.jpg', 'NINA')">
+          <img src="imagens/professores/NINA.jpg" alt="Professora NINA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>NINA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="ROSE MARCIA">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ROSE_MARCIA.jpg', 'ROSE MARCIA')">
+          <img src="imagens/professores/ROSE_MARCIA.jpg" alt="Professora ROSE MARCIA" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>ROSE MARCIA</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="SIMONY">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/SIMONY.jpg', 'SIMONY')">
+          <img src="imagens/professores/SIMONY.jpg" alt="Professora SIMONY" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>SIMONY</h3>
+          <p>Professora da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="UAN">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/UAN.jpeg', 'UAN')">
+          <img src="imagens/professores/UAN.jpeg" alt="Professor UAN" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>UAN</h3>
+          <p>Professor da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+
+      <article class="card" data-name="VINICIUS">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/VINICIUS.jpg', 'VINICIUS')">
+          <img src="imagens/professores/VINICIUS.jpg" alt="Professor VINICIUS" loading="lazy">
+          <span class="zoom-tip">Ampliar</span>
+        </div>
+        <div class="info">
+          <h3>VINICIUS</h3>
+          <p>Professor da Escola Iêda</p>
+          <span class="selo">Equipe docente</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="empty-state" id="emptyState">
+      Nenhum professor encontrado com esse nome.
+    </div>
+  </main>
+
+  <footer>
+    © Escola Municipal Professora Iêda Alves de Oliveira MCPM
+  </footer>
+
+  <div class="modal" id="modalFoto" onclick="fecharModal(event)">
+    <div class="modal-content">
+      <button class="fechar" onclick="fecharModal(event)" aria-label="Fechar">×</button>
+      <img id="modalImagem" src="" alt="">
+      <div class="modal-legenda" id="modalLegenda"></div>
+    </div>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('.card');
+    const busca = document.getElementById('buscaProfessor');
+    const contadorVisiveis = document.getElementById('contadorVisiveis');
+    const emptyState = document.getElementById('emptyState');
+    const modal = document.getElementById('modalFoto');
+    const modalImagem = document.getElementById('modalImagem');
+    const modalLegenda = document.getElementById('modalLegenda');
+
+    function atualizarContador() {
+      const visiveis = [...cards].filter(card => card.style.display !== 'none').length;
+      contadorVisiveis.textContent = visiveis;
+      emptyState.style.display = visiveis === 0 ? 'block' : 'none';
+    }
+
+    busca.addEventListener('input', function () {
+      const termo = this.value.trim().toLowerCase();
+
+      cards.forEach(card => {
+        const nome = card.dataset.name.toLowerCase();
+        if (nome.includes(termo)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      atualizarContador();
+    });
+
+    function abrirModal(src, nome) {
+      modalImagem.src = src;
+      modalImagem.alt = nome;
+      modalLegenda.textContent = nome;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModal(event) {
+      if (
+        event.target.classList.contains('modal') ||
+        event.target.classList.contains('fechar')
+      ) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('show');
+          }, index * 45);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    cards.forEach(card => observer.observe(card));
+
+    atualizarContador();
+  </script>
+</body>
+          </html>
