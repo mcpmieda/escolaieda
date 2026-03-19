@@ -196,71 +196,52 @@
       backdrop-filter: blur(12px);
       border-radius: 26px;
       box-shadow: var(--sombra);
-      padding: 18px;
+      padding: 22px;
       margin-bottom: 24px;
     }
 
-    .barra-superior {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .busca-box {
-      flex: 1;
-      min-width: 240px;
-      position: relative;
-    }
-
-    .busca-box input {
-      width: 100%;
-      padding: 15px 18px 15px 48px;
-      border-radius: 16px;
-      border: 1px solid var(--borda);
-      background: rgba(255,255,255,0.92);
-      outline: none;
-      font-size: 1rem;
-      transition: 0.25s ease;
-      color: var(--texto);
-    }
-
-    .busca-box input:focus {
-      border-color: rgba(17, 70, 166, 0.35);
-      box-shadow: 0 0 0 4px rgba(17, 70, 166, 0.08);
-    }
-
-    .busca-icone {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      opacity: 0.65;
-    }
-
-    .contador {
-      white-space: nowrap;
-      padding: 12px 16px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(17,70,166,0.08), rgba(243,201,93,0.16));
+    .painel h2 {
       color: var(--azul-escuro);
-      font-weight: bold;
-      border: 1px solid rgba(17, 70, 166, 0.1);
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      text-align: center;
     }
 
     .texto-apoio {
-      margin-top: 14px;
       color: var(--texto-suave);
-      line-height: 1.6;
-      font-size: 0.96rem;
+      line-height: 1.7;
+      font-size: 0.98rem;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .secao-titulo {
+      text-align: center;
+      margin: 8px 0 20px;
+    }
+
+    .secao-titulo h2 {
+      font-size: 1.8rem;
+      color: var(--azul-escuro);
+      margin-bottom: 8px;
+    }
+
+    .secao-titulo p {
+      max-width: 760px;
+      margin: 0 auto;
+      color: var(--texto-suave);
+      line-height: 1.7;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 22px;
+    }
+
+    .grid.gestao {
+      margin-bottom: 34px;
     }
 
     .card {
@@ -296,11 +277,17 @@
       z-index: 2;
     }
 
+    .card.gestao::before {
+      height: 8px;
+      background: linear-gradient(90deg, var(--dourado), var(--azul), var(--azul-claro));
+    }
+
     .foto-wrap {
       position: relative;
       overflow: hidden;
       background: linear-gradient(180deg, #dce8ff, #f9fbff);
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .foto-wrap img {
@@ -311,7 +298,8 @@
       transition: transform 0.6s ease, filter 0.35s ease;
     }
 
-    .card:hover .foto-wrap img {
+    .card:hover .foto-wrap img,
+    .foto-wrap:active img {
       transform: scale(1.08);
       filter: saturate(1.04);
     }
@@ -320,7 +308,7 @@
       position: absolute;
       right: 12px;
       bottom: 12px;
-      background: rgba(10, 42, 102, 0.72);
+      background: rgba(10, 42, 102, 0.78);
       color: white;
       font-size: 0.8rem;
       padding: 8px 10px;
@@ -332,7 +320,8 @@
       pointer-events: none;
     }
 
-    .card:hover .zoom-tip {
+    .card:hover .zoom-tip,
+    .foto-wrap:active .zoom-tip {
       opacity: 1;
       transform: translateY(0);
     }
@@ -370,15 +359,9 @@
       font-weight: bold;
     }
 
-    .empty-state {
-      display: none;
-      text-align: center;
-      padding: 36px 20px;
-      color: var(--texto-suave);
-      background: rgba(255,255,255,0.75);
-      border-radius: 22px;
-      box-shadow: var(--sombra);
-      border: 1px solid var(--borda);
+    .card.gestao .selo {
+      background: rgba(243, 201, 93, 0.18);
+      color: #8a6200;
     }
 
     footer {
@@ -391,16 +374,16 @@
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(7, 16, 36, 0.82);
+      background: rgba(7, 16, 36, 0.86);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 18px;
       opacity: 0;
       visibility: hidden;
       transition: 0.28s ease;
       z-index: 9999;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(7px);
     }
 
     .modal.open {
@@ -410,23 +393,23 @@
 
     .modal-content {
       position: relative;
-      width: min(95vw, 560px);
-      background: rgba(255,255,255,0.08);
+      width: min(96vw, 620px);
+      background: rgba(255,255,255,0.10);
       border: 1px solid rgba(255,255,255,0.16);
       border-radius: 26px;
-      padding: 16px;
+      padding: 14px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-      transform: scale(0.94);
+      transform: scale(0.94) translateY(12px);
       transition: 0.28s ease;
     }
 
     .modal.open .modal-content {
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
 
     .modal-content img {
       width: 100%;
-      max-height: 75vh;
+      max-height: 76vh;
       object-fit: contain;
       display: block;
       border-radius: 18px;
@@ -440,6 +423,15 @@
       font-weight: bold;
       font-size: 1rem;
       letter-spacing: 0.2px;
+      line-height: 1.5;
+    }
+
+    .modal-legenda small {
+      display: block;
+      font-weight: normal;
+      opacity: 0.9;
+      margin-top: 4px;
+      font-size: 0.9rem;
     }
 
     .fechar {
@@ -450,14 +442,16 @@
       width: 42px;
       height: 42px;
       border-radius: 50%;
-      background: rgba(10, 42, 102, 0.8);
+      background: rgba(10, 42, 102, 0.84);
       color: white;
       font-size: 1.3rem;
       cursor: pointer;
       transition: 0.25s ease;
+      z-index: 2;
     }
 
-    .fechar:hover {
+    .fechar:hover,
+    .fechar:active {
       transform: scale(1.08);
       background: rgba(10, 42, 102, 1);
     }
@@ -471,12 +465,40 @@
         font-size: 0.97rem;
       }
 
+      .painel {
+        padding: 20px 16px;
+      }
+
       .foto-wrap img {
         height: 270px;
       }
 
       .info h3 {
         min-height: auto;
+      }
+
+      .modal-content {
+        width: 100%;
+        padding: 12px;
+        border-radius: 20px;
+      }
+
+      .modal-content img {
+        max-height: 68vh;
+        border-radius: 14px;
+      }
+
+      .fechar {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      .zoom-tip {
+        opacity: 1;
+        transform: translateY(0);
+        font-size: 0.76rem;
+        padding: 7px 9px;
       }
     }
 
@@ -510,34 +532,78 @@
       <div class="hero-badge">Nossa equipe docente</div>
       <h1>Professores</h1>
       <p>
-        Conheça a equipe que transforma nossa educação na escola Ieda MCPM.
+        Conheça os profissionais que constroem diariamente a educação em nossa escola.
       </p>
     </div>
   </header>
 
   <main>
     <section class="painel">
-      <div class="barra-superior">
-        <div class="busca-box">
-          <span class="busca-icone">🔎</span>
-          <input type="text" id="buscaProfessor" placeholder="Pesquisar professor pelo nome..." />
-        </div>
-
-        <div class="contador">
-          <span id="contadorVisiveis">19</span> professores
-        </div>
-      </div>
-
+      <h2>Nossa equipe</h2>
       <p class="texto-apoio">
-        Clique em uma foto para ampliar. Você também pode usar a busca para localizar rapidamente um professor.
+        Nossa equipe é formada por profissionais comprometidos com o ensino, o cuidado e a formação cidadã dos estudantes.
+        Nesta página, você pode conhecer a gestão, a coordenação e os professores que contribuem diariamente para a construção
+        de uma educação de qualidade em nossa escola.
+      </p>
+    </section>
+
+    <section class="secao-titulo">
+      <h2>Gestão e Coordenação</h2>
+      <p>
+        Conheça as profissionais que atuam na liderança pedagógica e na organização do trabalho educacional da escola.
+      </p>
+    </section>
+
+    <section class="grid gestao">
+      <article class="card gestao">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/Patricia.jpg', 'Patrícia', 'Diretora')">
+          <img src="imagens/professores/Patricia.jpg" alt="Diretora Patrícia" loading="lazy">
+          <span class="zoom-tip">Toque para ampliar</span>
+        </div>
+        <div class="info">
+          <h3>Patrícia</h3>
+          <p>Diretora</p>
+          <span class="selo">Gestão Escolar</span>
+        </div>
+      </article>
+
+      <article class="card gestao">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/Gildenice.png', 'Gildenice', 'Vice-Diretora')">
+          <img src="imagens/professores/Gildenice.png" alt="Vice-Diretora Gildenice" loading="lazy">
+          <span class="zoom-tip">Toque para ampliar</span>
+        </div>
+        <div class="info">
+          <h3>Gildenice</h3>
+          <p>Vice-Diretora</p>
+          <span class="selo">Gestão Escolar</span>
+        </div>
+      </article>
+
+      <article class="card gestao">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/Rosilandi.png', 'Rosilandi', 'Coordenadora Pedagógica')">
+          <img src="imagens/professores/Rosilandi.png" alt="Coordenadora Rosilandi" loading="lazy">
+          <span class="zoom-tip">Toque para ampliar</span>
+        </div>
+        <div class="info">
+          <h3>Rosilandi</h3>
+          <p>Coordenadora Pedagógica</p>
+          <span class="selo">Coordenação</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="secao-titulo">
+      <h2>Corpo Docente</h2>
+      <p>
+        Professores que, com dedicação e compromisso, participam diariamente da formação dos nossos estudantes.
       </p>
     </section>
 
     <section class="grid" id="gridProfessores">
-      <article class="card" data-name="ALANNA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALANNA.jpg', 'ALANNA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALANNA.jpg', 'ALANNA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/ALANNA.jpg" alt="Professora ALANNA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>ALANNA</h3>
@@ -546,10 +612,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="ALDANITA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALDANITA.jpg', 'ALDANITA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALDANITA.jpg', 'ALDANITA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/ALDANITA.jpg" alt="Professora ALDANITA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>ALDANITA</h3>
@@ -558,10 +624,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="ANDRE">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ANDRE.jpg', 'ANDRE')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ANDRE.jpg', 'ANDRE', 'Professor da Escola Iêda')">
           <img src="imagens/professores/ANDRE.jpg" alt="Professor ANDRE" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>ANDRE</h3>
@@ -570,10 +636,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="ANSELMO">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ANSELMO.jpg', 'ANSELMO')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ANSELMO.jpg', 'ANSELMO', 'Professor da Escola Iêda')">
           <img src="imagens/professores/ANSELMO.jpg" alt="Professor ANSELMO" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>ANSELMO</h3>
@@ -582,10 +648,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="CARINE">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/CARINE.jpg', 'CARINE')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/CARINE.jpg', 'CARINE', 'Professora da Escola Iêda')">
           <img src="imagens/professores/CARINE.jpg" alt="Professora CARINE" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>CARINE</h3>
@@ -594,10 +660,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="CLEBER">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/CLEBER.jpg', 'CLEBER')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/CLEBER.jpg', 'CLEBER', 'Professor da Escola Iêda')">
           <img src="imagens/professores/CLEBER.jpg" alt="Professor CLEBER" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>CLEBER</h3>
@@ -606,10 +672,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="COSMIRA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/COSMIRA.jpg', 'COSMIRA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/COSMIRA.jpg', 'COSMIRA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/COSMIRA.jpg" alt="Professora COSMIRA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>COSMIRA</h3>
@@ -618,10 +684,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="EDILMA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/EDILMA.jpg', 'EDILMA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/EDILMA.jpg', 'EDILMA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/EDILMA.jpg" alt="Professora EDILMA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>EDILMA</h3>
@@ -630,10 +696,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="FANIA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/FANIA.jpg', 'FANIA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/FANIA.jpg', 'FANIA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/FANIA.jpg" alt="Professora FANIA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>FANIA</h3>
@@ -642,10 +708,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="IZABELLY">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/IZABELLY.jpg', 'IZABELLY')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/IZABELLY.jpg', 'IZABELLY', 'Professora da Escola Iêda')">
           <img src="imagens/professores/IZABELLY.jpg" alt="Professora IZABELLY" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>IZABELLY</h3>
@@ -654,10 +720,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="JULIA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/JULIA.jpg', 'JULIA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/JULIA.jpg', 'JULIA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/JULIA.jpg" alt="Professora JULIA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>JULIA</h3>
@@ -666,10 +732,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="JUVENAL">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/JUVENAL.jpg', 'JUVENAL')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/JUVENAL.jpg', 'JUVENAL', 'Professor da Escola Iêda')">
           <img src="imagens/professores/JUVENAL.jpg" alt="Professor JUVENAL" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>JUVENAL</h3>
@@ -678,10 +744,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="LURMARIA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/LURMARIA.jpg', 'LURMARIA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/LURMARIA.jpg', 'LURMARIA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/LURMARIA.jpg" alt="Professora LURMARIA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>LURMARIA</h3>
@@ -690,10 +756,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="MARIA MELO">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/MARIA%20MELO.jpg', 'MARIA MELO')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/MARIA%20MELO.jpg', 'MARIA MELO', 'Professora da Escola Iêda')">
           <img src="imagens/professores/MARIA%20MELO.jpg" alt="Professora MARIA MELO" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>MARIA MELO</h3>
@@ -702,10 +768,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="MARIA QUITERIA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/MARIA_QUITERIA.jpg', 'MARIA QUITERIA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/MARIA_QUITERIA.jpg', 'MARIA QUITERIA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/MARIA_QUITERIA.jpg" alt="Professora MARIA QUITERIA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>MARIA QUITERIA</h3>
@@ -714,10 +780,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="NINA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/NINA.jpg', 'NINA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/NINA.jpg', 'NINA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/NINA.jpg" alt="Professora NINA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>NINA</h3>
@@ -726,10 +792,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="ROSE MARCIA">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ROSE_MARCIA.jpg', 'ROSE MARCIA')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/ROSE_MARCIA.jpg', 'ROSE MARCIA', 'Professora da Escola Iêda')">
           <img src="imagens/professores/ROSE_MARCIA.jpg" alt="Professora ROSE MARCIA" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>ROSE MARCIA</h3>
@@ -738,10 +804,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="SIMONY">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/SIMONY.jpg', 'SIMONY')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/SIMONY.jpg', 'SIMONY', 'Professora da Escola Iêda')">
           <img src="imagens/professores/SIMONY.jpg" alt="Professora SIMONY" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>SIMONY</h3>
@@ -750,10 +816,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="UAN">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/UAN.jpeg', 'UAN')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/UAN.jpeg', 'UAN', 'Professor da Escola Iêda')">
           <img src="imagens/professores/UAN.jpeg" alt="Professor UAN" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>UAN</h3>
@@ -762,10 +828,10 @@
         </div>
       </article>
 
-      <article class="card" data-name="VINICIUS">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/VINICIUS.jpg', 'VINICIUS')">
+      <article class="card">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/VINICIUS.jpg', 'VINICIUS', 'Professor da Escola Iêda')">
           <img src="imagens/professores/VINICIUS.jpg" alt="Professor VINICIUS" loading="lazy">
-          <span class="zoom-tip">Ampliar</span>
+          <span class="zoom-tip">Toque para ampliar</span>
         </div>
         <div class="info">
           <h3>VINICIUS</h3>
@@ -774,10 +840,6 @@
         </div>
       </article>
     </section>
-
-    <div class="empty-state" id="emptyState">
-      Nenhum professor encontrado com esse nome.
-    </div>
   </main>
 
   <footer>
@@ -794,38 +856,14 @@
 
   <script>
     const cards = document.querySelectorAll('.card');
-    const busca = document.getElementById('buscaProfessor');
-    const contadorVisiveis = document.getElementById('contadorVisiveis');
-    const emptyState = document.getElementById('emptyState');
     const modal = document.getElementById('modalFoto');
     const modalImagem = document.getElementById('modalImagem');
     const modalLegenda = document.getElementById('modalLegenda');
 
-    function atualizarContador() {
-      const visiveis = [...cards].filter(card => card.style.display !== 'none').length;
-      contadorVisiveis.textContent = visiveis;
-      emptyState.style.display = visiveis === 0 ? 'block' : 'none';
-    }
-
-    busca.addEventListener('input', function () {
-      const termo = this.value.trim().toLowerCase();
-
-      cards.forEach(card => {
-        const nome = card.dataset.name.toLowerCase();
-        if (nome.includes(termo)) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-
-      atualizarContador();
-    });
-
-    function abrirModal(src, nome) {
+    function abrirModal(src, nome, cargo) {
       modalImagem.src = src;
       modalImagem.alt = nome;
-      modalLegenda.textContent = nome;
+      modalLegenda.innerHTML = `${nome}<small>${cargo}</small>`;
       modal.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -859,8 +897,6 @@
     }, { threshold: 0.12 });
 
     cards.forEach(card => observer.observe(card));
-
-    atualizarContador();
   </script>
 </body>
-          </html>
+</html>
