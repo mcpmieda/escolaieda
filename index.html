@@ -936,29 +936,17 @@
     /* Esta seção processa o retorno do Microsoft após a  */
     /* autenticação e executa o redirecionamento.         */
     /* ================================================== */
-    msalInstance.handleRedirectPromise()
-      .then((response) => {
-        if (response && response.account){
-          msalInstance.setActiveAccount(response.account);
-          redirecionarPorPerfil(response.idTokenClaims);
-          return;
-        }
-
-        const contas = msalInstance.getAllAccounts();
-
-        if (contas.length > 0){
-          msalInstance.setActiveAccount(contas[0]);
-
-          const contaAtiva = msalInstance.getActiveAccount();
-          if (contaAtiva && contaAtiva.idTokenClaims){
-            redirecionarPorPerfil(contaAtiva.idTokenClaims);
-          }
-        }
-      })
-      .catch((erro) => {
-        console.error("Erro no login Microsoft:", erro);
-        alert("Ocorreu um erro ao entrar com Microsoft.");
-      });
+msalInstance.handleRedirectPromise()
+  .then((response) => {
+    if (response && response.account){
+      msalInstance.setActiveAccount(response.account);
+      redirecionarPorPerfil(response.idTokenClaims);
+    }
+  })
+  .catch((erro) => {
+    console.error("Erro no login Microsoft:", erro);
+    alert("Ocorreu um erro ao entrar com Microsoft.");
+  });
   </script>
 
 </body>
