@@ -874,12 +874,12 @@
     /* Esta seção define o app Microsoft e a autenticação */
     /* do portal escolar.                                 */
     /* ================================================== */
-    const msalConfig = {
-      auth: {
-        clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
-        authority: "https://login.microsoftonline.com/962d4cc8-417e-4ee0-b9eb-e8ae7096dc83",
-        redirectUri: window.location.origin
-      },
+   const msalConfig = {
+  auth: {
+    clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+    authority: "https://login.microsoftonline.com/organizations",
+    redirectUri: window.location.origin
+  },
       cache: {
         cacheLocation: "localStorage",
         storeAuthStateInCookie: true
