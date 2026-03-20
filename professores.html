@@ -1,22 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+  <!-- ================================================== -->
+  <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
+  <!-- Esta seção define idioma, título e descrição.      -->
+  <!-- ================================================== -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Professores | Escola Iêda</title>
   <meta name="description" content="Conheça a equipe de professores da Escola Municipal Professora Iêda Alves de Oliveira MCPM." />
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- ================================================== -->
+  <!-- 2. GOOGLE ANALYTICS                                -->
+  <!-- Esta seção monitora os acessos da página.          -->
+  <!-- ================================================== -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9NK676T1Y6');
+  </script>
 
-  gtag('config', 'G-9NK676T1Y6');
-
-</script>
   <style>
+
+    /* ================================================== */
+    /* 3. ESTILO GERAL E VARIÁVEIS                         */
+    /* Esta seção define cores, sombras e base do layout. */
+    /* ================================================== */
     * {
       margin: 0;
       padding: 0;
@@ -54,6 +66,14 @@
       overflow-x: hidden;
     }
 
+    a {
+      text-decoration: none;
+    }
+
+    /* ================================================== */
+    /* 4. FORMAS DECORATIVAS DE FUNDO                      */
+    /* Esta seção cria efeitos visuais suaves no fundo.   */
+    /* ================================================== */
     .bg-shape {
       position: fixed;
       inset: auto auto 8% -120px;
@@ -79,6 +99,96 @@
       50% { transform: translateY(-18px); }
     }
 
+    /* ================================================== */
+    /* 5. MENU SUPERIOR FIXO                               */
+    /* Esta seção cria o menu igual ao da página inicial. */
+    /* ================================================== */
+    .topbar-fixa {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(10, 42, 102, 0.82);
+      backdrop-filter: blur(8px);
+      transition: 0.3s ease;
+    }
+
+    .topbar-fixa.scrolled {
+      background: rgba(10, 42, 102, 0.95);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    }
+
+    .nav-fixa {
+      max-width: 1200px;
+      margin: auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .marca-fixa {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      font-weight: bold;
+      min-width: 0;
+    }
+
+    .marca-fixa img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 4px;
+    }
+
+    .marca-fixa-texto {
+      line-height: 1.2;
+    }
+
+    .marca-fixa-texto strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .marca-fixa-texto span {
+      display: block;
+      font-size: 0.82rem;
+      opacity: 0.92;
+      font-weight: normal;
+    }
+
+    .menu-fixo {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .menu-fixo a {
+      color: white;
+      font-size: 0.95rem;
+      font-weight: bold;
+      opacity: 0.95;
+      transition: 0.25s;
+    }
+
+    .menu-fixo a:hover,
+    .menu-fixo a.ativo {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    /* ================================================== */
+    /* 6. HEADER / TOPO DA PÁGINA                          */
+    /* Esta seção cria o topo visual com título e texto.  */
+    /* ================================================== */
     header {
       position: relative;
       z-index: 1;
@@ -86,7 +196,7 @@
         linear-gradient(135deg, rgba(10, 42, 102, 0.96), rgba(17, 70, 166, 0.92)),
         url("fundo_logo_ieda.jpg") center/cover;
       color: white;
-      padding: 28px 18px 56px;
+      padding: 110px 18px 56px;
       overflow: hidden;
     }
 
@@ -96,68 +206,6 @@
       inset: 0;
       background: linear-gradient(180deg, rgba(6, 24, 58, 0.25), rgba(6, 24, 58, 0.55));
       z-index: -1;
-    }
-
-    .topbar {
-      max-width: 1200px;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .logo-area img {
-      width: 56px;
-      height: 56px;
-      object-fit: contain;
-      background: rgba(255,255,255,0.14);
-      border-radius: 16px;
-      padding: 6px;
-      backdrop-filter: blur(6px);
-    }
-
-    .logo-area .school-name {
-      line-height: 1.25;
-    }
-
-    .logo-area .school-name strong {
-      display: block;
-      font-size: 1rem;
-    }
-
-    .logo-area .school-name span {
-      display: block;
-      font-size: 0.9rem;
-      opacity: 0.92;
-    }
-
-    .btn-voltar {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      background: rgba(255,255,255,0.08);
-      padding: 12px 18px;
-      border-radius: 999px;
-      backdrop-filter: blur(8px);
-      transition: 0.3s ease;
-      font-weight: bold;
-    }
-
-    .btn-voltar:hover {
-      transform: translateY(-2px);
-      background: rgba(255,255,255,0.14);
-      border-color: rgba(255,255,255,0.55);
     }
 
     .hero {
@@ -192,6 +240,10 @@
       color: rgba(255,255,255,0.92);
     }
 
+    /* ================================================== */
+    /* 7. CONTAINER PRINCIPAL                              */
+    /* Esta seção posiciona os blocos principais.         */
+    /* ================================================== */
     main {
       position: relative;
       z-index: 1;
@@ -200,6 +252,10 @@
       padding: 0 16px 50px;
     }
 
+    /* ================================================== */
+    /* 8. SEÇÃO DE APRESENTAÇÃO DA EQUIPE                  */
+    /* Esta seção mostra o texto introdutório da página.  */
+    /* ================================================== */
     .painel {
       background: rgba(255,255,255,0.78);
       border: 1px solid rgba(255,255,255,0.6);
@@ -226,6 +282,10 @@
       margin: 0 auto;
     }
 
+    /* ================================================== */
+    /* 9. TÍTULOS DAS SEÇÕES                               */
+    /* Esta seção padroniza títulos e subtítulos.         */
+    /* ================================================== */
     .secao-titulo {
       text-align: center;
       margin: 8px 0 20px;
@@ -244,6 +304,10 @@
       line-height: 1.7;
     }
 
+    /* ================================================== */
+    /* 10. GRADE DE CARDS                                  */
+    /* Esta seção define a grade de gestão e professores. */
+    /* ================================================== */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -254,6 +318,10 @@
       margin-bottom: 34px;
     }
 
+    /* ================================================== */
+    /* 11. CARD INDIVIDUAL                                 */
+    /* Esta seção controla aparência e hover dos cards.   */
+    /* ================================================== */
     .card {
       position: relative;
       overflow: hidden;
@@ -292,6 +360,10 @@
       background: linear-gradient(90deg, var(--dourado), var(--azul), var(--azul-claro));
     }
 
+    /* ================================================== */
+    /* 12. FOTO DOS CARDS                                  */
+    /* Esta seção controla imagem, zoom e dica visual.    */
+    /* ================================================== */
     .foto-wrap {
       position: relative;
       overflow: hidden;
@@ -336,6 +408,10 @@
       transform: translateY(0);
     }
 
+    /* ================================================== */
+    /* 13. INFORMAÇÕES DOS CARDS                           */
+    /* Esta seção mostra nome, cargo e selo.              */
+    /* ================================================== */
     .info {
       padding: 18px 16px 20px;
       text-align: center;
@@ -374,6 +450,10 @@
       color: #8a6200;
     }
 
+    /* ================================================== */
+    /* 14. RODAPÉ                                          */
+    /* Esta seção define o rodapé da página.              */
+    /* ================================================== */
     footer {
       text-align: center;
       padding: 24px 16px 40px;
@@ -381,6 +461,10 @@
       font-size: 0.95rem;
     }
 
+    /* ================================================== */
+    /* 15. MODAL DE AMPLIAÇÃO DAS FOTOS                    */
+    /* Esta seção controla a foto ampliada ao clicar.     */
+    /* ================================================== */
     .modal {
       position: fixed;
       inset: 0;
@@ -466,9 +550,22 @@
       background: rgba(10, 42, 102, 1);
     }
 
+    /* ================================================== */
+    /* 16. AJUSTES PARA CELULAR                            */
+    /* Esta seção adapta a página para telas menores.     */
+    /* ================================================== */
     @media (max-width: 768px) {
+      .nav-fixa {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .menu-fixo {
+        justify-content: center;
+      }
+
       header {
-        padding: 24px 14px 50px;
+        padding: 150px 14px 50px;
       }
 
       .hero p {
@@ -512,6 +609,10 @@
       }
     }
 
+    /* ================================================== */
+    /* 17. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
+    /* Esta seção reduz animações quando necessário.      */
+    /* ================================================== */
     @media (prefers-reduced-motion: reduce) {
       * {
         animation: none !important;
@@ -522,22 +623,43 @@
   </style>
 </head>
 <body>
+
+  <!-- ================================================== -->
+  <!-- 18. FORMAS DECORATIVAS DE FUNDO                    -->
+  <!-- Esta seção exibe elementos visuais decorativos.    -->
+  <!-- ================================================== -->
   <div class="bg-shape"></div>
   <div class="bg-shape two"></div>
 
-  <header>
-    <div class="topbar">
-      <div class="logo-area">
-        <img src="logo_escola.png" alt="Logo da Escola Iêda" />
-        <div class="school-name">
-          <strong>Escola Municipal Professora Iêda Alves de Oliveira MCPM</strong>
-          <span>Conheça nossa equipe de professores</span>
+  <!-- ================================================== -->
+  <!-- 19. MENU SUPERIOR FIXO                             -->
+  <!-- Esta seção mostra o menu igual ao da index.        -->
+  <!-- ================================================== -->
+  <div class="topbar-fixa" id="topbarFixa">
+    <nav class="nav-fixa">
+      <a href="index.html" class="marca-fixa">
+        <img src="logo_escola.png" alt="Logo da Escola">
+        <div class="marca-fixa-texto">
+          <strong>ESCOLA IÊDA MCPM</strong>
+          <span>Medeiros Neto - BA</span>
         </div>
+      </a>
+
+      <div class="menu-fixo">
+        <a href="index.html#inicio">Início</a>
+        <a href="index.html#sobre">Nossa Escola</a>
+        <a href="professores.html" class="ativo">Professores</a>
+        <a href="calendario.html">Calendário Escolar</a>
+        <a href="index.html#contato">Contato</a>
       </div>
+    </nav>
+  </div>
 
-      <a href="index.html" class="btn-voltar">← Voltar ao site</a>
-    </div>
-
+  <!-- ================================================== -->
+  <!-- 20. TOPO / HERO DA PÁGINA                          -->
+  <!-- Esta seção apresenta o título principal.           -->
+  <!-- ================================================== -->
+  <header>
     <div class="hero">
       <div class="hero-badge">Nossa equipe docente</div>
       <h1>Professores</h1>
@@ -547,7 +669,15 @@
     </div>
   </header>
 
+  <!-- ================================================== -->
+  <!-- 21. CONTEÚDO PRINCIPAL                             -->
+  <!-- Esta seção reúne apresentação, gestão e docentes.  -->
+  <!-- ================================================== -->
   <main>
+
+    <!-- ================================================ -->
+    <!-- 21.1 APRESENTAÇÃO DA EQUIPE                      -->
+    <!-- ================================================ -->
     <section class="painel">
       <h2>Nossa equipe</h2>
       <p class="texto-apoio">
@@ -557,6 +687,9 @@
       </p>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 21.2 TÍTULO DA GESTÃO E COORDENAÇÃO              -->
+    <!-- ================================================ -->
     <section class="secao-titulo">
       <h2>Gestão e Coordenação</h2>
       <p>
@@ -564,9 +697,12 @@
       </p>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 21.3 CARDS DA GESTÃO E COORDENAÇÃO               -->
+    <!-- ================================================ -->
     <section class="grid gestao">
       <article class="card gestao">
-        <div class="foto-wrap" onclick="abrirModal('imagens/professores/PARRICIA.jpg', 'Patrícia', 'Diretora')">
+        <div class="foto-wrap" onclick="abrirModal('imagens/professores/PATRICIA.jpg', 'Patrícia', 'Diretora')">
           <img src="imagens/professores/PATRICIA.jpg" alt="Diretora Patrícia" loading="lazy">
           <span class="zoom-tip">Toque para ampliar</span>
         </div>
@@ -602,6 +738,9 @@
       </article>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 21.4 TÍTULO DO CORPO DOCENTE                     -->
+    <!-- ================================================ -->
     <section class="secao-titulo">
       <h2>Corpo Docente</h2>
       <p>
@@ -609,6 +748,9 @@
       </p>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 21.5 CARDS DOS PROFESSORES                       -->
+    <!-- ================================================ -->
     <section class="grid" id="gridProfessores">
       <article class="card">
         <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALANNA.jpg', 'ALANNA', 'Professora da Escola Iêda')">
@@ -852,10 +994,18 @@
     </section>
   </main>
 
+  <!-- ================================================== -->
+  <!-- 22. RODAPÉ                                         -->
+  <!-- Esta seção mostra o rodapé institucional.         -->
+  <!-- ================================================== -->
   <footer>
     © Escola Municipal Professora Iêda Alves de Oliveira MCPM
   </footer>
 
+  <!-- ================================================== -->
+  <!-- 23. MODAL DAS FOTOS                                -->
+  <!-- Esta seção exibe a foto ampliada ao clicar.       -->
+  <!-- ================================================== -->
   <div class="modal" id="modalFoto" onclick="fecharModal(event)">
     <div class="modal-content">
       <button class="fechar" onclick="fecharModal(event)" aria-label="Fechar">×</button>
@@ -865,11 +1015,20 @@
   </div>
 
   <script>
+    /* ================================================== */
+    /* 24. ELEMENTOS DO JAVASCRIPT                         */
+    /* Esta seção seleciona os elementos usados no JS.    */
+    /* ================================================== */
     const cards = document.querySelectorAll('.card');
     const modal = document.getElementById('modalFoto');
     const modalImagem = document.getElementById('modalImagem');
     const modalLegenda = document.getElementById('modalLegenda');
+    const topbarFixa = document.getElementById('topbarFixa');
 
+    /* ================================================== */
+    /* 25. ABRIR MODAL                                     */
+    /* Esta função abre a foto ampliada.                  */
+    /* ================================================== */
     function abrirModal(src, nome, cargo) {
       modalImagem.src = src;
       modalImagem.alt = nome;
@@ -878,6 +1037,10 @@
       document.body.style.overflow = 'hidden';
     }
 
+    /* ================================================== */
+    /* 26. FECHAR MODAL                                    */
+    /* Esta função fecha o modal de foto.                 */
+    /* ================================================== */
     function fecharModal(event) {
       if (
         event.target.classList.contains('modal') ||
@@ -888,6 +1051,10 @@
       }
     }
 
+    /* ================================================== */
+    /* 27. FECHAR MODAL COM ESC                            */
+    /* Esta seção permite fechar pelo teclado.            */
+    /* ================================================== */
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
         modal.classList.remove('open');
@@ -895,6 +1062,10 @@
       }
     });
 
+    /* ================================================== */
+    /* 28. ANIMAÇÃO DE ENTRADA DOS CARDS                   */
+    /* Esta seção revela os cards suavemente.             */
+    /* ================================================== */
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
@@ -907,6 +1078,21 @@
     }, { threshold: 0.12 });
 
     cards.forEach(card => observer.observe(card));
+
+    /* ================================================== */
+    /* 29. EFEITO DO MENU FIXO AO ROLAR                    */
+    /* Esta seção deixa o menu mais sólido ao rolar.      */
+    /* ================================================== */
+    function efeitoTopo() {
+      if (window.scrollY > 30) {
+        topbarFixa.classList.add('scrolled');
+      } else {
+        topbarFixa.classList.remove('scrolled');
+      }
+    }
+
+    window.addEventListener('scroll', efeitoTopo);
+    window.addEventListener('load', efeitoTopo);
   </script>
 </body>
 </html>
