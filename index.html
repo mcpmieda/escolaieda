@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <!-- ================================================== -->
+  <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
+  <!-- Esta seção define idioma, título e metadados.      -->
+  <!-- ================================================== -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- ================================================== -->
+  <!-- 2. GOOGLE ANALYTICS                                -->
+  <!-- Esta seção monitora os acessos da página.          -->
+  <!-- ================================================== -->
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9NK676T1Y6');
+  </script>
 
-  gtag('config', 'G-9NK676T1Y6');
-
-</script>
   <style>
+    /* ================================================== */
+    /* 3. VARIÁVEIS GERAIS DO SITE                         */
+    /* Esta seção reúne cores, sombras e medidas gerais.  */
+    /* ================================================== */
     :root{
       --azul:#003366;
       --azul2:#0b5aa3;
@@ -27,6 +38,10 @@
       --raio:18px;
     }
 
+    /* ================================================== */
+    /* 4. AJUSTES GERAIS DA PÁGINA                         */
+    /* Esta seção define reset, tipografia e base geral.   */
+    /* ================================================== */
     *{
       margin:0;
       padding:0;
@@ -53,6 +68,10 @@
       display:block;
     }
 
+    /* ================================================== */
+    /* 5. SEÇÃO DO MENU SUPERIOR FIXO                      */
+    /* Esta seção controla a barra de navegação do topo.   */
+    /* ================================================== */
     .topbar{
       position:fixed;
       top:0;
@@ -105,6 +124,11 @@
       text-decoration:underline;
     }
 
+    /* ================================================== */
+    /* 6. SEÇÃO PRINCIPAL DO TOPO / HERO                   */
+    /* Esta seção mostra o topo com logo, título, texto    */
+    /* principal e botões de acesso rápido.                */
+    /* ================================================== */
     .hero{
       min-height:100vh;
       background:
@@ -201,6 +225,11 @@
       background:rgba(255,255,255,0.18);
     }
 
+    /* ================================================== */
+    /* 7. CONTAINER GERAL DAS SEÇÕES                       */
+    /* Esta seção controla a largura e o espaçamento       */
+    /* do conteúdo principal da página.                    */
+    /* ================================================== */
     .container{
       max-width:1150px;
       margin:auto;
@@ -224,6 +253,11 @@
       color:#5d6877;
     }
 
+    /* ================================================== */
+    /* 8. SEÇÃO DOS CARDS EM GRADE                         */
+    /* Esta seção define o comportamento das grades de     */
+    /* cards usados nas partes informativas do site.       */
+    /* ================================================== */
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
@@ -250,6 +284,11 @@
       font-size:1.1rem;
     }
 
+    /* ================================================== */
+    /* 9. SEÇÃO DA FAIXA DE DESTAQUE                       */
+    /* Esta seção monta a faixa institucional com missão   */
+    /* e números importantes da escola.                    */
+    /* ================================================== */
     .faixa{
       background:linear-gradient(135deg, var(--azul), var(--azul2));
       color:white;
@@ -284,6 +323,11 @@
       margin-bottom:4px;
     }
 
+    /* ================================================== */
+    /* 10. SEÇÃO DE CONTATO                                */
+    /* Esta seção controla o card com e-mail, telefone     */
+    /* e botão de WhatsApp da escola.                      */
+    /* ================================================== */
     .contato-card{
       background:white;
       border-radius:22px;
@@ -328,6 +372,10 @@
       filter:brightness(0.96);
     }
 
+    /* ================================================== */
+    /* 11. RODAPÉ DA PÁGINA                                */
+    /* Esta seção monta o rodapé institucional do site.    */
+    /* ================================================== */
     footer{
       background:#002147;
       color:white;
@@ -336,6 +384,11 @@
       margin-top:40px;
     }
 
+    /* ================================================== */
+    /* 12. BOTÕES FLUTUANTES                               */
+    /* Esta seção controla o botão do WhatsApp e o botão   */
+    /* de voltar ao topo da página.                        */
+    /* ================================================== */
     .whatsapp-float{
       position:fixed;
       right:18px;
@@ -377,6 +430,11 @@
       justify-content:center;
     }
 
+    /* ================================================== */
+    /* 13. ANIMAÇÕES DA PÁGINA                             */
+    /* Esta seção define animações de entrada e efeitos    */
+    /* visuais usados no site.                             */
+    /* ================================================== */
     .reveal{
       opacity:0;
       transform:translateY(35px);
@@ -399,6 +457,11 @@
       100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
     }
 
+    /* ================================================== */
+    /* 14. AJUSTES PARA CELULAR E TELAS MENORES            */
+    /* Esta seção adapta a página para melhor visualização */
+    /* em dispositivos móveis.                             */
+    /* ================================================== */
     @media (max-width:780px){
       .nav{
         flex-direction:column;
@@ -437,6 +500,11 @@
 </head>
 <body>
 
+  <!-- ================================================== -->
+  <!-- 15. SEÇÃO DO MENU SUPERIOR                         -->
+  <!-- Esta seção reúne o nome da escola e os links       -->
+  <!-- principais de navegação do site.                   -->
+  <!-- ================================================== -->
   <div class="topbar" id="topbar">
     <nav class="nav">
       <div class="marca">ESCOLA IÊDA MCPM</div>
@@ -444,12 +512,18 @@
         <a href="#inicio">Início</a>
         <a href="#sobre">Nossa Escola</a>
         <a href="professores.html">Professores</a>
+        <a href="calendario.html">Calendário Escolar</a>
         <a href="#informacoes">Informações</a>
         <a href="#contato">Contato</a>
       </div>
     </nav>
   </div>
 
+  <!-- ================================================== -->
+  <!-- 16. SEÇÃO PRINCIPAL DA PÁGINA / HERO               -->
+  <!-- Esta seção mostra logo, título, texto principal    -->
+  <!-- e botões de acesso rápido.                         -->
+  <!-- ================================================== -->
   <header class="hero" id="inicio">
     <div class="hero-content reveal">
       <img src="logo_escola.png" alt="Logo da Escola" class="logo">
@@ -468,6 +542,7 @@
       <div class="botoes">
         <a href="#sobre" class="botao botao-principal">Conhecer a Escola</a>
         <a href="professores.html" class="botao botao-secundario">Professores</a>
+        <a href="calendario.html" class="botao botao-secundario">Calendário Escolar</a>
         <a href="https://wa.me/5573998710105" class="botao botao-secundario" target="_blank">Falar no WhatsApp</a>
       </div>
     </div>
@@ -475,6 +550,11 @@
 
   <main>
 
+    <!-- ================================================ -->
+    <!-- 17. SEÇÃO NOSSA ESCOLA                           -->
+    <!-- Esta seção apresenta a escola e seus principais  -->
+    <!-- aspectos institucionais.                         -->
+    <!-- ================================================ -->
     <section class="container reveal" id="sobre">
       <div class="titulo-secao">
         <h2>Nossa Escola</h2>
@@ -511,6 +591,11 @@
       </div>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 18. SEÇÃO DA FAIXA DE DESTAQUE                   -->
+    <!-- Esta seção destaca a missão da escola e alguns   -->
+    <!-- números institucionais importantes.              -->
+    <!-- ================================================ -->
     <section class="container reveal">
       <div class="faixa">
         <h2>Educar é construir o futuro</h2>
@@ -540,6 +625,11 @@
       </div>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 19. SEÇÃO DE INFORMAÇÕES                         -->
+    <!-- Esta seção apresenta áreas importantes do portal -->
+    <!-- como avisos, documentos e projetos.             -->
+    <!-- ================================================ -->
     <section class="container reveal" id="informacoes">
       <div class="titulo-secao">
         <h2>Informações</h2>
@@ -566,15 +656,20 @@
         </div>
 
         <div class="card">
-          <h3>Projetos e Ações</h3>
+          <h3>Calendário Escolar</h3>
           <p>
-            Espaço destinado à divulgação de atividades, iniciativas pedagógicas e
-            ações desenvolvidas pela escola.
+            A comunidade escolar pode consultar o calendário letivo com datas,
+            períodos importantes e organização do ano escolar.
           </p>
         </div>
       </div>
     </section>
 
+    <!-- ================================================ -->
+    <!-- 20. SEÇÃO DE CONTATO                             -->
+    <!-- Esta seção reúne os principais canais de contato -->
+    <!-- da escola.                                       -->
+    <!-- ================================================ -->
     <section class="container reveal" id="contato">
       <div class="contato-card">
         <h2>Contato</h2>
@@ -602,21 +697,42 @@
 
   </main>
 
+  <!-- ================================================== -->
+  <!-- 21. SEÇÃO DO RODAPÉ                               -->
+  <!-- Rodapé institucional da página principal.         -->
+  <!-- ================================================== -->
   <footer>
     <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
   </footer>
 
+  <!-- ================================================== -->
+  <!-- 22. SEÇÃO DO BOTÃO FLUTUANTE DO WHATSAPP          -->
+  <!-- Botão fixo de contato rápido pelo WhatsApp.       -->
+  <!-- ================================================== -->
   <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" aria-label="WhatsApp da escola">
     ✆
   </a>
 
+  <!-- ================================================== -->
+  <!-- 23. SEÇÃO DO BOTÃO VOLTAR AO TOPO                 -->
+  <!-- Botão fixo para retornar rapidamente ao início.   -->
+  <!-- ================================================== -->
   <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
 
   <script>
+    /* ================================================== */
+    /* 24. SEÇÃO DOS ELEMENTOS JS                         */
+    /* Esta seção seleciona os elementos usados no JS.    */
+    /* ================================================== */
     const reveals = document.querySelectorAll('.reveal');
     const topbar = document.getElementById('topbar');
     const topoBtn = document.getElementById('topoBtn');
 
+    /* ================================================== */
+    /* 25. SEÇÃO DE REVELAÇÃO DOS ELEMENTOS               */
+    /* Esta função mostra os elementos suavemente ao      */
+    /* entrarem na área visível da tela.                  */
+    /* ================================================== */
     function revelarElementos(){
       const alturaJanela = window.innerHeight;
 
@@ -628,6 +744,11 @@
       });
     }
 
+    /* ================================================== */
+    /* 26. SEÇÃO DOS EFEITOS DE ROLAGEM                   */
+    /* Esta função altera o topo ao rolar e mostra o      */
+    /* botão de voltar ao topo.                           */
+    /* ================================================== */
     function efeitosScroll(){
       if(window.scrollY > 30){
         topbar.classList.add('scrolled');
@@ -642,6 +763,11 @@
       }
     }
 
+    /* ================================================== */
+    /* 27. SEÇÃO DO BOTÃO VOLTAR AO TOPO                  */
+    /* Esta seção define o clique do botão de retorno     */
+    /* suave ao início da página.                         */
+    /* ================================================== */
     topoBtn.addEventListener('click', () => {
       window.scrollTo({
         top: 0,
@@ -649,11 +775,19 @@
       });
     });
 
+    /* ================================================== */
+    /* 28. SEÇÃO DOS EVENTOS DE SCROLL                    */
+    /* Atualiza efeitos visuais durante a rolagem.        */
+    /* ================================================== */
     window.addEventListener('scroll', () => {
       revelarElementos();
       efeitosScroll();
     });
 
+    /* ================================================== */
+    /* 29. SEÇÃO DE INICIALIZAÇÃO DA PÁGINA               */
+    /* Ativa os efeitos principais quando a página abre.  */
+    /* ================================================== */
     window.addEventListener('load', () => {
       revelarElementos();
       efeitosScroll();
