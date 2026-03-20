@@ -120,7 +120,7 @@
 
     .menu{
       display:flex;
-      gap:16px;
+      gap:12px;
       flex-wrap:wrap;
       justify-content:flex-end;
       align-items:center;
@@ -137,6 +137,26 @@
     .menu a:hover{
       opacity:1;
       text-decoration:underline;
+    }
+
+    .menu-botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 16px;
+      border-radius:12px;
+      font-weight:bold;
+      transition:0.25s;
+      border:1px solid rgba(255,255,255,0.28);
+      background:rgba(255,255,255,0.12);
+      color:white !important;
+      text-decoration:none !important;
+      min-height:42px;
+    }
+
+    .menu-botao:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.20);
     }
 
     /* ================================================== */
@@ -226,6 +246,8 @@
       cursor:pointer;
       font-size:1rem;
       font-family:Arial, sans-serif;
+      min-width:250px;
+      text-align:center;
     }
 
     .botao-principal{
@@ -250,9 +272,8 @@
     }
 
     /* ================================================== */
-    /* 9. BOTÃO DE LOGIN MICROSOFT                        */
-    /* Esta seção estiliza o botão de acesso ao portal    */
-    /* restrito com conta Microsoft.                      */
+    /* 9. BOTÃO DE LOGIN / ÁREA RESTRITA                  */
+    /* Esta seção estiliza os botões da área restrita.    */
     /* ================================================== */
     .botao-login{
       background:#ffffff;
@@ -267,16 +288,14 @@
     }
 
     .menu-login{
-      background:rgba(255,255,255,0.14);
-      color:white !important;
+      background:#ffffff;
+      color:#1f2937 !important;
       border:1px solid rgba(255,255,255,0.30);
-      padding:8px 14px;
-      border-radius:10px;
-      text-decoration:none !important;
+      box-shadow:0 8px 20px rgba(0,0,0,0.14);
     }
 
     .menu-login:hover{
-      background:rgba(255,255,255,0.22);
+      background:#f3f4f6;
     }
 
     /* ================================================== */
@@ -549,6 +568,22 @@
         width:56px;
         height:56px;
       }
+
+      .botao{
+        min-width:160px;
+        width:calc(50% - 10px);
+      }
+
+      .menu-botao{
+        width:auto;
+        min-width:auto;
+      }
+    }
+
+    @media (max-width:520px){
+      .botao{
+        width:100%;
+      }
     }
   </style>
 </head>
@@ -557,19 +592,17 @@
   <!-- ================================================== -->
   <!-- 18. MENU SUPERIOR                                 -->
   <!-- Esta seção reúne os links principais do site.     -->
-  <!-- O menu só aparece após a rolagem até "Nossa Escola". -->
+  <!-- O menu aparece quando os botões centrais deixam   -->
+  <!-- de estar acessíveis/visíveis.                     -->
   <!-- ================================================== -->
   <div class="topbar" id="topbar">
     <nav class="nav">
       <div class="marca">ESCOLA IÊDA MCPM</div>
       <div class="menu">
-        <a href="#inicio">Início</a>
-        <a href="#sobre">Nossa Escola</a>
-        <a href="professores.html">Professores</a>
-        <a href="calendario.html">Calendário Escolar</a>
-        <a href="#informacoes">Informações</a>
-        <a href="#contato">Contato</a>
-        <a href="javascript:void(0)" class="menu-login" onclick="loginMicrosoft()">Área Restrita</a>
+        <a href="professores.html" class="menu-botao">Professores</a>
+        <a href="calendario.html" class="menu-botao">Calendário Escolar</a>
+        <a href="#contato" class="menu-botao">Contato</a>
+        <a href="javascript:void(0)" class="menu-botao menu-login" onclick="loginMicrosoft()">Área Restrita</a>
       </div>
     </nav>
   </div>
@@ -589,17 +622,11 @@
         Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.
       </p>
 
-      <p>
-        Bem-vindo ao portal institucional da nossa escola. Aqui você encontrará
-        informações importantes, canais de contato e conteúdos da comunidade escolar.
-      </p>
-
-      <div class="botoes">
-        <a href="#sobre" class="botao botao-principal">Conhecer a Escola</a>
-        <a href="professores.html" class="botao botao-secundario">Professores</a>
+      <div class="botoes" id="botoesHero">
+        <a href="professores.html" class="botao botao-principal">Professores</a>
         <a href="calendario.html" class="botao botao-secundario">Calendário Escolar</a>
-        <a href="https://wa.me/5573998710105" class="botao botao-secundario" target="_blank">Falar no WhatsApp</a>
-        <button class="botao botao-login" onclick="loginMicrosoft()">Entrar com Microsoft</button>
+        <a href="#contato" class="botao botao-secundario">Contato</a>
+        <button class="botao botao-login" onclick="loginMicrosoft()">Área Restrita</button>
       </div>
     </div>
   </header>
@@ -783,7 +810,7 @@
     const reveals = document.querySelectorAll('.reveal');
     const topbar = document.getElementById('topbar');
     const topoBtn = document.getElementById('topoBtn');
-    const sobreSection = document.getElementById('sobre');
+    const botoesHero = document.getElementById('botoesHero');
 
     /* ================================================== */
     /* 28. REVELAÇÃO DOS ELEMENTOS                        */
@@ -803,16 +830,17 @@
 
     /* ================================================== */
     /* 29. CONTROLE DO MENU SUPERIOR                      */
-    /* Esta função faz o menu do topo aparecer apenas     */
-    /* quando o usuário alcança a seção "Nossa Escola".   */
+    /* Esta função faz o menu do topo aparecer quando     */
+    /* os botões centrais deixam de estar visíveis.       */
     /* ================================================== */
     function controlarMenuTopo(){
-      const pontoDaSecao = sobreSection.offsetTop - 120;
+      const areaBotoes = botoesHero.getBoundingClientRect();
+      const aindaVisivel = areaBotoes.bottom > 80 && areaBotoes.top < window.innerHeight - 40;
 
-      if(window.scrollY >= pontoDaSecao){
-        topbar.classList.add('mostrar-menu');
-      }else{
+      if(aindaVisivel){
         topbar.classList.remove('mostrar-menu');
+      }else{
+        topbar.classList.add('mostrar-menu');
       }
     }
 
@@ -874,22 +902,22 @@
     /* Esta seção define o app Microsoft e a autenticação */
     /* do portal escolar.                                 */
     /* ================================================== */
-   const msalConfig = {
-  auth: {
-    clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
-    authority: "https://login.microsoftonline.com/organizations",
-    redirectUri: window.location.origin
-  },
+    const msalConfig = {
+      auth: {
+        clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+        authority: "https://login.microsoftonline.com/organizations",
+        redirectUri: window.location.origin
+      },
       cache: {
         cacheLocation: "sessionStorage",
         storeAuthStateInCookie: true
       }
     };
 
-   const loginRequest = {
-  scopes: ["openid", "profile"],
-  prompt: "select_account"
-};
+    const loginRequest = {
+      scopes: ["openid", "profile"],
+      prompt: "select_account"
+    };
 
     const msalInstance = new msal.PublicClientApplication(msalConfig);
 
@@ -937,17 +965,17 @@
     /* Esta seção processa o retorno do Microsoft após a  */
     /* autenticação e executa o redirecionamento.         */
     /* ================================================== */
-msalInstance.handleRedirectPromise()
-  .then((response) => {
-    if (response && response.account){
-      msalInstance.setActiveAccount(response.account);
-      redirecionarPorPerfil(response.idTokenClaims);
-    }
-  })
-  .catch((erro) => {
-    console.error("Erro no login Microsoft:", erro);
-    alert("Ocorreu um erro ao entrar com Microsoft.");
-  });
+    msalInstance.handleRedirectPromise()
+      .then((response) => {
+        if (response && response.account){
+          msalInstance.setActiveAccount(response.account);
+          redirecionarPorPerfil(response.idTokenClaims);
+        }
+      })
+      .catch((erro) => {
+        console.error("Erro no login Microsoft:", erro);
+        alert("Ocorreu um erro ao entrar com Microsoft.");
+      });
   </script>
 
 </body>
