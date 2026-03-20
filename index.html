@@ -22,9 +22,16 @@
     gtag('config', 'G-ZN0NX8Q3E9');
   </script>
 
+  <!-- ================================================== -->
+  <!-- 3. BIBLIOTECA DE AUTENTICAÇÃO MICROSOFT (MSAL)     -->
+  <!-- Esta seção carrega a biblioteca usada no login     -->
+  <!-- Microsoft / Entra ID.                              -->
+  <!-- ================================================== -->
+  <script src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
+
   <style>
     /* ================================================== */
-    /* 3. VARIÁVEIS GERAIS DO SITE                         */
+    /* 4. VARIÁVEIS GERAIS DO SITE                         */
     /* Esta seção reúne cores, sombras e medidas gerais.  */
     /* ================================================== */
     :root{
@@ -39,7 +46,7 @@
     }
 
     /* ================================================== */
-    /* 4. AJUSTES GERAIS DA PÁGINA                         */
+    /* 5. AJUSTES GERAIS DA PÁGINA                         */
     /* Esta seção define reset, tipografia e base geral.  */
     /* ================================================== */
     *{
@@ -69,7 +76,7 @@
     }
 
     /* ================================================== */
-    /* 5. MENU SUPERIOR FIXO                              */
+    /* 6. MENU SUPERIOR FIXO                              */
     /* Esta seção controla a barra de navegação do topo.  */
     /* Ela começa escondida e só aparece após a rolagem.  */
     /* ================================================== */
@@ -116,6 +123,7 @@
       gap:16px;
       flex-wrap:wrap;
       justify-content:flex-end;
+      align-items:center;
     }
 
     .menu a{
@@ -132,7 +140,7 @@
     }
 
     /* ================================================== */
-    /* 6. SEÇÃO PRINCIPAL DO TOPO / HERO                  */
+    /* 7. SEÇÃO PRINCIPAL DO TOPO / HERO                  */
     /* Esta seção mostra o topo com logo, título, texto   */
     /* principal e botões de acesso rápido.               */
     /* ================================================== */
@@ -196,7 +204,7 @@
     }
 
     /* ================================================== */
-    /* 7. BOTÕES DA PÁGINA INICIAL                        */
+    /* 8. BOTÕES DA PÁGINA INICIAL                        */
     /* Esta seção controla os botões exibidos abaixo da   */
     /* descrição principal da página inicial.             */
     /* ================================================== */
@@ -214,6 +222,10 @@
       border-radius:12px;
       font-weight:bold;
       transition:0.25s;
+      border:none;
+      cursor:pointer;
+      font-size:1rem;
+      font-family:Arial, sans-serif;
     }
 
     .botao-principal{
@@ -238,7 +250,37 @@
     }
 
     /* ================================================== */
-    /* 8. CONTAINER GERAL DAS SEÇÕES                      */
+    /* 9. BOTÃO DE LOGIN MICROSOFT                        */
+    /* Esta seção estiliza o botão de acesso ao portal    */
+    /* restrito com conta Microsoft.                      */
+    /* ================================================== */
+    .botao-login{
+      background:#ffffff;
+      color:#1f2937;
+      border:1px solid rgba(255,255,255,0.35);
+      box-shadow:0 8px 20px rgba(0,0,0,0.14);
+    }
+
+    .botao-login:hover{
+      transform:translateY(-2px);
+      background:#f3f4f6;
+    }
+
+    .menu-login{
+      background:rgba(255,255,255,0.14);
+      color:white !important;
+      border:1px solid rgba(255,255,255,0.30);
+      padding:8px 14px;
+      border-radius:10px;
+      text-decoration:none !important;
+    }
+
+    .menu-login:hover{
+      background:rgba(255,255,255,0.22);
+    }
+
+    /* ================================================== */
+    /* 10. CONTAINER GERAL DAS SEÇÕES                     */
     /* Esta seção controla a largura e o espaçamento do   */
     /* conteúdo principal da página.                      */
     /* ================================================== */
@@ -266,7 +308,7 @@
     }
 
     /* ================================================== */
-    /* 9. SEÇÃO DOS CARDS EM GRADE                        */
+    /* 11. SEÇÃO DOS CARDS EM GRADE                       */
     /* Esta seção define o comportamento das grades de    */
     /* cards usados nas partes informativas do site.      */
     /* ================================================== */
@@ -297,7 +339,7 @@
     }
 
     /* ================================================== */
-    /* 10. SEÇÃO DA FAIXA DE DESTAQUE                     */
+    /* 12. SEÇÃO DA FAIXA DE DESTAQUE                     */
     /* Esta seção monta a faixa institucional com missão  */
     /* e números importantes da escola.                   */
     /* ================================================== */
@@ -336,7 +378,7 @@
     }
 
     /* ================================================== */
-    /* 11. SEÇÃO DE CONTATO                               */
+    /* 13. SEÇÃO DE CONTATO                               */
     /* Esta seção controla o card com e-mail, telefone    */
     /* e botão de WhatsApp da escola.                     */
     /* ================================================== */
@@ -385,7 +427,7 @@
     }
 
     /* ================================================== */
-    /* 12. RODAPÉ DA PÁGINA                               */
+    /* 14. RODAPÉ DA PÁGINA                               */
     /* Esta seção monta o rodapé institucional do site.   */
     /* ================================================== */
     footer{
@@ -397,7 +439,7 @@
     }
 
     /* ================================================== */
-    /* 13. BOTÕES FLUTUANTES                              */
+    /* 15. BOTÕES FLUTUANTES                              */
     /* Esta seção controla o botão do WhatsApp e o botão  */
     /* de voltar ao topo da página.                       */
     /* ================================================== */
@@ -443,7 +485,7 @@
     }
 
     /* ================================================== */
-    /* 14. ANIMAÇÕES DA PÁGINA                            */
+    /* 16. ANIMAÇÕES DA PÁGINA                            */
     /* Esta seção define animações de entrada e efeitos   */
     /* visuais usados no site.                            */
     /* ================================================== */
@@ -470,7 +512,7 @@
     }
 
     /* ================================================== */
-    /* 15. AJUSTES PARA CELULAR                           */
+    /* 17. AJUSTES PARA CELULAR                           */
     /* Esta seção adapta a página para melhor visualização*/
     /* em dispositivos móveis.                            */
     /* ================================================== */
@@ -513,7 +555,7 @@
 <body>
 
   <!-- ================================================== -->
-  <!-- 16. MENU SUPERIOR                                 -->
+  <!-- 18. MENU SUPERIOR                                 -->
   <!-- Esta seção reúne os links principais do site.     -->
   <!-- O menu só aparece após a rolagem até "Nossa Escola". -->
   <!-- ================================================== -->
@@ -527,12 +569,13 @@
         <a href="calendario.html">Calendário Escolar</a>
         <a href="#informacoes">Informações</a>
         <a href="#contato">Contato</a>
+        <a href="javascript:void(0)" class="menu-login" onclick="loginMicrosoft()">Área Restrita</a>
       </div>
     </nav>
   </div>
 
   <!-- ================================================== -->
-  <!-- 17. SEÇÃO PRINCIPAL DA PÁGINA / HERO              -->
+  <!-- 19. SEÇÃO PRINCIPAL DA PÁGINA / HERO              -->
   <!-- Esta seção mostra logo, título, texto principal   -->
   <!-- e botões de acesso rápido da página inicial.      -->
   <!-- ================================================== -->
@@ -556,6 +599,7 @@
         <a href="professores.html" class="botao botao-secundario">Professores</a>
         <a href="calendario.html" class="botao botao-secundario">Calendário Escolar</a>
         <a href="https://wa.me/5573998710105" class="botao botao-secundario" target="_blank">Falar no WhatsApp</a>
+        <button class="botao botao-login" onclick="loginMicrosoft()">Entrar com Microsoft</button>
       </div>
     </div>
   </header>
@@ -563,7 +607,7 @@
   <main>
 
     <!-- ================================================ -->
-    <!-- 18. SEÇÃO NOSSA ESCOLA                           -->
+    <!-- 20. SEÇÃO NOSSA ESCOLA                           -->
     <!-- Esta seção apresenta a escola e seus principais  -->
     <!-- aspectos institucionais.                         -->
     <!-- ================================================ -->
@@ -604,7 +648,7 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 19. SEÇÃO DA FAIXA DE DESTAQUE                   -->
+    <!-- 21. SEÇÃO DA FAIXA DE DESTAQUE                   -->
     <!-- Esta seção destaca a missão da escola e alguns   -->
     <!-- números institucionais importantes.              -->
     <!-- ================================================ -->
@@ -638,7 +682,7 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 20. SEÇÃO DE INFORMAÇÕES                         -->
+    <!-- 22. SEÇÃO DE INFORMAÇÕES                         -->
     <!-- Esta seção apresenta áreas importantes do portal -->
     <!-- como avisos, documentos e calendário.            -->
     <!-- ================================================ -->
@@ -678,7 +722,7 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 21. SEÇÃO DE CONTATO                             -->
+    <!-- 23. SEÇÃO DE CONTATO                             -->
     <!-- Esta seção reúne os principais canais de contato -->
     <!-- da escola.                                       -->
     <!-- ================================================ -->
@@ -710,7 +754,7 @@
   </main>
 
   <!-- ================================================== -->
-  <!-- 22. RODAPÉ                                        -->
+  <!-- 24. RODAPÉ                                        -->
   <!-- Rodapé institucional da página principal.         -->
   <!-- ================================================== -->
   <footer>
@@ -718,7 +762,7 @@
   </footer>
 
   <!-- ================================================== -->
-  <!-- 23. BOTÃO FLUTUANTE DO WHATSAPP                   -->
+  <!-- 25. BOTÃO FLUTUANTE DO WHATSAPP                   -->
   <!-- Botão fixo de contato rápido pelo WhatsApp.       -->
   <!-- ================================================== -->
   <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" aria-label="WhatsApp da escola">
@@ -726,14 +770,14 @@
   </a>
 
   <!-- ================================================== -->
-  <!-- 24. BOTÃO VOLTAR AO TOPO                          -->
+  <!-- 26. BOTÃO VOLTAR AO TOPO                          -->
   <!-- Botão fixo para retornar rapidamente ao início.   -->
   <!-- ================================================== -->
   <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
 
   <script>
     /* ================================================== */
-    /* 25. ELEMENTOS DO JAVASCRIPT                        */
+    /* 27. ELEMENTOS DO JAVASCRIPT                        */
     /* Esta seção seleciona os elementos usados no JS.    */
     /* ================================================== */
     const reveals = document.querySelectorAll('.reveal');
@@ -742,7 +786,7 @@
     const sobreSection = document.getElementById('sobre');
 
     /* ================================================== */
-    /* 26. REVELAÇÃO DOS ELEMENTOS                        */
+    /* 28. REVELAÇÃO DOS ELEMENTOS                        */
     /* Esta função mostra os elementos suavemente ao      */
     /* entrarem na área visível da tela.                  */
     /* ================================================== */
@@ -758,7 +802,7 @@
     }
 
     /* ================================================== */
-    /* 27. CONTROLE DO MENU SUPERIOR                      */
+    /* 29. CONTROLE DO MENU SUPERIOR                      */
     /* Esta função faz o menu do topo aparecer apenas     */
     /* quando o usuário alcança a seção "Nossa Escola".   */
     /* ================================================== */
@@ -773,7 +817,7 @@
     }
 
     /* ================================================== */
-    /* 28. EFEITOS DE ROLAGEM                             */
+    /* 30. EFEITOS DE ROLAGEM                             */
     /* Esta função mostra o botão de voltar ao topo.      */
     /* ================================================== */
     function efeitosScroll(){
@@ -785,7 +829,7 @@
     }
 
     /* ================================================== */
-    /* 29. BOTÃO VOLTAR AO TOPO                           */
+    /* 31. BOTÃO VOLTAR AO TOPO                           */
     /* Esta seção define o clique do botão de retorno     */
     /* suave ao início da página.                         */
     /* ================================================== */
@@ -797,7 +841,7 @@
     });
 
     /* ================================================== */
-    /* 30. EVENTOS DE SCROLL                              */
+    /* 32. EVENTOS DE SCROLL                              */
     /* Atualiza efeitos visuais durante a rolagem.        */
     /* ================================================== */
     window.addEventListener('scroll', () => {
@@ -807,7 +851,7 @@
     });
 
     /* ================================================== */
-    /* 31. INICIALIZAÇÃO DA PÁGINA                        */
+    /* 33. INICIALIZAÇÃO VISUAL DA PÁGINA                 */
     /* Ativa os efeitos principais quando a página abre.  */
     /* ================================================== */
     window.addEventListener('load', () => {
@@ -817,13 +861,104 @@
     });
 
     /* ================================================== */
-    /* 32. AJUSTE AO REDIMENSIONAR A TELA                 */
+    /* 34. AJUSTE AO REDIMENSIONAR A TELA                 */
     /* Recalcula o comportamento do menu em mudanças      */
     /* de tamanho da tela.                                */
     /* ================================================== */
     window.addEventListener('resize', () => {
       controlarMenuTopo();
     });
+
+    /* ================================================== */
+    /* 35. CONFIGURAÇÃO DO LOGIN MICROSOFT / ENTRA ID     */
+    /* Esta seção define o app Microsoft e a autenticação */
+    /* do portal escolar.                                 */
+    /* ================================================== */
+    const msalConfig = {
+      auth: {
+        clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+        authority: "https://login.microsoftonline.com/962d4cc8-417e-4ee0-b9eb-e8ae7096dc83",
+        redirectUri: window.location.origin
+      },
+      cache: {
+        cacheLocation: "localStorage",
+        storeAuthStateInCookie: true
+      }
+    };
+
+    const loginRequest = {
+      scopes: ["openid", "profile"]
+    };
+
+    const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+    /* ================================================== */
+    /* 36. FUNÇÃO DE LOGIN MICROSOFT                      */
+    /* Esta função inicia o login pelo Entra ID.          */
+    /* ================================================== */
+    function loginMicrosoft(){
+      msalInstance.loginRedirect(loginRequest);
+    }
+
+    /* ================================================== */
+    /* 37. LEITURA DAS ROLES E REDIRECIONAMENTO           */
+    /* Esta função identifica o perfil do usuário e       */
+    /* envia para a área correta do portal.               */
+    /* ================================================== */
+    function redirecionarPorPerfil(claims){
+      const roles = claims && claims.roles ? claims.roles : [];
+
+      if (!roles || roles.length === 0){
+        alert("Sua conta entrou, mas não possui permissão de acesso ao portal.");
+        return;
+      }
+
+      if (roles.includes("aluno")){
+        window.location.href = "/aluno";
+        return;
+      }
+
+      if (roles.includes("professor")){
+        window.location.href = "/professor";
+        return;
+      }
+
+      if (roles.includes("direcao")){
+        window.location.href = "/direcao";
+        return;
+      }
+
+      alert("Perfil encontrado, mas sem rota configurada.");
+    }
+
+    /* ================================================== */
+    /* 38. TRATAMENTO DO RETORNO DO LOGIN                 */
+    /* Esta seção processa o retorno do Microsoft após a  */
+    /* autenticação e executa o redirecionamento.         */
+    /* ================================================== */
+    msalInstance.handleRedirectPromise()
+      .then((response) => {
+        if (response && response.account){
+          msalInstance.setActiveAccount(response.account);
+          redirecionarPorPerfil(response.idTokenClaims);
+          return;
+        }
+
+        const contas = msalInstance.getAllAccounts();
+
+        if (contas.length > 0){
+          msalInstance.setActiveAccount(contas[0]);
+
+          const contaAtiva = msalInstance.getActiveAccount();
+          if (contaAtiva && contaAtiva.idTokenClaims){
+            redirecionarPorPerfil(contaAtiva.idTokenClaims);
+          }
+        }
+      })
+      .catch((erro) => {
+        console.error("Erro no login Microsoft:", erro);
+        alert("Ocorreu um erro ao entrar com Microsoft.");
+      });
   </script>
 
 </body>
