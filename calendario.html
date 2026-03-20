@@ -1,1 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- ================================================== -->
+  <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
+  <!-- Esta seção define idioma, título, descrição        -->
+  <!-- e metadados principais da página.                  -->
+  <!-- ================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendário Escolar 2026 | Escola Iêda MCPM</title>
+  <meta name="description" content="Calendário Escolar 2026 da Escola Municipal Professora Iêda Alves de Oliveira MCPM.">
 
+  <!-- ================================================== -->
+  <!-- 2. GOOGLE ANALYTICS                                -->
+  <!-- Esta seção faz o monitoramento de acessos          -->
+  <!-- da página no Google Analytics.                     -->
+  <!-- ================================================== -->
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9NK676T1Y6');
+  </script>
+
+  <style>
+    /* ================================================== */
+    /* 3. VARIÁVEIS GERAIS DO SITE                         */
+    /* Esta seção reúne as cores, sombras e medidas        */
+    /* principais usadas em toda a página.                 */
+    /* ================================================== */
+    :root{
+      --azul:#003366;
+      --azul2:#0b5aa3;
+      --azul3:#0a2a66;
+      --fundo:#f4f6f8;
+      --texto:#1f2937;
+      --texto2:#5b6472;
+      --branco:#ffffff;
+      --dourado:#f3c95d;
+      --sombra:0 10px 30px rgba(0,0,0,0.10);
+      --sombra2:0 18px 45px rgba(13,34,79,0.16);
+      --raio:20px;
+    }
+
+    /* ================================================== */
+    /* 4. AJUSTES GERAIS DA PÁGINA                         */
+    /* Esta seção define reset, tipografia e base geral.   */
+    /* ================================================== */
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      font-family:Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(63, 122, 224, 0.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(243, 201, 93, 0.10), transparent 20%),
+        linear-gradient(180deg, #eef4ff 0%, #f7faff 45%, #f4f7fb 100%);
+      color:var(--texto);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    a{
+      text-decoration:none;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    /* ================================================== */
+    /* 5. SEÇÃO DO MENU SUPERIOR FIXO                      */
+    /* Esta seção controla a barra superior com a logo     */
+    /* e os links principais do site.                      */
+    /* ================================================== */
+    .topbar{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:1000;
+      background:rgba(0, 33, 71, 0.35);
+      backdrop-filter:blur(8px);
+      transition:0.3s;
+    }
+
+    .topbar.scrolled{
+      background:rgba(0, 33, 71, 0.93);
+      box-shadow:0 4px 18px rgba(0,0,0,0.15);
+    }
+
+    .nav{
+      max-width:1150px;
+      margin:auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      flex-wrap:wrap;
+    }
+
+    .marca{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      color:white;
+      font-weight:bold;
+      min-width:0;
+    }
+
+    .marca img{
+      width:44px;
+      height:44px;
+      object-fit:contain;
+      background:rgba(255,255,255,0.12);
+      border-radius:12px;
+      padding:4px;
+    }
+
+    .marca-texto{
+      line-height:1.2;
+    }
+
+    .marca-texto strong{
+      display:block;
+      font-size:0.95rem;
+    }
+
+    .marca-texto span{
+      display:block;
+      font-size:0.82rem;
+      opacity:0.92;
+      font-weight:normal;
+    }
+
+    .menu{
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .menu a{
+      color:white;
+      font-size:0.95rem;
+      font-weight:bold;
+      opacity:0.95;
+      transition:0.25s;
+    }
+
+    .menu a:hover,
+    .menu a.ativo{
+      opacity:1;
+      text-decoration:underline;
+    }
+
+    /* ================================================== */
+    /* 6. SEÇÃO HERO / TOPO DA PÁGINA                      */
+    /* Esta seção monta o grande topo visual da página     */
+    /* com título, subtítulo e fundo institucional.        */
+    /* ================================================== */
+    .hero{
+      min-height:72vh;
+      background:
+        linear-gradient(rgba(10,42,102,0.88), rgba(17,70,166,0.84)),
+        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:120px 20px 80px;
+      color:white;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:-1px;
+      height:90px;
+      background:linear-gradient(to top, var(--fundo), rgba(244,246,248,0));
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:1;
+      max-width:900px;
+      width:100%;
+    }
+
+    .hero-badge{
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter:blur(8px);
+      font-size:0.92rem;
+      margin-bottom:18px;
+    }
+
+    .hero h1{
+      font-size:clamp(2rem, 4vw, 3.2rem);
+      margin-bottom:12px;
+      line-height:1.1;
+    }
+
+    .hero p{
+      max-width:760px;
+      margin:0 auto;
+      font-size:1.02rem;
+      line-height:1.7;
+      color:rgba(255,255,255,0.94);
+    }
+
+    /* ================================================== */
+    /* 7. CONTAINER PRINCIPAL DA PÁGINA                    */
+    /* Esta seção controla a largura máxima e o            */
+    /* posicionamento do conteúdo abaixo do topo.          */
+    /* ================================================== */
+    .container{
+      position:relative;
+      z-index:1;
+      max-width:1150px;
+      margin:-34px auto 0;
+      padding:0 16px 50px;
+    }
+
+    /* ================================================== */
+    /* 8. SEÇÃO DE APRESENTAÇÃO DO CALENDÁRIO              */
+    /* Esta seção mostra o texto introdutório da página.   */
+    /* ================================================== */
+    .painel{
+      background:rgba(255,255,255,0.82);
+      border:1px solid rgba(255,255,255,0.65);
+      backdrop-filter:blur(12px);
+      border-radius:26px;
+      box-shadow:var(--sombra);
+      padding:24px;
+      margin-bottom:24px;
+    }
+
+    .painel h2{
+      color:var(--azul3);
+      font-size:1.55rem;
+      margin-bottom:10px;
+      text-align:center;
+    }
+
+    .painel p{
+      color:var(--texto2);
+      line-height:1.7;
+      max-width:900px;
+      margin:0 auto;
+      text-align:center;
+    }
+
+    /* ================================================== */
+    /* 9. SEÇÃO DA IMAGEM DO CALENDÁRIO                    */
+    /* Esta seção mostra a imagem principal do calendário  */
+    /* com botão para ampliar e botão para baixar.         */
+    /* ================================================== */
+    .calendario-box{
+      background:rgba(255,255,255,0.88);
+      border:1px solid rgba(17,70,166,0.10);
+      border-radius:26px;
+      box-shadow:var(--sombra2);
+      padding:22px;
+      margin-bottom:24px;
+    }
+
+    .calendario-topo{
+      text-align:center;
+      margin-bottom:18px;
+    }
+
+    .calendario-topo h2{
+      color:var(--azul3);
+      font-size:1.7rem;
+      margin-bottom:8px;
+    }
+
+    .calendario-topo p{
+      color:var(--texto2);
+      margin-bottom:14px;
+    }
+
+    .acoes-calendario{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .botao{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:12px;
+      font-weight:bold;
+      transition:0.25s;
+      cursor:pointer;
+      border:none;
+      font-size:0.95rem;
+    }
+
+    .botao-primario{
+      background:var(--azul);
+      color:white;
+    }
+
+    .botao-primario:hover{
+      transform:translateY(-2px);
+      background:var(--azul2);
+    }
+
+    .botao-secundario{
+      background:#eef4ff;
+      color:var(--azul3);
+      border:1px solid rgba(17,70,166,0.12);
+    }
+
+    .botao-secundario:hover{
+      transform:translateY(-2px);
+      background:#e5eefc;
+    }
+
+    .imagem-calendario{
+      position:relative;
+      overflow:hidden;
+      border-radius:18px;
+      cursor:pointer;
+      box-shadow:0 12px 30px rgba(0,0,0,0.10);
+      background:#fff;
+    }
+
+    .imagem-calendario img{
+      width:100%;
+      height:auto;
+      transition:transform 0.45s ease;
+    }
+
+    .imagem-calendario:hover img{
+      transform:scale(1.02);
+    }
+
+    .ampliar-tip{
+      position:absolute;
+      right:14px;
+      bottom:14px;
+      background:rgba(10,42,102,0.82);
+      color:white;
+      font-size:0.85rem;
+      padding:9px 12px;
+      border-radius:999px;
+      backdrop-filter:blur(6px);
+    }
+
+    /* ================================================== */
+    /* 10. SEÇÃO DOS CARDS DE DESTAQUE                     */
+    /* Esta seção mostra informações rápidas e úteis       */
+    /* do calendário escolar.                              */
+    /* ================================================== */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:20px;
+      margin-bottom:24px;
+    }
+
+    .card{
+      background:rgba(255,255,255,0.88);
+      border-radius:22px;
+      padding:22px;
+      box-shadow:var(--sombra);
+      border:1px solid rgba(17,70,166,0.08);
+      transition:0.3s;
+    }
+
+    .card:hover{
+      transform:translateY(-5px);
+      box-shadow:0 16px 35px rgba(13,34,79,0.14);
+    }
+
+    .card h3{
+      color:var(--azul3);
+      margin-bottom:8px;
+      font-size:1.08rem;
+    }
+
+    .card p{
+      color:var(--texto2);
+    }
+
+    /* ================================================== */
+    /* 11. SEÇÃO DE TÍTULO DOS PERÍODOS IMPORTANTES        */
+    /* Esta seção apresenta o título e subtítulo da        */
+    /* parte de períodos do calendário.                    */
+    /* ================================================== */
+    .secao-titulo{
+      text-align:center;
+      margin:8px 0 18px;
+    }
+
+    .secao-titulo h2{
+      font-size:1.8rem;
+      color:var(--azul3);
+      margin-bottom:8px;
+    }
+
+    .secao-titulo p{
+      max-width:760px;
+      margin:0 auto;
+      color:var(--texto2);
+      line-height:1.7;
+    }
+
+    /* ================================================== */
+    /* 12. SEÇÃO DOS PERÍODOS IMPORTANTES                  */
+    /* Esta seção lista os trimestres e a recuperação      */
+    /* final do ano letivo.                                */
+    /* ================================================== */
+    .lista-periodos{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:18px;
+    }
+
+    .periodo{
+      background:rgba(255,255,255,0.88);
+      border-radius:22px;
+      padding:22px;
+      box-shadow:var(--sombra);
+      border-left:6px solid var(--azul2);
+    }
+
+    .periodo h3{
+      color:var(--azul3);
+      margin-bottom:8px;
+      font-size:1.05rem;
+    }
+
+    .periodo p{
+      color:var(--texto2);
+    }
+
+    /* ================================================== */
+    /* 13. RODAPÉ DA PÁGINA                                */
+    /* Esta seção mostra o rodapé institucional.           */
+    /* ================================================== */
+    footer{
+      text-align:center;
+      padding:24px 16px 40px;
+      color:var(--texto2);
+      font-size:0.95rem;
+    }
+
+    /* ================================================== */
+    /* 14. MODAL DE AMPLIAÇÃO DA IMAGEM                    */
+    /* Esta seção controla a imagem ampliada do calendário */
+    /* quando o usuário toca ou clica na imagem.           */
+    /* ================================================== */
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(7,16,36,0.88);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      opacity:0;
+      visibility:hidden;
+      transition:0.28s ease;
+      z-index:9999;
+      backdrop-filter:blur(7px);
+    }
+
+    .modal.open{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .modal-content{
+      position:relative;
+      width:min(96vw, 1100px);
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.16);
+      border-radius:22px;
+      padding:14px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.35);
+      transform:scale(0.96);
+      transition:0.28s ease;
+    }
+
+    .modal.open .modal-content{
+      transform:scale(1);
+    }
+
+    .modal-content img{
+      width:100%;
+      max-height:82vh;
+      object-fit:contain;
+      display:block;
+      border-radius:14px;
+      background:#fff;
+    }
+
+    .fechar{
+      position:absolute;
+      top:10px;
+      right:10px;
+      border:none;
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      background:rgba(10,42,102,0.84);
+      color:white;
+      font-size:1.3rem;
+      cursor:pointer;
+      transition:0.25s ease;
+      z-index:2;
+    }
+
+    .fechar:hover{
+      transform:scale(1.08);
+      background:rgba(10,42,102,1);
+    }
+
+    /* ================================================== */
+    /* 15. ANIMAÇÕES DE ENTRADA DA PÁGINA                  */
+    /* Esta seção cria o efeito suave de entrada           */
+    /* das partes principais da página.                    */
+    /* ================================================== */
+    .reveal{
+      opacity:0;
+      transform:translateY(30px);
+      transition:opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    /* ================================================== */
+    /* 16. AJUSTES PARA CELULAR E TELAS MENORES            */
+    /* Esta seção adapta a página para melhor visualização */
+    /* em dispositivos móveis.                             */
+    /* ================================================== */
+    @media (max-width:780px){
+      .nav{
+        flex-direction:column;
+        align-items:center;
+      }
+
+      .menu{
+        justify-content:center;
+      }
+
+      .hero{
+        min-height:auto;
+        padding:140px 18px 80px;
+      }
+
+      .marca{
+        justify-content:center;
+        text-align:left;
+      }
+
+      .painel,
+      .calendario-box,
+      .card,
+      .periodo{
+        padding:18px;
+      }
+
+      .ampliar-tip{
+        font-size:0.78rem;
+        padding:8px 10px;
+      }
+
+      .modal-content{
+        width:100%;
+        padding:12px;
+      }
+
+      .modal-content img{
+        max-height:74vh;
+      }
+    }
+
+    /* ================================================== */
+    /* 17. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
+    /* Esta seção desativa animações para usuários que     */
+    /* preferem menos movimento na navegação.              */
+    /* ================================================== */
+    @media (prefers-reduced-motion: reduce){
+      *{
+        animation:none !important;
+        transition:none !important;
+        scroll-behavior:auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================== -->
+  <!-- 18. SEÇÃO DO MENU SUPERIOR DA PÁGINA               -->
+  <!-- Esta seção monta a navegação principal no topo,    -->
+  <!-- com logo clicável e links do site.                 -->
+  <!-- ================================================== -->
+  <div class="topbar" id="topbar">
+    <nav class="nav">
+      <a href="index.html" class="marca">
+        <img src="logo_escola.png" alt="Logo da Escola">
+        <div class="marca-texto">
+          <strong>ESCOLA IÊDA MCPM</strong>
+          <span>Medeiros Neto - BA</span>
+        </div>
+      </a>
+
+      <div class="menu">
+        <a href="index.html#inicio">Início</a>
+        <a href="index.html#sobre">Nossa Escola</a>
+        <a href="professores.html">Professores</a>
+        <a href="calendario.html" class="ativo">Calendário Escolar</a>
+        <a href="index.html#contato">Contato</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ================================================== -->
+  <!-- 19. SEÇÃO PRINCIPAL DO TOPO / HERO                 -->
+  <!-- Esta seção mostra o título principal da página     -->
+  <!-- e a apresentação curta do calendário escolar.      -->
+  <!-- ================================================== -->
+  <header class="hero">
+    <div class="hero-content reveal">
+      <div class="hero-badge">Ano letivo 2026</div>
+      <h1>Calendário Escolar 2026</h1>
+      <p>
+        Acompanhe as datas, períodos letivos, feriados, sábados letivos e informações importantes do ano escolar.
+      </p>
+    </div>
+  </header>
+
+  <!-- ================================================== -->
+  <!-- 20. CONTEÚDO PRINCIPAL DA PÁGINA                   -->
+  <!-- Esta seção reúne todos os blocos centrais da       -->
+  <!-- página abaixo do topo.                             -->
+  <!-- ================================================== -->
+  <main class="container">
+
+    <!-- ================================================ -->
+    <!-- 20.1 SEÇÃO DE APRESENTAÇÃO DO CALENDÁRIO         -->
+    <!-- Texto introdutório da página.                    -->
+    <!-- ================================================ -->
+    <section class="painel reveal">
+      <h2>Calendário Oficial da Escola</h2>
+      <p>
+        Nesta página, a comunidade escolar pode consultar as principais datas do ano letivo, incluindo início das aulas,
+        trimestres, sábados letivos, feriados, recessos e período de recuperação.
+      </p>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- 20.2 SEÇÃO DA IMAGEM DO CALENDÁRIO               -->
+    <!-- Exibe a imagem principal do calendário, botão    -->
+    <!-- para ampliar e botão para baixar.                -->
+    <!-- ================================================ -->
+    <section class="calendario-box reveal">
+      <div class="calendario-topo">
+        <h2>Calendário Escolar</h2>
+        <p>Toque ou clique na imagem para ampliar.</p>
+      </div>
+
+      <div class="acoes-calendario">
+        <button class="botao botao-primario" onclick="abrirModal()">Ampliar calendário</button>
+        <a class="botao botao-secundario" href="imagens/CALENDARIO.jpg" download>Baixar calendário</a>
+      </div>
+
+      <div class="imagem-calendario" onclick="abrirModal()">
+        <img src="imagens/CALENDARIO.jpg" alt="Calendário Escolar 2026">
+        <span class="ampliar-tip">Ampliar calendário</span>
+      </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- 20.3 SEÇÃO DOS CARDS DE DESTAQUE                 -->
+    <!-- Mostra informações rápidas do calendário.        -->
+    <!-- ================================================ -->
+    <section class="grid reveal">
+      <div class="card">
+        <h3>Início do ano letivo</h3>
+        <p>23/02/2026</p>
+      </div>
+
+      <div class="card">
+        <h3>Total de dias letivos</h3>
+        <p>200 dias</p>
+      </div>
+
+      <div class="card">
+        <h3>Período de recuperação</h3>
+        <p>16/12 a 22/12/2026</p>
+      </div>
+
+      <div class="card">
+        <h3>Recesso escolar</h3>
+        <p>20/07 a 31/07/2026</p>
+      </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- 20.4 TÍTULO DA SEÇÃO DE PERÍODOS IMPORTANTES     -->
+    <!-- Introduz a parte dos trimestres e recuperação.   -->
+    <!-- ================================================ -->
+    <section class="secao-titulo reveal">
+      <h2>Períodos importantes</h2>
+      <p>
+        Confira abaixo um resumo dos principais períodos do calendário escolar de 2026.
+      </p>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- 20.5 SEÇÃO DOS PERÍODOS IMPORTANTES              -->
+    <!-- Lista os trimestres e o período de recuperação.  -->
+    <!-- ================================================ -->
+    <section class="lista-periodos reveal">
+      <div class="periodo">
+        <h3>I Trimestre</h3>
+        <p>23/02 a 15/05 (59 dias letivos)</p>
+      </div>
+
+      <div class="periodo">
+        <h3>II Trimestre</h3>
+        <p>18/05 a 31/08 (68 dias letivos)</p>
+      </div>
+
+      <div class="periodo">
+        <h3>III Trimestre</h3>
+        <p>01/09 a 15/12 (73 dias letivos)</p>
+      </div>
+
+      <div class="periodo">
+        <h3>Recuperação Final</h3>
+        <p>16/12 a 22/12</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================== -->
+  <!-- 21. SEÇÃO DO RODAPÉ                               -->
+  <!-- Rodapé institucional da página.                   -->
+  <!-- ================================================== -->
+  <footer>
+    © 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM
+  </footer>
+
+  <!-- ================================================== -->
+  <!-- 22. SEÇÃO DO MODAL DO CALENDÁRIO                  -->
+  <!-- Esta seção exibe a imagem do calendário ampliada  -->
+  <!-- quando o usuário clica para visualizar melhor.    -->
+  <!-- ================================================== -->
+  <div class="modal" id="modalCalendario" onclick="fecharModal(event)">
+    <div class="modal-content">
+      <button class="fechar" onclick="fecharModal(event)" aria-label="Fechar">×</button>
+      <img src="imagens/CALENDARIO.jpg" alt="Calendário Escolar 2026 ampliado">
+    </div>
+  </div>
+
+  <script>
+    /* ================================================== */
+    /* 23. SEÇÃO DOS ELEMENTOS JS                         */
+    /* Esta seção busca os principais elementos usados    */
+    /* nas interações da página.                          */
+    /* ================================================== */
+    const topbar = document.getElementById('topbar');
+    const reveals = document.querySelectorAll('.reveal');
+    const modal = document.getElementById('modalCalendario');
+
+    /* ================================================== */
+    /* 24. SEÇÃO DE ABERTURA DO MODAL                     */
+    /* Esta função abre a imagem ampliada do calendário.  */
+    /* ================================================== */
+    function abrirModal() {
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /* ================================================== */
+    /* 25. SEÇÃO DE FECHAMENTO DO MODAL                   */
+    /* Esta função fecha a imagem ampliada quando o       */
+    /* usuário toca fora ou no botão fechar.              */
+    /* ================================================== */
+    function fecharModal(event) {
+      if (
+        event.target.classList.contains('modal') ||
+        event.target.classList.contains('fechar')
+      ) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    /* ================================================== */
+    /* 26. SEÇÃO DE FECHAMENTO COM TECLA ESC              */
+    /* Permite fechar o modal pelo teclado.               */
+    /* ================================================== */
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    /* ================================================== */
+    /* 27. SEÇÃO DE ANIMAÇÃO AO ROLAR A PÁGINA            */
+    /* Mostra os elementos suavemente quando entram       */
+    /* na área visível da tela.                           */
+    /* ================================================== */
+    function revelarElementos() {
+      const alturaJanela = window.innerHeight;
+
+      reveals.forEach((el) => {
+        const topo = el.getBoundingClientRect().top;
+        if (topo < alturaJanela - 80) {
+          el.classList.add('show');
+        }
+      });
+    }
+
+    /* ================================================== */
+    /* 28. SEÇÃO DE EFEITO DO MENU AO ROLAR               */
+    /* Deixa o topo mais sólido quando a página rola.     */
+    /* ================================================== */
+    function efeitoTopo() {
+      if (window.scrollY > 30) {
+        topbar.classList.add('scrolled');
+      } else {
+        topbar.classList.remove('scrolled');
+      }
+    }
+
+    /* ================================================== */
+    /* 29. SEÇÃO DE EVENTOS DE SCROLL                     */
+    /* Atualiza efeitos visuais enquanto a página rola.   */
+    /* ================================================== */
+    window.addEventListener('scroll', () => {
+      revelarElementos();
+      efeitoTopo();
+    });
+
+    /* ================================================== */
+    /* 30. SEÇÃO DE INICIALIZAÇÃO DA PÁGINA               */
+    /* Ativa os efeitos principais quando a página abre.  */
+    /* ================================================== */
+    window.addEventListener('load', () => {
+      revelarElementos();
+      efeitoTopo();
+    });
+  </script>
+
+</body>
+</html>
