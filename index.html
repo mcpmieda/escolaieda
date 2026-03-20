@@ -13,7 +13,6 @@
   <!-- 2. GOOGLE ANALYTICS                                -->
   <!-- Esta seção monitora os acessos da página.          -->
   <!-- ================================================== -->
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -40,7 +39,7 @@
 
     /* ================================================== */
     /* 4. AJUSTES GERAIS DA PÁGINA                         */
-    /* Esta seção define reset, tipografia e base geral.   */
+    /* Esta seção define reset, tipografia e base geral.  */
     /* ================================================== */
     *{
       margin:0;
@@ -69,8 +68,9 @@
     }
 
     /* ================================================== */
-    /* 5. SEÇÃO DO MENU SUPERIOR FIXO                      */
-    /* Esta seção controla a barra de navegação do topo.   */
+    /* 5. MENU SUPERIOR FIXO                              */
+    /* Esta seção controla a barra de navegação do topo.  */
+    /* Ela começa escondida e só aparece após a rolagem.  */
     /* ================================================== */
     .topbar{
       position:fixed;
@@ -78,14 +78,19 @@
       left:0;
       width:100%;
       z-index:1000;
-      background:rgba(0, 33, 71, 0.35);
+      background:rgba(0, 33, 71, 0.92);
       backdrop-filter:blur(8px);
-      transition:0.3s;
+      box-shadow:0 4px 18px rgba(0,0,0,0.15);
+      transform:translateY(-120%);
+      opacity:0;
+      pointer-events:none;
+      transition:transform 0.35s ease, opacity 0.35s ease;
     }
 
-    .topbar.scrolled{
-      background:rgba(0, 33, 71, 0.92);
-      box-shadow:0 4px 18px rgba(0,0,0,0.15);
+    .topbar.mostrar-menu{
+      transform:translateY(0);
+      opacity:1;
+      pointer-events:auto;
     }
 
     .nav{
@@ -96,6 +101,7 @@
       align-items:center;
       justify-content:space-between;
       gap:15px;
+      flex-wrap:wrap;
     }
 
     .marca{
@@ -125,9 +131,9 @@
     }
 
     /* ================================================== */
-    /* 6. SEÇÃO PRINCIPAL DO TOPO / HERO                   */
-    /* Esta seção mostra o topo com logo, título, texto    */
-    /* principal e botões de acesso rápido.                */
+    /* 6. SEÇÃO PRINCIPAL DO TOPO / HERO                  */
+    /* Esta seção mostra o topo com logo, título, texto   */
+    /* principal e botões de acesso rápido.               */
     /* ================================================== */
     .hero{
       min-height:100vh;
@@ -138,7 +144,7 @@
       align-items:center;
       justify-content:center;
       text-align:center;
-      padding:110px 20px 70px;
+      padding:90px 20px 70px;
       color:white;
       position:relative;
       overflow:hidden;
@@ -188,6 +194,11 @@
       margin:0 auto 10px;
     }
 
+    /* ================================================== */
+    /* 7. BOTÕES DA PÁGINA INICIAL                        */
+    /* Esta seção controla os botões exibidos abaixo da   */
+    /* descrição principal da página inicial.             */
+    /* ================================================== */
     .botoes{
       margin-top:24px;
       display:flex;
@@ -226,9 +237,9 @@
     }
 
     /* ================================================== */
-    /* 7. CONTAINER GERAL DAS SEÇÕES                       */
-    /* Esta seção controla a largura e o espaçamento       */
-    /* do conteúdo principal da página.                    */
+    /* 8. CONTAINER GERAL DAS SEÇÕES                      */
+    /* Esta seção controla a largura e o espaçamento do   */
+    /* conteúdo principal da página.                      */
     /* ================================================== */
     .container{
       max-width:1150px;
@@ -254,9 +265,9 @@
     }
 
     /* ================================================== */
-    /* 8. SEÇÃO DOS CARDS EM GRADE                         */
-    /* Esta seção define o comportamento das grades de     */
-    /* cards usados nas partes informativas do site.       */
+    /* 9. SEÇÃO DOS CARDS EM GRADE                        */
+    /* Esta seção define o comportamento das grades de    */
+    /* cards usados nas partes informativas do site.      */
     /* ================================================== */
     .grid{
       display:grid;
@@ -285,9 +296,9 @@
     }
 
     /* ================================================== */
-    /* 9. SEÇÃO DA FAIXA DE DESTAQUE                       */
-    /* Esta seção monta a faixa institucional com missão   */
-    /* e números importantes da escola.                    */
+    /* 10. SEÇÃO DA FAIXA DE DESTAQUE                     */
+    /* Esta seção monta a faixa institucional com missão  */
+    /* e números importantes da escola.                   */
     /* ================================================== */
     .faixa{
       background:linear-gradient(135deg, var(--azul), var(--azul2));
@@ -324,9 +335,9 @@
     }
 
     /* ================================================== */
-    /* 10. SEÇÃO DE CONTATO                                */
-    /* Esta seção controla o card com e-mail, telefone     */
-    /* e botão de WhatsApp da escola.                      */
+    /* 11. SEÇÃO DE CONTATO                               */
+    /* Esta seção controla o card com e-mail, telefone    */
+    /* e botão de WhatsApp da escola.                     */
     /* ================================================== */
     .contato-card{
       background:white;
@@ -373,8 +384,8 @@
     }
 
     /* ================================================== */
-    /* 11. RODAPÉ DA PÁGINA                                */
-    /* Esta seção monta o rodapé institucional do site.    */
+    /* 12. RODAPÉ DA PÁGINA                               */
+    /* Esta seção monta o rodapé institucional do site.   */
     /* ================================================== */
     footer{
       background:#002147;
@@ -385,9 +396,9 @@
     }
 
     /* ================================================== */
-    /* 12. BOTÕES FLUTUANTES                               */
-    /* Esta seção controla o botão do WhatsApp e o botão   */
-    /* de voltar ao topo da página.                        */
+    /* 13. BOTÕES FLUTUANTES                              */
+    /* Esta seção controla o botão do WhatsApp e o botão  */
+    /* de voltar ao topo da página.                       */
     /* ================================================== */
     .whatsapp-float{
       position:fixed;
@@ -431,9 +442,9 @@
     }
 
     /* ================================================== */
-    /* 13. ANIMAÇÕES DA PÁGINA                             */
-    /* Esta seção define animações de entrada e efeitos    */
-    /* visuais usados no site.                             */
+    /* 14. ANIMAÇÕES DA PÁGINA                            */
+    /* Esta seção define animações de entrada e efeitos   */
+    /* visuais usados no site.                            */
     /* ================================================== */
     .reveal{
       opacity:0;
@@ -458,9 +469,9 @@
     }
 
     /* ================================================== */
-    /* 14. AJUSTES PARA CELULAR E TELAS MENORES            */
-    /* Esta seção adapta a página para melhor visualização */
-    /* em dispositivos móveis.                             */
+    /* 15. AJUSTES PARA CELULAR                           */
+    /* Esta seção adapta a página para melhor visualização*/
+    /* em dispositivos móveis.                            */
     /* ================================================== */
     @media (max-width:780px){
       .nav{
@@ -474,7 +485,7 @@
 
       .hero{
         min-height:auto;
-        padding:140px 18px 80px;
+        padding:90px 18px 80px;
       }
 
       .logo{
@@ -501,9 +512,9 @@
 <body>
 
   <!-- ================================================== -->
-  <!-- 15. SEÇÃO DO MENU SUPERIOR                         -->
-  <!-- Esta seção reúne o nome da escola e os links       -->
-  <!-- principais de navegação do site.                   -->
+  <!-- 16. MENU SUPERIOR                                 -->
+  <!-- Esta seção reúne os links principais do site.     -->
+  <!-- O menu só aparece após a rolagem até "Nossa Escola". -->
   <!-- ================================================== -->
   <div class="topbar" id="topbar">
     <nav class="nav">
@@ -520,9 +531,9 @@
   </div>
 
   <!-- ================================================== -->
-  <!-- 16. SEÇÃO PRINCIPAL DA PÁGINA / HERO               -->
-  <!-- Esta seção mostra logo, título, texto principal    -->
-  <!-- e botões de acesso rápido.                         -->
+  <!-- 17. SEÇÃO PRINCIPAL DA PÁGINA / HERO              -->
+  <!-- Esta seção mostra logo, título, texto principal   -->
+  <!-- e botões de acesso rápido da página inicial.      -->
   <!-- ================================================== -->
   <header class="hero" id="inicio">
     <div class="hero-content reveal">
@@ -551,7 +562,7 @@
   <main>
 
     <!-- ================================================ -->
-    <!-- 17. SEÇÃO NOSSA ESCOLA                           -->
+    <!-- 18. SEÇÃO NOSSA ESCOLA                           -->
     <!-- Esta seção apresenta a escola e seus principais  -->
     <!-- aspectos institucionais.                         -->
     <!-- ================================================ -->
@@ -592,7 +603,7 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 18. SEÇÃO DA FAIXA DE DESTAQUE                   -->
+    <!-- 19. SEÇÃO DA FAIXA DE DESTAQUE                   -->
     <!-- Esta seção destaca a missão da escola e alguns   -->
     <!-- números institucionais importantes.              -->
     <!-- ================================================ -->
@@ -626,9 +637,9 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 19. SEÇÃO DE INFORMAÇÕES                         -->
+    <!-- 20. SEÇÃO DE INFORMAÇÕES                         -->
     <!-- Esta seção apresenta áreas importantes do portal -->
-    <!-- como avisos, documentos e projetos.             -->
+    <!-- como avisos, documentos e calendário.            -->
     <!-- ================================================ -->
     <section class="container reveal" id="informacoes">
       <div class="titulo-secao">
@@ -666,7 +677,7 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 20. SEÇÃO DE CONTATO                             -->
+    <!-- 21. SEÇÃO DE CONTATO                             -->
     <!-- Esta seção reúne os principais canais de contato -->
     <!-- da escola.                                       -->
     <!-- ================================================ -->
@@ -698,7 +709,7 @@
   </main>
 
   <!-- ================================================== -->
-  <!-- 21. SEÇÃO DO RODAPÉ                               -->
+  <!-- 22. RODAPÉ                                        -->
   <!-- Rodapé institucional da página principal.         -->
   <!-- ================================================== -->
   <footer>
@@ -706,7 +717,7 @@
   </footer>
 
   <!-- ================================================== -->
-  <!-- 22. SEÇÃO DO BOTÃO FLUTUANTE DO WHATSAPP          -->
+  <!-- 23. BOTÃO FLUTUANTE DO WHATSAPP                   -->
   <!-- Botão fixo de contato rápido pelo WhatsApp.       -->
   <!-- ================================================== -->
   <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" aria-label="WhatsApp da escola">
@@ -714,22 +725,23 @@
   </a>
 
   <!-- ================================================== -->
-  <!-- 23. SEÇÃO DO BOTÃO VOLTAR AO TOPO                 -->
+  <!-- 24. BOTÃO VOLTAR AO TOPO                          -->
   <!-- Botão fixo para retornar rapidamente ao início.   -->
   <!-- ================================================== -->
   <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
 
   <script>
     /* ================================================== */
-    /* 24. SEÇÃO DOS ELEMENTOS JS                         */
+    /* 25. ELEMENTOS DO JAVASCRIPT                        */
     /* Esta seção seleciona os elementos usados no JS.    */
     /* ================================================== */
     const reveals = document.querySelectorAll('.reveal');
     const topbar = document.getElementById('topbar');
     const topoBtn = document.getElementById('topoBtn');
+    const sobreSection = document.getElementById('sobre');
 
     /* ================================================== */
-    /* 25. SEÇÃO DE REVELAÇÃO DOS ELEMENTOS               */
+    /* 26. REVELAÇÃO DOS ELEMENTOS                        */
     /* Esta função mostra os elementos suavemente ao      */
     /* entrarem na área visível da tela.                  */
     /* ================================================== */
@@ -745,17 +757,25 @@
     }
 
     /* ================================================== */
-    /* 26. SEÇÃO DOS EFEITOS DE ROLAGEM                   */
-    /* Esta função altera o topo ao rolar e mostra o      */
-    /* botão de voltar ao topo.                           */
+    /* 27. CONTROLE DO MENU SUPERIOR                      */
+    /* Esta função faz o menu do topo aparecer apenas     */
+    /* quando o usuário alcança a seção "Nossa Escola".   */
+    /* ================================================== */
+    function controlarMenuTopo(){
+      const pontoDaSecao = sobreSection.offsetTop - 120;
+
+      if(window.scrollY >= pontoDaSecao){
+        topbar.classList.add('mostrar-menu');
+      }else{
+        topbar.classList.remove('mostrar-menu');
+      }
+    }
+
+    /* ================================================== */
+    /* 28. EFEITOS DE ROLAGEM                             */
+    /* Esta função mostra o botão de voltar ao topo.      */
     /* ================================================== */
     function efeitosScroll(){
-      if(window.scrollY > 30){
-        topbar.classList.add('scrolled');
-      }else{
-        topbar.classList.remove('scrolled');
-      }
-
       if(window.scrollY > 400){
         topoBtn.classList.add('mostrar');
       }else{
@@ -764,7 +784,7 @@
     }
 
     /* ================================================== */
-    /* 27. SEÇÃO DO BOTÃO VOLTAR AO TOPO                  */
+    /* 29. BOTÃO VOLTAR AO TOPO                           */
     /* Esta seção define o clique do botão de retorno     */
     /* suave ao início da página.                         */
     /* ================================================== */
@@ -776,21 +796,32 @@
     });
 
     /* ================================================== */
-    /* 28. SEÇÃO DOS EVENTOS DE SCROLL                    */
+    /* 30. EVENTOS DE SCROLL                              */
     /* Atualiza efeitos visuais durante a rolagem.        */
     /* ================================================== */
     window.addEventListener('scroll', () => {
       revelarElementos();
+      controlarMenuTopo();
       efeitosScroll();
     });
 
     /* ================================================== */
-    /* 29. SEÇÃO DE INICIALIZAÇÃO DA PÁGINA               */
+    /* 31. INICIALIZAÇÃO DA PÁGINA                        */
     /* Ativa os efeitos principais quando a página abre.  */
     /* ================================================== */
     window.addEventListener('load', () => {
       revelarElementos();
+      controlarMenuTopo();
       efeitosScroll();
+    });
+
+    /* ================================================== */
+    /* 32. AJUSTE AO REDIMENSIONAR A TELA                 */
+    /* Recalcula o comportamento do menu em mudanças      */
+    /* de tamanho da tela.                                */
+    /* ================================================== */
+    window.addEventListener('resize', () => {
+      controlarMenuTopo();
     });
   </script>
 
