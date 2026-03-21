@@ -17,7 +17,6 @@
   <!-- Esta seção faz o monitoramento de acessos          -->
   <!-- da página no Google Analytics.                     -->
   <!-- ================================================== -->
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -29,8 +28,6 @@
   <style>
     /* ================================================== */
     /* 3. VARIÁVEIS GERAIS DO SITE                         */
-    /* Esta seção reúne as cores, sombras e medidas        */
-    /* principais usadas em toda a página.                 */
     /* ================================================== */
     :root{
       --azul:#003366;
@@ -48,7 +45,6 @@
 
     /* ================================================== */
     /* 4. AJUSTES GERAIS DA PÁGINA                         */
-    /* Esta seção define reset, tipografia e base geral.   */
     /* ================================================== */
     *{
       margin:0;
@@ -82,8 +78,6 @@
 
     /* ================================================== */
     /* 5. SEÇÃO DO MENU SUPERIOR FIXO                      */
-    /* Esta seção controla a barra superior com a logo     */
-    /* e os links principais do site.                      */
     /* ================================================== */
     .topbar{
       position:fixed;
@@ -148,29 +142,43 @@
 
     .menu{
       display:flex;
-      gap:16px;
+      gap:10px;
       flex-wrap:wrap;
       justify-content:flex-end;
+      align-items:center;
     }
 
     .menu a{
       color:white;
-      font-size:0.95rem;
+      font-size:0.93rem;
       font-weight:bold;
-      opacity:0.95;
       transition:0.25s;
     }
 
-    .menu a:hover,
-    .menu a.ativo{
-      opacity:1;
-      text-decoration:underline;
+    .menu-botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:9px 14px;
+      border-radius:10px;
+      font-weight:bold;
+      transition:0.25s;
+      border:1px solid rgba(255,255,255,0.28);
+      background:rgba(255,255,255,0.12);
+      color:white !important;
+      text-decoration:none !important;
+      min-height:38px;
+      white-space:nowrap;
+    }
+
+    .menu-botao:hover,
+    .menu-botao.ativo{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.20);
     }
 
     /* ================================================== */
     /* 6. SEÇÃO HERO / TOPO DA PÁGINA                      */
-    /* Esta seção monta o grande topo visual da página     */
-    /* com título, subtítulo e fundo institucional.        */
     /* ================================================== */
     .hero{
       min-height:72vh;
@@ -204,17 +212,6 @@
       width:100%;
     }
 
-    .hero-badge{
-      display:inline-block;
-      padding:10px 16px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.12);
-      border:1px solid rgba(255,255,255,0.18);
-      backdrop-filter:blur(8px);
-      font-size:0.92rem;
-      margin-bottom:18px;
-    }
-
     .hero h1{
       font-size:clamp(2rem, 4vw, 3.2rem);
       margin-bottom:12px;
@@ -231,8 +228,6 @@
 
     /* ================================================== */
     /* 7. CONTAINER PRINCIPAL DA PÁGINA                    */
-    /* Esta seção controla a largura máxima e o            */
-    /* posicionamento do conteúdo abaixo do topo.          */
     /* ================================================== */
     .container{
       position:relative;
@@ -243,38 +238,7 @@
     }
 
     /* ================================================== */
-    /* 8. SEÇÃO DE APRESENTAÇÃO DO CALENDÁRIO              */
-    /* Esta seção mostra o texto introdutório da página.   */
-    /* ================================================== */
-    .painel{
-      background:rgba(255,255,255,0.82);
-      border:1px solid rgba(255,255,255,0.65);
-      backdrop-filter:blur(12px);
-      border-radius:26px;
-      box-shadow:var(--sombra);
-      padding:24px;
-      margin-bottom:24px;
-    }
-
-    .painel h2{
-      color:var(--azul3);
-      font-size:1.55rem;
-      margin-bottom:10px;
-      text-align:center;
-    }
-
-    .painel p{
-      color:var(--texto2);
-      line-height:1.7;
-      max-width:900px;
-      margin:0 auto;
-      text-align:center;
-    }
-
-    /* ================================================== */
-    /* 9. SEÇÃO DA IMAGEM DO CALENDÁRIO                    */
-    /* Esta seção mostra a imagem principal do calendário  */
-    /* com botão para ampliar e botão para baixar.         */
+    /* 8. SEÇÃO DA IMAGEM DO CALENDÁRIO                    */
     /* ================================================== */
     .calendario-box{
       background:rgba(255,255,255,0.88);
@@ -283,22 +247,6 @@
       box-shadow:var(--sombra2);
       padding:22px;
       margin-bottom:24px;
-    }
-
-    .calendario-topo{
-      text-align:center;
-      margin-bottom:18px;
-    }
-
-    .calendario-topo h2{
-      color:var(--azul3);
-      font-size:1.7rem;
-      margin-bottom:8px;
-    }
-
-    .calendario-topo p{
-      color:var(--texto2);
-      margin-bottom:14px;
     }
 
     .acoes-calendario{
@@ -318,16 +266,6 @@
       cursor:pointer;
       border:none;
       font-size:0.95rem;
-    }
-
-    .botao-primario{
-      background:var(--azul);
-      color:white;
-    }
-
-    .botao-primario:hover{
-      transform:translateY(-2px);
-      background:var(--azul2);
     }
 
     .botao-secundario{
@@ -373,9 +311,7 @@
     }
 
     /* ================================================== */
-    /* 10. SEÇÃO DOS CARDS DE DESTAQUE                     */
-    /* Esta seção mostra informações rápidas e úteis       */
-    /* do calendário escolar.                              */
+    /* 9. SEÇÃO DOS CARDS DE DESTAQUE                      */
     /* ================================================== */
     .grid{
       display:grid;
@@ -409,9 +345,7 @@
     }
 
     /* ================================================== */
-    /* 11. SEÇÃO DE TÍTULO DOS PERÍODOS IMPORTANTES        */
-    /* Esta seção apresenta o título e subtítulo da        */
-    /* parte de períodos do calendário.                    */
+    /* 10. SEÇÃO DE TÍTULO DOS PERÍODOS IMPORTANTES        */
     /* ================================================== */
     .secao-titulo{
       text-align:center;
@@ -432,9 +366,7 @@
     }
 
     /* ================================================== */
-    /* 12. SEÇÃO DOS PERÍODOS IMPORTANTES                  */
-    /* Esta seção lista os trimestres e a recuperação      */
-    /* final do ano letivo.                                */
+    /* 11. SEÇÃO DOS PERÍODOS IMPORTANTES                  */
     /* ================================================== */
     .lista-periodos{
       display:grid;
@@ -461,8 +393,7 @@
     }
 
     /* ================================================== */
-    /* 13. RODAPÉ DA PÁGINA                                */
-    /* Esta seção mostra o rodapé institucional.           */
+    /* 12. RODAPÉ DA PÁGINA                                */
     /* ================================================== */
     footer{
       text-align:center;
@@ -472,9 +403,7 @@
     }
 
     /* ================================================== */
-    /* 14. MODAL DE AMPLIAÇÃO DA IMAGEM                    */
-    /* Esta seção controla a imagem ampliada do calendário */
-    /* quando o usuário toca ou clica na imagem.           */
+    /* 13. MODAL DE AMPLIAÇÃO DA IMAGEM                    */
     /* ================================================== */
     .modal{
       position:fixed;
@@ -543,9 +472,7 @@
     }
 
     /* ================================================== */
-    /* 15. ANIMAÇÕES DE ENTRADA DA PÁGINA                  */
-    /* Esta seção cria o efeito suave de entrada           */
-    /* das partes principais da página.                    */
+    /* 14. ANIMAÇÕES DE ENTRADA DA PÁGINA                  */
     /* ================================================== */
     .reveal{
       opacity:0;
@@ -559,9 +486,7 @@
     }
 
     /* ================================================== */
-    /* 16. AJUSTES PARA CELULAR E TELAS MENORES            */
-    /* Esta seção adapta a página para melhor visualização */
-    /* em dispositivos móveis.                             */
+    /* 15. AJUSTES PARA CELULAR E TELAS MENORES            */
     /* ================================================== */
     @media (max-width:780px){
       .nav{
@@ -606,9 +531,7 @@
     }
 
     /* ================================================== */
-    /* 17. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
-    /* Esta seção desativa animações para usuários que     */
-    /* preferem menos movimento na navegação.              */
+    /* 16. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
     /* ================================================== */
     @media (prefers-reduced-motion: reduce){
       *{
@@ -622,7 +545,7 @@
 <body>
 
   <!-- ================================================== -->
-  <!-- 18. SEÇÃO DO MENU SUPERIOR DA PÁGINA               -->
+  <!-- 17. SEÇÃO DO MENU SUPERIOR DA PÁGINA               -->
   <!-- Esta seção monta a navegação principal no topo,    -->
   <!-- com logo clicável e links do site.                 -->
   <!-- ================================================== -->
@@ -637,23 +560,20 @@
       </a>
 
       <div class="menu">
-        <a href="index.html#inicio">Início</a>
-        <a href="index.html#sobre">Nossa Escola</a>
-        <a href="professores.html">Professores</a>
-        <a href="calendario.html" class="ativo">Calendário Escolar</a>
-        <a href="index.html#contato">Contato</a>
+        <a href="index.html#inicio" class="menu-botao">Início</a>
+        <a href="professores.html" class="menu-botao">Professores</a>
+        <a href="index.html#contato" class="menu-botao">Contato</a>
       </div>
     </nav>
   </div>
 
   <!-- ================================================== -->
-  <!-- 19. SEÇÃO PRINCIPAL DO TOPO / HERO                 -->
+  <!-- 18. SEÇÃO PRINCIPAL DO TOPO / HERO                 -->
   <!-- Esta seção mostra o título principal da página     -->
   <!-- e a apresentação curta do calendário escolar.      -->
   <!-- ================================================== -->
   <header class="hero">
     <div class="hero-content reveal">
-      <div class="hero-badge">Ano letivo 2026</div>
       <h1>Calendário Escolar 2026</h1>
       <p>
         Acompanhe as datas, períodos letivos, feriados, sábados letivos e informações importantes do ano escolar.
@@ -662,37 +582,19 @@
   </header>
 
   <!-- ================================================== -->
-  <!-- 20. CONTEÚDO PRINCIPAL DA PÁGINA                   -->
+  <!-- 19. CONTEÚDO PRINCIPAL DA PÁGINA                   -->
   <!-- Esta seção reúne todos os blocos centrais da       -->
   <!-- página abaixo do topo.                             -->
   <!-- ================================================== -->
   <main class="container">
 
     <!-- ================================================ -->
-    <!-- 20.1 SEÇÃO DE APRESENTAÇÃO DO CALENDÁRIO         -->
-    <!-- Texto introdutório da página.                    -->
-    <!-- ================================================ -->
-    <section class="painel reveal">
-      <h2>Calendário Oficial da Escola</h2>
-      <p>
-        Nesta página, a comunidade escolar pode consultar as principais datas do ano letivo, incluindo início das aulas,
-        trimestres, sábados letivos, feriados, recessos e período de recuperação.
-      </p>
-    </section>
-
-    <!-- ================================================ -->
-    <!-- 20.2 SEÇÃO DA IMAGEM DO CALENDÁRIO               -->
-    <!-- Exibe a imagem principal do calendário, botão    -->
-    <!-- para ampliar e botão para baixar.                -->
+    <!-- 19.1 SEÇÃO DA IMAGEM DO CALENDÁRIO               -->
+    <!-- Exibe a imagem principal do calendário e botão   -->
+    <!-- para baixar.                                     -->
     <!-- ================================================ -->
     <section class="calendario-box reveal">
-      <div class="calendario-topo">
-        <h2>Calendário Escolar</h2>
-        <p>Toque ou clique na imagem para ampliar.</p>
-      </div>
-
       <div class="acoes-calendario">
-        <button class="botao botao-primario" onclick="abrirModal()">Ampliar calendário</button>
         <a class="botao botao-secundario" href="imagens/CALENDARIO.jpg" download>Baixar calendário</a>
       </div>
 
@@ -703,7 +605,7 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 20.3 SEÇÃO DOS CARDS DE DESTAQUE                 -->
+    <!-- 19.2 SEÇÃO DOS CARDS DE DESTAQUE                 -->
     <!-- Mostra informações rápidas do calendário.        -->
     <!-- ================================================ -->
     <section class="grid reveal">
@@ -729,18 +631,15 @@
     </section>
 
     <!-- ================================================ -->
-    <!-- 20.4 TÍTULO DA SEÇÃO DE PERÍODOS IMPORTANTES     -->
+    <!-- 19.3 TÍTULO DA SEÇÃO DE PERÍODOS IMPORTANTES     -->
     <!-- Introduz a parte dos trimestres e recuperação.   -->
     <!-- ================================================ -->
     <section class="secao-titulo reveal">
       <h2>Períodos importantes</h2>
-      <p>
-        Confira abaixo um resumo dos principais períodos do calendário escolar de 2026.
-      </p>
     </section>
 
     <!-- ================================================ -->
-    <!-- 20.5 SEÇÃO DOS PERÍODOS IMPORTANTES              -->
+    <!-- 19.4 SEÇÃO DOS PERÍODOS IMPORTANTES              -->
     <!-- Lista os trimestres e o período de recuperação.  -->
     <!-- ================================================ -->
     <section class="lista-periodos reveal">
@@ -768,7 +667,7 @@
   </main>
 
   <!-- ================================================== -->
-  <!-- 21. SEÇÃO DO RODAPÉ                               -->
+  <!-- 20. SEÇÃO DO RODAPÉ                               -->
   <!-- Rodapé institucional da página.                   -->
   <!-- ================================================== -->
   <footer>
@@ -776,7 +675,7 @@
   </footer>
 
   <!-- ================================================== -->
-  <!-- 22. SEÇÃO DO MODAL DO CALENDÁRIO                  -->
+  <!-- 21. SEÇÃO DO MODAL DO CALENDÁRIO                  -->
   <!-- Esta seção exibe a imagem do calendário ampliada  -->
   <!-- quando o usuário clica para visualizar melhor.    -->
   <!-- ================================================== -->
@@ -789,7 +688,7 @@
 
   <script>
     /* ================================================== */
-    /* 23. SEÇÃO DOS ELEMENTOS JS                         */
+    /* 22. SEÇÃO DOS ELEMENTOS JS                         */
     /* Esta seção busca os principais elementos usados    */
     /* nas interações da página.                          */
     /* ================================================== */
@@ -798,7 +697,7 @@
     const modal = document.getElementById('modalCalendario');
 
     /* ================================================== */
-    /* 24. SEÇÃO DE ABERTURA DO MODAL                     */
+    /* 23. SEÇÃO DE ABERTURA DO MODAL                     */
     /* Esta função abre a imagem ampliada do calendário.  */
     /* ================================================== */
     function abrirModal() {
@@ -807,7 +706,7 @@
     }
 
     /* ================================================== */
-    /* 25. SEÇÃO DE FECHAMENTO DO MODAL                   */
+    /* 24. SEÇÃO DE FECHAMENTO DO MODAL                   */
     /* Esta função fecha a imagem ampliada quando o       */
     /* usuário toca fora ou no botão fechar.              */
     /* ================================================== */
@@ -822,7 +721,7 @@
     }
 
     /* ================================================== */
-    /* 26. SEÇÃO DE FECHAMENTO COM TECLA ESC              */
+    /* 25. SEÇÃO DE FECHAMENTO COM TECLA ESC              */
     /* Permite fechar o modal pelo teclado.               */
     /* ================================================== */
     document.addEventListener('keydown', function(event) {
@@ -833,7 +732,7 @@
     });
 
     /* ================================================== */
-    /* 27. SEÇÃO DE ANIMAÇÃO AO ROLAR A PÁGINA            */
+    /* 26. SEÇÃO DE ANIMAÇÃO AO ROLAR A PÁGINA            */
     /* Mostra os elementos suavemente quando entram       */
     /* na área visível da tela.                           */
     /* ================================================== */
@@ -849,7 +748,7 @@
     }
 
     /* ================================================== */
-    /* 28. SEÇÃO DE EFEITO DO MENU AO ROLAR               */
+    /* 27. SEÇÃO DE EFEITO DO MENU AO ROLAR               */
     /* Deixa o topo mais sólido quando a página rola.     */
     /* ================================================== */
     function efeitoTopo() {
@@ -861,7 +760,7 @@
     }
 
     /* ================================================== */
-    /* 29. SEÇÃO DE EVENTOS DE SCROLL                     */
+    /* 28. SEÇÃO DE EVENTOS DE SCROLL                     */
     /* Atualiza efeitos visuais enquanto a página rola.   */
     /* ================================================== */
     window.addEventListener('scroll', () => {
@@ -870,7 +769,7 @@
     });
 
     /* ================================================== */
-    /* 30. SEÇÃO DE INICIALIZAÇÃO DA PÁGINA               */
+    /* 29. SEÇÃO DE INICIALIZAÇÃO DA PÁGINA               */
     /* Ativa os efeitos principais quando a página abre.  */
     /* ================================================== */
     window.addEventListener('load', () => {
