@@ -100,10 +100,10 @@
       50% { transform: translateY(-18px); }
     }
 
-
-/* ================================================== */
+    /* ================================================== */
     /* 5. MENU SUPERIOR FIXO                               */
-    /* Esta seção cria o menu igual ao da página inicial. */
+    /* Esta seção cria o menu igual ao da página          */
+    /* calendário, com efeito suave no topo.              */
     /* ================================================== */
     .topbar-fixa {
       position: fixed;
@@ -192,10 +192,10 @@
       transform: translateY(-1px);
     }
 
-
-  /* ================================================== */
+    /* ================================================== */
     /* 6. HEADER / TOPO DA PÁGINA                          */
-    /* Esta seção cria o topo visual com título e texto.  */
+    /* Esta seção cria o topo visual com fade suave igual */
+    /* ao comportamento da página inicial.                */
     /* ================================================== */
     header {
       position: relative;
@@ -204,7 +204,7 @@
         linear-gradient(135deg, rgba(10, 42, 102, 0.96), rgba(17, 70, 166, 0.92)),
         url("fundo_logo_ieda.jpg") center/cover;
       color: white;
-      padding: 110px 18px 56px;
+      padding: 110px 18px 110px;
       overflow: hidden;
     }
 
@@ -222,8 +222,10 @@
       left: 0;
       right: 0;
       bottom: -1px;
-      height: 90px;
+      height: 110px;
       background: linear-gradient(to top, #f4f7fb, rgba(244,246,248,0));
+      z-index: 0;
+      pointer-events: none;
     }
 
     .hero {
@@ -249,54 +251,21 @@
       color: rgba(255,255,255,0.92);
     }
 
-
-
     /* ================================================== */
     /* 7. CONTAINER PRINCIPAL                              */
-    /* Esta seção posiciona os blocos principais.         */
+    /* Esta seção posiciona os blocos principais sem      */
+    /* subir sobre o fade do topo.                        */
     /* ================================================== */
-    
-main {
-  position: relative;
-  z-index: 1;
-  max-width: 1200px;
-  margin: 0 auto 0;
-  padding: 0 16px 50px;
-}
-
-
-    /* ================================================== */
-    /* 8. SEÇÃO DE APRESENTAÇÃO DA EQUIPE                  */
-    /* Esta seção mostra o texto introdutório da página.  */
-    /* ================================================== */
-    .painel {
-      background: rgba(255,255,255,0.78);
-      border: 1px solid rgba(255,255,255,0.6);
-      backdrop-filter: blur(12px);
-      border-radius: 26px;
-      box-shadow: var(--sombra);
-      padding: 22px;
-      margin-bottom: 24px;
-    }
-
-    .painel h2 {
-      color: var(--azul-escuro);
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-
-    .texto-apoio {
-      color: var(--texto-suave);
-      line-height: 1.7;
-      font-size: 0.98rem;
-      text-align: center;
-      max-width: 900px;
-      margin: 0 auto;
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto 0;
+      padding: 0 16px 50px;
     }
 
     /* ================================================== */
-    /* 9. TÍTULOS DAS SEÇÕES                               */
+    /* 8. TÍTULOS DAS SEÇÕES                               */
     /* Esta seção padroniza títulos e subtítulos.         */
     /* ================================================== */
     .secao-titulo {
@@ -318,7 +287,7 @@ main {
     }
 
     /* ================================================== */
-    /* 10. GRADE DE CARDS                                  */
+    /* 9. GRADE DE CARDS                                   */
     /* Esta seção define a grade de gestão e professores. */
     /* ================================================== */
     .grid {
@@ -332,7 +301,7 @@ main {
     }
 
     /* ================================================== */
-    /* 11. CARD INDIVIDUAL                                 */
+    /* 10. CARD INDIVIDUAL                                 */
     /* Esta seção controla aparência e hover dos cards.   */
     /* ================================================== */
     .card {
@@ -374,7 +343,7 @@ main {
     }
 
     /* ================================================== */
-    /* 12. FOTO DOS CARDS                                  */
+    /* 11. FOTO DOS CARDS                                  */
     /* Esta seção controla imagem, zoom e dica visual.    */
     /* ================================================== */
     .foto-wrap {
@@ -422,7 +391,7 @@ main {
     }
 
     /* ================================================== */
-    /* 13. INFORMAÇÕES DOS CARDS                           */
+    /* 12. INFORMAÇÕES DOS CARDS                           */
     /* Esta seção mostra nome, cargo e selo.              */
     /* ================================================== */
     .info {
@@ -464,7 +433,7 @@ main {
     }
 
     /* ================================================== */
-    /* 14. RODAPÉ                                          */
+    /* 13. RODAPÉ                                          */
     /* Esta seção define o rodapé da página.              */
     /* ================================================== */
     footer {
@@ -475,7 +444,7 @@ main {
     }
 
     /* ================================================== */
-    /* 15. MODAL DE AMPLIAÇÃO DAS FOTOS                    */
+    /* 14. MODAL DE AMPLIAÇÃO DAS FOTOS                    */
     /* Esta seção controla a foto ampliada ao clicar.     */
     /* ================================================== */
     .modal {
@@ -564,7 +533,7 @@ main {
     }
 
     /* ================================================== */
-    /* 16. AJUSTES PARA CELULAR                            */
+    /* 15. AJUSTES PARA CELULAR                            */
     /* Esta seção adapta a página para telas menores.     */
     /* ================================================== */
     @media (max-width: 768px) {
@@ -578,15 +547,11 @@ main {
       }
 
       header {
-        padding: 150px 14px 50px;
+        padding: 150px 14px 100px;
       }
 
       .hero p {
         font-size: 0.97rem;
-      }
-
-      .painel {
-        padding: 20px 16px;
       }
 
       .foto-wrap img {
@@ -623,7 +588,7 @@ main {
     }
 
     /* ================================================== */
-    /* 17. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
+    /* 16. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
     /* Esta seção reduz animações quando necessário.      */
     /* ================================================== */
     @media (prefers-reduced-motion: reduce) {
@@ -638,15 +603,16 @@ main {
 <body>
 
   <!-- ================================================== -->
-  <!-- 18. FORMAS DECORATIVAS DE FUNDO                    -->
+  <!-- 17. FORMAS DECORATIVAS DE FUNDO                    -->
   <!-- Esta seção exibe elementos visuais decorativos.    -->
   <!-- ================================================== -->
   <div class="bg-shape"></div>
   <div class="bg-shape two"></div>
 
   <!-- ================================================== -->
-  <!-- 19. MENU SUPERIOR FIXO                             -->
-  <!-- Esta seção mostra o menu igual ao da index.        -->
+  <!-- 18. MENU SUPERIOR FIXO                             -->
+  <!-- Esta seção mostra o menu igual ao da página       -->
+  <!-- calendário.                                        -->
   <!-- ================================================== -->
   <div class="topbar-fixa" id="topbarFixa">
     <nav class="nav-fixa">
@@ -658,16 +624,16 @@ main {
         </div>
       </a>
 
-<div class="menu-fixo">
-  <a href="index.html#inicio" class="menu-botao">Início</a>
-  <a href="calendario.html" class="menu-botao">Calendário Escolar</a>
-  <a href="index.html#contato" class="menu-botao">Contato</a>
-</div>
+      <div class="menu-fixo">
+        <a href="index.html#inicio">Início</a>
+        <a href="calendario.html">Calendário Escolar</a>
+        <a href="index.html#contato">Contato</a>
+      </div>
     </nav>
   </div>
 
   <!-- ================================================== -->
-  <!-- 20. TOPO / HERO DA PÁGINA                          -->
+  <!-- 19. TOPO / HERO DA PÁGINA                          -->
   <!-- Esta seção apresenta o título principal.           -->
   <!-- ================================================== -->
   <header>
@@ -680,13 +646,13 @@ main {
   </header>
 
   <!-- ================================================== -->
-  <!-- 21. CONTEÚDO PRINCIPAL                             -->
-  <!-- Esta seção reúne apresentação, gestão e docentes.  -->
+  <!-- 20. CONTEÚDO PRINCIPAL                             -->
+  <!-- Esta seção reúne gestão e corpo docente.           -->
   <!-- ================================================== -->
   <main>
 
     <!-- ================================================ -->
-    <!-- 21.2 TÍTULO DA GESTÃO E COORDENAÇÃO              -->
+    <!-- 20.1 TÍTULO DA GESTÃO E COORDENAÇÃO              -->
     <!-- ================================================ -->
     <section class="secao-titulo">
       <h2>Gestão e Coordenação</h2>
@@ -696,7 +662,7 @@ main {
     </section>
 
     <!-- ================================================ -->
-    <!-- 21.3 CARDS DA GESTÃO E COORDENAÇÃO               -->
+    <!-- 20.2 CARDS DA GESTÃO E COORDENAÇÃO               -->
     <!-- ================================================ -->
     <section class="grid gestao">
       <article class="card gestao">
@@ -737,7 +703,7 @@ main {
     </section>
 
     <!-- ================================================ -->
-    <!-- 21.4 TÍTULO DO CORPO DOCENTE                     -->
+    <!-- 20.3 TÍTULO DOS PROFESSORES                      -->
     <!-- ================================================ -->
     <section class="secao-titulo">
       <h2>Professores</h2>
@@ -747,7 +713,7 @@ main {
     </section>
 
     <!-- ================================================ -->
-    <!-- 21.5 CARDS DOS PROFESSORES                       -->
+    <!-- 20.4 CARDS DOS PROFESSORES                       -->
     <!-- ================================================ -->
     <section class="grid" id="gridProfessores">
       <article class="card">
@@ -993,7 +959,7 @@ main {
   </main>
 
   <!-- ================================================== -->
-  <!-- 22. RODAPÉ                                         -->
+  <!-- 21. RODAPÉ                                         -->
   <!-- Esta seção mostra o rodapé institucional.         -->
   <!-- ================================================== -->
   <footer>
@@ -1001,7 +967,7 @@ main {
   </footer>
 
   <!-- ================================================== -->
-  <!-- 23. MODAL DAS FOTOS                                -->
+  <!-- 22. MODAL DAS FOTOS                                -->
   <!-- Esta seção exibe a foto ampliada ao clicar.       -->
   <!-- ================================================== -->
   <div class="modal" id="modalFoto" onclick="fecharModal(event)">
@@ -1014,7 +980,7 @@ main {
 
   <script>
     /* ================================================== */
-    /* 24. ELEMENTOS DO JAVASCRIPT                         */
+    /* 23. ELEMENTOS DO JAVASCRIPT                         */
     /* Esta seção seleciona os elementos usados no JS.    */
     /* ================================================== */
     const cards = document.querySelectorAll('.card');
@@ -1024,7 +990,7 @@ main {
     const topbarFixa = document.getElementById('topbarFixa');
 
     /* ================================================== */
-    /* 25. ABRIR MODAL                                     */
+    /* 24. ABRIR MODAL                                     */
     /* Esta função abre a foto ampliada.                  */
     /* ================================================== */
     function abrirModal(src, nome, cargo) {
@@ -1036,7 +1002,7 @@ main {
     }
 
     /* ================================================== */
-    /* 26. FECHAR MODAL                                    */
+    /* 25. FECHAR MODAL                                    */
     /* Esta função fecha o modal de foto.                 */
     /* ================================================== */
     function fecharModal(event) {
@@ -1050,7 +1016,7 @@ main {
     }
 
     /* ================================================== */
-    /* 27. FECHAR MODAL COM ESC                            */
+    /* 26. FECHAR MODAL COM ESC                            */
     /* Esta seção permite fechar pelo teclado.            */
     /* ================================================== */
     document.addEventListener('keydown', function(event) {
@@ -1061,7 +1027,7 @@ main {
     });
 
     /* ================================================== */
-    /* 28. ANIMAÇÃO DE ENTRADA DOS CARDS                   */
+    /* 27. ANIMAÇÃO DE ENTRADA DOS CARDS                   */
     /* Esta seção revela os cards suavemente.             */
     /* ================================================== */
     const observer = new IntersectionObserver((entries) => {
@@ -1078,7 +1044,7 @@ main {
     cards.forEach(card => observer.observe(card));
 
     /* ================================================== */
-    /* 29. EFEITO DO MENU FIXO AO ROLAR                    */
+    /* 28. EFEITO DO MENU FIXO AO ROLAR                    */
     /* Esta seção deixa o menu mais sólido ao rolar.      */
     /* ================================================== */
     function efeitoTopo() {
