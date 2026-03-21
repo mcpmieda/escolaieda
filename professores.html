@@ -4,7 +4,6 @@
 
   <!-- ================================================== -->
   <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
-  <!-- Esta seção define idioma, título e descrição.      -->
   <!-- ================================================== -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,7 +13,6 @@
 
   <!-- ================================================== -->
   <!-- 2. GOOGLE ANALYTICS                                -->
-  <!-- Esta seção monitora os acessos da página.          -->
   <!-- ================================================== -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
   <script>
@@ -28,7 +26,6 @@
 
     /* ================================================== */
     /* 3. ESTILO GERAL E VARIÁVEIS                         */
-    /* Esta seção define cores, sombras e base do layout. */
     /* ================================================== */
     * {
       margin: 0;
@@ -43,7 +40,6 @@
       --azul-claro: #4e82df;
       --carmim: #8b1538;
       --carmim-forte: #b11f4a;
-      --carmim-suave: rgba(139, 21, 56, 0.12);
       --branco: #ffffff;
       --texto: #182232;
       --texto-suave: #5e6777;
@@ -63,7 +59,14 @@
       font-family: Arial, Helvetica, sans-serif;
       color: var(--texto);
       background:
-        linear-gradient(180deg, #eef3fb 0%, #f5f7fb 18%, #f7f3f5 48%, #f4eef2 72%, #f3f6fb 100%);
+        linear-gradient(
+          180deg,
+          #eef3fb 0%,
+          #f1f4fa 22%,
+          #f3f1f6 46%,
+          #f4f2f5 68%,
+          #f3f6fb 100%
+        );
       min-height: 100vh;
       overflow-x: hidden;
       position: relative;
@@ -74,19 +77,9 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 12% 18%, rgba(78, 130, 223, 0.16), transparent 28%),
-        radial-gradient(circle at 88% 24%, rgba(177, 31, 74, 0.16), transparent 26%),
-        radial-gradient(circle at 50% 72%, rgba(139, 21, 56, 0.11), transparent 30%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(7, 28, 68, 0) 0%, rgba(7, 28, 68, 0.015) 38%, rgba(139, 21, 56, 0.04) 70%, rgba(139, 21, 56, 0.06) 100%);
+        radial-gradient(circle at 12% 18%, rgba(78, 130, 223, 0.15), transparent 28%),
+        radial-gradient(circle at 88% 22%, rgba(177, 31, 74, 0.14), transparent 26%),
+        radial-gradient(circle at 50% 72%, rgba(139, 21, 56, 0.08), transparent 32%);
       pointer-events: none;
       z-index: 0;
     }
@@ -97,15 +90,14 @@
 
     /* ================================================== */
     /* 4. FORMAS DECORATIVAS DE FUNDO                      */
-    /* Esta seção cria efeitos visuais suaves no fundo.   */
     /* ================================================== */
     .bg-shape {
       position: fixed;
       inset: auto auto 8% -120px;
       width: 320px;
       height: 320px;
-      background: radial-gradient(circle, rgba(17, 72, 165, 0.16), transparent 70%);
-      filter: blur(22px);
+      background: radial-gradient(circle, rgba(17, 72, 165, 0.15), transparent 70%);
+      filter: blur(24px);
       z-index: 0;
       pointer-events: none;
       animation: floatShape 9s ease-in-out infinite;
@@ -115,7 +107,7 @@
       inset: 14% -110px auto auto;
       width: 300px;
       height: 300px;
-      background: radial-gradient(circle, rgba(139, 21, 56, 0.18), transparent 70%);
+      background: radial-gradient(circle, rgba(139, 21, 56, 0.16), transparent 70%);
       animation-delay: 1.5s;
     }
 
@@ -126,8 +118,6 @@
 
     /* ================================================== */
     /* 5. MENU SUPERIOR FIXO                               */
-    /* Esta seção cria o menu igual ao da página          */
-    /* calendário, com efeito suave no topo.              */
     /* ================================================== */
     .topbar-fixa {
       position: fixed;
@@ -139,7 +129,6 @@
         linear-gradient(90deg, rgba(7, 28, 68, 0.70), rgba(10, 47, 115, 0.54), rgba(139, 21, 56, 0.36));
       backdrop-filter: blur(12px);
       transition: 0.35s ease;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
     .topbar-fixa.scrolled {
@@ -147,7 +136,6 @@
         linear-gradient(90deg, rgba(7, 28, 68, 0.94), rgba(10, 47, 115, 0.90), rgba(139, 21, 56, 0.72));
       backdrop-filter: blur(14px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-      border-bottom: 1px solid rgba(255,255,255,0.10);
     }
 
     .nav-fixa {
@@ -177,7 +165,7 @@
       background: rgba(255,255,255,0.10);
       border-radius: 12px;
       padding: 4px;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
     }
 
     .marca-fixa-texto {
@@ -224,17 +212,20 @@
 
     /* ================================================== */
     /* 6. HEADER / TOPO DA PÁGINA                          */
-    /* Esta seção cria o topo visual com fade suave igual */
-    /* ao comportamento da página inicial.                */
     /* ================================================== */
     header {
       position: relative;
       z-index: 1;
       background:
-        linear-gradient(125deg, rgba(7, 28, 68, 0.96) 0%, rgba(10, 47, 115, 0.90) 42%, rgba(139, 21, 56, 0.68) 100%),
+        linear-gradient(
+          135deg,
+          rgba(7, 28, 68, 0.97) 0%,
+          rgba(10, 47, 115, 0.93) 40%,
+          rgba(139, 21, 56, 0.62) 100%
+        ),
         url("fundo_logo_ieda.jpg") center/cover no-repeat;
       color: white;
-      padding: 110px 18px 120px;
+      padding: 110px 18px 150px;
       overflow: hidden;
     }
 
@@ -243,10 +234,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 20% 25%, rgba(255,255,255,0.08), transparent 24%),
-        radial-gradient(circle at 80% 35%, rgba(255,255,255,0.05), transparent 22%),
-        linear-gradient(180deg, rgba(6, 18, 48, 0.18), rgba(6, 18, 48, 0.60));
-      mix-blend-mode: screen;
+        radial-gradient(circle at 18% 22%, rgba(255,255,255,0.08), transparent 26%),
+        radial-gradient(circle at 82% 30%, rgba(255,255,255,0.05), transparent 24%),
+        linear-gradient(180deg, rgba(6, 18, 48, 0.10), rgba(6, 18, 48, 0.48));
       z-index: -1;
     }
 
@@ -256,10 +246,19 @@
       left: 0;
       right: 0;
       bottom: -1px;
-      height: 130px;
-      background: linear-gradient(to top, #f3f6fb, rgba(243,246,251,0));
-      z-index: 0;
+      height: 220px;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(243, 246, 251, 0) 0%,
+          rgba(243, 246, 251, 0.18) 22%,
+          rgba(243, 242, 246, 0.48) 48%,
+          rgba(243, 244, 248, 0.78) 72%,
+          rgba(243, 246, 251, 0.96) 88%,
+          #f3f6fb 100%
+        );
       pointer-events: none;
+      z-index: 0;
     }
 
     .hero {
@@ -289,20 +288,34 @@
 
     /* ================================================== */
     /* 7. CONTAINER PRINCIPAL                              */
-    /* Esta seção posiciona os blocos principais sem      */
-    /* subir sobre o fade do topo.                        */
     /* ================================================== */
     main {
       position: relative;
       z-index: 1;
       max-width: 1200px;
-      margin: 0 auto 0;
+      margin: -40px auto 0;
       padding: 0 16px 50px;
+    }
+
+    main::before {
+      content: "";
+      position: absolute;
+      top: -70px;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(
+        to bottom,
+        rgba(243, 246, 251, 0) 0%,
+        rgba(243, 246, 251, 0.65) 55%,
+        rgba(243, 246, 251, 1) 100%
+      );
+      pointer-events: none;
+      z-index: -1;
     }
 
     /* ================================================== */
     /* 8. TÍTULOS DAS SEÇÕES                               */
-    /* Esta seção padroniza títulos e subtítulos.         */
     /* ================================================== */
     .secao-titulo {
       text-align: center;
@@ -324,7 +337,6 @@
 
     /* ================================================== */
     /* 9. GRADE DE CARDS                                   */
-    /* Esta seção define a grade de gestão e professores. */
     /* ================================================== */
     .grid {
       display: grid;
@@ -336,9 +348,8 @@
       margin-bottom: 34px;
     }
 
-    /* ================================================== -->
+    /* ================================================== */
     /* 10. CARD INDIVIDUAL                                 */
-    /* Esta seção controla aparência e hover dos cards.   */
     /* ================================================== */
     .card {
       position: relative;
@@ -381,7 +392,6 @@
 
     /* ================================================== */
     /* 11. FOTO DOS CARDS                                  */
-    /* Esta seção controla imagem, zoom e dica visual.    */
     /* ================================================== */
     .foto-wrap {
       position: relative;
@@ -442,7 +452,6 @@
 
     /* ================================================== */
     /* 12. INFORMAÇÕES DOS CARDS                           */
-    /* Esta seção mostra nome, cargo e selo.              */
     /* ================================================== */
     .info {
       padding: 18px 16px 20px;
@@ -486,7 +495,6 @@
 
     /* ================================================== */
     /* 13. RODAPÉ                                          */
-    /* Esta seção define o rodapé da página.              */
     /* ================================================== */
     footer {
       text-align: center;
@@ -499,7 +507,6 @@
 
     /* ================================================== */
     /* 14. MODAL DE AMPLIAÇÃO DAS FOTOS                    */
-    /* Esta seção controla a foto ampliada ao clicar.     */
     /* ================================================== */
     .modal {
       position: fixed;
@@ -589,7 +596,6 @@
 
     /* ================================================== */
     /* 15. AJUSTES PARA CELULAR                            */
-    /* Esta seção adapta a página para telas menores.     */
     /* ================================================== */
     @media (max-width: 768px) {
       .nav-fixa {
@@ -602,7 +608,7 @@
       }
 
       header {
-        padding: 150px 14px 105px;
+        padding: 150px 14px 130px;
       }
 
       .hero p {
@@ -640,11 +646,19 @@
         font-size: 0.76rem;
         padding: 7px 9px;
       }
+
+      main {
+        margin: -24px auto 0;
+      }
+
+      main::before {
+        top: -55px;
+        height: 95px;
+      }
     }
 
     /* ================================================== */
     /* 16. ACESSIBILIDADE PARA REDUÇÃO DE MOVIMENTO        */
-    /* Esta seção reduz animações quando necessário.      */
     /* ================================================== */
     @media (prefers-reduced-motion: reduce) {
       * {
@@ -659,15 +673,12 @@
 
   <!-- ================================================== -->
   <!-- 17. FORMAS DECORATIVAS DE FUNDO                    -->
-  <!-- Esta seção exibe elementos visuais decorativos.    -->
   <!-- ================================================== -->
   <div class="bg-shape"></div>
   <div class="bg-shape two"></div>
 
   <!-- ================================================== -->
   <!-- 18. MENU SUPERIOR FIXO                             -->
-  <!-- Esta seção mostra o menu igual ao da página       -->
-  <!-- calendário.                                        -->
   <!-- ================================================== -->
   <div class="topbar-fixa" id="topbarFixa">
     <nav class="nav-fixa">
@@ -689,7 +700,6 @@
 
   <!-- ================================================== -->
   <!-- 19. TOPO / HERO DA PÁGINA                          -->
-  <!-- Esta seção apresenta o título principal.           -->
   <!-- ================================================== -->
   <header>
     <div class="hero">
@@ -702,13 +712,9 @@
 
   <!-- ================================================== -->
   <!-- 20. CONTEÚDO PRINCIPAL                             -->
-  <!-- Esta seção reúne gestão e corpo docente.           -->
   <!-- ================================================== -->
   <main>
 
-    <!-- ================================================ -->
-    <!-- 20.1 TÍTULO DA GESTÃO E COORDENAÇÃO              -->
-    <!-- ================================================ -->
     <section class="secao-titulo">
       <h2>Gestão e Coordenação</h2>
       <p>
@@ -716,9 +722,6 @@
       </p>
     </section>
 
-    <!-- ================================================ -->
-    <!-- 20.2 CARDS DA GESTÃO E COORDENAÇÃO               -->
-    <!-- ================================================ -->
     <section class="grid gestao">
       <article class="card gestao">
         <div class="foto-wrap" onclick="abrirModal('imagens/professores/PATRICIA.jpg', 'Patrícia', 'Diretora')">
@@ -757,9 +760,6 @@
       </article>
     </section>
 
-    <!-- ================================================ -->
-    <!-- 20.3 TÍTULO DOS PROFESSORES                      -->
-    <!-- ================================================ -->
     <section class="secao-titulo">
       <h2>Professores</h2>
       <p>
@@ -767,9 +767,6 @@
       </p>
     </section>
 
-    <!-- ================================================ -->
-    <!-- 20.4 CARDS DOS PROFESSORES                       -->
-    <!-- ================================================ -->
     <section class="grid" id="gridProfessores">
       <article class="card">
         <div class="foto-wrap" onclick="abrirModal('imagens/professores/ALANNA.jpg', 'ALANNA', 'Professora da Escola Iêda')">
@@ -1015,7 +1012,6 @@
 
   <!-- ================================================== -->
   <!-- 21. RODAPÉ                                         -->
-  <!-- Esta seção mostra o rodapé institucional.         -->
   <!-- ================================================== -->
   <footer>
     © Escola Municipal Professora Iêda Alves de Oliveira MCPM
@@ -1023,7 +1019,6 @@
 
   <!-- ================================================== -->
   <!-- 22. MODAL DAS FOTOS                                -->
-  <!-- Esta seção exibe a foto ampliada ao clicar.       -->
   <!-- ================================================== -->
   <div class="modal" id="modalFoto" onclick="fecharModal(event)">
     <div class="modal-content">
@@ -1036,7 +1031,6 @@
   <script>
     /* ================================================== */
     /* 23. ELEMENTOS DO JAVASCRIPT                         */
-    /* Esta seção seleciona os elementos usados no JS.    */
     /* ================================================== */
     const cards = document.querySelectorAll('.card');
     const modal = document.getElementById('modalFoto');
@@ -1046,7 +1040,6 @@
 
     /* ================================================== */
     /* 24. ABRIR MODAL                                     */
-    /* Esta função abre a foto ampliada.                  */
     /* ================================================== */
     function abrirModal(src, nome, cargo) {
       modalImagem.src = src;
@@ -1058,7 +1051,6 @@
 
     /* ================================================== */
     /* 25. FECHAR MODAL                                    */
-    /* Esta função fecha o modal de foto.                 */
     /* ================================================== */
     function fecharModal(event) {
       if (
@@ -1072,7 +1064,6 @@
 
     /* ================================================== */
     /* 26. FECHAR MODAL COM ESC                            */
-    /* Esta seção permite fechar pelo teclado.            */
     /* ================================================== */
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
@@ -1083,7 +1074,6 @@
 
     /* ================================================== */
     /* 27. ANIMAÇÃO DE ENTRADA DOS CARDS                   */
-    /* Esta seção revela os cards suavemente.             */
     /* ================================================== */
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, index) => {
@@ -1100,7 +1090,6 @@
 
     /* ================================================== */
     /* 28. EFEITO DO MENU FIXO AO ROLAR                    */
-    /* Esta seção deixa o menu mais sólido ao rolar.      */
     /* ================================================== */
     function efeitoTopo() {
       if (window.scrollY > 30) {
