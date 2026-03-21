@@ -100,7 +100,8 @@
       50% { transform: translateY(-18px); }
     }
 
-    /* ================================================== */
+
+/* ================================================== */
     /* 5. MENU SUPERIOR FIXO                               */
     /* Esta seção cria o menu igual ao da página inicial. */
     /* ================================================== */
@@ -110,14 +111,15 @@
       left: 0;
       width: 100%;
       z-index: 1000;
-      background: rgba(10, 42, 102, 0.82);
+      background: rgba(10, 42, 102, 0.35);
       backdrop-filter: blur(8px);
       transition: 0.3s ease;
     }
 
     .topbar-fixa.scrolled {
-      background: rgba(10, 42, 102, 0.95);
-      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      background: rgba(10, 42, 102, 0.85);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
     }
 
     .nav-fixa {
@@ -167,47 +169,30 @@
 
     .menu-fixo {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
     .menu-fixo a {
       color: white;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: bold;
       opacity: 0.95;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.25);
       transition: 0.25s;
     }
 
-.menu-botao{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:9px 14px;
-  border-radius:10px;
-  font-weight:bold;
-  transition:0.25s;
-  border:1px solid rgba(255,255,255,0.28);
-  background:rgba(255,255,255,0.12);
-  color:white !important;
-  text-decoration:none !important;
-  min-height:38px;
-  white-space:nowrap;
-}
-
-.menu-botao:hover,
-.menu-botao.ativo{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,0.20);
-}
     .menu-fixo a:hover,
     .menu-fixo a.ativo {
-      opacity: 1;
-      text-decoration: underline;
+      background: rgba(255,255,255,0.20);
+      transform: translateY(-1px);
     }
 
-    /* ================================================== */
+/* ================================================== */
     /* 6. HEADER / TOPO DA PÁGINA                          */
     /* Esta seção cria o topo visual com título e texto.  */
     /* ================================================== */
@@ -230,11 +215,24 @@
       z-index: -1;
     }
 
+    header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 90px;
+      background: linear-gradient(to top, #f4f7fb, rgba(244,247,251,0));
+      z-index: 0;
+    }
+
     .hero {
       max-width: 1200px;
       margin: 0 auto;
       text-align: center;
       padding-top: 10px;
+      position: relative;
+      z-index: 1;
     }
 
     .hero-badge {
@@ -260,7 +258,8 @@
       font-size: 1.02rem;
       line-height: 1.7;
       color: rgba(255,255,255,0.92);
-    }
+    }  
+
 
     /* ================================================== */
     /* 7. CONTAINER PRINCIPAL                              */
