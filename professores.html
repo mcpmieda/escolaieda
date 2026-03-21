@@ -180,6 +180,27 @@
       transition: 0.25s;
     }
 
+.menu-botao{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:9px 14px;
+  border-radius:10px;
+  font-weight:bold;
+  transition:0.25s;
+  border:1px solid rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.12);
+  color:white !important;
+  text-decoration:none !important;
+  min-height:38px;
+  white-space:nowrap;
+}
+
+.menu-botao:hover,
+.menu-botao.ativo{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.20);
+}
     .menu-fixo a:hover,
     .menu-fixo a.ativo {
       opacity: 1;
@@ -646,13 +667,11 @@
         </div>
       </a>
 
-      <div class="menu-fixo">
-        <a href="index.html#inicio">Início</a>
-        <a href="index.html#sobre">Nossa Escola</a>
-        <a href="professores.html" class="ativo">Professores</a>
-        <a href="calendario.html">Calendário Escolar</a>
-        <a href="index.html#contato">Contato</a>
-      </div>
+<div class="menu-fixo">
+  <a href="index.html#inicio" class="menu-botao">Início</a>
+  <a href="calendario.html" class="menu-botao">Calendário Escolar</a>
+  <a href="index.html#contato" class="menu-botao">Contato</a>
+</div>
     </nav>
   </div>
 
@@ -662,8 +681,7 @@
   <!-- ================================================== -->
   <header>
     <div class="hero">
-      <div class="hero-badge">Nossa equipe docente</div>
-      <h1>Professores</h1>
+      <h1>Equipe Docente</h1>
       <p>
         Conheça os profissionais que constroem diariamente a educação em nossa escola.
       </p>
@@ -675,18 +693,6 @@
   <!-- Esta seção reúne apresentação, gestão e docentes.  -->
   <!-- ================================================== -->
   <main>
-
-    <!-- ================================================ -->
-    <!-- 21.1 APRESENTAÇÃO DA EQUIPE                      -->
-    <!-- ================================================ -->
-    <section class="painel">
-      <h2>Nossa equipe</h2>
-      <p class="texto-apoio">
-        Nossa equipe é formada por profissionais comprometidos com o ensino, o cuidado e a formação cidadã dos estudantes.
-        Nesta página, você pode conhecer a gestão, a coordenação e os professores que contribuem diariamente para a construção
-        de uma educação de qualidade em nossa escola.
-      </p>
-    </section>
 
     <!-- ================================================ -->
     <!-- 21.2 TÍTULO DA GESTÃO E COORDENAÇÃO              -->
@@ -743,7 +749,7 @@
     <!-- 21.4 TÍTULO DO CORPO DOCENTE                     -->
     <!-- ================================================ -->
     <section class="secao-titulo">
-      <h2>Corpo Docente</h2>
+      <h2>Professores</h2>
       <p>
         Professores que, com dedicação e compromisso, participam diariamente da formação dos nossos estudantes.
       </p>
