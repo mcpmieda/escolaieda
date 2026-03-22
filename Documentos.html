@@ -1,1 +1,913 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- ================================================== -->
+  <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
+  <!-- Esta seção define idioma, título e metadados.      -->
+  <!-- ================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos Institucionais | Escola Iêda MCPM</title>
+  <link rel="icon" type="image/png" href="imagens/favicon.png">
+
+  <!-- ================================================== -->
+  <!-- 2. GOOGLE ANALYTICS                                -->
+  <!-- Esta seção monitora os acessos da página.          -->
+  <!-- ================================================== -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZN0NX8Q3E9');
+  </script>
+
+  <style>
+    /* ================================================== */
+    /* 3. VARIÁVEIS GERAIS DO SITE                        */
+    /* ================================================== */
+    :root{
+      --azul:#081a33;
+      --azul2:#10294d;
+      --azul3:#173d72;
+      --carmim:#8f1d3f;
+      --carmim2:#b3264a;
+      --fundo:#f3f6fa;
+      --fundo-card:#ffffff;
+      --texto:#1f2937;
+      --texto-suave:#5c6675;
+      --branco:#ffffff;
+      --verde:#25D366;
+      --borda-clara:rgba(255,255,255,0.10);
+      --borda-escura:rgba(8,26,51,0.08);
+      --sombra:0 18px 45px rgba(0,0,0,0.10);
+      --sombra-forte:0 25px 60px rgba(0,0,0,0.18);
+      --raio:20px;
+    }
+
+    /* ================================================== */
+    /* 4. AJUSTES GERAIS DA PÁGINA                        */
+    /* ================================================== */
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      font-family:Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(179,38,74,0.05), transparent 28%),
+        linear-gradient(to bottom, #f7f9fc, var(--fundo));
+      color:var(--texto);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    a{
+      text-decoration:none;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    /* ================================================== */
+    /* 5. MENU SUPERIOR FIXO                              */
+    /* ================================================== */
+    .topbar{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:1000;
+      background:rgba(8,26,51,0.78);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 10px 30px rgba(0,0,0,0.16);
+    }
+
+    .nav{
+      max-width:1180px;
+      margin:auto;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .marca{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:white;
+      font-weight:bold;
+      font-size:0.95rem;
+      letter-spacing:0.3px;
+    }
+
+    .marca-mini-logo{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      padding:4px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 8px 20px rgba(0,0,0,0.18);
+      object-fit:contain;
+    }
+
+    .menu{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+
+    .menu-botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:9px 14px;
+      border-radius:12px;
+      font-weight:bold;
+      transition:0.25s;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.08);
+      color:white !important;
+      min-height:38px;
+      font-size:0.93rem;
+      white-space:nowrap;
+    }
+
+    .menu-botao:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.17);
+      border-color:rgba(255,255,255,0.22);
+    }
+
+    /* ================================================== */
+    /* 6. HERO / TOPO DA PÁGINA                           */
+    /* ================================================== */
+    .hero{
+      min-height:52vh;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:125px 20px 80px;
+      color:white;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(179,38,74,0.28), transparent 28%),
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.06), transparent 20%),
+        linear-gradient(135deg, #071427 0%, #0b1f3a 38%, #10294d 100%);
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(5,12,24,0.42), rgba(5,12,24,0.56)),
+        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      opacity:0.16;
+      transform:scale(1.05);
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:-1px;
+      height:120px;
+      background:linear-gradient(to bottom, rgba(243,246,250,0), var(--fundo));
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:2;
+      max-width:980px;
+      width:100%;
+    }
+
+    .hero-selo{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:20px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      backdrop-filter:blur(8px);
+      font-size:0.92rem;
+      color:rgba(255,255,255,0.92);
+      box-shadow:0 10px 24px rgba(0,0,0,0.16);
+    }
+
+    .hero h1{
+      font-size:clamp(2rem, 5vw, 3.5rem);
+      line-height:1.1;
+      font-weight:700;
+      letter-spacing:-0.4px;
+      margin-bottom:14px;
+      text-shadow:0 4px 20px rgba(0,0,0,0.20);
+    }
+
+    .hero p{
+      max-width:760px;
+      margin:0 auto;
+      color:rgba(255,255,255,0.92);
+      font-size:1.05rem;
+    }
+
+    /* ================================================== */
+    /* 7. CONTAINER GERAL                                 */
+    /* ================================================== */
+    .container{
+      max-width:1180px;
+      margin:auto;
+      padding:72px 20px;
+      position:relative;
+      z-index:1;
+    }
+
+    .titulo-secao{
+      text-align:center;
+      margin-bottom:36px;
+    }
+
+    .titulo-secao .mini-titulo{
+      display:inline-block;
+      margin-bottom:12px;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:0.85rem;
+      font-weight:bold;
+      color:var(--carmim);
+      background:rgba(143,29,63,0.08);
+      border:1px solid rgba(143,29,63,0.12);
+      letter-spacing:0.3px;
+    }
+
+    .titulo-secao h2{
+      color:var(--azul);
+      font-size:2.1rem;
+      margin-bottom:10px;
+      line-height:1.15;
+    }
+
+    .titulo-secao p{
+      max-width:780px;
+      margin:auto;
+      color:var(--texto-suave);
+    }
+
+    /* ================================================== */
+    /* 8. GRADE DE DOCUMENTOS                             */
+    /* ================================================== */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:22px;
+    }
+
+    .card{
+      position:relative;
+      background:linear-gradient(145deg, #ffffff, #f4f7fb);
+      border-radius:var(--raio);
+      padding:26px;
+      box-shadow:0 14px 35px rgba(0,0,0,0.08);
+      transition:transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      border:1px solid rgba(8,26,51,0.06);
+      overflow:hidden;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg, var(--azul3), var(--carmim2));
+      opacity:0.92;
+    }
+
+    .card:hover{
+      transform:translateY(-8px) scale(1.01);
+      box-shadow:0 20px 50px rgba(0,0,0,0.12);
+      border-color:rgba(143,29,63,0.12);
+    }
+
+    .icone-doc{
+      width:58px;
+      height:58px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.5rem;
+      margin-bottom:16px;
+      color:white;
+      background:linear-gradient(135deg, var(--azul3), var(--carmim2));
+      box-shadow:0 10px 24px rgba(16,41,77,0.18);
+    }
+
+    .card h3{
+      color:var(--azul);
+      margin-bottom:10px;
+      font-size:1.1rem;
+      line-height:1.25;
+    }
+
+    .card p{
+      color:var(--texto-suave);
+      margin-bottom:18px;
+    }
+
+    .acoes-card{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .mini-botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:bold;
+      font-size:0.92rem;
+      transition:0.25s;
+      cursor:pointer;
+      border:none;
+      font-family:Arial, sans-serif;
+    }
+
+    .mini-botao-principal{
+      background:linear-gradient(135deg, var(--azul), var(--azul3));
+      color:white;
+      box-shadow:0 10px 22px rgba(8,26,51,0.16);
+    }
+
+    .mini-botao-principal:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.04);
+    }
+
+    .mini-botao-secundario{
+      background:rgba(143,29,63,0.08);
+      color:var(--carmim);
+      border:1px solid rgba(143,29,63,0.12);
+    }
+
+    .mini-botao-secundario:hover{
+      transform:translateY(-2px);
+      background:rgba(143,29,63,0.12);
+    }
+
+    /* ================================================== */
+    /* 9. PAINEL DO VISUALIZADOR                          */
+    /* ================================================== */
+    .visor-area{
+      margin-top:24px;
+    }
+
+    .visor-topo{
+      background:linear-gradient(145deg, #ffffff, #f5f8fb);
+      border-radius:24px 24px 0 0;
+      padding:28px 26px;
+      box-shadow:var(--sombra);
+      border:1px solid rgba(8,26,51,0.06);
+      border-bottom:none;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .visor-topo::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg, var(--azul), var(--carmim2));
+    }
+
+    .visor-topo h3{
+      color:var(--azul);
+      font-size:1.8rem;
+      margin-bottom:8px;
+      line-height:1.2;
+    }
+
+    .visor-topo p{
+      color:var(--texto-suave);
+      max-width:820px;
+    }
+
+    .visor-acoes{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 18px;
+      border-radius:14px;
+      font-weight:bold;
+      transition:0.25s;
+      border:none;
+      cursor:pointer;
+      font-size:0.96rem;
+      font-family:Arial, sans-serif;
+      text-align:center;
+      min-width:180px;
+    }
+
+    .botao-principal{
+      background:linear-gradient(135deg, var(--azul), var(--azul3));
+      color:white;
+      box-shadow:0 12px 24px rgba(8,26,51,0.18);
+    }
+
+    .botao-principal:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.04);
+    }
+
+    .botao-secundario{
+      background:rgba(143,29,63,0.08);
+      color:var(--carmim);
+      border:1px solid rgba(143,29,63,0.12);
+    }
+
+    .botao-secundario:hover{
+      transform:translateY(-2px);
+      background:rgba(143,29,63,0.12);
+    }
+
+    .visor-pdf{
+      background:white;
+      border-radius:0 0 24px 24px;
+      overflow:hidden;
+      box-shadow:var(--sombra);
+      border:1px solid rgba(8,26,51,0.06);
+      border-top:none;
+    }
+
+    .visor-pdf iframe{
+      width:100%;
+      height:900px;
+      border:none;
+      background:#eef2f7;
+    }
+
+    /* ================================================== */
+    /* 10. FAIXA DE ORIENTAÇÃO                            */
+    /* ================================================== */
+    .faixa-info{
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 24%),
+        linear-gradient(135deg, var(--azul), var(--carmim));
+      color:white;
+      border-radius:28px;
+      padding:34px 24px;
+      text-align:center;
+      box-shadow:var(--sombra-forte);
+      margin-top:10px;
+    }
+
+    .faixa-info h2{
+      font-size:1.8rem;
+      margin-bottom:10px;
+      line-height:1.15;
+    }
+
+    .faixa-info p{
+      max-width:850px;
+      margin:auto;
+      color:rgba(255,255,255,0.94);
+    }
+
+    /* ================================================== */
+    /* 11. RODAPÉ                                         */
+    /* ================================================== */
+    footer{
+      background:linear-gradient(135deg, #071427, #0d223f);
+      color:white;
+      text-align:center;
+      padding:28px 16px;
+      margin-top:40px;
+      border-top:1px solid rgba(255,255,255,0.06);
+    }
+
+    footer p{
+      opacity:0.94;
+      font-size:0.96rem;
+    }
+
+    /* ================================================== */
+    /* 12. BOTÕES FLUTUANTES                              */
+    /* ================================================== */
+    .topo-btn{
+      position:fixed;
+      left:18px;
+      bottom:18px;
+      z-index:1001;
+      width:48px;
+      height:48px;
+      border:none;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--azul), var(--carmim));
+      color:white;
+      font-size:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.20);
+      display:none;
+      cursor:pointer;
+    }
+
+    .mostrar{
+      display:flex !important;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* ================================================== */
+    /* 13. ANIMAÇÕES                                      */
+    /* ================================================== */
+    .reveal{
+      opacity:0;
+      transform:translateY(42px) scale(0.985);
+      transition:opacity 0.85s ease, transform 0.85s ease;
+    }
+
+    .reveal.ativo{
+      opacity:1;
+      transform:translateY(0) scale(1);
+    }
+
+    /* ================================================== */
+    /* 14. AJUSTES PARA CELULAR                           */
+    /* ================================================== */
+    @media (max-width:780px){
+      .nav{
+        flex-direction:column;
+        align-items:center;
+      }
+
+      .menu{
+        justify-content:center;
+        gap:8px;
+      }
+
+      .hero{
+        min-height:auto;
+        padding:118px 18px 80px;
+      }
+
+      .container{
+        padding:56px 16px;
+      }
+
+      .titulo-secao h2{
+        font-size:1.8rem;
+      }
+
+      .visor-topo{
+        padding:24px 18px;
+      }
+
+      .visor-topo h3{
+        font-size:1.45rem;
+      }
+
+      .visor-pdf iframe{
+        height:72vh;
+      }
+
+      .card,
+      .faixa-info{
+        padding:24px 18px;
+      }
+
+      .botao{
+        min-width:160px;
+        padding:12px 16px;
+      }
+
+      .menu-botao{
+        min-height:36px;
+        padding:8px 12px;
+        font-size:0.88rem;
+      }
+    }
+
+    @media (max-width:520px){
+      .menu{
+        display:grid;
+        grid-template-columns:repeat(2, auto);
+        justify-content:center;
+      }
+
+      .acoes-card,
+      .visor-acoes{
+        flex-direction:column;
+      }
+
+      .mini-botao,
+      .botao{
+        width:100%;
+      }
+
+      .hero-selo{
+        font-size:0.82rem;
+      }
+
+      .visor-pdf iframe{
+        height:68vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================== -->
+  <!-- 15. MENU SUPERIOR                                 -->
+  <!-- ================================================== -->
+  <div class="topbar">
+    <nav class="nav">
+      <div class="marca">
+        <img src="logo_escola.png" alt="Logo da Escola" class="marca-mini-logo">
+        <span>ESCOLA IÊDA MCPM</span>
+      </div>
+
+      <div class="menu">
+        <a href="index.html" class="menu-botao">Início</a>
+        <a href="professores.html" class="menu-botao">Professores</a>
+        <a href="calendario.html" class="menu-botao">Calendário</a>
+        <a href="#leitor" class="menu-botao">Leitor</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ================================================== -->
+  <!-- 16. TOPO / HERO                                   -->
+  <!-- ================================================== -->
+  <header class="hero">
+    <div class="hero-content reveal">
+      <div class="hero-selo">Portal de leitura institucional</div>
+      <h1>Documentos Institucionais</h1>
+      <p>
+        Consulte os documentos oficiais da escola com leitura no próprio site,
+        opção de abrir em nova aba e download em PDF.
+      </p>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ================================================ -->
+    <!-- 17. APRESENTAÇÃO DA SEÇÃO                        -->
+    <!-- ================================================ -->
+    <section class="container reveal">
+      <div class="titulo-secao">
+        <span class="mini-titulo">CONSULTA DE DOCUMENTOS</span>
+        <h2>Acesse os arquivos institucionais de forma simples e organizada</h2>
+        <p>
+          Selecione um dos documentos abaixo para visualizar diretamente no site.
+          Você também pode abrir em nova aba ou baixar o arquivo em PDF.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="icone-doc">📘</div>
+          <h3>Biografia</h3>
+          <p>
+            Documento disponibilizado para consulta pública no portal institucional da escola.
+          </p>
+          <div class="acoes-card">
+            <button class="mini-botao mini-botao-principal"
+              onclick="carregarDocumento(
+                'Biografia',
+                'Documento disponível para leitura online no portal institucional da Escola Iêda MCPM.',
+                'arquivos/BIOGRAFIA.pdf'
+              )">
+              Ler no site
+            </button>
+            <a href="arquivos/BIOGRAFIA.pdf" target="_blank" class="mini-botao mini-botao-secundario">
+              Nova aba
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="icone-doc">📕</div>
+          <h3>Regimento Municipal</h3>
+          <p>
+            Documento com normas e orientações gerais relacionadas ao funcionamento da rede municipal.
+          </p>
+          <div class="acoes-card">
+            <button class="mini-botao mini-botao-principal"
+              onclick="carregarDocumento(
+                'Regimento Municipal',
+                'Consulte o Regimento Municipal diretamente no site, com opção de abrir em nova aba ou baixar o PDF.',
+                'arquivos/REGIMENTO_MUNICIPAL.pdf'
+              )">
+              Ler no site
+            </button>
+            <a href="arquivos/REGIMENTO_MUNICIPAL.pdf" target="_blank" class="mini-botao mini-botao-secundario">
+              Nova aba
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="icone-doc">📗</div>
+          <h3>Regimento Disciplinar</h3>
+          <p>
+            Documento institucional voltado às normas disciplinares e à organização da convivência escolar.
+          </p>
+          <div class="acoes-card">
+            <button class="mini-botao mini-botao-principal"
+              onclick="carregarDocumento(
+                'Regimento Disciplinar',
+                'Consulte o Regimento Disciplinar diretamente no site da escola com visualização incorporada.',
+                'arquivos/REGIMENTO_DISCIPLINAR.pdf'
+              )">
+              Ler no site
+            </button>
+            <a href="arquivos/REGIMENTO_DISCIPLINAR.pdf" target="_blank" class="mini-botao mini-botao-secundario">
+              Nova aba
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- 18. FAIXA DE ORIENTAÇÃO                          -->
+    <!-- ================================================ -->
+    <section class="container reveal">
+      <div class="faixa-info">
+        <h2>Leitura online com praticidade</h2>
+        <p>
+          No computador, o documento será exibido diretamente abaixo. No celular,
+          caso a leitura incorporada não fique confortável, utilize os botões de
+          abrir em nova aba ou baixar PDF.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- 19. LEITOR DE DOCUMENTOS                         -->
+    <!-- ================================================ -->
+    <section class="container reveal" id="leitor">
+      <div class="titulo-secao">
+        <span class="mini-titulo">LEITOR ONLINE</span>
+        <h2>Visualização do documento</h2>
+        <p>
+          Escolha um documento acima para exibição no visor abaixo.
+        </p>
+      </div>
+
+      <div class="visor-area">
+        <div class="visor-topo">
+          <h3 id="tituloDocumento">Biografia</h3>
+          <p id="descricaoDocumento">
+            Documento disponível para leitura online no portal institucional da Escola Iêda MCPM.
+          </p>
+
+          <div class="visor-acoes">
+            <a href="arquivos/BIOGRAFIA.pdf" target="_blank" class="botao botao-principal" id="botaoNovaAba">
+              Abrir em nova aba
+            </a>
+            <a href="arquivos/BIOGRAFIA.pdf" download class="botao botao-secundario" id="botaoDownload">
+              Baixar PDF
+            </a>
+          </div>
+        </div>
+
+        <div class="visor-pdf">
+          <iframe
+            id="iframeDocumento"
+            src="arquivos/BIOGRAFIA.pdf"
+            title="Leitor de documento PDF">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================== -->
+  <!-- 20. RODAPÉ                                        -->
+  <!-- ================================================== -->
+  <footer>
+    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- ================================================== -->
+  <!-- 21. BOTÃO VOLTAR AO TOPO                          -->
+  <!-- ================================================== -->
+  <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
+
+  <script>
+    /* ================================================== */
+    /* 22. ELEMENTOS DO JAVASCRIPT                        */
+    /* ================================================== */
+    const reveals = document.querySelectorAll('.reveal');
+    const topoBtn = document.getElementById('topoBtn');
+
+    const tituloDocumento = document.getElementById('tituloDocumento');
+    const descricaoDocumento = document.getElementById('descricaoDocumento');
+    const iframeDocumento = document.getElementById('iframeDocumento');
+    const botaoNovaAba = document.getElementById('botaoNovaAba');
+    const botaoDownload = document.getElementById('botaoDownload');
+
+    /* ================================================== */
+    /* 23. REVELAÇÃO DOS ELEMENTOS                        */
+    /* ================================================== */
+    function revelarElementos(){
+      const alturaJanela = window.innerHeight;
+
+      reveals.forEach((el) => {
+        const topo = el.getBoundingClientRect().top;
+        if(topo < alturaJanela - 80){
+          el.classList.add('ativo');
+        }
+      });
+    }
+
+    /* ================================================== */
+    /* 24. BOTÃO VOLTAR AO TOPO                           */
+    /* ================================================== */
+    function controlarBotaoTopo(){
+      if(window.scrollY > 400){
+        topoBtn.classList.add('mostrar');
+      }else{
+        topoBtn.classList.remove('mostrar');
+      }
+    }
+
+    topoBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    /* ================================================== */
+    /* 25. FUNÇÃO PARA TROCAR O DOCUMENTO EXIBIDO         */
+    /* ================================================== */
+    function carregarDocumento(titulo, descricao, arquivo){
+      tituloDocumento.textContent = titulo;
+      descricaoDocumento.textContent = descricao;
+      iframeDocumento.src = arquivo;
+      botaoNovaAba.href = arquivo;
+      botaoDownload.href = arquivo;
+
+      document.getElementById('leitor').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+
+    /* ================================================== */
+    /* 26. EVENTOS DE SCROLL                              */
+    /* ================================================== */
+    window.addEventListener('scroll', () => {
+      revelarElementos();
+      controlarBotaoTopo();
+    });
+
+    /* ================================================== */
+    /* 27. INICIALIZAÇÃO VISUAL                           */
+    /* ================================================== */
+    window.addEventListener('load', () => {
+      revelarElementos();
+      controlarBotaoTopo();
+    });
+  </script>
+
+</body>
+</html>
