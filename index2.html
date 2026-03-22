@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
+  <link rel="icon" type="image/png" href="imagens/favicon.png">
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZN0NX8Q3E9');
+  </script>
+
+  <script src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
+
+  <style>
+    /* ================================================== */
+    /* 4. VARIÁVEIS GERAIS DO SITE (Estilo GitHub Dark)    */
+    /* ================================================== */
+    :root {
+      /* Fundo ultra escuro (baseado no GitHub) */
+      --bg-principal: #0d1117;
+      --bg-secundario: #161b22;
+      
+      /* Cores da Escola */
+      --azul-marinho: #001f3f; 
+      --azul-brilho: #004080;
+      --vermelho-carmim: #990000;
+      --vermelho-brilho: #cc0000;
+      
+      /* Textos e Bordas */
+      --texto-claro: #c9d1d9;
+      --texto-titulo: #ffffff;
+      --borda-sutil: rgba(255, 255, 255, 0.1);
+      --borda-hover: rgba(255, 255, 255, 0.3);
+      
+      /* WhatsApp */
+      --verde: #238636;
+      --verde-hover: #2ea043;
+      
+      /* Efeitos */
+      --sombra: 0 10px 30px rgba(0,0,0,0.5);
+      --raio: 12px;
+      --glow-azul: 0 0 40px rgba(0, 64, 128, 0.4);
+      --glow-vermelho: 0 0 40px rgba(204, 0, 0, 0.3);
+    }
+
+    /* ================================================== */
+    /* 5. AJUSTES GERAIS DA PÁGINA                        */
+    /* ================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg-principal);
+      color: var(--texto-claro);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ================================================== */
+    /* 6. MENU SUPERIOR FIXO                              */
+    /* ================================================== */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--borda-sutil);
+      transform: translateY(-120%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    }
+
+    .topbar.mostrar-menu {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nav {
+      max-width: 1200px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .marca {
+      color: var(--texto-titulo);
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: -0.5px;
+    }
+
+    .menu {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .menu-botao {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: 0.2s;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--texto-claro) !important;
+      font-size: 0.95rem;
+    }
+
+    .menu-botao:hover {
+      color: var(--texto-titulo) !important;
+      background: var(--borda-sutil);
+    }
+
+    /* ================================================== */
+    /* 7. SEÇÃO PRINCIPAL DO TOPO / HERO                  */
+    /* ================================================== */
+    .hero {
+      min-height: 100vh;
+      background: 
+        radial-gradient(circle at 50% 0%, var(--azul-marinho) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(153, 0, 0, 0.15) 0%, transparent 40%),
+        var(--bg-principal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 20px 80px;
+      color: var(--texto-titulo);
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        linear-gradient(var(--borda-sutil) 1px, transparent 1px),
+        linear-gradient(90deg, var(--borda-sutil) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      width: 140px;
+      margin-bottom: 30px;
+      background: var(--bg-secundario);
+      padding: 12px;
+      border-radius: 50%;
+      border: 1px solid var(--borda-sutil);
+      box-shadow: var(--glow-azul);
+      animation: flutuar 4s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #fff, #8b949e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero .sub {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      max-width: 760px;
+      margin: 0 auto 30px;
+      color: var(--texto-claro);
+      font-weight: 400;
+    }
+
+    /* ================================================== */
+    /* 8. BOTÕES DA PÁGINA INICIAL                        */
+    /* ================================================== */
+    .botoes {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .botao {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 1rem;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .botao-secundario {
+      background: var(--bg-secundario);
+      color: var(--texto-claro);
+      border: 1px solid var(--borda-sutil);
+    }
+
+    .botao-secundario:hover {
+      border-color: var(--texto-claro);
+      background: #21262d;
+      color: var(--texto-titulo);
+    }
+
+    .botao-principal {
+      background: var(--vermelho-carmim);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: var(--glow-vermelho);
+    }
+
+    .botao-principal:hover {
+      background: var(--vermelho-brilho);
+      box-shadow: 0 0 50px rgba(204, 0, 0, 0.5);
+    }
+
+    .botao-login {
+      background: #f6f8fa;
+      color: #24292f;
+      border: 1px solid rgba(27, 31, 36, 0.15);
+      width: 100%;
+      max-width: 300px;
+      padding: 14px;
+      font-size: 1.1rem;
+    }
+
+    .botao-login:hover {
+      background: #ffffff;
+      transform: scale(1.02);
+    }
+
+    /* ================================================== */
+    /* 9. CONTAINER GERAL DAS SEÇÕES                      */
+    /* ================================================== */
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 80px 24px;
+      position: relative;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--vermelho-carmim), transparent);
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    .titulo-secao {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+      background: var(--bg-principal);
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0 20px;
+    }
+
+    .titulo-secao h2 {
+      color: var(--texto-titulo);
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .titulo-secao p {
+      max-width: 600px;
+      margin: auto;
+      color: var(--texto-claro);
+      font-size: 1.1rem;
+    }
+
+    /* ================================================== */
+    /* 10. SEÇÃO DOS CARDS EM GRADE                       */
+    /* ================================================== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--bg-secundario);
+      border-radius: var(--raio);
+      padding: 32px;
+      border: 1px solid var(--borda-sutil);
+      transition: 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--vermelho-carmim);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover {
+      border-color: var(--borda-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card h3 {
+      color: var(--texto-titulo);
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    /* ================================================== */
+    /* 11. SEÇÃO DA FAIXA DE DESTAQUE                     */
+    /* ================================================== */
+    .faixa {
+      background: linear-gradient(135deg, var(--bg-secundario) 0%, var(--azul-marinho) 100%);
+      border: 1px solid var(--borda-sutil);
+      color: var(--texto-titulo);
+      border-radius: var(--raio);
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--glow-azul);
+    }
+
+    .faixa::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, var(--vermelho-carmim) 0%, transparent 70%);
+      opacity: 0.2;
+      border-radius: 50%;
+    }
+
+    .faixa h2 {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .faixa p {
+      font-size: 1.1rem;
+      color: var(--texto-claro);
+      max-width: 700px;
+      margin: 0 auto 40px;
+    }
+
+    .numeros {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .numero {
+      background: rgba(13, 17, 23, 0.6);
+      border: 1px solid var(--borda-sutil);
+      border-radius: var(--raio);
+      padding: 24px;
+      backdrop-filter: blur(4px);
+      transition: 0.3s;
+    }
+
+    .numero:hover {
+      border-color: var(--borda-hover);
+      background: var(--bg-secundario);
+    }
+
+    .numero strong {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--texto-titulo);
+      margin-bottom: 8px;
+    }
+
+    .numero span {
+      color: #8b949e;
+      font-size: 0.95rem;
+    }
+
+    /* ================================================== */
+    /* 12. SEÇÃO DE CONTATO                               */
+    /* ================================================== */
+    .contato-card {
+      background: var(--bg-secundario);
+      border-radius: var(--raio);
+      padding: 40px;
+      border: 1px solid var(--borda-sutil);
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+      position: relative;
+    }
+
+    .contato-card h2 {
+      color: var(--texto-titulo);
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+
+    .contato-card p {
+      margin: 12px 0;
+      font-size: 1.1rem;
+    }
+
+    .contato-card a.email {
+      color: #58a6ff;
+      font-weight: 600;
+    }
+
+    .contato-card a.email:hover {
+      text-decoration: underline;
+    }
+
+    .whats-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 24px;
+      padding: 14px 28px;
+      background: var(--verde);
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: 0.2s;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .whats-link:hover {
+      background: var(--verde-hover);
+    }
+
+    /* ================================================== */
+    /* 13. RODAPÉ DA PÁGINA                               */
+    /* ================================================== */
+    footer {
+      background: #010409;
+      border-top: 1px solid var(--borda-sutil);
+      color: #8b949e;
+      text-align: center;
+      padding: 40px 20px;
+      margin-top: 60px;
+      font-size: 0.9rem;
+    }
+
+    /* ================================================== */
+    /* 14. BOTÕES FLUTUANTES                              */
+    /* ================================================== */
+    .whatsapp-float {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1001;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--verde);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 0 20px rgba(35, 134, 54, 0.4);
+      transition: 0.3s;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+      background: var(--verde-hover);
+    }
+
+    .topo-btn {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      z-index: 1001;
+      width: 50px;
+      height: 50px;
+      border: 1px solid var(--borda-sutil);
+      border-radius: 50%;
+      background: var(--bg-secundario);
+      color: var(--texto-claro);
+      font-size: 20px;
+      display: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .topo-btn:hover {
+      background: var(--borda-hover);
+      color: white;
+    }
+
+    .mostrar {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ================================================== */
+    /* 15. ANIMAÇÕES DA PÁGINA                            */
+    /* ================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.ativo {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes flutuar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* ================================================== */
+    /* 16. AJUSTES PARA CELULAR                           */
+    /* ================================================== */
+    @media (max-width: 780px) {
+      .container::before {
+        display: none;
+      }
+      
+      .hero {
+        padding: 100px 20px 60px;
+      }
+      
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+
+      .titulo-secao h2 {
+        font-size: 2rem;
+      }
+
+      .faixa h2 {
+        font-size: 2rem;
+      }
+
+      .faixa, .contato-card, .card {
+        padding: 24px;
+      }
+      
+      .botoes {
+        flex-direction: column;
+      }
+      
+      .botao {
+        width: 100%;
+      }
+      
+      .nav {
+        justify-content: center;
+      }
+      
+      .menu {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar" id="topbar">
+    <nav class="nav">
+      <div class="marca">ESCOLA IÊDA MCPM</div>
+      <div class="menu">
+        <a href="professores.html" class="menu-botao">Professores</a>
+        <a href="calendario.html" class="menu-botao">Calendário Escolar</a>
+        <a href="#contato" class="menu-botao">Contato</a>
+      </div>
+    </nav>
+  </div>
+
+  <header class="hero" id="inicio">
+    <div class="hero-content reveal">
+
+      <img src="logo_escola.png" alt="Logo da Escola" class="logo">
+
+      <h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
+
+      <p class="sub">
+        Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.
+      </p>
+
+      <div class="botoes" id="botoesHero">
+        <a href="professores.html" class="botao botao-secundario">Professores</a>
+        <a href="calendario.html" class="botao botao-secundario">Calendário Escolar</a>
+        <a href="#contato" class="botao botao-secundario">Contato</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="container reveal" id="sobre">
+      <div class="titulo-secao">
+        <h2>Nossa Escola</h2>
+        <p>
+          Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com
+          a formação dos estudantes e com a participação da comunidade escolar.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Portal Institucional</h3>
+          <p>
+            Este site foi criado para aproximar a escola das famílias, com um canal
+            simples, bonito e organizado para divulgar informações importantes.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Compromisso com a Educação</h3>
+          <p>
+            Valorizamos o ensino, a disciplina, o respeito, a convivência e a
+            formação cidadã dos nossos estudantes.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Comunicação com a Comunidade</h3>
+          <p>
+            Este espaço poderá reunir avisos, orientações, documentos, projetos e
+            outras informações de interesse da comunidade escolar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container reveal">
+      <div class="faixa">
+        <h2>Educar é construir o futuro</h2>
+        <p>
+          Nossa missão é contribuir para uma educação de qualidade, fortalecendo
+          valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.
+        </p>
+
+        <div class="numeros">
+          <div class="numero">
+            <strong>1990</strong>
+            <span>Fundação</span>
+          </div>
+          <div class="numero">
+            <strong>6º ao 9º</strong>
+            <span>Ensino Fundamental Anos Finais</span>
+          </div>
+          <div class="numero">
+            <strong>20</strong>
+            <span>Professores</span>
+          </div>
+          <div class="numero">
+            <strong>44</strong>
+            <span>Funcionários</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container reveal" id="informacoes">
+      <div class="titulo-secao">
+        <h2>Informações</h2>
+        <p>
+          Um espaço institucional pensado para centralizar conteúdos relevantes da escola.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Avisos</h3>
+          <p>
+            Comunicados importantes à comunidade escolar poderão ser publicados aqui
+            de forma clara e acessível.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Documentos</h3>
+          <p>
+            Futuramente, este portal poderá disponibilizar documentos, orientações,
+            cronogramas e materiais institucionais.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Calendário Escolar</h3>
+          <p>
+            A comunidade escolar pode consultar o calendário letivo com datas,
+            períodos importantes e organização do ano escolar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container reveal" id="contato">
+      <div class="contato-card">
+        <h2>Contato</h2>
+
+        <p>
+          <strong>Email:</strong>
+          <a class="email" href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a>
+        </p>
+
+        <p>
+          <strong>Telefone / WhatsApp:</strong>
+          <a class="email" href="tel:+5573998710105">(73) 99871-0105</a>
+        </p>
+
+        <a href="https://wa.me/5573998710105" class="whats-link" target="_blank">
+          Conversar pelo WhatsApp
+        </a>
+
+        <p style="margin-top:16px;">
+          <strong>Endereço:</strong> Rua Clidenor de Oliveira, S/N – Centro<br>
+          Medeiros Neto - BA
+        </p>
+
+        <div style="margin-top:30px; text-align:center;">
+          <button class="botao botao-login" onclick="loginMicrosoft()">Área Restrita (Login)</button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
+  </footer>
+
+  <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" aria-label="WhatsApp da escola">
+    ✆
+  </a>
+
+  <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
+
+  <script>
+    /* ================================================== */
+    /* 26. ELEMENTOS DO JAVASCRIPT                        */
+    /* ================================================== */
+    const reveals = document.querySelectorAll('.reveal');
+    const topbar = document.getElementById('topbar');
+    const topoBtn = document.getElementById('topoBtn');
+    const botoesHero = document.getElementById('botoesHero');
+
+    /* ================================================== */
+    /* 27. REVELAÇÃO DOS ELEMENTOS                        */
+    /* ================================================== */
+    function revelarElementos(){
+      const alturaJanela = window.innerHeight;
+
+      reveals.forEach((el) => {
+        const topo = el.getBoundingClientRect().top;
+        if(topo < alturaJanela - 80){
+          el.classList.add('ativo');
+        }
+      });
+    }
+
+    /* ================================================== */
+    /* 28. CONTROLE DO MENU SUPERIOR                      */
+    /* ================================================== */
+    function controlarMenuTopo(){
+      const areaBotoes = botoesHero.getBoundingClientRect();
+      const aindaVisivel = areaBotoes.bottom > 80 && areaBotoes.top < window.innerHeight - 40;
+
+      if(aindaVisivel){
+        topbar.classList.remove('mostrar-menu');
+      }else{
+        topbar.classList.add('mostrar-menu');
+      }
+    }
+
+    /* ================================================== */
+    /* 29. EFEITOS DE ROLAGEM                             */
+    /* ================================================== */
+    function efeitosScroll(){
+      if(window.scrollY > 400){
+        topoBtn.classList.add('mostrar');
+      }else{
+        topoBtn.classList.remove('mostrar');
+      }
+    }
+
+    /* ================================================== */
+    /* 30. BOTÃO VOLTAR AO TOPO                           */
+    /* ================================================== */
+    topoBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    /* ================================================== */
+    /* 31. EVENTOS DE SCROLL                              */
+    /* ================================================== */
+    window.addEventListener('scroll', () => {
+      revelarElementos();
+      controlarMenuTopo();
+      efeitosScroll();
+    });
+
+    /* ================================================== */
+    /* 32. INICIALIZAÇÃO VISUAL DA PÁGINA                 */
+    /* ================================================== */
+    window.addEventListener('load', () => {
+      revelarElementos();
+      controlarMenuTopo();
+      efeitosScroll();
+    });
+
+    /* ================================================== */
+    /* 33. AJUSTE AO REDIMENSIONAR A TELA                 */
+    /* ================================================== */
+    window.addEventListener('resize', () => {
+      controlarMenuTopo();
+    });
+
+    /* ================================================== */
+    /* 34. CONFIGURAÇÃO DO LOGIN MICROSOFT / ENTRA ID     */
+    /* ================================================== */
+    const msalConfig = {
+      auth: {
+        clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+        authority: "https://login.microsoftonline.com/organizations",
+        redirectUri: window.location.origin
+      },
+      cache: {
+        cacheLocation: "sessionStorage",
+        storeAuthStateInCookie: true
+      }
+    };
+
+    const loginRequest = {
+      scopes: ["openid", "profile"],
+      prompt: "select_account"
+    };
+
+    const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+    /* ================================================== */
+    /* 35. FUNÇÃO DE LOGIN MICROSOFT                      */
+    /* ================================================== */
+    function loginMicrosoft(){
+      msalInstance.loginRedirect(loginRequest);
+    }
+
+    /* ================================================== */
+    /* 36. LEITURA DAS ROLES E REDIRECIONAMENTO           */
+    /* ================================================== */
+    function redirecionarPorPerfil(claims){
+      const roles = claims && claims.roles ? claims.roles : [];
+
+      if (!roles || roles.length === 0){
+        alert("Sua conta entrou, mas não possui permissão de acesso ao portal.");
+        return;
+      }
+
+      if (roles.includes("aluno")){
+        window.location.href = "/aluno";
+        return;
+      }
+
+      if (roles.includes("professor")){
+        window.location.href = "/professor";
+        return;
+      }
+
+      if (roles.includes("direcao")){
+        window.location.href = "/direcao";
+        return;
+      }
+
+      alert("Perfil encontrado, mas sem rota configurada.");
+    }
+
+    /* ================================================== */
+    /* 37. TRATAMENTO DO RETORNO DO LOGIN                 */
+    /* ================================================== */
+    msalInstance.handleRedirectPromise()
+      .then((response) => {
+        if (response && response.account){
+          msalInstance.setActiveAccount(response.account);
+          redirecionarPorPerfil(response.idTokenClaims);
+        }
+      })
+      .catch((erro) => {
+        console.error("Erro no login Microsoft:", erro);
+        alert("Ocorreu um erro ao entrar com Microsoft.");
+      });
+  </script>
+
+</body>
+</html>
