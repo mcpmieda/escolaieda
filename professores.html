@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
-  <!-- ================================================== -->
-  <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
-  <!-- ================================================== -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Professores | Escola Iêda</title>
   <link rel="icon" type="image/png" href="imagens/favicon.png">
   <meta name="description" content="Conheça a equipe de professores da Escola Municipal Professora Iêda Alves de Oliveira MCPM." />
 
-  <!-- ================================================== -->
-  <!-- 2. GOOGLE ANALYTICS                                -->
-  <!-- ================================================== -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -23,9 +16,6 @@
   </script>
 
   <style>
-    /* ================================================== */
-    /* 3. RESET E VARIÁVEIS                               */
-    /* ================================================== */
     * {
       margin: 0;
       padding: 0;
@@ -34,21 +24,24 @@
 
     :root {
       --azul-escuro: #071c44;
-      --azul-profundo: #0a2f73;
+      --azul-profundo: #0b2f73;
       --azul: #154aa7;
       --azul-claro: #4f84e2;
       --carmim: #8f123b;
       --carmim-forte: #b3194b;
-      --branco: #ffffff;
+
       --texto: #162132;
-      --texto-suave: #5d6778;
-      --fundo-claro: #f3f6fb;
-      --fundo-claro-2: #f3f1f6;
-      --card: rgba(255, 255, 255, 0.86);
+      --texto-suave: #5a6475;
+      --texto-claro: rgba(255,255,255,0.94);
+
+      --card: rgba(255,255,255,0.90);
       --borda: rgba(10, 47, 115, 0.10);
-      --sombra: 0 16px 42px rgba(7, 28, 68, 0.14);
-      --sombra-hover: 0 24px 58px rgba(7, 28, 68, 0.22);
+
+      --sombra: 0 14px 36px rgba(7, 28, 68, 0.14);
+      --sombra-hover: 0 22px 52px rgba(7, 28, 68, 0.22);
+
       --radius: 24px;
+      --topbar-h: 88px;
     }
 
     html {
@@ -62,21 +55,18 @@
       overflow-x: hidden;
       position: relative;
       background:
-        radial-gradient(circle at 14% 10%, rgba(79, 132, 226, 0.24), transparent 25%),
-        radial-gradient(circle at 87% 11%, rgba(179, 25, 75, 0.28), transparent 26%),
-        radial-gradient(circle at 82% 45%, rgba(143, 18, 59, 0.13), transparent 18%),
-        radial-gradient(circle at 18% 58%, rgba(79, 132, 226, 0.10), transparent 20%),
+        radial-gradient(circle at 12% 10%, rgba(79,132,226,0.18), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(179,25,75,0.22), transparent 26%),
+        radial-gradient(circle at 82% 46%, rgba(143,18,59,0.10), transparent 18%),
         linear-gradient(
           180deg,
-          #0a2460 0%,
-          #0c2f74 10%,
-          #123d92 18%,
-          #394ea0 26%,
-          #6b4b8e 34%,
-          #bfaecb 46%,
-          #ece8f1 58%,
-          #f2f0f5 72%,
-          #f3f4f8 86%,
+          #0b2b6c 0%,
+          #143d93 16%,
+          #3d4fa0 28%,
+          #6e4b90 38%,
+          #b8aec9 50%,
+          #e8e6ef 60%,
+          #f0f1f6 74%,
           #f3f6fb 100%
         );
       background-attachment: fixed;
@@ -86,87 +76,85 @@
       content: "";
       position: fixed;
       inset: 0;
+      pointer-events: none;
+      z-index: 0;
       background:
         linear-gradient(
           180deg,
-          rgba(7, 28, 68, 0.00) 0%,
-          rgba(7, 28, 68, 0.03) 20%,
-          rgba(143, 18, 59, 0.04) 40%,
-          rgba(255, 255, 255, 0.06) 58%,
-          rgba(255, 255, 255, 0.14) 75%,
-          rgba(255, 255, 255, 0.18) 100%
+          rgba(7,28,68,0.06) 0%,
+          rgba(7,28,68,0.03) 18%,
+          rgba(143,18,59,0.03) 40%,
+          rgba(255,255,255,0.04) 62%,
+          rgba(255,255,255,0.10) 100%
         );
-      pointer-events: none;
-      z-index: 0;
     }
 
     a {
       text-decoration: none;
     }
 
-    /* ================================================== */
-    /* 4. FORMAS DECORATIVAS DE FUNDO                      */
-    /* ================================================== */
     .bg-shape {
       position: fixed;
-      inset: auto auto 8% -120px;
-      width: 340px;
-      height: 340px;
-      background: radial-gradient(circle, rgba(21, 74, 167, 0.14), transparent 70%);
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
       filter: blur(30px);
-      z-index: 0;
       pointer-events: none;
+      z-index: 0;
       animation: floatShape 9s ease-in-out infinite;
     }
 
+    .bg-shape.one {
+      left: -120px;
+      bottom: 8%;
+      background: radial-gradient(circle, rgba(21,74,167,0.15), transparent 70%);
+    }
+
     .bg-shape.two {
-      inset: 8% -110px auto auto;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(179, 25, 75, 0.20), transparent 70%);
-      animation-delay: 1.6s;
+      right: -110px;
+      top: 8%;
+      background: radial-gradient(circle, rgba(179,25,75,0.18), transparent 70%);
+      animation-delay: 1.5s;
     }
 
     @keyframes floatShape {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-18px); }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-16px); }
     }
 
-    /* ================================================== */
-    /* 5. MENU SUPERIOR FIXO                               */
-    /* ================================================== */
     .topbar-fixa {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
+      min-height: var(--topbar-h);
       z-index: 1000;
       background:
         linear-gradient(
           90deg,
-          rgba(8, 31, 77, 0.84) 0%,
-          rgba(11, 47, 115, 0.78) 45%,
-          rgba(143, 18, 59, 0.62) 100%
+          rgba(8,31,77,0.82),
+          rgba(11,47,115,0.78),
+          rgba(143,18,59,0.64)
         );
       backdrop-filter: blur(12px);
-      transition: background 0.35s ease, backdrop-filter 0.35s ease;
+      transition: background 0.3s ease;
     }
 
     .topbar-fixa.scrolled {
       background:
         linear-gradient(
           90deg,
-          rgba(8, 31, 77, 0.93) 0%,
-          rgba(11, 47, 115, 0.90) 46%,
-          rgba(143, 18, 59, 0.76) 100%
+          rgba(8,31,77,0.94),
+          rgba(11,47,115,0.90),
+          rgba(143,18,59,0.76)
         );
-      backdrop-filter: blur(14px);
     }
 
     .nav-fixa {
       max-width: 1200px;
-      margin: auto;
-      padding: 14px 18px;
+      margin: 0 auto;
+      min-height: var(--topbar-h);
+      padding: 12px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -190,7 +178,6 @@
       background: rgba(255,255,255,0.10);
       border-radius: 12px;
       padding: 4px;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
     }
 
     .marca-fixa-texto {
@@ -220,7 +207,6 @@
       color: white;
       font-size: 0.9rem;
       font-weight: bold;
-      opacity: 0.96;
       padding: 8px 14px;
       border-radius: 12px;
       background: rgba(255,255,255,0.08);
@@ -230,27 +216,24 @@
 
     .menu-fixo a:hover,
     .menu-fixo a.ativo {
-      background: rgba(179, 25, 75, 0.22);
+      background: rgba(179,25,75,0.22);
       border-color: rgba(255,255,255,0.18);
       transform: translateY(-1px);
     }
 
-    /* ================================================== */
-    /* 6. HEADER / HERO                                    */
-    /* ================================================== */
     header {
       position: relative;
       z-index: 1;
+      padding: calc(var(--topbar-h) + 34px) 18px 90px;
       background:
         linear-gradient(
           135deg,
-          rgba(7, 28, 68, 0.50) 0%,
-          rgba(10, 47, 115, 0.34) 45%,
-          rgba(143, 18, 59, 0.20) 100%
+          rgba(7,28,68,0.28) 0%,
+          rgba(10,47,115,0.20) 50%,
+          rgba(143,18,59,0.16) 100%
         ),
         url("fundo_logo_ieda.jpg") center/cover no-repeat;
       color: white;
-      padding: 112px 18px 220px;
       overflow: hidden;
     }
 
@@ -258,27 +241,45 @@
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at 18% 22%, rgba(255,255,255,0.07), transparent 26%),
-        radial-gradient(circle at 82% 28%, rgba(255,255,255,0.05), transparent 24%),
-        linear-gradient(180deg, rgba(6, 18, 48, 0.08), rgba(6, 18, 48, 0.16));
       z-index: -1;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255,255,255,0.05), transparent 26%),
+        radial-gradient(circle at 82% 28%, rgba(255,255,255,0.04), transparent 24%),
+        linear-gradient(180deg, rgba(6,18,48,0.06), rgba(6,18,48,0.12));
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 120px;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(243,246,251,0) 0%,
+        rgba(243,246,251,0.16) 35%,
+        rgba(243,246,251,0.38) 58%,
+        rgba(243,246,251,0.68) 78%,
+        rgba(243,246,251,0.92) 100%
+      );
     }
 
     .hero {
       max-width: 1200px;
       margin: 0 auto;
       text-align: center;
-      padding-top: 10px;
       position: relative;
       z-index: 1;
     }
 
     .hero h1 {
-      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-size: clamp(2.1rem, 4vw, 3.4rem);
       line-height: 1.1;
       margin-bottom: 12px;
-      text-shadow: 0 8px 30px rgba(0,0,0,0.18);
+      color: #ffffff;
+      text-shadow: 0 6px 24px rgba(0,0,0,0.16);
     }
 
     .hero p {
@@ -286,50 +287,21 @@
       margin: 0 auto;
       font-size: 1.02rem;
       line-height: 1.7;
-      color: rgba(255,255,255,0.94);
-      text-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      color: var(--texto-claro);
+      text-shadow: 0 4px 14px rgba(0,0,0,0.10);
     }
 
-    /* ================================================== */
-    /* 7. CONTAINER PRINCIPAL                              */
-    /* ================================================== */
     main {
       position: relative;
       z-index: 1;
       max-width: 1200px;
-      margin: -130px auto 0;
-      padding: 0 16px 50px;
+      margin: 0 auto;
+      padding: 26px 16px 50px;
     }
 
-    /* névoa contínua entre hero e conteúdo */
-    main::before {
-      content: "";
-      position: absolute;
-      top: -170px;
-      left: -120px;
-      right: -120px;
-      height: 310px;
-      background:
-        radial-gradient(
-          ellipse at center,
-          rgba(244, 244, 248, 0.92) 0%,
-          rgba(243, 241, 246, 0.72) 32%,
-          rgba(242, 239, 245, 0.40) 56%,
-          rgba(243, 246, 251, 0.08) 82%,
-          rgba(243, 246, 251, 0) 100%
-        );
-      filter: blur(10px);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    /* ================================================== */
-    /* 8. TÍTULOS DAS SEÇÕES                               */
-    /* ================================================== */
     .secao-titulo {
       text-align: center;
-      margin: 8px 0 20px;
-      position: relative;
+      margin: 0 0 20px;
     }
 
     .secao-titulo h2 {
@@ -345,9 +317,6 @@
       line-height: 1.7;
     }
 
-    /* ================================================== */
-    /* 9. GRADE DE CARDS                                   */
-    /* ================================================== */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -358,9 +327,6 @@
       margin-bottom: 34px;
     }
 
-    /* ================================================== */
-    /* 10. CARD INDIVIDUAL                                 */
-    /* ================================================== */
     .card {
       position: relative;
       overflow: hidden;
@@ -368,10 +334,10 @@
       border: 1px solid var(--borda);
       border-radius: var(--radius);
       box-shadow: var(--sombra);
-      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
       opacity: 0;
-      transform: translateY(28px) scale(0.98);
-      backdrop-filter: blur(10px);
+      transform: translateY(24px) scale(0.98);
+      backdrop-filter: blur(8px);
     }
 
     .card.show {
@@ -382,8 +348,7 @@
     .card:hover {
       transform: translateY(-8px);
       box-shadow: var(--sombra-hover);
-      border-color: rgba(143, 18, 59, 0.16);
-      background: rgba(255, 255, 255, 0.94);
+      border-color: rgba(143,18,59,0.16);
     }
 
     .card::before {
@@ -400,25 +365,14 @@
       background: linear-gradient(90deg, var(--carmim), var(--azul-profundo), var(--azul-claro));
     }
 
-    /* ================================================== */
-    /* 11. FOTO DOS CARDS                                  */
-    /* ================================================== */
     .foto-wrap {
       position: relative;
       overflow: hidden;
       background:
-        linear-gradient(180deg, rgba(15, 52, 120, 0.14), rgba(143, 18, 59, 0.05)),
-        linear-gradient(180deg, #e7eefc, #fbfcff);
+        linear-gradient(180deg, rgba(15,52,120,0.10), rgba(143,18,59,0.04)),
+        linear-gradient(180deg, #e8eefc, #fbfcff);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-    }
-
-    .foto-wrap::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(7, 28, 68, 0.00) 48%, rgba(7, 28, 68, 0.12) 100%);
-      pointer-events: none;
     }
 
     .foto-wrap img {
@@ -432,14 +386,14 @@
     .card:hover .foto-wrap img,
     .foto-wrap:active img {
       transform: scale(1.08);
-      filter: saturate(1.05) contrast(1.02);
+      filter: saturate(1.04) contrast(1.02);
     }
 
     .zoom-tip {
       position: absolute;
       right: 12px;
       bottom: 12px;
-      background: rgba(7, 28, 68, 0.82);
+      background: rgba(7,28,68,0.84);
       color: white;
       font-size: 0.8rem;
       padding: 8px 10px;
@@ -449,7 +403,6 @@
       transform: translateY(8px);
       transition: 0.3s ease;
       pointer-events: none;
-      border: 1px solid rgba(255,255,255,0.08);
       z-index: 1;
     }
 
@@ -459,9 +412,6 @@
       transform: translateY(0);
     }
 
-    /* ================================================== */
-    /* 12. INFORMAÇÕES DOS CARDS                           */
-    /* ================================================== */
     .info {
       padding: 18px 16px 20px;
       text-align: center;
@@ -493,18 +443,15 @@
       background: linear-gradient(90deg, rgba(21,74,167,0.08), rgba(143,18,59,0.10));
       color: var(--azul-profundo);
       font-weight: bold;
-      border: 1px solid rgba(10, 47, 115, 0.08);
+      border: 1px solid rgba(10,47,115,0.08);
     }
 
     .card.gestao .selo {
       background: linear-gradient(90deg, rgba(143,18,59,0.13), rgba(21,74,167,0.10));
       color: var(--carmim);
-      border: 1px solid rgba(143, 18, 59, 0.10);
+      border: 1px solid rgba(143,18,59,0.10);
     }
 
-    /* ================================================== */
-    /* 13. RODAPÉ                                          */
-    /* ================================================== */
     footer {
       text-align: center;
       padding: 24px 16px 40px;
@@ -514,14 +461,11 @@
       z-index: 1;
     }
 
-    /* ================================================== */
-    /* 14. MODAL                                           */
-    /* ================================================== */
     .modal {
       position: fixed;
       inset: 0;
       background:
-        linear-gradient(135deg, rgba(7, 28, 68, 0.90), rgba(11, 47, 115, 0.84), rgba(143, 18, 59, 0.76));
+        linear-gradient(135deg, rgba(7,28,68,0.90), rgba(11,47,115,0.84), rgba(143,18,59,0.76));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -569,7 +513,6 @@
       margin-top: 14px;
       font-weight: bold;
       font-size: 1rem;
-      letter-spacing: 0.2px;
       line-height: 1.5;
     }
 
@@ -589,7 +532,7 @@
       width: 42px;
       height: 42px;
       border-radius: 50%;
-      background: rgba(7, 28, 68, 0.88);
+      background: rgba(7,28,68,0.88);
       color: white;
       font-size: 1.3rem;
       cursor: pointer;
@@ -600,22 +543,24 @@
     .fechar:hover,
     .fechar:active {
       transform: scale(1.08);
-      background: rgba(143, 18, 59, 0.94);
+      background: rgba(143,18,59,0.94);
     }
 
-    /* ================================================== */
-    /* 15. RESPONSIVO                                      */
-    /* ================================================== */
     @media (max-width: 768px) {
+      :root {
+        --topbar-h: 128px;
+      }
+
       .nav-fixa {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding-top: 10px;
+        padding-bottom: 14px;
       }
 
       .marca-fixa {
         justify-content: center;
-        text-align: left;
       }
 
       .menu-fixo {
@@ -624,7 +569,7 @@
       }
 
       header {
-        padding: 150px 14px 220px;
+        padding: calc(var(--topbar-h) + 24px) 14px 78px;
       }
 
       .hero p {
@@ -662,17 +607,6 @@
         font-size: 0.76rem;
         padding: 7px 9px;
       }
-
-      main {
-        margin: -122px auto 0;
-      }
-
-      main::before {
-        top: -150px;
-        left: -40px;
-        right: -40px;
-        height: 280px;
-      }
     }
 
     @media (min-width: 769px) {
@@ -687,9 +621,6 @@
       }
     }
 
-    /* ================================================== */
-    /* 16. REDUÇÃO DE MOVIMENTO                            */
-    /* ================================================== */
     @media (prefers-reduced-motion: reduce) {
       * {
         animation: none !important;
@@ -700,16 +631,9 @@
   </style>
 </head>
 <body>
-
-  <!-- ================================================== -->
-  <!-- 17. FORMAS DECORATIVAS DE FUNDO                    -->
-  <!-- ================================================== -->
-  <div class="bg-shape"></div>
+  <div class="bg-shape one"></div>
   <div class="bg-shape two"></div>
 
-  <!-- ================================================== -->
-  <!-- 18. MENU SUPERIOR FIXO                             -->
-  <!-- ================================================== -->
   <div class="topbar-fixa" id="topbarFixa">
     <nav class="nav-fixa">
       <a href="index.html" class="marca-fixa">
@@ -728,9 +652,6 @@
     </nav>
   </div>
 
-  <!-- ================================================== -->
-  <!-- 19. TOPO / HERO DA PÁGINA                          -->
-  <!-- ================================================== -->
   <header>
     <div class="hero">
       <h1>Equipe Docente</h1>
@@ -740,11 +661,7 @@
     </div>
   </header>
 
-  <!-- ================================================== -->
-  <!-- 20. CONTEÚDO PRINCIPAL                             -->
-  <!-- ================================================== -->
   <main>
-
     <section class="secao-titulo">
       <h2>Gestão e Coordenação</h2>
       <p>
@@ -1040,16 +957,10 @@
     </section>
   </main>
 
-  <!-- ================================================== -->
-  <!-- 21. RODAPÉ                                         -->
-  <!-- ================================================== -->
   <footer>
     © Escola Municipal Professora Iêda Alves de Oliveira MCPM
   </footer>
 
-  <!-- ================================================== -->
-  <!-- 22. MODAL DAS FOTOS                                -->
-  <!-- ================================================== -->
   <div class="modal" id="modalFoto" onclick="fecharModal(event)">
     <div class="modal-content">
       <button class="fechar" onclick="fecharModal(event)" aria-label="Fechar">×</button>
@@ -1059,18 +970,12 @@
   </div>
 
   <script>
-    /* ================================================== */
-    /* 23. ELEMENTOS DO JAVASCRIPT                         */
-    /* ================================================== */
     const cards = document.querySelectorAll('.card');
     const modal = document.getElementById('modalFoto');
     const modalImagem = document.getElementById('modalImagem');
     const modalLegenda = document.getElementById('modalLegenda');
     const topbarFixa = document.getElementById('topbarFixa');
 
-    /* ================================================== */
-    /* 24. ABRIR MODAL                                     */
-    /* ================================================== */
     function abrirModal(src, nome, cargo) {
       modalImagem.src = src;
       modalImagem.alt = nome;
@@ -1079,9 +984,6 @@
       document.body.style.overflow = 'hidden';
     }
 
-    /* ================================================== */
-    /* 25. FECHAR MODAL                                    */
-    /* ================================================== */
     function fecharModal(event) {
       if (
         event.target.classList.contains('modal') ||
@@ -1092,9 +994,6 @@
       }
     }
 
-    /* ================================================== */
-    /* 26. FECHAR MODAL COM ESC                            */
-    /* ================================================== */
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
         modal.classList.remove('open');
@@ -1102,9 +1001,6 @@
       }
     });
 
-    /* ================================================== */
-    /* 27. ANIMAÇÃO DE ENTRADA DOS CARDS                   */
-    /* ================================================== */
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
@@ -1118,9 +1014,6 @@
 
     cards.forEach(card => observer.observe(card));
 
-    /* ================================================== */
-    /* 28. EFEITO DO MENU FIXO AO ROLAR                    */
-    /* ================================================== */
     function efeitoTopo() {
       if (window.scrollY > 20) {
         topbarFixa.classList.add('scrolled');
