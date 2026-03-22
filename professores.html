@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Professores | Escola Iêda</title>
@@ -30,9 +31,9 @@
       --carmim: #8f123b;
       --carmim-forte: #b3194b;
 
-      --texto: #162132;
-      --texto-suave: #5a6475;
-      --texto-claro: rgba(255,255,255,0.94);
+      --texto: #152033;
+      --texto-suave: #5e6778;
+      --texto-claro: rgba(255,255,255,0.95);
 
       --card: rgba(255,255,255,0.90);
       --borda: rgba(10, 47, 115, 0.10);
@@ -56,17 +57,17 @@
       position: relative;
       background:
         radial-gradient(circle at 12% 10%, rgba(79,132,226,0.18), transparent 24%),
-        radial-gradient(circle at 88% 12%, rgba(179,25,75,0.22), transparent 26%),
-        radial-gradient(circle at 82% 46%, rgba(143,18,59,0.10), transparent 18%),
+        radial-gradient(circle at 88% 10%, rgba(179,25,75,0.24), transparent 26%),
+        radial-gradient(circle at 82% 45%, rgba(143,18,59,0.10), transparent 18%),
         linear-gradient(
           180deg,
           #0b2b6c 0%,
-          #143d93 16%,
-          #3d4fa0 28%,
-          #6e4b90 38%,
-          #b8aec9 50%,
-          #e8e6ef 60%,
-          #f0f1f6 74%,
+          #143d93 15%,
+          #3e4fa1 28%,
+          #6f4b90 39%,
+          #b3a8c4 52%,
+          #e7e4ed 63%,
+          #f0f1f6 77%,
           #f3f6fb 100%
         );
       background-attachment: fixed;
@@ -81,10 +82,10 @@
       background:
         linear-gradient(
           180deg,
-          rgba(7,28,68,0.06) 0%,
-          rgba(7,28,68,0.03) 18%,
-          rgba(143,18,59,0.03) 40%,
-          rgba(255,255,255,0.04) 62%,
+          rgba(7,28,68,0.05) 0%,
+          rgba(7,28,68,0.02) 20%,
+          rgba(143,18,59,0.03) 42%,
+          rgba(255,255,255,0.04) 65%,
           rgba(255,255,255,0.10) 100%
         );
     }
@@ -132,11 +133,11 @@
       background:
         linear-gradient(
           90deg,
-          rgba(8,31,77,0.82),
-          rgba(11,47,115,0.78),
-          rgba(143,18,59,0.64)
+          rgba(10, 39, 98, 0.88),
+          rgba(16, 63, 151, 0.78),
+          rgba(143, 18, 59, 0.66)
         );
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(10px);
       transition: background 0.3s ease;
     }
 
@@ -144,9 +145,9 @@
       background:
         linear-gradient(
           90deg,
-          rgba(8,31,77,0.94),
+          rgba(8,31,77,0.95),
           rgba(11,47,115,0.90),
-          rgba(143,18,59,0.76)
+          rgba(143,18,59,0.78)
         );
     }
 
@@ -224,46 +225,27 @@
     header {
       position: relative;
       z-index: 1;
-      padding: calc(var(--topbar-h) + 34px) 18px 90px;
-      background:
-        linear-gradient(
-          135deg,
-          rgba(7,28,68,0.28) 0%,
-          rgba(10,47,115,0.20) 50%,
-          rgba(143,18,59,0.16) 100%
-        ),
-        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      padding: calc(var(--topbar-h) + 34px) 18px 70px;
       color: white;
       overflow: hidden;
     }
 
+    /* imagem e brilho suave, sem criar faixa separada */
     header::before {
       content: "";
       position: absolute;
       inset: 0;
       z-index: -1;
       background:
-        radial-gradient(circle at 18% 24%, rgba(255,255,255,0.05), transparent 26%),
-        radial-gradient(circle at 82% 28%, rgba(255,255,255,0.04), transparent 24%),
-        linear-gradient(180deg, rgba(6,18,48,0.06), rgba(6,18,48,0.12));
-    }
-
-    header::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 120px;
-      pointer-events: none;
-      background: linear-gradient(
-        to bottom,
-        rgba(243,246,251,0) 0%,
-        rgba(243,246,251,0.16) 35%,
-        rgba(243,246,251,0.38) 58%,
-        rgba(243,246,251,0.68) 78%,
-        rgba(243,246,251,0.92) 100%
-      );
+        linear-gradient(
+          135deg,
+          rgba(7,28,68,0.18) 0%,
+          rgba(10,47,115,0.10) 48%,
+          rgba(143,18,59,0.10) 100%
+        ),
+        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      opacity: 0.95;
+      mix-blend-mode: screen;
     }
 
     .hero {
@@ -279,7 +261,7 @@
       line-height: 1.1;
       margin-bottom: 12px;
       color: #ffffff;
-      text-shadow: 0 6px 24px rgba(0,0,0,0.16);
+      text-shadow: 0 6px 22px rgba(0,0,0,0.14);
     }
 
     .hero p {
@@ -288,7 +270,7 @@
       font-size: 1.02rem;
       line-height: 1.7;
       color: var(--texto-claro);
-      text-shadow: 0 4px 14px rgba(0,0,0,0.10);
+      text-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     main {
@@ -296,7 +278,7 @@
       z-index: 1;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 26px 16px 50px;
+      padding: 18px 16px 50px;
     }
 
     .secao-titulo {
@@ -569,7 +551,7 @@
       }
 
       header {
-        padding: calc(var(--topbar-h) + 24px) 14px 78px;
+        padding: calc(var(--topbar-h) + 24px) 14px 60px;
       }
 
       .hero p {
@@ -631,6 +613,7 @@
   </style>
 </head>
 <body>
+
   <div class="bg-shape one"></div>
   <div class="bg-shape two"></div>
 
@@ -662,6 +645,7 @@
   </header>
 
   <main>
+
     <section class="secao-titulo">
       <h2>Gestão e Coordenação</h2>
       <p>
