@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- ================================================== -->
+  <!-- 1. CONFIGURAÇÕES BÁSICAS                           -->
+  <!-- ================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos Oficiais | Escola Iêda MCPM</title>
+  <meta name="description" content="Acesse os documentos oficiais da Escola Municipal Professora Iêda Alves de Oliveira MCPM com leitura em nova aba e download em PDF.">
+  <link rel="icon" type="image/png" href="imagens/favicon.png">
+
+  <!-- ================================================== -->
+  <!-- 2. GOOGLE ANALYTICS                                -->
+  <!-- ================================================== -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZN0NX8Q3E9');
+  </script>
+
+  <style>
+    /* ================================================== */
+    /* 3. VARIÁVEIS GERAIS                                */
+    /* ================================================== */
+    :root{
+      --azul:#071427;
+      --azul2:#0c223f;
+      --azul3:#173d72;
+      --azul4:#204f92;
+      --carmim:#8f1d3f;
+      --carmim2:#b3264a;
+      --dourado:#d7b36a;
+      --fundo:#f3f6fb;
+      --fundo2:#edf2f8;
+      --branco:#ffffff;
+      --texto:#1e293b;
+      --texto-suave:#5f6b7a;
+      --linha:rgba(8,26,51,0.08);
+      --linha-clara:rgba(255,255,255,0.11);
+      --sombra:0 20px 48px rgba(7,20,39,0.10);
+      --sombra-forte:0 30px 80px rgba(7,20,39,0.22);
+      --raio:24px;
+    }
+
+    /* ================================================== */
+    /* 4. RESET                                           */
+    /* ================================================== */
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      font-family:Arial, sans-serif;
+      color:var(--texto);
+      background:
+        radial-gradient(circle at top, rgba(179,38,74,0.05), transparent 26%),
+        linear-gradient(to bottom, #f8fbff, var(--fundo));
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    /* ================================================== */
+    /* 5. TOPO FIXO                                       */
+    /* ================================================== */
+    .topbar{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:1000;
+      background:rgba(7,20,39,0.78);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 12px 34px rgba(0,0,0,0.18);
+    }
+
+    .nav{
+      max-width:1200px;
+      margin:auto;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .marca{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:white;
+      font-weight:bold;
+      font-size:0.96rem;
+      letter-spacing:0.2px;
+    }
+
+    .marca-mini-logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      padding:4px;
+      background:linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+      border:1px solid rgba(255,255,255,0.14);
+      object-fit:contain;
+      box-shadow:0 10px 20px rgba(0,0,0,0.20);
+    }
+
+    .menu{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .menu-botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:9px 15px;
+      border-radius:12px;
+      color:white;
+      font-weight:bold;
+      font-size:0.93rem;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06);
+      transition:0.25s;
+      white-space:nowrap;
+    }
+
+    .menu-botao:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.16);
+      border-color:rgba(255,255,255,0.20);
+    }
+
+    /* ================================================== */
+    /* 6. HERO PREMIUM                                    */
+    /* ================================================== */
+    .hero{
+      position:relative;
+      min-height:62vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:white;
+      overflow:hidden;
+      padding:138px 20px 90px;
+      background:
+        radial-gradient(circle at 50% 10%, rgba(179,38,74,0.46), transparent 34%),
+        radial-gradient(circle at 20% 18%, rgba(255,255,255,0.07), transparent 18%),
+        radial-gradient(circle at 80% 22%, rgba(215,179,106,0.10), transparent 18%),
+        linear-gradient(135deg, #040b15 0%, #071427 28%, #0c223f 62%, #14335e 100%);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(4,11,21,0.36), rgba(4,11,21,0.56)),
+        url("fundo_logo_ieda.jpg") center/cover no-repeat;
+      opacity:0.32;
+      transform:scale(1.05);
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.028) 0px,
+          rgba(255,255,255,0.028) 1px,
+          transparent 1px,
+          transparent 90px
+        ),
+        linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.18));
+      pointer-events:none;
+    }
+
+    .hero-faixa{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:-1px;
+      height:140px;
+      background:linear-gradient(to bottom, rgba(243,246,251,0), var(--fundo));
+      z-index:1;
+    }
+
+    .hero-detalhe{
+      position:absolute;
+      inset:auto 0 70px 0;
+      display:flex;
+      justify-content:center;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    .hero-linha{
+      width:min(86%, 980px);
+      height:1px;
+      background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(215,179,106,0.15),
+        rgba(215,179,106,0.85),
+        rgba(215,179,106,0.15),
+        transparent
+      );
+      box-shadow:0 0 24px rgba(215,179,106,0.22);
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:3;
+      max-width:900px;
+    }
+
+    .hero h1{
+      font-size:clamp(2.2rem, 5vw, 4rem);
+      line-height:1.04;
+      margin-bottom:16px;
+      font-weight:700;
+      letter-spacing:-0.8px;
+      text-shadow:0 8px 30px rgba(0,0,0,0.25);
+    }
+
+    .hero p{
+      max-width:780px;
+      margin:0 auto;
+      color:rgba(255,255,255,0.93);
+      font-size:1.06rem;
+    }
+
+    /* ================================================== */
+    /* 7. ESTRUTURA GERAL                                 */
+    /* ================================================== */
+    .container{
+      max-width:1200px;
+      margin:auto;
+      padding:72px 20px;
+      position:relative;
+      z-index:1;
+    }
+
+    .secao-biografia{
+      margin-top:-24px;
+      padding-top:0;
+    }
+
+    .secao-documentos{
+      padding-top:56px;
+    }
+
+    /* ================================================== */
+    /* 8. BIOGRAFIA EM DESTAQUE                           */
+    /* ================================================== */
+    .biografia-destaque{
+      position:relative;
+      overflow:hidden;
+      border-radius:30px;
+      min-height:460px;
+      box-shadow:var(--sombra-forte);
+      background:
+        linear-gradient(110deg, rgba(4,11,21,0.90) 0%, rgba(7,20,39,0.84) 40%, rgba(12,34,63,0.58) 66%, rgba(12,34,63,0.15) 100%),
+        url("imagens/foto_professora_ieda.jpeg") center 22% / cover no-repeat;
+      border:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:flex-end;
+    }
+
+    .biografia-destaque::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 82% 28%, rgba(255,255,255,0.18), transparent 18%),
+        radial-gradient(circle at 78% 18%, rgba(215,179,106,0.16), transparent 14%),
+        linear-gradient(to top, rgba(4,11,21,0.18), rgba(4,11,21,0));
+      pointer-events:none;
+    }
+
+    .biografia-destaque::after{
+      content:"";
+      position:absolute;
+      inset:auto 0 0 0;
+      height:42%;
+      background:linear-gradient(to top, rgba(4,11,21,0.82), rgba(4,11,21,0));
+      pointer-events:none;
+    }
+
+    .biografia-conteudo{
+      position:relative;
+      z-index:2;
+      max-width:620px;
+      padding:34px 30px;
+      color:white;
+    }
+
+    .biografia-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:12px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.14);
+      backdrop-filter:blur(8px);
+      font-size:0.88rem;
+      color:rgba(255,255,255,0.96);
+    }
+
+    .biografia-conteudo h2{
+      font-size:clamp(1.8rem, 3.5vw, 2.7rem);
+      line-height:1.08;
+      margin-bottom:12px;
+      text-shadow:0 6px 20px rgba(0,0,0,0.20);
+    }
+
+    .biografia-conteudo p{
+      color:rgba(255,255,255,0.92);
+      font-size:1rem;
+      max-width:560px;
+    }
+
+    /* ================================================== */
+    /* 9. GRADE DE DOCUMENTOS                             */
+    /* ================================================== */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+      gap:24px;
+    }
+
+    .card{
+      position:relative;
+      background:linear-gradient(145deg, #ffffff, #f5f8fc);
+      border:1px solid rgba(8,26,51,0.06);
+      border-radius:var(--raio);
+      padding:28px;
+      box-shadow:var(--sombra);
+      overflow:hidden;
+      transition:transform 0.30s ease, box-shadow 0.30s ease, border-color 0.30s ease;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg, var(--azul4), var(--carmim2), var(--dourado));
+      opacity:0.98;
+    }
+
+    .card::after{
+      content:"";
+      position:absolute;
+      top:18px;
+      right:18px;
+      width:90px;
+      height:90px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(179,38,74,0.08), transparent 66%);
+      pointer-events:none;
+    }
+
+    .card:hover{
+      transform:translateY(-7px);
+      box-shadow:0 25px 58px rgba(7,20,39,0.14);
+      border-color:rgba(143,29,63,0.12);
+    }
+
+    .imagem-doc{
+      position:relative;
+      height:190px;
+      border-radius:20px;
+      overflow:hidden;
+      margin-bottom:18px;
+      box-shadow:0 14px 26px rgba(7,20,39,0.12);
+      background-color:#dfe7f1;
+    }
+
+    .imagem-doc::before{
+      content:"";
+      position:absolute;
+      inset:-8% -8%;
+      background-size:cover;
+      background-position:center;
+      transform:scale(1.06);
+      transition:transform 0.8s ease, filter 0.8s ease;
+      filter:saturate(1.02);
+    }
+
+    .imagem-doc::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(to top, rgba(4,11,21,0.42), rgba(4,11,21,0.04)),
+        linear-gradient(135deg, rgba(143,29,63,0.14), transparent 55%);
+      pointer-events:none;
+    }
+
+    .card:hover .imagem-doc::before{
+      transform:scale(1.13) translateY(-4px);
+      filter:saturate(1.08);
+    }
+
+    .imagem-biografia::before{
+      background-image:url("imagens/foto_professora_ieda.jpeg");
+      background-position:center 20%;
+    }
+
+    .imagem-municipal::before{
+      background-image:url("imagens/bandeira_municipio.png");
+      background-position:center;
+    }
+
+    .imagem-disciplinar::before{
+      background-image:url("imagens/brasao_mcpm.png");
+      background-position:center;
+      background-size:contain;
+      background-repeat:no-repeat;
+      inset:12px;
+      transform:scale(1);
+      background-color:#eef3f8;
+      border-radius:18px;
+    }
+
+    .card:hover .imagem-disciplinar::before{
+      transform:scale(1.05) translateY(-2px);
+    }
+
+    .icone-doc{
+      width:62px;
+      height:62px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.58rem;
+      margin-bottom:16px;
+      color:white;
+      background:linear-gradient(135deg, var(--azul3), var(--carmim2));
+      box-shadow:0 14px 28px rgba(16,41,77,0.18);
+      position:relative;
+      z-index:1;
+    }
+
+    .tipo-doc{
+      display:inline-block;
+      margin-bottom:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:0.78rem;
+      font-weight:bold;
+      color:var(--azul3);
+      background:rgba(23,61,114,0.08);
+      border:1px solid rgba(23,61,114,0.10);
+      letter-spacing:0.2px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card h3{
+      color:var(--azul);
+      font-size:1.18rem;
+      line-height:1.24;
+      margin-bottom:10px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card p{
+      color:var(--texto-suave);
+      margin-bottom:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .descricao-doc{
+      background:linear-gradient(145deg, rgba(8,26,51,0.035), rgba(8,26,51,0.02));
+      border:1px solid rgba(8,26,51,0.06);
+      border-radius:16px;
+      padding:14px;
+      margin:14px 0 18px;
+      position:relative;
+      z-index:1;
+    }
+
+    .descricao-doc span{
+      color:var(--texto-suave);
+      font-size:0.95rem;
+      display:block;
+      line-height:1.55;
+    }
+
+    .acoes-card{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+
+    .botao{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:11px 15px;
+      border-radius:14px;
+      font-weight:bold;
+      font-size:0.93rem;
+      transition:0.25s;
+      font-family:Arial, sans-serif;
+      border:none;
+      min-height:44px;
+      text-align:center;
+    }
+
+    .botao-principal{
+      background:linear-gradient(135deg, var(--azul), var(--azul3));
+      color:white;
+      box-shadow:0 10px 24px rgba(8,26,51,0.16);
+    }
+
+    .botao-principal:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.04);
+    }
+
+    .botao-secundario{
+      background:rgba(143,29,63,0.08);
+      color:var(--carmim);
+      border:1px solid rgba(143,29,63,0.12);
+    }
+
+    .botao-secundario:hover{
+      transform:translateY(-2px);
+      background:rgba(143,29,63,0.12);
+    }
+
+    /* ================================================== */
+    /* 10. RODAPÉ                                         */
+    /* ================================================== */
+    footer{
+      background:linear-gradient(135deg, #071427, #0d223f);
+      color:white;
+      text-align:center;
+      padding:28px 16px;
+      margin-top:34px;
+      border-top:1px solid rgba(255,255,255,0.06);
+    }
+
+    footer p{
+      opacity:0.95;
+      font-size:0.96rem;
+    }
+
+    /* ================================================== */
+    /* 11. BOTÃO TOPO                                     */
+    /* ================================================== */
+    .topo-btn{
+      position:fixed;
+      left:18px;
+      bottom:18px;
+      z-index:1001;
+      width:48px;
+      height:48px;
+      border:none;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--azul), var(--carmim));
+      color:white;
+      font-size:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.20);
+      display:none;
+      cursor:pointer;
+    }
+
+    .mostrar{
+      display:flex !important;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* ================================================== */
+    /* 12. ANIMAÇÕES                                      */
+    /* ================================================== */
+    .reveal{
+      opacity:0;
+      transform:translateY(36px) scale(0.985);
+      transition:opacity 0.80s ease, transform 0.80s ease;
+    }
+
+    .reveal.ativo{
+      opacity:1;
+      transform:translateY(0) scale(1);
+    }
+
+    /* ================================================== */
+    /* 13. RESPONSIVO                                     */
+    /* ================================================== */
+    @media (max-width:860px){
+      .nav{
+        flex-direction:column;
+        align-items:center;
+      }
+
+      .menu{
+        justify-content:center;
+        gap:8px;
+      }
+
+      .hero{
+        min-height:auto;
+        padding:124px 18px 86px;
+      }
+
+      .container{
+        padding:58px 16px;
+      }
+
+      .menu-botao{
+        min-height:38px;
+        padding:8px 12px;
+        font-size:0.89rem;
+      }
+
+      .hero p{
+        font-size:1rem;
+      }
+
+      .secao-biografia{
+        margin-top:-10px;
+      }
+
+      .biografia-destaque{
+        min-height:420px;
+        background:
+          linear-gradient(180deg, rgba(4,11,21,0.38) 0%, rgba(7,20,39,0.74) 58%, rgba(7,20,39,0.92) 100%),
+          url("imagens/foto_professora_ieda.jpeg") center 18% / cover no-repeat;
+      }
+
+      .biografia-conteudo{
+        max-width:100%;
+        padding:28px 22px;
+      }
+    }
+
+    @media (max-width:560px){
+      .menu{
+        display:grid;
+        grid-template-columns:repeat(2, auto);
+        justify-content:center;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .acoes-card{
+        flex-direction:column;
+      }
+
+      .botao{
+        width:100%;
+      }
+
+      .hero h1{
+        letter-spacing:-0.5px;
+      }
+
+      .card{
+        padding:22px 18px;
+      }
+
+      .imagem-doc{
+        height:180px;
+      }
+
+      .biografia-destaque{
+        min-height:390px;
+        border-radius:26px;
+      }
+
+      .biografia-conteudo h2{
+        font-size:1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================== -->
+  <!-- 14. MENU SUPERIOR                                 -->
+  <!-- ================================================== -->
+  <div class="topbar">
+    <nav class="nav">
+      <div class="marca">
+        <img src="logo_escola.png" alt="Logo da Escola" class="marca-mini-logo">
+        <span>ESCOLA IÊDA MCPM</span>
+      </div>
+
+      <div class="menu">
+        <a href="index.html" class="menu-botao">Início</a>
+        <a href="calendario.html" class="menu-botao">Calendário Escolar</a>
+        <a href="professores.html" class="menu-botao">Professores</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ================================================== -->
+  <!-- 15. HERO PREMIUM                                  -->
+  <!-- ================================================== -->
+  <header class="hero">
+    <div class="hero-content reveal">
+      <h1>Documentos Institucionais</h1>
+      <p>
+        Consulte os principais documentos oficiais da escola com visual limpo,
+        identidade institucional marcante e acesso rápido para leitura em nova aba
+        ou download em PDF.
+      </p>
+    </div>
+
+    <div class="hero-detalhe">
+      <div class="hero-linha"></div>
+    </div>
+
+    <div class="hero-faixa"></div>
+  </header>
+
+  <main>
+    <!-- ================================================== -->
+    <!-- 16. DESTAQUE BIOGRAFIA                            -->
+    <!-- ================================================== -->
+    <section class="container secao-biografia reveal">
+      <div class="biografia-destaque">
+        <div class="biografia-conteudo">
+          <div class="biografia-tag">Memória, história e identidade escolar</div>
+          <h2>Biografia da Professora Iêda Alves de Oliveira</h2>
+          <p>
+            Um espaço de homenagem à educadora que dá nome à escola, valorizando
+            sua trajetória de vida, sua história e sua relevância para a memória
+            institucional da comunidade escolar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================== -->
+    <!-- 17. DOCUMENTOS                                    -->
+    <!-- ================================================== -->
+    <section class="container secao-documentos reveal" id="documentos">
+      <div class="grid">
+        <!-- BIOGRAFIA -->
+        <article class="card">
+          <div class="imagem-doc imagem-biografia"></div>
+          <div class="icone-doc">📘</div>
+          <span class="tipo-doc">MEMÓRIA INSTITUCIONAL</span>
+          <h3>Biografia da Professora Iêda Alves de Oliveira</h3>
+          <p>
+            Documento histórico voltado à preservação da memória da educadora
+            que dá nome à escola.
+          </p>
+
+          <div class="descricao-doc">
+            <span>
+              Apresenta a trajetória de vida da Professora Iêda Alves de Oliveira,
+              valorizando sua história, sua identidade e sua importância para a
+              memória institucional da comunidade escolar.
+            </span>
+          </div>
+
+          <div class="acoes-card">
+            <a href="arquivos/BIOGRAFIA.pdf" target="_blank" rel="noopener noreferrer" class="botao botao-principal">
+              Abrir em nova aba
+            </a>
+            <a href="arquivos/BIOGRAFIA.pdf" download class="botao botao-secundario">
+              Baixar PDF
+            </a>
+          </div>
+        </article>
+
+        <!-- REGIMENTO MUNICIPAL -->
+        <article class="card">
+          <div class="imagem-doc imagem-municipal"></div>
+          <div class="icone-doc">📕</div>
+          <span class="tipo-doc">NORMA DA REDE MUNICIPAL</span>
+          <h3>Regimento Municipal</h3>
+          <p>
+            Documento normativo que organiza o funcionamento da rede municipal
+            de ensino de Medeiros Neto.
+          </p>
+
+          <div class="descricao-doc">
+            <span>
+              Reúne regras, objetivos, diretrizes e orientações gerais sobre a
+              organização pedagógica e administrativa das unidades escolares da
+              rede municipal, servindo como base legal para o funcionamento do ensino.
+            </span>
+          </div>
+
+          <div class="acoes-card">
+            <a href="arquivos/REGIMENTO_MUNICIPAL.pdf" target="_blank" rel="noopener noreferrer" class="botao botao-principal">
+              Abrir em nova aba
+            </a>
+            <a href="arquivos/REGIMENTO_MUNICIPAL.pdf" download class="botao botao-secundario">
+              Baixar PDF
+            </a>
+          </div>
+        </article>
+
+        <!-- REGIMENTO DISCIPLINAR -->
+        <article class="card">
+          <div class="imagem-doc imagem-disciplinar"></div>
+          <div class="icone-doc">📗</div>
+          <span class="tipo-doc">NORMA DISCIPLINAR</span>
+          <h3>Regimento Disciplinar</h3>
+          <p>
+            Documento interno voltado à disciplina escolar e à organização da convivência.
+          </p>
+
+          <div class="descricao-doc">
+            <span>
+              Estabelece princípios gerais da disciplina, critérios de análise de
+              condutas, classificação das ocorrências e procedimentos aplicáveis no
+              contexto disciplinar da unidade escolar cívico-militar.
+            </span>
+          </div>
+
+          <div class="acoes-card">
+            <a href="arquivos/REGIMENTO_DISCIPLINAR.pdf" target="_blank" rel="noopener noreferrer" class="botao botao-principal">
+              Abrir em nova aba
+            </a>
+            <a href="arquivos/REGIMENTO_DISCIPLINAR.pdf" download class="botao botao-secundario">
+              Baixar PDF
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================================================== -->
+  <!-- 18. RODAPÉ                                         -->
+  <!-- ================================================== -->
+  <footer>
+    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
+  </footer>
+
+  <!-- ================================================== -->
+  <!-- 19. BOTÃO VOLTAR AO TOPO                           -->
+  <!-- ================================================== -->
+  <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
+
+  <script>
+    /* ================================================== */
+    /* 20. ELEMENTOS                                      */
+    /* ================================================== */
+    const reveals = document.querySelectorAll('.reveal');
+    const topoBtn = document.getElementById('topoBtn');
+
+    /* ================================================== */
+    /* 21. REVELAÇÃO                                      */
+    /* ================================================== */
+    function revelarElementos(){
+      const alturaJanela = window.innerHeight;
+
+      reveals.forEach((el) => {
+        const topo = el.getBoundingClientRect().top;
+        if(topo < alturaJanela - 80){
+          el.classList.add('ativo');
+        }
+      });
+    }
+
+    /* ================================================== */
+    /* 22. BOTÃO TOPO                                     */
+    /* ================================================== */
+    function controlarBotaoTopo(){
+      if(window.scrollY > 400){
+        topoBtn.classList.add('mostrar');
+      }else{
+        topoBtn.classList.remove('mostrar');
+      }
+    }
+
+    topoBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    /* ================================================== */
+    /* 23. PARALLAX LEVE NA BIOGRAFIA                     */
+    /* ================================================== */
+    const bioDestaque = document.querySelector('.biografia-destaque');
+
+    function aplicarParallaxLeve(){
+      if(!bioDestaque) return;
+
+      if(window.innerWidth <= 860){
+        bioDestaque.style.backgroundPosition = 'center 18%';
+        return;
+      }
+
+      const rect = bioDestaque.getBoundingClientRect();
+      const centroTela = window.innerHeight / 2;
+      const centroElemento = rect.top + rect.height / 2;
+      const deslocamento = (centroTela - centroElemento) * 0.04;
+
+      bioDestaque.style.backgroundPosition = `center calc(22% + ${deslocamento}px)`;
+    }
+
+    /* ================================================== */
+    /* 24. EVENTOS                                        */
+    /* ================================================== */
+    window.addEventListener('scroll', () => {
+      revelarElementos();
+      controlarBotaoTopo();
+      aplicarParallaxLeve();
+    });
+
+    window.addEventListener('resize', aplicarParallaxLeve);
+
+    window.addEventListener('load', () => {
+      revelarElementos();
+      controlarBotaoTopo();
+      aplicarParallaxLeve();
+    });
+  </script>
+</body>
+</html>
