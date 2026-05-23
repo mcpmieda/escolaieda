@@ -28,6 +28,7 @@
     let documentoSelecionado = null;
     let anotacaoAtualItemId = null;
     let timerSalvarAnotacao = null;
+    let anotacaoUltimoTextoSalvo = "";
 
     const msalConfig = {
       auth: {
@@ -854,6 +855,7 @@
           textarea.value = item.ANOTACAO || "";
           atualizarStatusAnotacao(`Última atualização: ${formatarData(item.DATA_ATUALIZACAO)} - ${item.ATUALIZADO_POR || ""}`);
         } else {
+          anotacaoUltimoTextoSalvo = "";
           atualizarStatusAnotacao("Nenhuma anotação salva ainda.");
         }
 
@@ -936,6 +938,22 @@
       }
 
       atualizarDashboard();
+            // Registrar historico de anotacao somente quando o texto mudou
+      if (texto !== anotacaoUltimoTextoSalvo) {
+        const textoHistorico = texto ? texto : "Anotação removida.";
+
+        try {
+          await registrarHistorico(documentoSelecionado, "ANOTACAO", textoHistorico);
+          anotacaoUltimoTextoSalvo = texto;
+          await carregarHistoricoDocumento(documentoSelecionado);
+        } catch (erroHistoricoAnotacao) {
+          console.warn("Anotação salva, mas não foi possível registrar no histórico.", erroHistoricoAnotacao);
+          anotacaoUltimoTextoSalvo = texto;
+        }
+      } else {
+        anotacaoUltimoTextoSalvo = texto;
+      }
+
       atualizarStatusAnotacao(`Salvo automaticamente em ${new Date().toLocaleString("pt-BR")}`);
 
       if (documentoSelecionado) {
@@ -945,6 +963,7 @@
 
     window.agendarSalvarAnotacao = function () {
       clearTimeout(timerSalvarAnotacao);
+      anotacaoUltimoTextoSalvo = "";
       atualizarStatusAnotacao("Digitando...");
 
       timerSalvarAnotacao = setTimeout(async () => {
@@ -960,6 +979,7 @@
 
     window.salvarAnotacaoManual = async function () {
       clearTimeout(timerSalvarAnotacao);
+      anotacaoUltimoTextoSalvo = "";
 
       try {
         atualizarStatusAnotacao("Salvando...");
@@ -1542,6 +1562,7 @@
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
+      anotacaoUltimoTextoSalvo = "";
     };
 
     window.abrirPdfSelecionado = async function () {
@@ -3444,6 +3465,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
