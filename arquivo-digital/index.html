@@ -5324,8 +5324,157 @@ window.baixarRelatorioArquivo = function () {
     cursor: not-allowed;
   }
 </style>
+<!-- PASSO103_MODAL_UPLOAD_COMPACTO_INICIO -->
+<style id="passo103_modal_upload_compacto">
+  /* Passo 103 - deixa a janela de envio compacta e rolável */
+  #modalUpload98 {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  #modalUpload98 .modalUpload98Caixa {
+    width: min(690px, calc(100vw - 22px)) !important;
+    max-height: calc(100vh - 22px) !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    padding: 14px 16px !important;
+    border-radius: 18px !important;
+  }
+
+  #modalUpload98 .modalUpload98Topo {
+    margin-bottom: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  #modalUpload98 .modalUpload98Topo h2,
+  #modalUpload98 h2 {
+    font-size: 21px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+  }
+
+  #modalUpload98 p,
+  #modalUpload98 small {
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+    line-height: 1.25 !important;
+  }
+
+  #modalUpload98 .modalUpload98Aviso,
+  #modalUpload98 .avisoUpload102,
+  #modalUpload98 [class*="aviso"],
+  #modalUpload98 [class*="Aviso"] {
+    padding: 10px 12px !important;
+    margin: 8px 0 !important;
+    line-height: 1.25 !important;
+  }
+
+  #modalUpload98 button {
+    padding: 10px 14px !important;
+    min-height: 38px !important;
+  }
+
+  #modalUpload98 textarea {
+    min-height: 64px !important;
+    max-height: 110px !important;
+    resize: vertical !important;
+  }
+
+  #modalUpload98 input[type="file"] {
+    max-width: 100% !important;
+  }
+
+  #modalUpload98 .listaUpload102,
+  #modalUpload98 .listaPdfsUpload102,
+  #modalUpload98 .listaPdfsSelecionados102,
+  #modalUpload98 #listaUpload102,
+  #modalUpload98 #listaPdfsUpload102,
+  #modalUpload98 #listaPdfsSelecionados102,
+  #modalUpload98 #listaArquivosUpload102,
+  #modalUpload98 [id*="lista"][id*="Upload"],
+  #modalUpload98 [id*="Lista"][id*="Upload"],
+  #modalUpload98 [class*="lista"][class*="Upload"],
+  #modalUpload98 [class*="Lista"][class*="Upload"] {
+    max-height: 150px !important;
+    overflow-y: auto !important;
+    padding-right: 6px !important;
+  }
+
+  #modalUpload98 .itemUpload102,
+  #modalUpload98 .itemPdfUpload102,
+  #modalUpload98 .pdfUploadItem102,
+  #modalUpload98 [class*="item"][class*="Upload"],
+  #modalUpload98 [class*="Item"][class*="Upload"] {
+    padding: 8px 10px !important;
+    margin-bottom: 7px !important;
+    border-radius: 10px !important;
+  }
+
+  #modalUpload98 .itemUpload102 strong,
+  #modalUpload98 .itemPdfUpload102 strong,
+  #modalUpload98 .pdfUploadItem102 strong,
+  #modalUpload98 [class*="item"][class*="Upload"] strong,
+  #modalUpload98 [class*="Item"][class*="Upload"] strong {
+    font-size: 14px !important;
+  }
+
+  #modalUpload98 .rodapeUpload102,
+  #modalUpload98 .botoesUpload102,
+  #modalUpload98 .linhaBotoesUpload102,
+  #modalUpload98 .modalUpload98Rodape,
+  #modalUpload98 [class*="rodape"],
+  #modalUpload98 [class*="Rodape"] {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: #fff !important;
+    padding-top: 8px !important;
+    margin-top: 8px !important;
+    border-top: 1px solid #e5e7eb !important;
+    z-index: 5 !important;
+  }
+
+  #modalUpload98 .modalUpload98Status,
+  #modalUpload98 #modalUpload98Status,
+  #modalUpload98 [id*="Status"],
+  #modalUpload98 [class*="Status"] {
+    max-height: 70px !important;
+    overflow-y: auto !important;
+    margin-top: 6px !important;
+  }
+
+  @media (max-height: 720px) {
+    #modalUpload98 .modalUpload98Caixa {
+      max-height: calc(100vh - 14px) !important;
+      padding: 10px 12px !important;
+    }
+
+    #modalUpload98 .listaUpload102,
+    #modalUpload98 .listaPdfsUpload102,
+    #modalUpload98 .listaPdfsSelecionados102,
+    #modalUpload98 #listaUpload102,
+    #modalUpload98 #listaPdfsUpload102,
+    #modalUpload98 #listaPdfsSelecionados102,
+    #modalUpload98 #listaArquivosUpload102,
+    #modalUpload98 [id*="lista"][id*="Upload"],
+    #modalUpload98 [id*="Lista"][id*="Upload"],
+    #modalUpload98 [class*="lista"][class*="Upload"],
+    #modalUpload98 [class*="Lista"][class*="Upload"] {
+      max-height: 118px !important;
+    }
+
+    #modalUpload98 textarea {
+      min-height: 52px !important;
+      max-height: 82px !important;
+    }
+  }
+</style>
+<!-- PASSO103_MODAL_UPLOAD_COMPACTO_FIM -->
 </body>
 </html>
+
 
 
 
