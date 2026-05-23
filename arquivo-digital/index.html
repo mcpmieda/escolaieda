@@ -1540,6 +1540,63 @@
 
       await reabrirPainelSelecionadoSePossivel();
     }
+
+    async function carregarVersoesSharePointDocumento(documento) {
+      const caixa = document.getElementById("versoesSharePoint");
+
+      if (!caixa) return;
+
+      caixa.innerHTML = "<p>Carregando versões do SharePoint...</p>";
+
+      if (!documento || !documento.listItemId) {
+        caixa.innerHTML = "<p>Não foi possível identificar o item do SharePoint para consultar versões.</p>";
+        return;
+      }
+
+      try {
+        const token = await obterToken();
+
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${documento.listItemId}/driveItem/versions?$top=20`;
+
+        const resposta = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        const dados = await resposta.json();
+        const versoes = dados.value || [];
+
+        if (!versoes.length) {
+          caixa.innerHTML = "<p>Nenhuma versão retornada pelo SharePoint.</p>";
+          return;
+        }
+
+        caixa.innerHTML = versoes.map((versao, indice) => {
+          const data = formatarData(versao.lastModifiedDateTime);
+          const usuario = versao.lastModifiedBy?.user?.displayName || versao.lastModifiedBy?.user?.email || "";
+          const tamanho = versao.size ? `${Math.round(versao.size / 1024)} KB` : "";
+          const rotulo = indice === 0 ? "Versão atual" : `Versão anterior ${indice}`;
+
+          return `
+            <div class="itemVersao">
+              <strong>${rotulo}</strong>
+              <span>${data}</span>
+              <small>${usuario}</small>
+              ${tamanho ? `<small>Tamanho: ${tamanho}</small>` : ""}
+            </div>
+          `;
+        }).join("");
+
+      } catch (erro) {
+        console.error(erro);
+        caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar as versões do SharePoint.</p>";
+      }
+    }
     window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
@@ -1577,6 +1634,7 @@
       carregarNomesParecidos(documento);
       await carregarHistoricoDocumento(documento);
       await carregarAnotacaoDocumento(documento);
+      await carregarVersoesSharePointDocumento(documento);
     };
 
     window.fecharPainel = function () {
@@ -2610,6 +2668,31 @@ function renderizarDocumentos(listaArquivos) {
       font-size: 12px !important;
       color: #64748b !important;
     }
+  
+    .itemVersao {
+      padding: 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .itemVersao strong,
+    .itemVersao span,
+    .itemVersao small {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .itemVersao strong {
+      color: #0f2f66;
+    }
+
+    .itemVersao span,
+    .itemVersao small {
+      color: #64748b;
+    }
   </style>
 </head>
 <body>
@@ -2788,6 +2871,10 @@ function renderizarDocumentos(listaArquivos) {
         <div id="nomesParecidosArquivo">
           <p>Selecione um arquivo para verificar nomes parecidos.</p>
         </div>
+      </div>
+      <h3>Versões do SharePoint</h3>
+      <div id="versoesSharePoint">
+        <p>Selecione um arquivo para carregar as versões.</p>
       </div>
       <h3>Histórico do arquivo</h3>
       <div id="historicoArquivo">
@@ -3495,10 +3582,36 @@ function renderizarDocumentos(listaArquivos) {
       font-size: 12px !important;
       color: #64748b !important;
     }
+  
+    .itemVersao {
+      padding: 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .itemVersao strong,
+    .itemVersao span,
+    .itemVersao small {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .itemVersao strong {
+      color: #0f2f66;
+    }
+
+    .itemVersao span,
+    .itemVersao small {
+      color: #64748b;
+    }
   </style>
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
