@@ -2716,6 +2716,358 @@ function renderizarDocumentos(listaArquivos) {
     setTimeout(prepararModalUploadLista102, 1500);
     setTimeout(prepararModalUploadLista102, 3000);
 
+    
+// === PASSO105_UPLOAD_MASSA_MODAL_INICIO ===
+    let arquivosUpload105 = [];
+    let upload105EmAndamento = false;
+
+    function obterNomeArquivoSeguro105(nome) {
+      const original = (nome || "documento.pdf").toString().trim();
+      let limpo = original
+        .replace(/[\\/:*?"<>|]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!/\.pdf$/i.test(limpo)) {
+        limpo += ".pdf";
+      }
+
+      return limpo;
+    }
+
+    function dividirNomePdf105(nome) {
+      const seguro = obterNomeArquivoSeguro105(nome);
+      return {
+        base: seguro.replace(/\.pdf$/i, ""),
+        ext: ".pdf"
+      };
+    }
+
+    function criarNomeConflito105(nome, indice) {
+      const partes = dividirNomePdf105(nome);
+      const agora = new Date();
+      const carimbo =
+        agora.getFullYear().toString() +
+        String(agora.getMonth() + 1).padStart(2, "0") +
+        String(agora.getDate()).padStart(2, "0") + "-" +
+        String(agora.getHours()).padStart(2, "0") +
+        String(agora.getMinutes()).padStart(2, "0") +
+        String(agora.getSeconds()).padStart(2, "0");
+
+      return `${partes.base} - CONFLITO ${carimbo}-${indice + 1}${partes.ext}`;
+    }
+
+    function formatarTamanhoArquivo105(bytes) {
+      const n = Number(bytes || 0);
+      if (n >= 1024 * 1024) return `${(n / 1024 / 1024).toFixed(2)} MB`;
+      if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
+      return `${n} B`;
+    }
+
+    function obterModalUpload105() {
+      return document.getElementById("modalUpload105");
+    }
+
+    function obterMotivoUpload105() {
+      const campo = document.getElementById("motivoUpload105");
+      return (campo?.value || "").trim();
+    }
+
+    function definirStatusUpload105(texto, tipo = "info") {
+      const status = document.getElementById("statusUpload105");
+      if (!status) return;
+
+      status.textContent = texto || "";
+      status.className = `statusUpload105 ${tipo}`;
+      status.style.display = texto ? "block" : "none";
+    }
+
+    function atualizarResumoUpload105() {
+      const resumo = document.getElementById("resumoUpload105");
+      if (!resumo) return;
+
+      if (!arquivosUpload105.length) {
+        resumo.textContent = "Nenhum PDF selecionado.";
+        return;
+      }
+
+      resumo.textContent = `${arquivosUpload105.length} PDF(s) selecionado(s). Informe o motivo e clique em Enviar.`;
+    }
+
+    function renderizarListaUpload105() {
+      const lista = document.getElementById("listaUpload105");
+      if (!lista) return;
+
+      atualizarResumoUpload105();
+
+      if (!arquivosUpload105.length) {
+        lista.innerHTML = `<div class="upload105Vazio">Nenhum arquivo selecionado ainda.</div>`;
+        return;
+      }
+
+      lista.innerHTML = arquivosUpload105.map((arquivo, indice) => `
+        <div class="upload105Item">
+          <div>
+            <strong>${escaparHtml(obterNomeArquivoSeguro105(arquivo.name))}</strong>
+            <span>${formatarTamanhoArquivo105(arquivo.size)}</span>
+          </div>
+          <button type="button" onclick="removerArquivoUpload105(${indice})">Remover</button>
+        </div>
+      `).join("");
+    }
+
+    function configurarInputUpload105() {
+      const input = document.getElementById("inputNovoDocumento");
+      if (!input) return;
+
+      input.multiple = true;
+      input.accept = "application/pdf,.pdf";
+
+      input.onchange = function () {
+        const selecionados = Array.from(input.files || []).filter(arquivo =>
+          /\.pdf$/i.test(arquivo.name || "") || arquivo.type === "application/pdf"
+        );
+
+        if (!selecionados.length) {
+          definirStatusUpload105("Nenhum PDF válido foi selecionado.", "erro");
+          return;
+        }
+
+        const nomesExistentes = new Set(arquivosUpload105.map(a => `${a.name}|${a.size}|${a.lastModified}`));
+
+        selecionados.forEach(arquivo => {
+          const chave = `${arquivo.name}|${arquivo.size}|${arquivo.lastModified}`;
+          if (!nomesExistentes.has(chave)) {
+            arquivosUpload105.push(arquivo);
+            nomesExistentes.add(chave);
+          }
+        });
+
+        input.value = "";
+        definirStatusUpload105("PDF(s) carregado(s) na lista. Confira, informe o motivo e clique em Enviar.", "ok");
+        renderizarListaUpload105();
+      };
+    }
+
+    function prepararModalUpload105(limpar = false) {
+      const modal = obterModalUpload105();
+      if (!modal) return;
+
+      if (limpar) {
+        arquivosUpload105 = [];
+        const motivo = document.getElementById("motivoUpload105");
+        if (motivo) motivo.value = "";
+        definirStatusUpload105("");
+      }
+
+      configurarInputUpload105();
+      renderizarListaUpload105();
+    }
+
+    window.abrirSeletorNovoDocumento = function () {
+      const modalAntigo = document.getElementById("modalUpload98");
+      if (modalAntigo) modalAntigo.style.display = "none";
+
+      const modal = obterModalUpload105();
+      if (!modal) {
+        const input = document.getElementById("inputNovoDocumento");
+        if (input) input.click();
+        return;
+      }
+
+      prepararModalUpload105(true);
+      modal.classList.add("aberto");
+      document.body.classList.add("modalUpload105Aberto");
+    };
+
+    window.fecharModalUpload105 = function () {
+      if (upload105EmAndamento) return;
+
+      const modal = obterModalUpload105();
+      if (modal) modal.classList.remove("aberto");
+
+      document.body.classList.remove("modalUpload105Aberto");
+      definirStatusUpload105("");
+    };
+
+    window.escolherPdfsUpload105 = function () {
+      configurarInputUpload105();
+
+      const input = document.getElementById("inputNovoDocumento");
+      if (input) input.click();
+    };
+
+    window.removerArquivoUpload105 = function (indice) {
+      arquivosUpload105.splice(indice, 1);
+      renderizarListaUpload105();
+    };
+
+    window.limparListaUpload105 = function () {
+      arquivosUpload105 = [];
+      renderizarListaUpload105();
+      definirStatusUpload105("Lista limpa.", "info");
+    };
+
+    async function existeNomeNoSistema105(nome) {
+      const alvo = normalizarTexto(obterNomeArquivoSeguro105(nome));
+
+      const colecao = [
+        ...(Array.isArray(documentosAtivos) ? documentosAtivos : []),
+        ...(Array.isArray(documentosArquivados) ? documentosArquivados : []),
+        ...(Array.isArray(documentosCarregados) ? documentosCarregados : [])
+      ];
+
+      return colecao.some(doc => normalizarTexto(doc?.nome || "") === alvo);
+    }
+
+    async function enviarArquivoUnicoUpload105(arquivo, motivo, indice) {
+      const driveId = await obterDriveDocumentosAtivos();
+
+      let nomeFinal = obterNomeArquivoSeguro105(arquivo.name);
+      const tinhaConflito = await existeNomeNoSistema105(nomeFinal);
+
+      if (tinhaConflito) {
+        nomeFinal = criarNomeConflito105(nomeFinal, indice);
+      }
+
+      const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
+
+      const token = await obterToken();
+
+      const respostaUpload = await fetch(urlUpload, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/pdf"
+        },
+        body: arquivo
+      });
+
+      if (!respostaUpload.ok) {
+        throw new Error(await respostaUpload.text());
+      }
+
+      await respostaUpload.json();
+
+      return {
+        nomeOriginal: obterNomeArquivoSeguro105(arquivo.name),
+        nomeFinal,
+        tinhaConflito
+      };
+    }
+
+    window.enviarPdfsUpload105 = async function () {
+      if (upload105EmAndamento) return;
+
+      if (!arquivosUpload105.length) {
+        definirStatusUpload105("Selecione pelo menos um PDF antes de enviar.", "erro");
+        return;
+      }
+
+      const motivo = obterMotivoUpload105();
+
+      if (!motivo) {
+        definirStatusUpload105("Informe o motivo do envio antes de continuar.", "erro");
+        const campo = document.getElementById("motivoUpload105");
+        if (campo) campo.focus();
+        return;
+      }
+
+      const btnEnviar = document.getElementById("btnEnviarUpload105");
+      upload105EmAndamento = true;
+      if (btnEnviar) {
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = "Enviando...";
+      }
+
+      try {
+        definirStatusUpload105(`Enviando ${arquivosUpload105.length} PDF(s)...`, "info");
+
+        const resultados = [];
+
+        for (let i = 0; i < arquivosUpload105.length; i++) {
+          const arquivo = arquivosUpload105[i];
+          definirStatusUpload105(`Enviando ${i + 1} de ${arquivosUpload105.length}: ${arquivo.name}`, "info");
+          const resultado = await enviarArquivoUnicoUpload105(arquivo, motivo, i);
+          resultados.push(resultado);
+        }
+
+        await aguardar(1400);
+        await carregarDadosDeApoio();
+
+        for (const resultado of resultados) {
+          const docEncontrado = [
+            ...(Array.isArray(documentosAtivos) ? documentosAtivos : []),
+            ...(Array.isArray(documentosCarregados) ? documentosCarregados : [])
+          ].find(doc => normalizarTexto(doc?.nome || "") === normalizarTexto(resultado.nomeFinal));
+
+          const docHistorico = docEncontrado || {
+            nome: resultado.nomeFinal,
+            id: "",
+            caminho: `${CONFIG.documentosAtivosRootPath}/${resultado.nomeFinal}`,
+            link: ""
+          };
+
+          const obs = resultado.tinhaConflito
+            ? `Motivo: ${motivo} | ATENÇÃO: enviado como conflito porque já existia arquivo com nome igual: ${resultado.nomeOriginal}`
+            : `Motivo: ${motivo}`;
+
+          try {
+            await registrarHistorico(docHistorico, "ENVIOU", obs);
+          } catch (erroHist) {
+            console.warn("Arquivo enviado, mas não foi possível registrar histórico do envio.", erroHist);
+          }
+        }
+
+        await carregarDadosDeApoio();
+        filtrarDocumentos();
+        atualizarDashboard();
+
+        if (typeof atualizarTudo84 === "function") {
+          setTimeout(() => atualizarTudo84(), 800);
+        }
+
+        const conflitos = resultados.filter(r => r.tinhaConflito).length;
+
+        if (conflitos) {
+          mostrarMensagem(`${resultados.length} PDF(s) enviado(s). ${conflitos} conflito(s) foram marcados para conferência.`);
+          definirStatusUpload105(`${resultados.length} PDF(s) enviado(s). ${conflitos} conflito(s) para revisar na Central de Duplicidades.`, "ok");
+        } else {
+          mostrarMensagem(`${resultados.length} PDF(s) enviado(s) com sucesso.`);
+          definirStatusUpload105(`${resultados.length} PDF(s) enviado(s) com sucesso.`, "ok");
+        }
+
+        arquivosUpload105 = [];
+        renderizarListaUpload105();
+
+      } catch (erro) {
+        console.error(erro);
+        definirStatusUpload105("Erro ao enviar PDF(s). Veja o console para detalhes.", "erro");
+      } finally {
+        upload105EmAndamento = false;
+        if (btnEnviar) {
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = "Enviar PDF(s)";
+        }
+      }
+    };
+
+    window.enviarNovoDocumento = async function () {
+      definirStatusUpload105("Os PDFs foram adicionados à lista. Clique em Enviar PDF(s) para concluir.", "info");
+      renderizarListaUpload105();
+    };
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        window.fecharModalUpload105();
+      }
+    });
+
+    setTimeout(configurarInputUpload105, 300);
+    setTimeout(configurarInputUpload105, 1000);
+    setTimeout(configurarInputUpload105, 2000);
+// === PASSO105_UPLOAD_MASSA_MODAL_FIM ===
+
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
   // INICIO PASSO 91 RELATORIO JS
@@ -6207,5 +6559,288 @@ window.baixarRelatorioArquivo = function () {
   })();
 </script>
 <!-- PASSO104_UPLOAD_MODAL_AJUSTE_END -->
+
+<!-- PASSO105_UPLOAD_MASSA_MODAL_HTML_INICIO -->
+<style>
+  #modalUpload98 {
+    display: none !important;
+  }
+
+  body.modalUpload105Aberto {
+    overflow: hidden;
+  }
+
+  .modalUpload105 {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .58);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .modalUpload105.aberto {
+    display: flex;
+  }
+
+  .modalUpload105Caixa {
+    width: min(680px, 96vw);
+    max-height: 92vh;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(15, 23, 42, .35);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modalUpload105Topo {
+    background: #0f2f66;
+    color: white;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .modalUpload105Topo h2 {
+    margin: 0;
+    font-size: 21px;
+    line-height: 1.1;
+  }
+
+  .modalUpload105Fechar {
+    border: 0;
+    border-radius: 10px;
+    padding: 9px 12px;
+    background: rgba(255,255,255,.18);
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .modalUpload105Corpo {
+    padding: 14px 18px 12px 18px;
+    overflow: hidden;
+    display: grid;
+    gap: 10px;
+  }
+
+  .modalUpload105Aviso {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #eef3ff;
+    color: #1e3a8a;
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  .modalUpload105Linha {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .modalUpload105Linha button,
+  .modalUpload105Rodape button,
+  .upload105Item button {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #0f2f66;
+    color: white;
+  }
+
+  .modalUpload105Linha .secundario,
+  .modalUpload105Rodape .secundario {
+    background: #64748b;
+  }
+
+  .modalUpload105Bloco {
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 10px 12px;
+    background: #f8fafc;
+  }
+
+  .modalUpload105Bloco h3 {
+    margin: 0 0 5px 0;
+    color: #0f2f66;
+    font-size: 16px;
+  }
+
+  #resumoUpload105 {
+    margin: 0 0 8px 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  #listaUpload105 {
+    max-height: 230px;
+    overflow: auto;
+    display: grid;
+    gap: 6px;
+  }
+
+  .upload105Item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 11px;
+  }
+
+  .upload105Item strong {
+    display: block;
+    color: #0f2f66;
+    font-size: 14px;
+    word-break: break-word;
+  }
+
+  .upload105Item span {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .upload105Item button {
+    background: #64748b;
+    padding: 8px 10px;
+    flex: 0 0 auto;
+  }
+
+  .upload105Vazio {
+    padding: 12px;
+    color: #64748b;
+    background: white;
+    border: 1px dashed #cbd5e1;
+    border-radius: 11px;
+  }
+
+  #motivoUpload105 {
+    width: 100%;
+    min-height: 54px;
+    max-height: 90px;
+    box-sizing: border-box;
+    resize: vertical;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    padding: 10px 12px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  .statusUpload105 {
+    display: none;
+    padding: 9px 11px;
+    border-radius: 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .statusUpload105.info {
+    display: block;
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .statusUpload105.ok {
+    display: block;
+    background: #ecfdf5;
+    color: #047857;
+  }
+
+  .statusUpload105.erro {
+    display: block;
+    background: #fff0f0;
+    color: #b00020;
+  }
+
+  .modalUpload105Rodape {
+    padding: 12px 18px 14px 18px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: white;
+  }
+
+  .modalUpload105Rodape button:disabled {
+    opacity: .65;
+    cursor: wait;
+  }
+
+  @media (max-height: 720px) {
+    .modalUpload105Caixa {
+      max-height: 96vh;
+    }
+
+    .modalUpload105Corpo {
+      gap: 8px;
+      padding-top: 10px;
+      padding-bottom: 8px;
+    }
+
+    #listaUpload105 {
+      max-height: 170px;
+    }
+
+    .modalUpload105Aviso {
+      display: none;
+    }
+  }
+</style>
+
+<div id="modalUpload105" class="modalUpload105" onclick="fecharModalUpload105()">
+  <div class="modalUpload105Caixa" onclick="event.stopPropagation()">
+    <div class="modalUpload105Topo">
+      <h2>Enviar PDF(s)</h2>
+      <button type="button" class="modalUpload105Fechar" onclick="fecharModalUpload105()">X</button>
+    </div>
+
+    <div class="modalUpload105Corpo">
+      <div class="modalUpload105Aviso">
+        Se existir arquivo com nome igual em Ativos ou na Lixeira, o sistema não substituirá. O novo arquivo será enviado como CONFLITO para conferência.
+      </div>
+
+      <div class="modalUpload105Linha">
+        <button type="button" onclick="escolherPdfsUpload105()">Escolher PDF(s)</button>
+        <button type="button" class="secundario" onclick="limparListaUpload105()">Limpar lista</button>
+      </div>
+
+      <div class="modalUpload105Bloco">
+        <h3>PDFs selecionados</h3>
+        <p id="resumoUpload105">Nenhum PDF selecionado.</p>
+        <div id="listaUpload105">
+          <div class="upload105Vazio">Nenhum arquivo selecionado ainda.</div>
+        </div>
+      </div>
+
+      <div class="modalUpload105Bloco">
+        <h3>Motivo do envio</h3>
+        <textarea id="motivoUpload105" placeholder="Ex.: envio inicial, nova digitalização, complementação de arquivo..."></textarea>
+      </div>
+
+      <div id="statusUpload105" class="statusUpload105"></div>
+    </div>
+
+    <div class="modalUpload105Rodape">
+      <button type="button" class="secundario" onclick="fecharModalUpload105()">Cancelar</button>
+      <button type="button" id="btnEnviarUpload105" onclick="enviarPdfsUpload105()">Enviar PDF(s)</button>
+    </div>
+  </div>
+</div>
+<!-- PASSO105_UPLOAD_MASSA_MODAL_HTML_FIM -->
 </body>
 </html>
+
