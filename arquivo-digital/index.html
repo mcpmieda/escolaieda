@@ -79,16 +79,6 @@
         return data;
       }
 
-    function escaparHTML(texto) {
-      return (texto || "")
-        .toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
     function limparObservacaoHistorico(texto) {
       let limpo = (texto || "").toString().trim();
 
@@ -96,20 +86,16 @@
         /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
         /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
         /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
-        /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i,
-        /^Documento aberto pelo botão ABRIR PDF no painel lateral\.\s*/i,
-        /^Documento aberto pelo botão Abrir PDF no painel lateral\.\s*/i,
-        /^Documento aberto pelo sistema Arquivo Digital\.\s*/i
+        /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i
       ];
 
       padroes.forEach(padrao => {
         limpo = limpo.replace(padrao, "");
       });
 
-      limpo = limpo.replace(/^Motivo:\s*/i, "");
-
       return limpo.trim();
-    }
+    }    }
+
     function obterPalavrasNome(nome) {
       const ignorar = new Set(["pdf", "de", "da", "do", "das", "dos", "e", "a", "o"]);
 
@@ -428,8 +414,8 @@
       caixa.innerHTML = "<p>Carregando histórico...</p>";
 
       try {
-        const historico = (historicoCarregado || [])
-          .filter(item => item && item.ARQUIVO_ID === documento.id)
+        const historico = historicoCarregado
+          .filter(item => item.ARQUIVO_ID === documento.id)
           .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA));
 
         if (!historico.length) {
@@ -437,27 +423,21 @@
           return;
         }
 
-        caixa.innerHTML = historico.map(item => {
-          const motivoLimpo = limparObservacaoHistorico(item.OBSERVACAO || "");
-          const blocoMotivo = motivoLimpo
-            ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${escaparHTML(motivoLimpo)}</div>`
-            : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`;
-
-          return `
-            <div class="itemHistorico">
-              <strong>${escaparHTML(item.ACAO || "")}</strong><br>
-              <span>${escaparHTML(formatarData(item.DATA_HORA))}</span><br>
-              <span>${escaparHTML(item.USUARIO_NOME || "")} - ${escaparHTML(item.USUARIO_EMAIL || "")}</span>
-              ${blocoMotivo}
-            </div>
-          `;
-        }).join("");
+        caixa.innerHTML = historico.map(item => `
+          <div class="itemHistorico">
+            <strong>${item.ACAO || ""}</strong><br>
+            <span>${formatarData(item.DATA_HORA)}</span><br>
+            <span>${item.USUARIO_NOME || ""} - ${item.USUARIO_EMAIL || ""}</span><br>
+            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${limparObservacaoHistorico(item.OBSERVACAO)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
+          </div>
+        `).join("");
 
       } catch (erro) {
-        console.error("Erro ao carregar histórico do arquivo:", erro);
+        console.error(erro);
         caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
       }
     }
+
     async function carregarAnotacaoDocumento(documento) {
       const textarea = document.getElementById("campoAnotacao");
       textarea.value = "";
@@ -1951,6 +1931,5 @@
   </aside>
 </body>
 </html>
-
 
 
