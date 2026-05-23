@@ -19,7 +19,10 @@
       documentosAtivosRootPath: "/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS"
     };
 
+    let documentosAtivos = [];
+    let documentosArquivados = [];
     let documentosCarregados = [];
+    let modoListaAtual = "ativos";
     let historicoCarregado = [];
     let anotacoesCarregadas = [];
     let documentoSelecionado = null;
@@ -166,7 +169,11 @@
         (item.ANOTACAO || "").trim().length > 0
       ).length;
 
-      document.getElementById("dashDocumentos").textContent = documentosCarregados.length;
+      document.getElementById("dashDocumentos").textContent = documentosAtivos.length;
+      const dashArquivados = document.getElementById("dashArquivados");
+      if (dashArquivados) {
+        dashArquivados.textContent = documentosArquivados.length;
+      }
       document.getElementById("dashAcessos").textContent = historicoCarregado.length;
       document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
       document.getElementById("dashAnotacoes").textContent = arquivosComAnotacao;
@@ -219,6 +226,48 @@
         console.error(erro);
         mostrarMensagem("Erro ao atualizar dashboard.", "erro");
       }
+    };
+
+    function atualizarBotoesModoLista() {
+      const btnAtivos = document.getElementById("btnVerAtivos");
+      const btnArquivados = document.getElementById("btnVerArquivados");
+
+      if (!btnAtivos || !btnArquivados) return;
+
+      btnAtivos.classList.toggle("ativo", modoListaAtual === "ativos");
+      btnArquivados.classList.toggle("ativo", modoListaAtual === "arquivados");
+
+      document.getElementById("tituloListaDocumentos").textContent = modoListaAtual === "ativos"
+        ? "Documentos ativos"
+        : "Documentos arquivados";
+
+      document.getElementById("campoBusca").placeholder = modoListaAtual === "ativos"
+        ? "Digite o nome do aluno ou parte do nome..."
+        : "Digite para pesquisar nos documentos arquivados...";
+    }
+
+    function aplicarListaAtual() {
+      documentosCarregados = modoListaAtual === "arquivados"
+        ? documentosArquivados
+        : documentosAtivos;
+
+      atualizarBotoesModoLista();
+      filtrarDocumentos();
+      atualizarDashboard();
+    }
+
+    window.mostrarDocumentosAtivos = function () {
+      modoListaAtual = "ativos";
+      document.getElementById("campoBusca").value = "";
+      fecharPainel();
+      aplicarListaAtual();
+    };
+
+    window.mostrarDocumentosArquivados = function () {
+      modoListaAtual = "arquivados";
+      document.getElementById("campoBusca").value = "";
+      fecharPainel();
+      aplicarListaAtual();
     };
 
     async function registrarHistorico(documento, acao, observacao = "") {
@@ -719,6 +768,8 @@
     window.cancelarArquivar = function () {
       document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("motivoArquivar").value = "";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("motivoRestaurar").value = "";
     };
 
     window.confirmarArquivar = async function () {
@@ -782,6 +833,114 @@
       }
     };
 
+
+    async function obterPastaRaizAtivos(driveId) {
+      const token = await obterToken();
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root?$select=id,name`;
+
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      return await resposta.json();
+    }
+
+    window.prepararRestaurar = function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxRestaurar").style.display = "block";
+      document.getElementById("motivoRestaurar").value = "";
+      mostrarMensagemPainel("Informe o motivo para restaurar este arquivo para a lista principal.");
+    };
+
+    window.cancelarRestaurar = function () {
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("motivoRestaurar").value = "";
+    };
+
+    window.confirmarRestaurar = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      const motivo = (document.getElementById("motivoRestaurar").value || "").trim();
+
+      if (!motivo) {
+        mostrarMensagemPainel("Informe um motivo para restaurar este arquivo.", "erro");
+        return;
+      }
+
+      try {
+        mostrarMensagemPainel("Restaurando arquivo...");
+
+        const token = await obterToken();
+        const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
+        const drive = await obterDriveDaBibliotecaAtivos();
+        const driveId = drive.id;
+        const pastaRaiz = await obterPastaRaizAtivos(driveId);
+
+        const nomeDuplicadoAtivo = documentosAtivos.some(doc =>
+          normalizarTexto(doc.nome) === normalizarTexto(documentoSelecionado.nome)
+        );
+
+        if (nomeDuplicadoAtivo) {
+          mostrarMensagemPainel("Já existe um arquivo ativo com esse mesmo nome. Renomeie o ativo ou o arquivado antes de restaurar.", "erro");
+          return;
+        }
+
+        const urlMover = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}`;
+
+        const resposta = await fetch(urlMover, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            parentReference: {
+              id: pastaRaiz.id
+            }
+          })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        await registrarHistorico(
+          documentoSelecionado,
+          "RESTAUROU",
+          `Arquivo restaurado da pasta _ARQUIVADOS para a lista principal. Motivo: ${motivo}`
+        );
+
+        document.getElementById("boxRestaurar").style.display = "none";
+        document.getElementById("motivoRestaurar").value = "";
+
+        modoListaAtual = "ativos";
+        fecharPainel();
+        await listarDocumentos();
+        await carregarDadosDeApoio();
+        mostrarMensagem("Arquivo restaurado com sucesso para Documentos ativos.");
+
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Erro ao restaurar arquivo. Veja o console para detalhes.", "erro");
+      }
+    };
+
     window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
@@ -796,6 +955,13 @@
       document.getElementById("painelNome").textContent = documento.nome;
       document.getElementById("painelId").textContent = documento.id || "";
       document.getElementById("painelCaminho").textContent = documento.caminho || "";
+      document.getElementById("painelStatus").textContent = documento.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+
+      const estaArquivado = documento.status === "ARQUIVADO";
+      document.getElementById("btnRenomear").style.display = estaArquivado ? "none" : "inline-block";
+      document.getElementById("btnSubstituir").style.display = estaArquivado ? "none" : "inline-block";
+      document.getElementById("btnArquivar").style.display = estaArquivado ? "none" : "inline-block";
+      document.getElementById("btnRestaurar").style.display = estaArquivado ? "inline-block" : "none";
 
       document.getElementById("painelLateral").classList.add("aberto");
       document.getElementById("boxRenomear").style.display = "none";
@@ -804,6 +970,8 @@
       document.getElementById("arquivoSubstituto").value = "";
       document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("motivoArquivar").value = "";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("motivoRestaurar").value = "";
 
       await carregarHistoricoDocumento(documento);
       await carregarAnotacaoDocumento(documento);
@@ -817,6 +985,8 @@
       document.getElementById("arquivoSubstituto").value = "";
       document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("motivoArquivar").value = "";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("motivoRestaurar").value = "";
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
@@ -904,31 +1074,40 @@
         const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,FileDirRef,FSObjType)&$top=999`;
 
         const itens = await buscarTodosItens(url, token);
+
         const arquivos = itens.filter(item => {
           const f = item.fields || {};
-          return f.FileLeafRef &&
-            String(f.FSObjType || "0") === "0" &&
-            String(f.FileDirRef || "") === CONFIG.documentosAtivosRootPath;
+          return f.FileLeafRef && String(f.FSObjType || "0") === "0";
         });
 
-        documentosCarregados = arquivos.map(item => {
+        const mapear = item => {
           const nome = item.fields.FileLeafRef;
           const caminho = item.fields.FileRef;
+          const pasta = item.fields.FileDirRef || "";
+          const status = pasta === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS` ? "ARQUIVADO" : "ATIVO";
 
           return {
             nome,
             caminho,
-            fileDirRef: item.fields.FileDirRef || "",
+            fileDirRef: pasta,
+            status,
             id: item.fields.UniqueId,
             listItemId: item.id,
             driveItemId: "",
             driveId: "",
             link: "https://eduieda.sharepoint.com" + caminho
           };
-        });
+        };
 
-        renderizarDocumentos(documentosCarregados);
-        atualizarDashboard();
+        documentosAtivos = arquivos
+          .filter(item => String(item.fields.FileDirRef || "") === CONFIG.documentosAtivosRootPath)
+          .map(mapear);
+
+        documentosArquivados = arquivos
+          .filter(item => String(item.fields.FileDirRef || "") === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS`)
+          .map(mapear);
+
+        aplicarListaAtual();
 
       } catch (erro) {
         lista.innerHTML = `<li class="erro">Erro ao carregar documentos: ${erro.message}</li>`;
@@ -1049,7 +1228,7 @@
 
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 12px;
       margin: 16px 0 18px 0;
     }
@@ -1076,7 +1255,7 @@
     }
 
     .cardDash.largo {
-      grid-column: span 4;
+      grid-column: span 5;
       min-height: auto;
     }
 
@@ -1084,6 +1263,26 @@
       font-size: 14px;
       color: #1f2937;
       line-height: 1.4;
+    }
+
+    .abasDocumentos {
+      display: flex;
+      gap: 8px;
+      margin: 18px 0 10px 0;
+      flex-wrap: wrap;
+    }
+
+    .abaDocumento {
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 9px 14px;
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .abaDocumento.ativo {
+      background: #0f2f66;
+      color: white;
     }
 
     .busca {
@@ -1405,6 +1604,11 @@
         </div>
 
         <div class="cardDash">
+          <span>Documentos arquivados</span>
+          <strong id="dashArquivados">0</strong>
+        </div>
+
+        <div class="cardDash">
           <span>Acessos registrados</span>
           <strong id="dashAcessos">0</strong>
         </div>
@@ -1425,7 +1629,12 @@
         </div>
       </div>
 
-      <h2>Documentos ativos</h2>
+      <div class="abasDocumentos">
+        <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
+        <button id="btnVerArquivados" class="abaDocumento" onclick="mostrarDocumentosArquivados()">Arquivados</button>
+      </div>
+
+      <h2 id="tituloListaDocumentos">Documentos ativos</h2>
 
       <input
         id="campoBusca"
@@ -1465,11 +1674,17 @@
         <span id="painelCaminho"></span>
       </div>
 
+      <div class="campoInfo">
+        <strong>Status</strong>
+        <span id="painelStatus"></span>
+      </div>
+
       <div class="acoes">
         <button class="principal" onclick="abrirPdfSelecionado()">Abrir PDF e registrar acesso</button>
-        <button onclick="prepararRenomear()">Renomear</button>
-        <button onclick="prepararSubstituir()">Substituir</button>
-        <button onclick="prepararArquivar()">Arquivar</button>
+        <button id="btnRenomear" onclick="prepararRenomear()">Renomear</button>
+        <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
+        <button id="btnArquivar" onclick="prepararArquivar()">Arquivar</button>
+        <button id="btnRestaurar" onclick="prepararRestaurar()" style="display:none">Restaurar</button>
         <button class="desativado" title="Será implementado depois">Mesclar</button>
       </div>
 
@@ -1503,6 +1718,16 @@
         <div class="linhaBotoes">
           <button onclick="confirmarArquivar()">Confirmar arquivamento</button>
           <button class="secundario" onclick="cancelarArquivar()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="boxRestaurar" class="formAcao alertaAcao">
+        <h3>Restaurar arquivo</h3>
+        <p>O arquivo será movido da pasta <strong>_ARQUIVADOS</strong> para a lista principal de documentos ativos.</p>
+        <textarea id="motivoRestaurar" placeholder="Informe o motivo da restauração..."></textarea>
+        <div class="linhaBotoes">
+          <button onclick="confirmarRestaurar()">Confirmar restauração</button>
+          <button class="secundario" onclick="cancelarRestaurar()">Cancelar</button>
         </div>
       </div>
 
