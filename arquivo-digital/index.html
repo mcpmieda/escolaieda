@@ -469,6 +469,8 @@
       }
 
       const nomeSemPdf = documentoSelecionado.nome.replace(/\.pdf$/i, "");
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("novoNomeArquivo").value = nomeSemPdf;
       document.getElementById("boxRenomear").style.display = "block";
       mostrarMensagemPainel("Confira o novo nome antes de confirmar.");
@@ -554,6 +556,99 @@
       }
     };
 
+    window.prepararSubstituir = function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxSubstituir").style.display = "block";
+      document.getElementById("arquivoSubstituto").value = "";
+      mostrarMensagemPainel("Escolha o PDF mais atual para substituir o conteúdo deste arquivo.");
+    };
+
+    window.cancelarSubstituir = function () {
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("arquivoSubstituto").value = "";
+    };
+
+    window.confirmarSubstituir = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      const input = document.getElementById("arquivoSubstituto");
+      const arquivo = input.files && input.files[0];
+
+      if (!arquivo) {
+        mostrarMensagemPainel("Selecione um arquivo PDF para substituir.", "erro");
+        return;
+      }
+
+      if (!arquivo.name.toLowerCase().endsWith(".pdf")) {
+        mostrarMensagemPainel("Selecione somente arquivo PDF.", "erro");
+        return;
+      }
+
+      const limite = 250 * 1024 * 1024;
+      if (arquivo.size > limite) {
+        mostrarMensagemPainel("Este PDF é maior que 250 MB. Nesta versão, envie arquivos menores.", "erro");
+        return;
+      }
+
+      const confirmar = confirm(
+        `Substituir o conteúdo de:\n\n${documentoSelecionado.nome}\n\npelo arquivo:\n${arquivo.name}\n\nO nome será mantido e o SharePoint deverá preservar versões anteriores. Deseja continuar?`
+      );
+
+      if (!confirmar) {
+        return;
+      }
+
+      try {
+        mostrarMensagemPainel("Substituindo arquivo. Aguarde...");
+
+        const token = await obterToken();
+        const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
+        const driveId = driveItem.parentReference?.driveId || documentoSelecionado.driveId;
+
+        const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}/content`;
+
+        const resposta = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": arquivo.type || "application/pdf"
+          },
+          body: arquivo
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        await registrarHistorico(
+          documentoSelecionado,
+          "SUBSTITUIU",
+          `Arquivo substituído por nova versão enviada: ${arquivo.name}. Tamanho: ${Math.round(arquivo.size / 1024)} KB.`
+        );
+
+        document.getElementById("boxSubstituir").style.display = "none";
+        document.getElementById("arquivoSubstituto").value = "";
+
+        await carregarHistoricoDocumento(documentoSelecionado);
+        await listarDocumentos();
+        await carregarDadosDeApoio();
+        mostrarMensagemPainel("Arquivo substituído com sucesso. O histórico foi atualizado.");
+
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Erro ao substituir arquivo. Veja o console para detalhes.", "erro");
+      }
+    };
+
     async function obterDriveDaBibliotecaAtivos() {
       const token = await obterToken();
       const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/drive?$select=id`;
@@ -615,6 +710,7 @@
       }
 
       document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("boxSubstituir").style.display = "none";
       document.getElementById("boxArquivar").style.display = "block";
       document.getElementById("motivoArquivar").value = "";
       mostrarMensagemPainel("Informe o motivo do arquivamento antes de confirmar.");
@@ -704,6 +800,8 @@
       document.getElementById("painelLateral").classList.add("aberto");
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("arquivoSubstituto").value = "";
       document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("motivoArquivar").value = "";
 
@@ -715,6 +813,8 @@
       document.getElementById("painelLateral").classList.remove("aberto");
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("arquivoSubstituto").value = "";
       document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("motivoArquivar").value = "";
       documentoSelecionado = null;
@@ -1368,7 +1468,7 @@
       <div class="acoes">
         <button class="principal" onclick="abrirPdfSelecionado()">Abrir PDF e registrar acesso</button>
         <button onclick="prepararRenomear()">Renomear</button>
-        <button class="desativado" title="Será implementado depois">Substituir</button>
+        <button onclick="prepararSubstituir()">Substituir</button>
         <button onclick="prepararArquivar()">Arquivar</button>
         <button class="desativado" title="Será implementado depois">Mesclar</button>
       </div>
@@ -1382,6 +1482,17 @@
         <div class="linhaBotoes">
           <button onclick="confirmarRenomear()">Confirmar renomeação</button>
           <button class="secundario" onclick="cancelarRenomear()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="boxSubstituir" class="formAcao alertaAcao">
+        <h3>Substituir arquivo</h3>
+        <p>Escolha um PDF mais atual. O sistema manterá o mesmo nome do arquivo atual e substituirá apenas o conteúdo.</p>
+        <input id="arquivoSubstituto" type="file" accept="application/pdf,.pdf">
+        <small>O SharePoint deverá manter versões anteriores pelo histórico de versões da biblioteca.</small>
+        <div class="linhaBotoes">
+          <button onclick="confirmarSubstituir()">Confirmar substituição</button>
+          <button class="secundario" onclick="cancelarSubstituir()">Cancelar</button>
         </div>
       </div>
 
