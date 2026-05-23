@@ -2288,6 +2288,434 @@ function renderizarDocumentos(listaArquivos) {
     setTimeout(prepararModalUploadMassa101, 600);
     setTimeout(prepararModalUploadMassa101, 1800);
 
+
+    /* PASSO102_UPLOAD_LISTA_PREVIA */
+    let arquivosUploadSelecionados102 = [];
+    let upload102EmAndamento = false;
+
+    function limparNomeUpload102(nome) {
+      return (nome || "documento.pdf")
+        .replace(/[\\/:*?"<>|#%{}~&]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function garantirPdfUpload102(nome) {
+      const limpo = limparNomeUpload102(nome);
+      return /\.pdf$/i.test(limpo) ? limpo : `${limpo}.pdf`;
+    }
+
+    function normalizarNomeUpload102(nome) {
+      return garantirPdfUpload102(nome)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function baseSemPdfUpload102(nome) {
+      return garantirPdfUpload102(nome).replace(/\.pdf$/i, "");
+    }
+
+    function gerarNomeConflitoUpload102(nomeOriginal, nomesUsados) {
+      const base = baseSemPdfUpload102(nomeOriginal);
+      const agora = new Date();
+      const data = [
+        agora.getFullYear(),
+        String(agora.getMonth() + 1).padStart(2, "0"),
+        String(agora.getDate()).padStart(2, "0"),
+        String(agora.getHours()).padStart(2, "0"),
+        String(agora.getMinutes()).padStart(2, "0"),
+        String(agora.getSeconds()).padStart(2, "0")
+      ].join("");
+
+      let tentativa = `${base} - CONFLITO ${data}.pdf`;
+      let contador = 2;
+
+      while (nomesUsados.has(normalizarNomeUpload102(tentativa))) {
+        tentativa = `${base} - CONFLITO ${data} (${contador}).pdf`;
+        contador++;
+      }
+
+      return tentativa;
+    }
+
+    function tamanhoArquivoUpload102(bytes) {
+      const valor = Number(bytes || 0);
+      if (valor < 1024) return `${valor} B`;
+      if (valor < 1024 * 1024) return `${(valor / 1024).toFixed(1)} KB`;
+      return `${(valor / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    function obterMotivoUpload102() {
+      const campo = document.getElementById("motivoUpload101") || document.getElementById("motivoUpload102");
+      return campo ? (campo.value || "").trim() : "";
+    }
+
+    function atualizarStatusUpload102(texto, tipo = "info") {
+      if (typeof atualizarStatusUpload101 === "function") {
+        atualizarStatusUpload101(texto, tipo);
+        return;
+      }
+
+      const status = document.getElementById("statusUpload101") || document.getElementById("modalUpload98Status");
+      if (!status) return;
+
+      status.textContent = texto;
+      status.style.display = "block";
+      status.style.padding = "10px";
+      status.style.borderRadius = "10px";
+      status.style.marginTop = "10px";
+      status.style.fontWeight = "700";
+      status.style.fontSize = "13px";
+
+      if (tipo === "erro") {
+        status.style.color = "#b91c1c";
+        status.style.background = "#fef2f2";
+      } else if (tipo === "alerta") {
+        status.style.color = "#92400e";
+        status.style.background = "#fffbeb";
+      } else {
+        status.style.color = "#065f46";
+        status.style.background = "#ecfdf5";
+      }
+    }
+
+    function renderizarListaUpload102() {
+      const lista = document.getElementById("listaArquivosUpload102");
+      const resumo = document.getElementById("resumoArquivosUpload102");
+      const botaoEnviar = document.getElementById("btnConfirmarUpload102");
+
+      if (!lista) return;
+
+      if (!arquivosUploadSelecionados102.length) {
+        lista.innerHTML = `<div class="semArquivosUpload102">Nenhum PDF selecionado ainda.</div>`;
+        if (resumo) resumo.textContent = "Selecione um ou vários PDFs para listar aqui antes do envio.";
+        if (botaoEnviar) botaoEnviar.disabled = true;
+        return;
+      }
+
+      if (resumo) {
+        resumo.textContent = `${arquivosUploadSelecionados102.length} PDF(s) selecionado(s). Informe o motivo e clique em Enviar.`;
+      }
+
+      if (botaoEnviar) botaoEnviar.disabled = false;
+
+      lista.innerHTML = arquivosUploadSelecionados102.map((arquivo, indice) => {
+        return `
+          <div class="itemUpload102">
+            <div>
+              <strong>${escaparHtml(arquivo.name || "documento.pdf")}</strong>
+              <small>${tamanhoArquivoUpload102(arquivo.size)}</small>
+            </div>
+            <button type="button" onclick="removerArquivoUpload102(${indice})">Remover</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.removerArquivoUpload102 = function (indice) {
+      arquivosUploadSelecionados102.splice(indice, 1);
+      renderizarListaUpload102();
+      atualizarStatusUpload102("Lista de PDFs atualizada.");
+    };
+
+    window.limparSelecaoUpload102 = function () {
+      arquivosUploadSelecionados102 = [];
+      const input = document.getElementById("inputNovoDocumento");
+      if (input) input.value = "";
+      renderizarListaUpload102();
+      atualizarStatusUpload102("Seleção limpa.");
+    };
+
+    function prepararModalUploadLista102() {
+      if (typeof prepararModalUploadMassa101 === "function") {
+        try { prepararModalUploadMassa101(); } catch (erro) { console.warn("Falha ao preparar base do upload.", erro); }
+      }
+
+      const input = document.getElementById("inputNovoDocumento");
+      if (input) {
+        input.setAttribute("multiple", "multiple");
+        input.onchange = function () {
+          window.enviarNovoDocumento(this);
+        };
+      }
+
+      const modal = document.getElementById("modalUpload98");
+      if (!modal) return;
+
+      const caixa = modal.querySelector(".modalUpload98Caixa") || modal.firstElementChild || modal;
+      const titulo = caixa.querySelector("h2");
+      if (titulo) titulo.textContent = "Enviar PDF(s)";
+
+      if (!document.getElementById("areaListaUpload102")) {
+        const area = document.createElement("div");
+        area.id = "areaListaUpload102";
+        area.className = "areaListaUpload102";
+        area.innerHTML = `
+          <div class="topoListaUpload102">
+            <strong>PDFs selecionados</strong>
+            <button type="button" onclick="limparSelecaoUpload102()">Limpar lista</button>
+          </div>
+          <div id="resumoArquivosUpload102" class="resumoArquivosUpload102">Selecione um ou vários PDFs para listar aqui antes do envio.</div>
+          <div id="listaArquivosUpload102" class="listaArquivosUpload102"></div>
+        `;
+
+        const blocoMotivo = caixa.querySelector(".blocoUploadMassa101");
+        const botoes = caixa.querySelector(".modalUpload98Botoes") || caixa.querySelector(".linhaBotoes");
+
+        if (blocoMotivo) {
+          blocoMotivo.parentNode.insertBefore(area, blocoMotivo);
+        } else if (botoes) {
+          botoes.parentNode.insertBefore(area, botoes);
+        } else {
+          caixa.appendChild(area);
+        }
+      }
+
+      let botoes = caixa.querySelector(".modalUpload98Botoes") || caixa.querySelector(".linhaBotoes");
+      if (!botoes) {
+        botoes = document.createElement("div");
+        botoes.className = "modalUpload98Botoes";
+        caixa.appendChild(botoes);
+      }
+
+      let botaoEscolher = document.getElementById("btnEscolherUpload102");
+      if (!botaoEscolher) {
+        botaoEscolher = document.createElement("button");
+        botaoEscolher.id = "btnEscolherUpload102";
+        botaoEscolher.type = "button";
+        botaoEscolher.textContent = "Escolher PDF(s)";
+        botaoEscolher.onclick = window.escolherArquivoUpload98;
+        botoes.insertBefore(botaoEscolher, botoes.firstChild);
+      }
+
+      let botaoConfirmar = document.getElementById("btnConfirmarUpload102");
+      if (!botaoConfirmar) {
+        botaoConfirmar = document.createElement("button");
+        botaoConfirmar.id = "btnConfirmarUpload102";
+        botaoConfirmar.type = "button";
+        botaoConfirmar.textContent = "Enviar PDF(s) selecionado(s)";
+        botaoConfirmar.onclick = window.confirmarEnvioUpload102;
+        botoes.insertBefore(botaoConfirmar, botaoEscolher.nextSibling);
+      }
+
+      Array.from(botoes.querySelectorAll("button")).forEach(btn => {
+        const texto = (btn.textContent || "").toLowerCase();
+        const onclick = (btn.getAttribute("onclick") || "").toLowerCase();
+
+        if (btn.id === "btnEscolherUpload102" || btn.id === "btnConfirmarUpload102") return;
+
+        if (texto.includes("escolher") || onclick.includes("escolherarquivoupload98")) {
+          btn.style.display = "none";
+        }
+      });
+
+      renderizarListaUpload102();
+    }
+
+    window.escolherArquivoUpload98 = function () {
+      prepararModalUploadLista102();
+      const input = document.getElementById("inputNovoDocumento");
+      if (input) {
+        input.value = "";
+        input.click();
+      }
+    };
+
+    window.enviarNovoDocumento = async function (input) {
+      const arquivos = Array.from(input?.files || []);
+      const arquivosPdf = arquivos.filter(arq => {
+        const nome = arq.name || "";
+        return arq.type === "application/pdf" || /\.pdf$/i.test(nome);
+      });
+
+      if (!arquivos.length) {
+        atualizarStatusUpload102("Nenhum arquivo selecionado.", "erro");
+        return;
+      }
+
+      if (!arquivosPdf.length) {
+        atualizarStatusUpload102("Selecione apenas arquivos PDF.", "erro");
+        if (input) input.value = "";
+        return;
+      }
+
+      arquivosUploadSelecionados102 = arquivosPdf;
+      prepararModalUploadLista102();
+      renderizarListaUpload102();
+
+      if (arquivosPdf.length !== arquivos.length) {
+        atualizarStatusUpload102("Alguns arquivos foram ignorados porque não eram PDF.", "alerta");
+      } else {
+        atualizarStatusUpload102(`${arquivosPdf.length} PDF(s) carregado(s) na lista. Informe o motivo e clique em Enviar.`);
+      }
+    };
+
+    window.confirmarEnvioUpload102 = async function () {
+      if (upload102EmAndamento) return;
+
+      const arquivosPdf = arquivosUploadSelecionados102.slice();
+
+      if (!arquivosPdf.length) {
+        atualizarStatusUpload102("Escolha um ou vários PDFs antes de enviar.", "erro");
+        return;
+      }
+
+      const motivo = obterMotivoUpload102();
+
+      if (!motivo) {
+        atualizarStatusUpload102("Informe o motivo do envio antes de enviar os arquivos.", "erro");
+        const campoMotivo = document.getElementById("motivoUpload101") || document.getElementById("motivoUpload102");
+        if (campoMotivo) campoMotivo.focus();
+        return;
+      }
+
+      upload102EmAndamento = true;
+      const botaoConfirmar = document.getElementById("btnConfirmarUpload102");
+      if (botaoConfirmar) botaoConfirmar.disabled = true;
+
+      try {
+        atualizarStatusUpload102(`Enviando ${arquivosPdf.length} PDF(s)...`);
+
+        if (typeof carregarDadosDeApoio === "function") {
+          await carregarDadosDeApoio();
+        }
+
+        const nomesUsados = new Set();
+
+        const todosDocs = [
+          ...((typeof documentosAtivos !== "undefined" && Array.isArray(documentosAtivos)) ? documentosAtivos : []),
+          ...((typeof documentosArquivados !== "undefined" && Array.isArray(documentosArquivados)) ? documentosArquivados : []),
+          ...((typeof documentosCarregados !== "undefined" && Array.isArray(documentosCarregados)) ? documentosCarregados : [])
+        ];
+
+        todosDocs.forEach(doc => {
+          if (doc && doc.nome) nomesUsados.add(normalizarNomeUpload102(doc.nome));
+        });
+
+        const driveId = await obterDriveDocumentosAtivos();
+
+        let enviados = 0;
+        let conflitos = 0;
+        const nomesConflito = [];
+
+        for (const arquivoPdf of arquivosPdf) {
+          const nomeOriginal = garantirPdfUpload102(arquivoPdf.name);
+          const nomeNormalizado = normalizarNomeUpload102(nomeOriginal);
+
+          let nomeFinal = nomeOriginal;
+          const houveConflito = nomesUsados.has(nomeNormalizado);
+
+          if (houveConflito) {
+            conflitos++;
+            nomeFinal = gerarNomeConflitoUpload102(nomeOriginal, nomesUsados);
+            nomesConflito.push(`${nomeOriginal} → ${nomeFinal}`);
+          }
+
+          nomesUsados.add(normalizarNomeUpload102(nomeFinal));
+
+          atualizarStatusUpload102(
+            `Enviando ${enviados + 1}/${arquivosPdf.length}: ${nomeFinal}${houveConflito ? " (conflito detectado)" : ""}`,
+            houveConflito ? "alerta" : "info"
+          );
+
+          const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
+
+          const respostaUpload = await fetch(urlUpload, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${await obterToken()}`,
+              "Content-Type": "application/pdf"
+            },
+            body: arquivoPdf
+          });
+
+          if (!respostaUpload.ok) {
+            throw new Error(await respostaUpload.text());
+          }
+
+          const itemUpload = await respostaUpload.json();
+
+          const docHistorico = {
+            nome: nomeFinal,
+            id: itemUpload?.id || "",
+            caminho: `/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS/${nomeFinal}`,
+            link: itemUpload?.webUrl || ""
+          };
+
+          const observacao = houveConflito
+            ? `Conflito de nome detectado. Arquivo original: ${nomeOriginal}. Enviado como: ${nomeFinal}. Motivo: ${motivo}`
+            : `PDF enviado pelo sistema. Motivo: ${motivo}`;
+
+          try {
+            await registrarHistorico(docHistorico, "ENVIOU", observacao);
+          } catch (erroHistorico) {
+            console.warn("Arquivo enviado, mas não foi possível registrar histórico.", erroHistorico);
+          }
+
+          enviados++;
+          await new Promise(resolve => setTimeout(resolve, 250));
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 900));
+
+        if (typeof atualizarDadosMantendoPainel === "function") {
+          await atualizarDadosMantendoPainel("ativos");
+        } else {
+          if (typeof carregarDadosDeApoio === "function") await carregarDadosDeApoio();
+          if (typeof listarDocumentos === "function") await listarDocumentos();
+          if (typeof atualizarDashboard === "function") atualizarDashboard();
+        }
+
+        arquivosUploadSelecionados102 = [];
+        const input = document.getElementById("inputNovoDocumento");
+        if (input) input.value = "";
+        renderizarListaUpload102();
+
+        let mensagemFinal = `${enviados} PDF(s) enviado(s) com sucesso.`;
+
+        if (conflitos > 0) {
+          mensagemFinal += ` ${conflitos} conflito(s) detectado(s). Confira a Central de Duplicidades.`;
+          atualizarStatusUpload102(mensagemFinal, "alerta");
+          mostrarMensagem(`${conflitos} conflito(s) detectado(s). Confira a Central de Duplicidades.`, "alerta");
+        } else {
+          atualizarStatusUpload102(mensagemFinal);
+          mostrarMensagem(mensagemFinal);
+        }
+
+        console.log("Conflitos de upload:", nomesConflito);
+
+      } catch (erro) {
+        console.error(erro);
+        atualizarStatusUpload102(`Erro ao enviar PDF(s): ${erro.message}`, "erro");
+        mostrarMensagem(`Erro ao enviar PDF(s): ${erro.message}`, "erro");
+      } finally {
+        upload102EmAndamento = false;
+        renderizarListaUpload102();
+      }
+    };
+
+    const fecharModalAnterior102 = window.fecharModalUpload98;
+    window.fecharModalUpload98 = function () {
+      arquivosUploadSelecionados102 = [];
+      renderizarListaUpload102();
+
+      if (typeof fecharModalAnterior102 === "function") {
+        return fecharModalAnterior102();
+      }
+
+      const modal = document.getElementById("modalUpload98");
+      if (modal) {
+        modal.classList.remove("aberto");
+        modal.style.display = "none";
+      }
+    };
+
+    setTimeout(prepararModalUploadLista102, 500);
+    setTimeout(prepararModalUploadLista102, 1500);
+    setTimeout(prepararModalUploadLista102, 3000);
+
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
   // INICIO PASSO 91 RELATORIO JS
@@ -4820,8 +5248,85 @@ window.baixarRelatorioArquivo = function () {
     display: none;
   }
 </style>
+
+<style>
+  /* PASSO102_UPLOAD_LISTA_PREVIA_CSS */
+  .areaListaUpload102 {
+    margin: 12px 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+  }
+
+  .topoListaUpload102 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .topoListaUpload102 strong {
+    color: #0f2f66;
+  }
+
+  .topoListaUpload102 button,
+  .itemUpload102 button {
+    background: #64748b;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 6px 9px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .resumoArquivosUpload102,
+  .semArquivosUpload102 {
+    font-size: 12px;
+    color: #64748b;
+    margin: 6px 0;
+  }
+
+  .listaArquivosUpload102 {
+    display: grid;
+    gap: 7px;
+    max-height: 180px;
+    overflow: auto;
+  }
+
+  .itemUpload102 {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 8px;
+  }
+
+  .itemUpload102 strong {
+    display: block;
+    font-size: 13px;
+    color: #0f2f66;
+    word-break: break-word;
+  }
+
+  .itemUpload102 small {
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  #btnConfirmarUpload102:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+</style>
 </body>
 </html>
+
 
 
 
