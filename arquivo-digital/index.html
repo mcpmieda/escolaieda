@@ -18,6 +18,7 @@
     };
 
     let documentosCarregados = [];
+    let documentoSelecionado = null;
 
     const msalConfig = {
       auth: {
@@ -47,6 +48,15 @@
         .trim();
     }
 
+    function formatarData(data) {
+      if (!data) return "";
+      try {
+        return new Date(data).toLocaleString("pt-BR");
+      } catch {
+        return data;
+      }
+    }
+
     async function obterToken() {
       const conta = msalInstance.getAllAccounts()[0];
 
@@ -70,6 +80,17 @@
       const msg = document.getElementById("mensagemSistema");
       msg.textContent = texto;
       msg.className = tipo === "erro" ? "mensagem erroBox" : "mensagem";
+      msg.style.display = "block";
+
+      setTimeout(() => {
+        msg.style.display = "none";
+      }, 4000);
+    }
+
+    function mostrarMensagemPainel(texto, tipo = "info") {
+      const msg = document.getElementById("mensagemPainel");
+      msg.textContent = texto;
+      msg.className = tipo === "erro" ? "mensagemPainel erroPainel" : "mensagemPainel";
       msg.style.display = "block";
 
       setTimeout(() => {
@@ -110,23 +131,104 @@
       }
     }
 
-    window.abrirDocumento = async function (indice) {
+    async function carregarHistoricoDocumento(documento) {
+      const caixa = document.getElementById("historicoArquivo");
+      caixa.innerHTML = "<p>Carregando histórico...</p>";
+
+      try {
+        const token = await obterToken();
+
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=100`;
+
+        const resposta = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        const dados = await resposta.json();
+
+        const historico = (dados.value || [])
+          .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id)
+          .sort((a, b) => new Date(b.fields.DATA_HORA) - new Date(a.fields.DATA_HORA));
+
+        if (!historico.length) {
+          caixa.innerHTML = "<p>Nenhum histórico registrado para este arquivo.</p>";
+          return;
+        }
+
+        caixa.innerHTML = historico.map(item => `
+          <div class="itemHistorico">
+            <strong>${item.fields.ACAO || ""}</strong><br>
+            <span>${formatarData(item.fields.DATA_HORA)}</span><br>
+            <span>${item.fields.USUARIO_NOME || ""} - ${item.fields.USUARIO_EMAIL || ""}</span><br>
+            <small>${item.fields.OBSERVACAO || ""}</small>
+          </div>
+        `).join("");
+
+      } catch (erro) {
+        console.error(erro);
+        caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
+      }
+    }
+
+    window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
       if (!documento) {
-        mostrarMensagem("Documento não encontrado na lista carregada.", "erro");
+        mostrarMensagem("Documento não encontrado.", "erro");
         return;
       }
 
-      try {
-        await registrarHistorico(documento, "VISUALIZOU", "Documento aberto pelo sistema Arquivo Digital.");
-        mostrarMensagem("Acesso registrado no histórico.");
-      } catch (erro) {
-        console.error(erro);
-        mostrarMensagem("Não foi possível registrar o histórico, mas o PDF será aberto.", "erro");
+      documentoSelecionado = documento;
+
+      document.getElementById("painelTitulo").textContent = documento.nome;
+      document.getElementById("painelNome").textContent = documento.nome;
+      document.getElementById("painelId").textContent = documento.id || "";
+      document.getElementById("painelCaminho").textContent = documento.caminho || "";
+
+      document.getElementById("painelLateral").classList.add("aberto");
+
+      await carregarHistoricoDocumento(documento);
+    };
+
+    window.fecharPainel = function () {
+      document.getElementById("painelLateral").classList.remove("aberto");
+      documentoSelecionado = null;
+    };
+
+    window.abrirPdfSelecionado = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
       }
 
-      window.open(documento.link, "_blank", "noopener");
+      const aba = window.open("", "_blank");
+
+      try {
+        await registrarHistorico(
+          documentoSelecionado,
+          "VISUALIZOU",
+          "Documento aberto pelo botão Abrir PDF no painel lateral."
+        );
+
+        mostrarMensagemPainel("Acesso registrado no histórico.");
+        await carregarHistoricoDocumento(documentoSelecionado);
+
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Não foi possível registrar o histórico, mas o PDF será aberto.", "erro");
+      }
+
+      if (aba) {
+        aba.location.href = documentoSelecionado.link;
+      } else {
+        window.location.href = documentoSelecionado.link;
+      }
     };
 
     function renderizarDocumentos(listaArquivos) {
@@ -147,8 +249,10 @@
 
         const li = document.createElement("li");
         li.innerHTML = `
-          <strong>${item.nome}</strong><br>
-          <button class="btnPequeno" onclick="abrirDocumento(${indiceOriginal})">Abrir PDF</button>
+          <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
+            <strong>${item.nome}</strong>
+            <span>Clique para ver detalhes, histórico e ações</span>
+          </button>
         `;
         lista.appendChild(li);
       });
@@ -285,12 +389,6 @@
       margin-right: 8px;
     }
 
-    .btnPequeno {
-      padding: 8px 12px;
-      margin-top: 8px;
-      font-size: 13px;
-    }
-
     #btnSair {
       background: #666;
       display: none;
@@ -346,15 +444,160 @@
 
     li {
       margin-bottom: 14px;
-      padding: 14px;
+      padding: 0;
+      background: transparent;
+    }
+
+    .itemArquivo {
+      display: block;
+      width: 100%;
+      text-align: left;
       background: #f8fafc;
-      border-radius: 12px;
+      color: #1f2937;
       border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: normal;
+    }
+
+    .itemArquivo strong {
+      display: block;
+      color: #0f2f66;
+      margin-bottom: 4px;
+    }
+
+    .itemArquivo span {
+      display: block;
+      font-size: 13px;
+      color: #64748b;
     }
 
     .erro {
       color: #b00020;
       background: #fff0f0;
+      padding: 14px;
+      border-radius: 12px;
+    }
+
+    .painelLateral {
+      position: fixed;
+      top: 0;
+      right: -480px;
+      width: 430px;
+      max-width: 92vw;
+      height: 100vh;
+      background: white;
+      box-shadow: -10px 0 30px rgba(0,0,0,.16);
+      transition: right .25s ease;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .painelLateral.aberto {
+      right: 0;
+    }
+
+    .painelTopo {
+      padding: 18px;
+      background: #0f2f66;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .painelTopo h2 {
+      font-size: 18px;
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    .btnFechar {
+      background: rgba(255,255,255,.18);
+      padding: 7px 10px;
+      border-radius: 8px;
+      margin: 0;
+    }
+
+    .painelConteudo {
+      padding: 18px;
+      overflow: auto;
+      flex: 1;
+    }
+
+    .campoInfo {
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .campoInfo strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #0f2f66;
+    }
+
+    .acoes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .acoes button {
+      margin: 0;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .acoes .principal {
+      grid-column: span 2;
+      background: #0f2f66;
+    }
+
+    .acoes .desativado {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .mensagemPainel {
+      display: none;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .erroPainel {
+      background: #fff0f0;
+      color: #b00020;
+    }
+
+    .itemHistorico {
+      padding: 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .itemHistorico span,
+    .itemHistorico small {
+      color: #64748b;
+    }
+
+    .textoErro {
+      color: #b00020;
     }
   </style>
 </head>
@@ -389,5 +632,44 @@
       </ul>
     </div>
   </div>
+
+  <aside id="painelLateral" class="painelLateral">
+    <div class="painelTopo">
+      <h2 id="painelTitulo">Arquivo</h2>
+      <button class="btnFechar" onclick="fecharPainel()">X</button>
+    </div>
+
+    <div class="painelConteudo">
+      <div class="campoInfo">
+        <strong>Nome do arquivo</strong>
+        <span id="painelNome"></span>
+      </div>
+
+      <div class="campoInfo">
+        <strong>ID interno</strong>
+        <span id="painelId"></span>
+      </div>
+
+      <div class="campoInfo">
+        <strong>Caminho</strong>
+        <span id="painelCaminho"></span>
+      </div>
+
+      <div class="acoes">
+        <button class="principal" onclick="abrirPdfSelecionado()">Abrir PDF e registrar acesso</button>
+        <button class="desativado" title="Será implementado depois">Renomear</button>
+        <button class="desativado" title="Será implementado depois">Substituir</button>
+        <button class="desativado" title="Será implementado depois">Arquivar</button>
+        <button class="desativado" title="Será implementado depois">Mesclar</button>
+      </div>
+
+      <div id="mensagemPainel" class="mensagemPainel"></div>
+
+      <h3>Histórico do arquivo</h3>
+      <div id="historicoArquivo">
+        <p>Selecione um arquivo para carregar o histórico.</p>
+      </div>
+    </div>
+  </aside>
 </body>
 </html>
