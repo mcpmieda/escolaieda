@@ -5472,30 +5472,740 @@ window.baixarRelatorioArquivo = function () {
   }
 </style>
 <!-- PASSO103_MODAL_UPLOAD_COMPACTO_FIM -->
+<!-- PASSO104_UPLOAD_MODAL_AJUSTE_START -->
+<style>
+  /* PASSO 104 - Modal de upload mais compacto e funcional */
+  #modalUpload98 {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    overflow: hidden !important;
+  }
+
+  #modalUpload98 .modalUpload98Caixa {
+    width: min(560px, calc(100vw - 22px)) !important;
+    max-height: calc(100vh - 22px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 16px !important;
+  }
+
+  #modalUpload98 .modalUpload98Topo {
+    flex: 0 0 auto !important;
+    padding: 10px 14px !important;
+  }
+
+  #modalUpload98 .modalUpload98Topo h2 {
+    font-size: 18px !important;
+    margin: 0 !important;
+  }
+
+  #modalUpload98 .modalUpload98Conteudo,
+  #modalUpload98 .modalUpload98Corpo,
+  #modalUpload98 .modalUpload98Caixa > div:not(.modalUpload98Topo):not(#upload104Footer) {
+    flex: 0 1 auto !important;
+  }
+
+  #modalUpload98 p {
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+  }
+
+  #modalUpload98 .areaUploadNovo,
+  #modalUpload98 .aviso,
+  #modalUpload98 .alertaUpload {
+    margin: 6px 0 !important;
+    padding: 9px !important;
+  }
+
+  #upload104Area {
+    margin: 8px 0 !important;
+    padding: 10px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+  }
+
+  #upload104Area h3 {
+    margin: 0 0 6px 0 !important;
+    font-size: 16px !important;
+    color: #0f2f66 !important;
+  }
+
+  #upload104Resumo {
+    margin: 0 0 8px 0 !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+  }
+
+  #upload104Lista {
+    max-height: 230px !important;
+    overflow-y: auto !important;
+    display: grid !important;
+    gap: 6px !important;
+    padding-right: 3px !important;
+  }
+
+  .upload104Item {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: white !important;
+    border-radius: 10px !important;
+    min-height: 40px !important;
+  }
+
+  .upload104Item strong {
+    display: block !important;
+    font-size: 13px !important;
+    color: #0f2f66 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .upload104Item span {
+    display: block !important;
+    font-size: 12px !important;
+    color: #64748b !important;
+    margin-top: 2px !important;
+  }
+
+  .upload104Item button {
+    margin: 0 !important;
+    padding: 7px 9px !important;
+    background: #64748b !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  #upload104MotivoBox {
+    margin: 8px 0 !important;
+  }
+
+  #upload104MotivoBox label {
+    display: block !important;
+    margin-bottom: 5px !important;
+    font-weight: 700 !important;
+    color: #0f2f66 !important;
+  }
+
+  #upload104Motivo {
+    min-height: 52px !important;
+    max-height: 92px !important;
+    resize: vertical !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    padding: 9px !important;
+    font-family: Arial, sans-serif !important;
+  }
+
+  #upload104Footer {
+    flex: 0 0 auto !important;
+    border-top: 1px solid #e5e7eb !important;
+    background: white !important;
+    padding: 10px 14px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 10px !important;
+    align-items: center !important;
+  }
+
+  #upload104Status {
+    font-size: 13px !important;
+    color: #475569 !important;
+  }
+
+  #upload104Status.ok {
+    color: #047857 !important;
+    font-weight: 700 !important;
+  }
+
+  #upload104Status.erro {
+    color: #b00020 !important;
+    font-weight: 700 !important;
+  }
+
+  #upload104Enviar {
+    margin: 0 !important;
+    padding: 10px 14px !important;
+    white-space: nowrap !important;
+    background: #0f2f66 !important;
+  }
+
+  #upload104Enviar:disabled {
+    opacity: .55 !important;
+    cursor: not-allowed !important;
+  }
+
+  /* Esconde blocos antigos de pré-lista criados antes deste passo */
+  [data-upload104-antigo="1"] {
+    display: none !important;
+  }
+
+  @media (max-height: 720px) {
+    #upload104Lista {
+      max-height: 175px !important;
+    }
+
+    #upload104Motivo {
+      min-height: 45px !important;
+      max-height: 70px !important;
+    }
+
+    #modalUpload98 .modalUpload98Caixa {
+      max-height: calc(100vh - 14px) !important;
+    }
+  }
+</style>
+
+<script type="module">
+  import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
+
+  (async function () {
+    const CONFIG104 = {
+      clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+      tenantId: "f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
+      redirectUri: "https://escolaieda.com/arquivo-digital/",
+      siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
+      documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
+      historicoAcessosListId: "144b31da-83f8-4ba4-b573-61fd8e5ac09f",
+      documentosAtivosRootPath: "/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS",
+      pastaLixeira: "_ARQUIVADOS"
+    };
+
+    const msal104 = new PublicClientApplication({
+      auth: {
+        clientId: CONFIG104.clientId,
+        authority: `https://login.microsoftonline.com/${CONFIG104.tenantId}`,
+        redirectUri: CONFIG104.redirectUri
+      },
+      cache: {
+        cacheLocation: "sessionStorage",
+        storeAuthStateInCookie: false
+      }
+    });
+
+    await msal104.initialize();
+
+    let arquivos104 = [];
+    let enviando104 = false;
+
+    function normalizar104(texto) {
+      return (texto || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function escapar104(texto) {
+      return (texto || "")
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function tamanho104(bytes) {
+      const n = Number(bytes || 0);
+      if (!n) return "";
+      if (n < 1024) return `${n} B`;
+      if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+      return `${(n / 1024 / 1024).toFixed(2)} MB`;
+    }
+
+    function dataStamp104() {
+      const d = new Date();
+      const p = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+    }
+
+    function nomeConflito104(nomeOriginal, usados) {
+      const semPdf = nomeOriginal.replace(/\.pdf$/i, "");
+      let candidato = `${semPdf} - CONFLITO ${dataStamp104()}.pdf`;
+      let i = 2;
+
+      while (usados.has(normalizar104(candidato))) {
+        candidato = `${semPdf} - CONFLITO ${dataStamp104()} (${i}).pdf`;
+        i++;
+      }
+
+      return candidato;
+    }
+
+    function obterModal104() {
+      return document.getElementById("modalUpload98");
+    }
+
+    function obterInput104() {
+      return document.getElementById("inputNovoDocumento");
+    }
+
+    function definirStatus104(texto, tipo = "") {
+      const status = document.getElementById("upload104Status") || document.getElementById("modalUpload98Status");
+      if (!status) return;
+
+      status.textContent = texto || "";
+      status.classList.remove("ok", "erro");
+
+      if (tipo) {
+        status.classList.add(tipo);
+      }
+    }
+
+    function ocultarBlocosAntigos104() {
+      const modal = obterModal104();
+      if (!modal) return;
+
+      const candidatos = Array.from(modal.querySelectorAll("h2,h3,strong,p,div,section"));
+      candidatos.forEach(el => {
+        const texto = (el.textContent || "").trim();
+
+        if (/PDFs selecionados/i.test(texto) && !el.closest("#upload104Area")) {
+          const bloco = el.closest("section, .campoInfo, .formAcao, div");
+          if (bloco && bloco.id !== "upload104Area" && !bloco.closest("#upload104Area")) {
+            bloco.setAttribute("data-upload104-antigo", "1");
+          }
+        }
+      });
+
+      const botoesEscolher = Array.from(modal.querySelectorAll("button"))
+        .filter(btn => /escolher\s+pdf/i.test(btn.textContent || ""));
+
+      botoesEscolher.forEach((btn, idx) => {
+        if (idx > 0) {
+          btn.style.display = "none";
+        }
+      });
+    }
+
+    function garantirUi104() {
+      const modal = obterModal104();
+      const caixa = modal?.querySelector(".modalUpload98Caixa");
+
+      if (!modal || !caixa) return;
+
+      ocultarBlocosAntigos104();
+
+      let area = document.getElementById("upload104Area");
+
+      if (!area) {
+        area = document.createElement("div");
+        area.id = "upload104Area";
+        area.innerHTML = `
+          <h3>PDFs selecionados</h3>
+          <p id="upload104Resumo">Nenhum PDF selecionado ainda.</p>
+          <div id="upload104Lista"></div>
+        `;
+
+        const topo = caixa.querySelector(".modalUpload98Topo");
+        const primeiroTexto = Array.from(caixa.children).find(el =>
+          el !== topo && !el.id?.includes("upload104")
+        );
+
+        if (primeiroTexto && primeiroTexto.nextSibling) {
+          caixa.insertBefore(area, primeiroTexto.nextSibling);
+        } else {
+          caixa.appendChild(area);
+        }
+      }
+
+      let motivoBox = document.getElementById("upload104MotivoBox");
+
+      if (!motivoBox) {
+        motivoBox = document.createElement("div");
+        motivoBox.id = "upload104MotivoBox";
+        motivoBox.innerHTML = `
+          <label for="upload104Motivo">Motivo do envio</label>
+          <textarea id="upload104Motivo" placeholder="Informe o motivo do envio destes arquivos..."></textarea>
+        `;
+
+        area.insertAdjacentElement("afterend", motivoBox);
+      }
+
+      let footer = document.getElementById("upload104Footer");
+
+      if (!footer) {
+        footer = document.createElement("div");
+        footer.id = "upload104Footer";
+        footer.innerHTML = `
+          <div id="upload104Status">Escolha um ou mais PDFs, informe o motivo e clique em Enviar.</div>
+          <button id="upload104Enviar" type="button">Enviar PDF(s)</button>
+        `;
+
+        caixa.appendChild(footer);
+      }
+
+      document.getElementById("upload104Enviar").onclick = enviarSelecionados104;
+
+      const input = obterInput104();
+
+      if (input) {
+        input.multiple = true;
+        input.accept = "application/pdf,.pdf";
+        input.removeAttribute("onchange");
+        input.onchange = function () {
+          selecionarArquivos104(input.files);
+        };
+      }
+    }
+
+    function renderizarLista104() {
+      garantirUi104();
+
+      const resumo = document.getElementById("upload104Resumo");
+      const lista = document.getElementById("upload104Lista");
+
+      if (!resumo || !lista) return;
+
+      if (!arquivos104.length) {
+        resumo.textContent = "Nenhum PDF selecionado ainda.";
+        lista.innerHTML = "";
+        definirStatus104("Escolha um ou mais PDFs, informe o motivo e clique em Enviar.");
+        return;
+      }
+
+      resumo.textContent = `${arquivos104.length} PDF(s) selecionado(s). Confira a lista, informe o motivo e clique em Enviar.`;
+
+      lista.innerHTML = arquivos104.map((arquivo, index) => `
+        <div class="upload104Item">
+          <div>
+            <strong>${escapar104(arquivo.name)}</strong>
+            <span>${tamanho104(arquivo.size)}</span>
+          </div>
+          <button type="button" onclick="removerUpload104(${index})">Remover</button>
+        </div>
+      `).join("");
+
+      definirStatus104(`${arquivos104.length} PDF(s) carregado(s) na lista. Informe o motivo e clique em Enviar.`);
+    }
+
+    function selecionarArquivos104(fileList) {
+      const arquivos = Array.from(fileList || []).filter(arquivo =>
+        /\.pdf$/i.test(arquivo.name || "") || arquivo.type === "application/pdf"
+      );
+
+      if (!arquivos.length) {
+        definirStatus104("Nenhum PDF válido foi selecionado.", "erro");
+        renderizarLista104();
+        return;
+      }
+
+      arquivos104 = arquivos;
+      renderizarLista104();
+    }
+
+    window.removerUpload104 = function (index) {
+      arquivos104.splice(index, 1);
+      renderizarLista104();
+    };
+
+    async function obterToken104() {
+      const conta = msal104.getAllAccounts()[0];
+
+      if (!conta) {
+        throw new Error("Usuário não conectado.");
+      }
+
+      try {
+        const resposta = await msal104.acquireTokenSilent({
+          scopes: ["User.Read", "Sites.ReadWrite.All"],
+          account: conta
+        });
+
+        return resposta.accessToken;
+      } catch (erro) {
+        await msal104.acquireTokenRedirect({
+          scopes: ["User.Read", "Sites.ReadWrite.All"]
+        });
+
+        throw erro;
+      }
+    }
+
+    async function fetchJson104(url, token) {
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      return resposta.json();
+    }
+
+    async function buscarTodos104(url, token) {
+      const todos = [];
+      let atual = url;
+
+      while (atual) {
+        const dados = await fetchJson104(atual, token);
+        todos.push(...(dados.value || []));
+        atual = dados["@odata.nextLink"] || "";
+      }
+
+      return todos;
+    }
+
+    async function obterDrive104(token) {
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG104.siteId}/lists/${CONFIG104.documentosAtivosListId}/drive`;
+      const drive = await fetchJson104(url, token);
+
+      if (!drive.id) {
+        throw new Error("Não foi possível localizar a biblioteca de documentos.");
+      }
+
+      return drive.id;
+    }
+
+    async function nomesExistentes104(token) {
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG104.siteId}/lists/${CONFIG104.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileDirRef,FSObjType)&$top=999`;
+      const itens = await buscarTodos104(url, token);
+
+      const usados = new Set();
+
+      itens.forEach(item => {
+        const f = item.fields || {};
+        if (f.FileLeafRef && String(f.FSObjType || "0") === "0") {
+          usados.add(normalizar104(f.FileLeafRef));
+        }
+      });
+
+      return usados;
+    }
+
+    async function registrarHistorico104(token, arquivo, acao, observacao) {
+      const conta = msal104.getAllAccounts()[0];
+
+      const corpo = {
+        fields: {
+          Title: arquivo.nome || "",
+          USUARIO_EMAIL: conta?.username || "",
+          ACAO: acao || "ENVIOU",
+          USUARIO_NOME: conta?.name || conta?.username || "",
+          DATA_HORA: new Date().toISOString(),
+          ARQUIVO_ID: arquivo.id || "",
+          OBSERVACAO: observacao || ""
+        }
+      };
+
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG104.siteId}/lists/${CONFIG104.historicoAcessosListId}/items`;
+
+      const resposta = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(corpo)
+      });
+
+      if (!resposta.ok) {
+        console.warn("Arquivo enviado, mas histórico não foi registrado:", await resposta.text());
+      }
+    }
+
+    async function enviarArquivo104(token, driveId, arquivo, nomeFinal) {
+      const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
+
+      const resposta = await fetch(urlUpload, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": arquivo.type || "application/pdf"
+        },
+        body: arquivo
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      return resposta.json();
+    }
+
+    async function enviarSelecionados104() {
+      if (enviando104) return;
+
+      garantirUi104();
+
+      const motivo = (document.getElementById("upload104Motivo")?.value || "").trim();
+
+      if (!arquivos104.length) {
+        definirStatus104("Escolha pelo menos um PDF antes de enviar.", "erro");
+        return;
+      }
+
+      if (!motivo) {
+        definirStatus104("Informe o motivo do envio antes de continuar.", "erro");
+        document.getElementById("upload104Motivo")?.focus();
+        return;
+      }
+
+      enviando104 = true;
+      const botao = document.getElementById("upload104Enviar");
+      if (botao) botao.disabled = true;
+
+      try {
+        definirStatus104("Preparando envio...");
+
+        const token = await obterToken104();
+        const driveId = await obterDrive104(token);
+        const usados = await nomesExistentes104(token);
+
+        let enviados = 0;
+        let conflitos = 0;
+
+        for (const arquivo of arquivos104) {
+          let nomeFinal = arquivo.name || "documento.pdf";
+          let houveConflito = false;
+
+          if (usados.has(normalizar104(nomeFinal))) {
+            nomeFinal = nomeConflito104(nomeFinal, usados);
+            houveConflito = true;
+            conflitos++;
+          }
+
+          usados.add(normalizar104(nomeFinal));
+
+          definirStatus104(`Enviando ${enviados + 1}/${arquivos104.length}: ${nomeFinal}`);
+
+          const item = await enviarArquivo104(token, driveId, arquivo, nomeFinal);
+
+          const idArquivo =
+            item?.sharepointIds?.listItemUniqueId ||
+            item?.sharepointIds?.listItemId ||
+            item?.id ||
+            "";
+
+          const observacao = houveConflito
+            ? `Motivo: ${motivo}\nConflito de nome detectado. Arquivo original selecionado: ${arquivo.name}. Enviado como: ${nomeFinal}. Conferir na Central de Duplicidades.`
+            : motivo;
+
+          await registrarHistorico104(
+            token,
+            { nome: nomeFinal, id: idArquivo },
+            "ENVIOU",
+            observacao
+          );
+
+          enviados++;
+        }
+
+        arquivos104 = [];
+        renderizarLista104();
+
+        if (document.getElementById("upload104Motivo")) {
+          document.getElementById("upload104Motivo").value = "";
+        }
+
+        const msg = conflitos
+          ? `${enviados} PDF(s) enviado(s). ${conflitos} conflito(s) de nome foram enviados como CONFLITO para revisão.`
+          : `${enviados} PDF(s) enviado(s) com sucesso.`;
+
+        definirStatus104(msg, "ok");
+
+        if (typeof window.recarregarDashboard === "function") {
+          try { await window.recarregarDashboard(); } catch {}
+        }
+
+        if (typeof window.atualizarCentralDuplicidades === "function") {
+          try { await window.atualizarCentralDuplicidades(); } catch {}
+        }
+
+        if (typeof window.mostrarMensagem === "function") {
+          try { window.mostrarMensagem(msg, conflitos ? "erro" : "info"); } catch {}
+        }
+
+      } catch (erro) {
+        console.error(erro);
+        definirStatus104(`Erro ao enviar PDF(s): ${erro.message || erro}`, "erro");
+      } finally {
+        enviando104 = false;
+        if (botao) botao.disabled = false;
+      }
+    }
+
+    function abrirModalUpload104() {
+      garantirUi104();
+
+      const modal = obterModal104();
+
+      if (!modal) {
+        const input = obterInput104();
+        if (input) input.click();
+        return;
+      }
+
+      modal.style.display = "flex";
+      modal.classList.add("aberto");
+
+      renderizarLista104();
+    }
+
+    window.abrirSeletorNovoDocumento = abrirModalUpload104;
+
+    window.enviarNovoDocumento = function (input) {
+      selecionarArquivos104(input?.files || []);
+    };
+
+    window.escolherArquivoUpload98 = function () {
+      garantirUi104();
+      const input = obterInput104();
+      if (input) input.click();
+    };
+
+    window.fecharModalUpload98 = function () {
+      const modal = obterModal104();
+      if (modal) {
+        modal.classList.remove("aberto");
+        modal.style.display = "none";
+      }
+    };
+
+    window.cancelarModalUpload98 = window.fecharModalUpload98;
+
+    setTimeout(() => {
+      garantirUi104();
+      renderizarLista104();
+
+      const modal = obterModal104();
+      const caixa = modal?.querySelector(".modalUpload98Caixa");
+
+      if (modal) {
+        modal.addEventListener("click", event => {
+          if (event.target === modal) {
+            window.fecharModalUpload98();
+          }
+        });
+      }
+
+      if (caixa) {
+        caixa.addEventListener("click", event => event.stopPropagation());
+      }
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          const modal = obterModal104();
+          if (modal && modal.style.display !== "none") {
+            window.fecharModalUpload98();
+          }
+        }
+      });
+    }, 700);
+  })();
+</script>
+<!-- PASSO104_UPLOAD_MODAL_AJUSTE_END -->
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
