@@ -15,7 +15,8 @@
       siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
       documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
       historicoAcessosListId: "144b31da-83f8-4ba4-b573-61fd8e5ac09f",
-      anotacoesArquivosListId: "2698ef54-73e9-4ea1-995a-5d552349f57e"
+      anotacoesArquivosListId: "2698ef54-73e9-4ea1-995a-5d552349f57e",
+      documentosAtivosRootPath: "/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS"
     };
 
     let documentosCarregados = [];
@@ -553,6 +554,138 @@
       }
     };
 
+    async function obterDriveDaBibliotecaAtivos() {
+      const token = await obterToken();
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/drive?$select=id`;
+
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      return await resposta.json();
+    }
+
+    async function obterOuCriarPastaArquivados(driveId) {
+      const token = await obterToken();
+      const nomePasta = "_ARQUIVADOS";
+      const urlBuscar = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomePasta)}`;
+
+      const tentativa = await fetch(urlBuscar, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (tentativa.ok) {
+        return await tentativa.json();
+      }
+
+      const urlCriar = `https://graph.microsoft.com/v1.0/drives/${driveId}/root/children`;
+
+      const respostaCriar = await fetch(urlCriar, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: nomePasta,
+          folder: {},
+          "@microsoft.graph.conflictBehavior": "fail"
+        })
+      });
+
+      if (!respostaCriar.ok) {
+        throw new Error(await respostaCriar.text());
+      }
+
+      return await respostaCriar.json();
+    }
+
+    window.prepararArquivar = function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "block";
+      document.getElementById("motivoArquivar").value = "";
+      mostrarMensagemPainel("Informe o motivo do arquivamento antes de confirmar.");
+    };
+
+    window.cancelarArquivar = function () {
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("motivoArquivar").value = "";
+    };
+
+    window.confirmarArquivar = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      const motivo = (document.getElementById("motivoArquivar").value || "").trim();
+
+      if (!motivo) {
+        mostrarMensagemPainel("Informe um motivo para arquivar este arquivo.", "erro");
+        return;
+      }
+
+      try {
+        mostrarMensagemPainel("Arquivando arquivo...");
+
+        const token = await obterToken();
+        const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
+        const drive = await obterDriveDaBibliotecaAtivos();
+        const driveId = drive.id;
+        const pastaArquivados = await obterOuCriarPastaArquivados(driveId);
+
+        const urlMover = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}`;
+
+        const resposta = await fetch(urlMover, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            parentReference: {
+              id: pastaArquivados.id
+            }
+          })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        await registrarHistorico(
+          documentoSelecionado,
+          "ARQUIVOU",
+          `Arquivo arquivado na pasta _ARQUIVADOS. Motivo: ${motivo}`
+        );
+
+        document.getElementById("boxArquivar").style.display = "none";
+        document.getElementById("motivoArquivar").value = "";
+
+        fecharPainel();
+        await listarDocumentos();
+        await carregarDadosDeApoio();
+        mostrarMensagem("Arquivo arquivado com sucesso. Ele saiu da lista principal e foi para a pasta _ARQUIVADOS.");
+
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Erro ao arquivar arquivo. Veja o console para detalhes.", "erro");
+      }
+    };
+
     window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
@@ -571,6 +704,8 @@
       document.getElementById("painelLateral").classList.add("aberto");
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("motivoArquivar").value = "";
 
       await carregarHistoricoDocumento(documento);
       await carregarAnotacaoDocumento(documento);
@@ -580,6 +715,8 @@
       document.getElementById("painelLateral").classList.remove("aberto");
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("motivoArquivar").value = "";
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
@@ -664,10 +801,15 @@
       try {
         const token = await obterToken();
 
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId)&$top=999`;
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,FileDirRef,FSObjType)&$top=999`;
 
         const itens = await buscarTodosItens(url, token);
-        const arquivos = itens.filter(item => item.fields && item.fields.FileLeafRef);
+        const arquivos = itens.filter(item => {
+          const f = item.fields || {};
+          return f.FileLeafRef &&
+            String(f.FSObjType || "0") === "0" &&
+            String(f.FileDirRef || "") === CONFIG.documentosAtivosRootPath;
+        });
 
         documentosCarregados = arquivos.map(item => {
           const nome = item.fields.FileLeafRef;
@@ -676,6 +818,7 @@
           return {
             nome,
             caminho,
+            fileDirRef: item.fields.FileDirRef || "",
             id: item.fields.UniqueId,
             listItemId: item.id,
             driveItemId: "",
@@ -1226,7 +1369,7 @@
         <button class="principal" onclick="abrirPdfSelecionado()">Abrir PDF e registrar acesso</button>
         <button onclick="prepararRenomear()">Renomear</button>
         <button class="desativado" title="Será implementado depois">Substituir</button>
-        <button class="desativado" title="Será implementado depois">Arquivar</button>
+        <button onclick="prepararArquivar()">Arquivar</button>
         <button class="desativado" title="Será implementado depois">Mesclar</button>
       </div>
 
@@ -1239,6 +1382,16 @@
         <div class="linhaBotoes">
           <button onclick="confirmarRenomear()">Confirmar renomeação</button>
           <button class="secundario" onclick="cancelarRenomear()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="boxArquivar" class="formAcao alertaAcao">
+        <h3>Arquivar arquivo</h3>
+        <p>O arquivo será movido para a pasta <strong>_ARQUIVADOS</strong> dentro da biblioteca de documentos. Ele não será excluído.</p>
+        <textarea id="motivoArquivar" placeholder="Informe o motivo do arquivamento..."></textarea>
+        <div class="linhaBotoes">
+          <button onclick="confirmarArquivar()">Confirmar arquivamento</button>
+          <button class="secundario" onclick="cancelarArquivar()">Cancelar</button>
         </div>
       </div>
 
