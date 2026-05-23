@@ -4601,8 +4601,207 @@ window.baixarRelatorioArquivo = function () {
 })();
 </script>
 <!-- PASSO112_FECHAR_MODAL_UPLOAD_FIM -->
+<!-- PASSO113_UPLOAD_DIRETO_INICIO -->
+<style>
+  /* Remove as caixinhas/modais de envio e mantém envio direto pelo botão principal */
+  #modalUpload98,
+  #modalUpload105,
+  #modalUpload106,
+  #modalUpload108,
+  #modalUpload111 {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .areaUploadNovo {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .areaUploadNovo .btnNovoDocumento {
+    margin: 0 !important;
+  }
+
+  .areaUploadNovo small {
+    width: 100% !important;
+  }
+</style>
+
+<script>
+(function () {
+  function fecharModaisUpload113() {
+    ["modalUpload98", "modalUpload105", "modalUpload106", "modalUpload108", "modalUpload111"].forEach(id => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+
+      modal.classList.remove("aberto");
+      modal.classList.remove("aberto98");
+      modal.classList.remove("aberto105");
+      modal.classList.remove("aberto106");
+      modal.classList.remove("aberto108");
+      modal.classList.remove("aberto111");
+
+      modal.style.display = "none";
+      modal.style.visibility = "hidden";
+      modal.style.pointerEvents = "none";
+    });
+
+    document.body.classList.remove("modalUpload105Aberto");
+    document.body.classList.remove("modalUpload111Aberto");
+  }
+
+  function obterInputUpload113() {
+    let input = document.getElementById("inputNovoDocumento");
+
+    if (!input) {
+      input = document.createElement("input");
+      input.id = "inputNovoDocumento";
+      input.type = "file";
+      input.accept = "application/pdf,.pdf";
+      input.style.display = "none";
+      document.body.appendChild(input);
+    }
+
+    input.removeAttribute("multiple");
+    input.multiple = false;
+    input.accept = "application/pdf,.pdf";
+    input.style.display = "none";
+
+    return input;
+  }
+
+  function abrirUploadDireto113() {
+    fecharModaisUpload113();
+
+    const input = obterInputUpload113();
+
+    if (!input) {
+      alert("Não foi possível localizar o seletor de arquivo.");
+      return;
+    }
+
+    input.value = "";
+    input.click();
+  }
+
+  function instalarUploadDireto113() {
+    fecharModaisUpload113();
+
+    const input = obterInputUpload113();
+
+    if (input && !input.dataset.passo113OnChange) {
+      input.dataset.passo113OnChange = "sim";
+
+      input.addEventListener("change", async function () {
+        fecharModaisUpload113();
+
+        if (!this.files || !this.files.length) return;
+
+        try {
+          if (typeof window.__enviarNovoDocumentoOriginal113 === "function") {
+            await window.__enviarNovoDocumentoOriginal113(this);
+          } else if (typeof window.enviarNovoDocumento === "function" && window.enviarNovoDocumento !== enviarNovoDocumentoDireto113) {
+            await window.enviarNovoDocumento(this);
+          } else {
+            alert("Função de envio não encontrada.");
+          }
+        } finally {
+          setTimeout(fecharModaisUpload113, 300);
+          setTimeout(fecharModaisUpload113, 900);
+        }
+      }, true);
+    }
+
+    if (typeof window.enviarNovoDocumento === "function" && !window.__enviarNovoDocumentoOriginal113) {
+      window.__enviarNovoDocumentoOriginal113 = window.enviarNovoDocumento;
+    }
+
+    window.abrirSeletorNovoDocumento = abrirUploadDireto113;
+    window.abrirUpload106 = abrirUploadDireto113;
+    window.abrirModalUpload111 = abrirUploadDireto113;
+    window.escolherArquivoUpload98 = abrirUploadDireto113;
+
+    window.fecharModalUpload98 = fecharModaisUpload113;
+    window.fecharModalUpload105 = fecharModaisUpload113;
+    window.fecharModalUpload106 = fecharModaisUpload113;
+    window.fecharModalUpload108 = fecharModaisUpload113;
+    window.fecharModalUpload111 = fecharModaisUpload113;
+
+    const botoes = Array.from(document.querySelectorAll("button, a"));
+
+    botoes.forEach(botao => {
+      const texto = (botao.textContent || "").toLowerCase();
+      const onclick = (botao.getAttribute("onclick") || "").toLowerCase();
+      const classe = String(botao.className || "").toLowerCase();
+
+      const pareceUpload =
+        texto.includes("enviar novo pdf") ||
+        texto.includes("enviar pdf") ||
+        onclick.includes("abrirseletornovodocumento") ||
+        onclick.includes("abrirupload106") ||
+        classe.includes("btnnovodocumento");
+
+      if (!pareceUpload) return;
+      if (botao.closest("#modalUpload98, #modalUpload105, #modalUpload106, #modalUpload108, #modalUpload111")) return;
+
+      botao.textContent = "Enviar PDF";
+      botao.onclick = function (ev) {
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+
+        abrirUploadDireto113();
+        return false;
+      };
+    });
+  }
+
+  function enviarNovoDocumentoDireto113(input) {
+    if (typeof window.__enviarNovoDocumentoOriginal113 === "function") {
+      return window.__enviarNovoDocumentoOriginal113(input);
+    }
+  }
+
+  document.addEventListener("click", function (event) {
+    const botao = event.target && event.target.closest ? event.target.closest("button, a") : null;
+    if (!botao) return;
+
+    const texto = (botao.textContent || "").toLowerCase();
+    const onclick = (botao.getAttribute("onclick") || "").toLowerCase();
+    const classe = String(botao.className || "").toLowerCase();
+
+    const pareceUpload =
+      texto.includes("enviar novo pdf") ||
+      texto.includes("enviar pdf") ||
+      onclick.includes("abrirseletornovodocumento") ||
+      onclick.includes("abrirupload106") ||
+      classe.includes("btnnovodocumento");
+
+    if (!pareceUpload) return;
+    if (botao.closest("#modalUpload98, #modalUpload105, #modalUpload106, #modalUpload108, #modalUpload111")) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    abrirUploadDireto113();
+    return false;
+  }, true);
+
+  setTimeout(instalarUploadDireto113, 300);
+  setTimeout(instalarUploadDireto113, 1000);
+  setTimeout(instalarUploadDireto113, 2500);
+  setInterval(fecharModaisUpload113, 1500);
+})();
+</script>
+<!-- PASSO113_UPLOAD_DIRETO_FIM -->
 </body>
 </html>
+
 
 
 
