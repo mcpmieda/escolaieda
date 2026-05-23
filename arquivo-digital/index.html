@@ -2879,8 +2879,387 @@ function renderizarDocumentos(listaArquivos) {
   iniciarPasso83();
 </script>
 <!-- AJUSTE PASSO 83 - FIM -->
+
+<!-- AJUSTE PASSO 84 - INICIO -->
+<script>
+(function () {
+  "use strict";
+
+  let inicializado84 = false;
+  let centralOriginal84 = null;
+  let centralPaiOriginal84 = null;
+  let centralProximoOriginal84 = null;
+
+  function aguardar(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function encontrarCentral84() {
+    const porClasse = document.querySelector(".centralDuplicidades");
+    if (porClasse) return porClasse;
+
+    const lista = document.getElementById("listaCentralDuplicidades");
+    if (lista) {
+      return lista.closest("section, article, .card, div") || lista.parentElement;
+    }
+
+    const titulos = [...document.querySelectorAll("h1,h2,h3,h4")];
+    const titulo = titulos.find(t => /central\s+de\s+duplicidades/i.test(t.textContent || ""));
+    if (!titulo) return null;
+
+    let atual = titulo;
+    for (let i = 0; i < 6 && atual; i++) {
+      const texto = atual.textContent || "";
+      if (/atualizar\s+an[aá]lise|poss[ií]veis\s+duplicidades|listaCentralDuplicidades|duplicidade/i.test(texto)) {
+        return atual;
+      }
+      atual = atual.parentElement;
+    }
+
+    return titulo.parentElement;
+  }
+
+  function contarDuplicidades84() {
+    const lista = document.getElementById("listaCentralDuplicidades");
+    const resumo = document.getElementById("resumoCentralDuplicidades");
+
+    if (!lista) return { total: 0, texto: "0", carregando: true };
+
+    const textoResumo = resumo?.textContent || "";
+    const numeroResumo = textoResumo.match(/(\d+)\s+poss/i);
+    if (numeroResumo) {
+      const total = Number(numeroResumo[1]) || 0;
+      return { total, texto: String(total), carregando: false };
+    }
+
+    const cards = [...lista.querySelectorAll(".cardDuplicidade")].filter(card => {
+      const estilo = getComputedStyle(card);
+      return estilo.display !== "none" && estilo.visibility !== "hidden";
+    });
+
+    if (cards.length) {
+      return { total: cards.length, texto: String(cards.length), carregando: false };
+    }
+
+    const texto = (lista.textContent || "") + " " + textoResumo;
+    if (/carregando|aguardando/i.test(texto)) {
+      return { total: 0, texto: "...", carregando: true };
+    }
+
+    return { total: 0, texto: "0", carregando: false };
+  }
+
+  function criarModal84() {
+    if (document.getElementById("modalDuplicidades84")) return;
+
+    const modal = document.createElement("div");
+    modal.id = "modalDuplicidades84";
+    modal.className = "modalDuplicidades84";
+    modal.innerHTML = `
+      <div class="modalDuplicidadesFundo84" onclick="fecharModalDuplicidades84()"></div>
+      <div class="modalDuplicidadesCaixa84" role="dialog" aria-modal="true" aria-label="Central de duplicidades">
+        <div class="modalDuplicidadesTopo84">
+          <div>
+            <h2>Central de duplicidades</h2>
+            <p>Revise nomes iguais ou parecidos e use as ferramentas de conferência.</p>
+          </div>
+          <button type="button" onclick="fecharModalDuplicidades84()">X</button>
+        </div>
+        <div id="modalDuplicidadesConteudo84" class="modalDuplicidadesConteudo84">
+          <p>Carregando análise...</p>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  function criarCardDashboard84() {
+    const dashboard = document.querySelector(".dashboard");
+    if (!dashboard) return null;
+
+    let card = document.getElementById("cardDuplicidadesDashboard84");
+
+    if (!card) {
+      card = document.createElement("button");
+      card.id = "cardDuplicidadesDashboard84";
+      card.type = "button";
+      card.className = "cardDash cardDuplicidadesDashboard84";
+      card.onclick = abrirModalDuplicidades84;
+      card.innerHTML = `
+        <span>Duplicidades pendentes</span>
+        <strong id="dashDuplicidadesPendentes84">...</strong>
+        <small id="dashDuplicidadesTexto84">Clique para revisar</small>
+      `;
+
+      dashboard.appendChild(card);
+    }
+
+    return card;
+  }
+
+  function atualizarCardDashboard84() {
+    const card = criarCardDashboard84();
+    if (!card) return;
+
+    const info = contarDuplicidades84();
+    const numero = document.getElementById("dashDuplicidadesPendentes84");
+    const texto = document.getElementById("dashDuplicidadesTexto84");
+
+    if (numero) numero.textContent = info.texto;
+
+    if (texto) {
+      if (info.carregando) {
+        texto.textContent = "Analisando nomes...";
+      } else if (info.total === 0) {
+        texto.textContent = "Nenhum caso pendente";
+      } else if (info.total === 1) {
+        texto.textContent = "1 caso para revisar";
+      } else {
+        texto.textContent = `${info.total} casos para revisar`;
+      }
+    }
+
+    card.classList.toggle("semDuplicidades84", !info.carregando && info.total === 0);
+  }
+
+  async function prepararCentralNoModal84() {
+    criarModal84();
+
+    const conteudo = document.getElementById("modalDuplicidadesConteudo84");
+    if (!conteudo) return;
+
+    const central = centralOriginal84 || encontrarCentral84();
+    if (!central) {
+      conteudo.innerHTML = "<p>Central de duplicidades ainda não encontrada.</p>";
+      return;
+    }
+
+    if (!centralOriginal84) {
+      centralOriginal84 = central;
+      centralPaiOriginal84 = central.parentElement;
+      centralProximoOriginal84 = central.nextSibling;
+    }
+
+    if (central.parentElement !== conteudo) {
+      conteudo.innerHTML = "";
+      conteudo.appendChild(central);
+    }
+
+    central.style.display = "";
+    central.style.margin = "0";
+    central.classList.add("centralDuplicidadesDentroModal84");
+
+    const topo = central.querySelector(".centralDuplicidadesTopo");
+    if (topo) {
+      topo.style.display = "none";
+    }
+
+    const info = contarDuplicidades84();
+    let vazio = document.getElementById("duplicidadesSemCasos84");
+
+    if (!vazio) {
+      vazio = document.createElement("div");
+      vazio.id = "duplicidadesSemCasos84";
+      vazio.className = "duplicidadesSemCasos84";
+      vazio.textContent = "Nenhuma duplicidade pendente no momento.";
+      conteudo.appendChild(vazio);
+    }
+
+    vazio.style.display = (!info.carregando && info.total === 0) ? "block" : "none";
+  }
+
+  window.abrirModalDuplicidades84 = async function () {
+    try {
+      if (typeof window.atualizarCentralDuplicidades === "function") {
+        await window.atualizarCentralDuplicidades();
+      }
+    } catch (erro) {
+      console.warn("Falha ao atualizar a Central de Duplicidades antes de abrir.", erro);
+    }
+
+    await prepararCentralNoModal84();
+    atualizarCardDashboard84();
+
+    const modal = document.getElementById("modalDuplicidades84");
+    if (modal) modal.classList.add("aberto");
+  };
+
+  window.fecharModalDuplicidades84 = function () {
+    const modal = document.getElementById("modalDuplicidades84");
+    if (modal) modal.classList.remove("aberto");
+  };
+
+  async function atualizarTudo84() {
+    try {
+      if (typeof window.atualizarCentralDuplicidades === "function") {
+        await window.atualizarCentralDuplicidades();
+      }
+    } catch (erro) {
+      console.warn("Passo 84: falha ao atualizar duplicidades.", erro);
+    }
+
+    await prepararCentralNoModal84();
+    atualizarCardDashboard84();
+  }
+
+  async function iniciar84() {
+    if (inicializado84) return;
+    inicializado84 = true;
+
+    criarModal84();
+    criarCardDashboard84();
+
+    await aguardar(1200);
+    await atualizarTudo84();
+
+    setInterval(atualizarCardDashboard84, 3000);
+
+    document.addEventListener("click", event => {
+      const btn = event.target?.closest?.("button");
+      if (!btn) return;
+
+      const texto = btn.textContent || "";
+      if (/s[aã]o\s+pessoas\s+diferentes|atualizar\s+an[aá]lise|arquivar|restaurar|substituir|renomear/i.test(texto)) {
+        setTimeout(atualizarTudo84, 1500);
+        setTimeout(atualizarTudo84, 3500);
+      }
+    }, true);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", iniciar84);
+  } else {
+    iniciar84();
+  }
+})();
+</script>
+
+<style>
+  .cardDuplicidadesDashboard84 {
+    border: 1px solid #fed7aa !important;
+    background: #fff7ed !important;
+    color: #1f2937 !important;
+    text-align: left !important;
+    margin: 0 !important;
+    min-height: 84px;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+
+  .cardDuplicidadesDashboard84:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(154, 52, 18, .12);
+  }
+
+  .cardDuplicidadesDashboard84 span {
+    color: #9a3412 !important;
+  }
+
+  .cardDuplicidadesDashboard84 strong {
+    color: #9a3412 !important;
+  }
+
+  .cardDuplicidadesDashboard84 small {
+    display: block;
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .cardDuplicidadesDashboard84.semDuplicidades84 {
+    border-color: #bbf7d0 !important;
+    background: #f0fdf4 !important;
+  }
+
+  .cardDuplicidadesDashboard84.semDuplicidades84 span,
+  .cardDuplicidadesDashboard84.semDuplicidades84 strong {
+    color: #166534 !important;
+  }
+
+  .modalDuplicidades84 {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 2000;
+  }
+
+  .modalDuplicidades84.aberto {
+    display: block;
+  }
+
+  .modalDuplicidadesFundo84 {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, .55);
+  }
+
+  .modalDuplicidadesCaixa84 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(980px, 94vw);
+    max-height: 88vh;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modalDuplicidadesTopo84 {
+    padding: 18px 22px;
+    background: #9a3412;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .modalDuplicidadesTopo84 h2 {
+    margin: 0 0 4px 0;
+    color: white;
+  }
+
+  .modalDuplicidadesTopo84 p {
+    margin: 0;
+    color: #ffedd5;
+    font-size: 14px;
+  }
+
+  .modalDuplicidadesTopo84 button {
+    background: rgba(255,255,255,.18) !important;
+    margin: 0 !important;
+    padding: 8px 11px !important;
+  }
+
+  .modalDuplicidadesConteudo84 {
+    padding: 20px;
+    overflow: auto;
+  }
+
+  .centralDuplicidadesDentroModal84 {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .duplicidadesSemCasos84 {
+    padding: 16px;
+    border-radius: 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    font-weight: bold;
+  }
+</style>
+<!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
