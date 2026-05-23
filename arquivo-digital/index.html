@@ -700,31 +700,110 @@
       const caixa = document.getElementById("historicoArquivo");
       caixa.innerHTML = "<p>Carregando histórico...</p>";
 
-      try {
-        const historico = historicoCarregado
-          .filter(item => item.ARQUIVO_ID === documento.id)
-          .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA));
+      const esc = (valor) => (valor || "")
+        .toString()
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
-        if (!historico.length) {
+      try {
+        const token = await obterToken();
+
+        const urlHistorico = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+        const respHistorico = await fetch(urlHistorico, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!respHistorico.ok) {
+          throw new Error(await respHistorico.text());
+        }
+
+        const dadosHistorico = await respHistorico.json();
+
+        const entradasHistorico = (dadosHistorico.value || [])
+          .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id)
+          .map(item => ({
+            tipo: "historico",
+            acao: item.fields.ACAO || "",
+            data: item.fields.DATA_HORA || "",
+            usuario: item.fields.USUARIO_NOME || "",
+            email: item.fields.USUARIO_EMAIL || "",
+            observacao: item.fields.OBSERVACAO || ""
+          }));
+
+        let entradasAnotacao = [];
+
+        if (CONFIG.anotacoesArquivosListId) {
+          const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
+
+          const respAnotacoes = await fetch(urlAnotacoes, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          if (respAnotacoes.ok) {
+            const dadosAnotacoes = await respAnotacoes.json();
+
+            entradasAnotacao = (dadosAnotacoes.value || [])
+              .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id && (item.fields.ANOTACAO || "").trim())
+              .map(item => ({
+                tipo: "anotacao",
+                acao: "ANOTAÇÃO",
+                data: item.fields.DATA_ATUALIZACAO || "",
+                usuario: item.fields.ATUALIZADO_POR || "",
+                email: "",
+                observacao: item.fields.ANOTACAO || ""
+              }));
+          }
+        }
+
+        const entradas = [...entradasHistorico, ...entradasAnotacao]
+          .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+
+        if (!entradas.length) {
           caixa.innerHTML = "<p>Nenhum histórico registrado para este arquivo.</p>";
           return;
         }
 
-        caixa.innerHTML = historico.map(item => `
-          <div class="itemHistorico">
-            <strong>${item.ACAO || ""}</strong><br>
-            <span>${formatarData(item.DATA_HORA)}</span><br>
-            <span>${item.USUARIO_NOME || ""} - ${item.USUARIO_EMAIL || ""}</span><br>
-            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${limparMotivoHistoricoSeguro(item.OBSERVACAO)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
-          </div>
-        `).join("");
+        caixa.innerHTML = entradas.map(item => {
+          const dataFormatada = formatarData(item.data);
+          const usuario = item.usuario ? esc(item.usuario) : "";
+          const email = item.email ? ` - ${esc(item.email)}` : "";
+
+          if (item.tipo === "anotacao") {
+            return `
+              <div class="itemHistorico anotacaoEvento">
+                <strong>ANOTAÇÃO</strong><br>
+                <span>${esc(dataFormatada)}</span><br>
+                <span>${usuario}${email}</span>
+                <div class="motivoHistorico anotacaoHistorico"><strong>Anotação:</strong> ${esc(item.observacao)}</div>
+              </div>
+            `;
+          }
+
+          const motivoLimpo = limparMotivoHistoricoSeguro(item.observacao || "");
+
+          return `
+            <div class="itemHistorico">
+              <strong>${esc(item.acao || "")}</strong><br>
+              <span>${esc(dataFormatada)}</span><br>
+              <span>${usuario}${email}</span>
+              ${motivoLimpo ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${esc(motivoLimpo)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
+            </div>
+          `;
+        }).join("");
 
       } catch (erro) {
         console.error(erro);
         caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
       }
     }
-
     async function carregarAnotacaoDocumento(documento) {
       const textarea = document.getElementById("campoAnotacao");
       textarea.value = "";
@@ -822,6 +901,10 @@
 
       atualizarDashboard();
       atualizarStatusAnotacao(`Salvo automaticamente em ${new Date().toLocaleString("pt-BR")}`);
+
+      if (documentoSelecionado) {
+        await carregarHistoricoDocumento(documentoSelecionado); // Atualiza histórico após salvar anotação
+      }
     }
 
     window.agendarSalvarAnotacao = function () {
@@ -2394,6 +2477,15 @@ function renderizarDocumentos(listaArquivos) {
       font-size: 12px !important;
       margin: 0 !important;
     }
+  
+    .itemHistorico.anotacaoEvento {
+      border-left: 4px solid #0f2f66;
+      background: #eef3ff;
+    }
+
+    .anotacaoHistorico {
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
@@ -3255,10 +3347,20 @@ function renderizarDocumentos(listaArquivos) {
     color: #166534;
     font-weight: bold;
   }
-</style>
+
+    .itemHistorico.anotacaoEvento {
+      border-left: 4px solid #0f2f66;
+      background: #eef3ff;
+    }
+
+    .anotacaoHistorico {
+      white-space: pre-wrap;
+    }
+  </style>
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
