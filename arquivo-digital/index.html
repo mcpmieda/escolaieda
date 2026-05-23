@@ -8,11 +8,19 @@
   <script type="module">
     import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
 
+    const CONFIG = {
+      clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+      tenantId: "f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
+      redirectUri: "https://escolaieda.com/arquivo-digital/",
+      siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
+      documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16"
+    };
+
     const msalConfig = {
       auth: {
-        clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
-        authority: "https://login.microsoftonline.com/f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
-        redirectUri: "https://escolaieda.com/arquivo-digital/"
+        clientId: CONFIG.clientId,
+        authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`,
+        redirectUri: CONFIG.redirectUri
       },
       cache: {
         cacheLocation: "sessionStorage",
@@ -24,8 +32,76 @@
     await msalInstance.initialize();
 
     const loginRequest = {
-      scopes: ["User.Read"]
+      scopes: ["User.Read", "Sites.Read.All"]
     };
+
+    async function obterToken() {
+      const conta = msalInstance.getAllAccounts()[0];
+
+      if (!conta) {
+        throw new Error("Usuário não conectado.");
+      }
+
+      try {
+        const resposta = await msalInstance.acquireTokenSilent({
+          ...loginRequest,
+          account: conta
+        });
+
+        return resposta.accessToken;
+      } catch (erro) {
+        await msalInstance.acquireTokenRedirect(loginRequest);
+      }
+    }
+
+    async function listarDocumentos() {
+      const lista = document.getElementById("listaDocumentos");
+      lista.innerHTML = "<li>Carregando documentos...</li>";
+
+      try {
+        const token = await obterToken();
+
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId)&$top=50`;
+
+        const resposta = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!resposta.ok) {
+          const textoErro = await resposta.text();
+          throw new Error(textoErro);
+        }
+
+        const dados = await resposta.json();
+        const arquivos = (dados.value || []).filter(item => item.fields && item.fields.FileLeafRef);
+
+        if (!arquivos.length) {
+          lista.innerHTML = "<li>Nenhum documento encontrado.</li>";
+          return;
+        }
+
+        lista.innerHTML = "";
+
+        arquivos.forEach(item => {
+          const nome = item.fields.FileLeafRef;
+          const caminho = item.fields.FileRef;
+          const link = "https://eduieda.sharepoint.com" + caminho;
+
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${nome}</strong><br>
+            <a href="${link}" target="_blank" rel="noopener">Abrir PDF</a>
+          `;
+          lista.appendChild(li);
+        });
+
+      } catch (erro) {
+        lista.innerHTML = `<li class="erro">Erro ao carregar documentos: ${erro.message}</li>`;
+        console.error(erro);
+      }
+    }
 
     async function atualizarTela() {
       const contas = msalInstance.getAllAccounts();
@@ -37,12 +113,15 @@
 
       document.getElementById("btnEntrar").style.display = usuario ? "none" : "inline-block";
       document.getElementById("btnSair").style.display = usuario ? "inline-block" : "none";
+      document.getElementById("areaSistema").style.display = usuario ? "block" : "none";
 
       if (usuario) {
         document.getElementById("usuario").innerHTML = `
           <strong>Nome:</strong> ${usuario.name || ""}<br>
           <strong>Conta:</strong> ${usuario.username || ""}
         `;
+
+        await listarDocumentos();
       } else {
         document.getElementById("usuario").innerHTML = "";
       }
@@ -71,7 +150,7 @@
     }
 
     .card {
-      max-width: 760px;
+      max-width: 900px;
       margin: auto;
       background: white;
       border-radius: 18px;
@@ -106,6 +185,32 @@
       background: #eef3ff;
       border-radius: 12px;
     }
+
+    #areaSistema {
+      margin-top: 25px;
+      display: none;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 14px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+    }
+
+    a {
+      color: #0f2f66;
+      font-weight: bold;
+    }
+
+    .erro {
+      color: #b00020;
+      background: #fff0f0;
+    }
   </style>
 </head>
 <body>
@@ -119,6 +224,13 @@
     <button id="btnSair" onclick="sair()">Sair</button>
 
     <div id="usuario" class="info"></div>
+
+    <div id="areaSistema">
+      <h2>Documentos ativos</h2>
+      <ul id="listaDocumentos">
+        <li>Aguardando carregamento...</li>
+      </ul>
+    </div>
   </div>
 </body>
 </html>
