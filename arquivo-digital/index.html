@@ -28,6 +28,7 @@
     let documentoSelecionado = null;
     let anotacaoAtualItemId = null;
     let timerSalvarAnotacao = null;
+    let timerMensagemPainel = null;
     let anotacaoUltimoTextoSalvo = "";
 
     const msalConfig = {
@@ -271,17 +272,25 @@
       }, 4000);
     }
 
+
     function mostrarMensagemPainel(texto, tipo = "info") {
       const msg = document.getElementById("mensagemPainel");
+      if (!msg) return;
+
+      clearTimeout(timerMensagemPainel);
+
       msg.textContent = texto;
       msg.className = tipo === "erro" ? "mensagemPainel erroPainel" : "mensagemPainel";
-      msg.style.display = "block";
+      msg.style.visibility = "visible";
+      msg.style.opacity = "1";
+      msg.style.pointerEvents = "auto";
 
-      setTimeout(() => {
-        msg.style.display = "none";
-      }, 4000);
+      timerMensagemPainel = setTimeout(() => {
+        msg.style.opacity = "0";
+        msg.style.visibility = "hidden";
+        msg.style.pointerEvents = "none";
+      }, 3500);
     }
-
     function atualizarStatusAnotacao(texto) {
       document.getElementById("statusAnotacao").textContent = texto;
     }
@@ -733,6 +742,7 @@
 
       return limpo.trim();
     }
+
     async function carregarHistoricoDocumento(documento) {
       const caixa = document.getElementById("historicoArquivo");
       caixa.innerHTML = "<p>Carregando histórico...</p>";
@@ -744,6 +754,8 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+
+      const chaveTexto = (valor) => normalizarTexto(valor || "").replace(/\s+/g, " ").trim();
 
       try {
         const token = await obterToken();
@@ -761,6 +773,7 @@
         }
 
         const dadosHistorico = await respHistorico.json();
+        const anotacoesJaMostradas = new Set();
 
         const entradasHistorico = (dadosHistorico.value || [])
           .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id)
@@ -771,7 +784,20 @@
             usuario: item.fields.USUARIO_NOME || "",
             email: item.fields.USUARIO_EMAIL || "",
             observacao: item.fields.OBSERVACAO || ""
-          }));
+          }))
+          .filter(item => {
+            if (item.acao !== "ANOTACAO") return true;
+
+            const chave = chaveTexto(item.observacao);
+            if (!chave) return false;
+
+            if (anotacoesJaMostradas.has(chave)) {
+              return false;
+            }
+
+            anotacoesJaMostradas.add(chave);
+            return true;
+          });
 
         let entradasAnotacao = [];
 
@@ -789,9 +815,13 @@
 
             entradasAnotacao = (dadosAnotacoes.value || [])
               .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id && (item.fields.ANOTACAO || "").trim())
+              .filter(item => {
+                const chave = chaveTexto(item.fields.ANOTACAO || "");
+                return chave && !anotacoesJaMostradas.has(chave);
+              })
               .map(item => ({
-                tipo: "anotacao",
-                acao: "ANOTAÇÃO",
+                tipo: "anotacaoAtual",
+                acao: "ANOTAÇÃO ATUAL",
                 data: item.fields.DATA_ATUALIZACAO || "",
                 usuario: item.fields.ATUALIZADO_POR || "",
                 email: "",
@@ -813,10 +843,10 @@
           const usuario = item.usuario ? esc(item.usuario) : "";
           const email = item.email ? ` - ${esc(item.email)}` : "";
 
-          if (item.tipo === "anotacao") {
+          if (item.acao === "ANOTACAO" || item.tipo === "anotacaoAtual") {
             return `
               <div class="itemHistorico anotacaoEvento">
-                <strong>ANOTAÇÃO</strong><br>
+                <strong>${esc(item.tipo === "anotacaoAtual" ? "ANOTAÇÃO ATUAL" : "ANOTAÇÃO")}</strong><br>
                 <span>${esc(dataFormatada)}</span><br>
                 <span>${usuario}${email}</span>
                 <div class="motivoHistorico anotacaoHistorico"><strong>Anotação:</strong> ${esc(item.observacao)}</div>
@@ -2206,9 +2236,12 @@ function renderizarDocumentos(listaArquivos) {
       background: #94a3b8;
       cursor: not-allowed;
     }
-
     .mensagemPainel {
-      display: none;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      min-height: 38px;
+      box-sizing: border-box;
       padding: 10px;
       margin: 10px 0;
       border-radius: 10px;
@@ -2216,6 +2249,7 @@ function renderizarDocumentos(listaArquivos) {
       color: #065f46;
       font-weight: bold;
       font-size: 13px;
+      transition: opacity .15s ease;
     }
 
     .erroPainel {
@@ -3465,6 +3499,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
