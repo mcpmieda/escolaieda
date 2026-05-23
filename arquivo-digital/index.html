@@ -14,11 +14,14 @@
       redirectUri: "https://escolaieda.com/arquivo-digital/",
       siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
       documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
-      historicoAcessosListId: "144b31da-83f8-4ba4-b573-61fd8e5ac09f"
+      historicoAcessosListId: "144b31da-83f8-4ba4-b573-61fd8e5ac09f",
+      anotacoesArquivosListId: "2698ef54-73e9-4ea1-995a-5d552349f57e"
     };
 
     let documentosCarregados = [];
     let documentoSelecionado = null;
+    let anotacaoAtualItemId = null;
+    let timerSalvarAnotacao = null;
 
     const msalConfig = {
       auth: {
@@ -96,6 +99,10 @@
       setTimeout(() => {
         msg.style.display = "none";
       }, 4000);
+    }
+
+    function atualizarStatusAnotacao(texto) {
+      document.getElementById("statusAnotacao").textContent = texto;
     }
 
     async function registrarHistorico(documento, acao, observacao = "") {
@@ -176,6 +183,131 @@
       }
     }
 
+    async function carregarAnotacaoDocumento(documento) {
+      const textarea = document.getElementById("campoAnotacao");
+      textarea.value = "";
+      anotacaoAtualItemId = null;
+      atualizarStatusAnotacao("Carregando anotação...");
+
+      try {
+        const token = await obterToken();
+
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=100`;
+
+        const resposta = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        const dados = await resposta.json();
+
+        const item = (dados.value || []).find(x => x.fields && x.fields.ARQUIVO_ID === documento.id);
+
+        if (item) {
+          anotacaoAtualItemId = item.id;
+          textarea.value = item.fields.ANOTACAO || "";
+          atualizarStatusAnotacao(`Última atualização: ${formatarData(item.fields.DATA_ATUALIZACAO)} - ${item.fields.ATUALIZADO_POR || ""}`);
+        } else {
+          atualizarStatusAnotacao("Nenhuma anotação salva ainda.");
+        }
+
+      } catch (erro) {
+        console.error(erro);
+        atualizarStatusAnotacao("Não foi possível carregar a anotação.");
+      }
+    }
+
+    async function salvarAnotacaoAgora() {
+      if (!documentoSelecionado) {
+        atualizarStatusAnotacao("Nenhum documento selecionado.");
+        return;
+      }
+
+      const texto = document.getElementById("campoAnotacao").value || "";
+      const token = await obterToken();
+      const conta = msalInstance.getAllAccounts()[0];
+
+      const campos = {
+        Title: documentoSelecionado.nome,
+        ARQUIVO_ID: documentoSelecionado.id || "",
+        ANOTACAO: texto,
+        ATUALIZADO_POR: conta?.name || conta?.username || "",
+        DATA_ATUALIZACAO: new Date().toISOString()
+      };
+
+      if (anotacaoAtualItemId) {
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items/${anotacaoAtualItemId}/fields`;
+
+        const resposta = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(campos)
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+      } else {
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items`;
+
+        const resposta = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ fields: campos })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        const novoItem = await resposta.json();
+        anotacaoAtualItemId = novoItem.id;
+      }
+
+      atualizarStatusAnotacao(`Salvo automaticamente em ${new Date().toLocaleString("pt-BR")}`);
+    }
+
+    window.agendarSalvarAnotacao = function () {
+      clearTimeout(timerSalvarAnotacao);
+      atualizarStatusAnotacao("Digitando...");
+
+      timerSalvarAnotacao = setTimeout(async () => {
+        try {
+          atualizarStatusAnotacao("Salvando...");
+          await salvarAnotacaoAgora();
+        } catch (erro) {
+          console.error(erro);
+          atualizarStatusAnotacao("Erro ao salvar anotação.");
+        }
+      }, 1200);
+    };
+
+    window.salvarAnotacaoManual = async function () {
+      clearTimeout(timerSalvarAnotacao);
+
+      try {
+        atualizarStatusAnotacao("Salvando...");
+        await salvarAnotacaoAgora();
+        mostrarMensagemPainel("Anotação salva.");
+      } catch (erro) {
+        console.error(erro);
+        atualizarStatusAnotacao("Erro ao salvar anotação.");
+        mostrarMensagemPainel("Erro ao salvar anotação.", "erro");
+      }
+    };
+
     window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
@@ -194,11 +326,14 @@
       document.getElementById("painelLateral").classList.add("aberto");
 
       await carregarHistoricoDocumento(documento);
+      await carregarAnotacaoDocumento(documento);
     };
 
     window.fecharPainel = function () {
       document.getElementById("painelLateral").classList.remove("aberto");
       documentoSelecionado = null;
+      anotacaoAtualItemId = null;
+      clearTimeout(timerSalvarAnotacao);
     };
 
     window.abrirPdfSelecionado = async function () {
@@ -482,9 +617,9 @@
     .painelLateral {
       position: fixed;
       top: 0;
-      right: -480px;
-      width: 430px;
-      max-width: 92vw;
+      right: -520px;
+      width: 470px;
+      max-width: 94vw;
       height: 100vh;
       background: white;
       box-shadow: -10px 0 30px rgba(0,0,0,.16);
@@ -582,6 +717,44 @@
       color: #b00020;
     }
 
+    .anotacaoBox {
+      margin: 16px 0;
+    }
+
+    .anotacaoBox h3 {
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: Arial, sans-serif;
+      resize: vertical;
+    }
+
+    .linhaAnotacao {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .linhaAnotacao small {
+      color: #64748b;
+    }
+
+    .btnSalvar {
+      padding: 8px 10px;
+      font-size: 12px;
+      margin: 0;
+      background: #475569;
+    }
+
     .itemHistorico {
       padding: 10px;
       border-radius: 10px;
@@ -664,6 +837,15 @@
       </div>
 
       <div id="mensagemPainel" class="mensagemPainel"></div>
+
+      <div class="anotacaoBox">
+        <h3>Anotações do arquivo</h3>
+        <textarea id="campoAnotacao" placeholder="Digite observações sobre este arquivo..." oninput="agendarSalvarAnotacao()"></textarea>
+        <div class="linhaAnotacao">
+          <small id="statusAnotacao">Selecione um arquivo.</small>
+          <button class="btnSalvar" onclick="salvarAnotacaoManual()">Salvar agora</button>
+        </div>
+      </div>
 
       <h3>Histórico do arquivo</h3>
       <div id="historicoArquivo">
