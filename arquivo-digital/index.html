@@ -4422,8 +4422,93 @@ window.baixarRelatorioArquivo = function () {
   setTimeout(instalar98B, 3000);
 })();
 </script>
+
+<!-- PASSO99_FIX_MODAL_ENVIO_INICIO -->
+<style>
+  #modalUpload98 {
+    display: none;
+  }
+
+  #modalUpload98.aberto,
+  #modalUpload98[style*="display: flex"],
+  #modalUpload98[style*="display:flex"] {
+    display: flex !important;
+  }
+</style>
+
+<script>
+(function () {
+  function obterModalUpload99() {
+    return document.getElementById("modalUpload98");
+  }
+
+  function limparCamposUpload99() {
+    const input = document.getElementById("inputNovoDocumento");
+    if (input) input.value = "";
+
+    const status = document.getElementById("modalUpload98Status");
+    if (status) status.textContent = "";
+  }
+
+  window.abrirSeletorNovoDocumento = function () {
+    const modal = obterModalUpload99();
+
+    if (modal) {
+      modal.classList.add("aberto");
+      modal.style.display = "flex";
+      modal.removeAttribute("aria-hidden");
+      return;
+    }
+
+    const input = document.getElementById("inputNovoDocumento");
+    if (input) input.click();
+  };
+
+  window.fecharModalUpload98 = function () {
+    const modal = obterModalUpload99();
+
+    if (modal) {
+      modal.classList.remove("aberto");
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    limparCamposUpload99();
+  };
+
+  window.cancelarModalUpload98 = window.fecharModalUpload98;
+  window.cancelarUpload98 = window.fecharModalUpload98;
+
+  window.escolherArquivoUpload98 = function () {
+    const input = document.getElementById("inputNovoDocumento");
+    if (input) input.click();
+  };
+
+  document.addEventListener("click", function (event) {
+    const modal = obterModalUpload99();
+
+    if (!modal) return;
+
+    if (event.target === modal) {
+      window.fecharModalUpload98();
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      const modal = obterModalUpload99();
+
+      if (modal && (modal.classList.contains("aberto") || modal.style.display === "flex")) {
+        window.fecharModalUpload98();
+      }
+    }
+  });
+})();
+</script>
+<!-- PASSO99_FIX_MODAL_ENVIO_FIM -->
 </body>
 </html>
+
 
 
 
