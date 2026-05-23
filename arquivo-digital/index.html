@@ -53,6 +53,20 @@
         .trim();
     }
 
+    function sanitizarNomeArquivo(nome) {
+      let limpo = (nome || "")
+        .toString()
+        .replace(/[\\/:*?"<>|]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!limpo.toLowerCase().endsWith(".pdf")) {
+        limpo += ".pdf";
+      }
+
+      return limpo;
+    }
+
     function formatarData(data) {
       if (!data) return "";
       try {
@@ -411,6 +425,134 @@
       }
     };
 
+    async function obterDriveItemDoDocumento(documento) {
+      if (documento.driveItemId && documento.driveId) {
+        return {
+          id: documento.driveItemId,
+          parentReference: { driveId: documento.driveId },
+          webUrl: documento.link
+        };
+      }
+
+      const token = await obterToken();
+
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${documento.listItemId}/driveItem?$select=id,name,parentReference,webUrl`;
+
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const driveItem = await resposta.json();
+
+      documento.driveItemId = driveItem.id || "";
+      documento.driveId = driveItem.parentReference?.driveId || "";
+      documento.driveWebUrl = driveItem.webUrl || "";
+
+      if (!documento.driveItemId || !documento.driveId) {
+        throw new Error("Não foi possível obter o ID técnico do arquivo para renomear.");
+      }
+
+      return driveItem;
+    }
+
+    window.prepararRenomear = function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      const nomeSemPdf = documentoSelecionado.nome.replace(/\.pdf$/i, "");
+      document.getElementById("novoNomeArquivo").value = nomeSemPdf;
+      document.getElementById("boxRenomear").style.display = "block";
+      mostrarMensagemPainel("Confira o novo nome antes de confirmar.");
+    };
+
+    window.cancelarRenomear = function () {
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("novoNomeArquivo").value = "";
+    };
+
+    window.confirmarRenomear = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      const antigoNome = documentoSelecionado.nome;
+      const novoNome = sanitizarNomeArquivo(document.getElementById("novoNomeArquivo").value);
+
+      if (!novoNome || novoNome.toLowerCase() === ".pdf") {
+        mostrarMensagemPainel("Informe um nome válido para o arquivo.", "erro");
+        return;
+      }
+
+      if (normalizarTexto(novoNome) === normalizarTexto(antigoNome)) {
+        mostrarMensagemPainel("O novo nome é igual ao nome atual.", "erro");
+        return;
+      }
+
+      const jaExiste = documentosCarregados.some(doc =>
+        doc.id !== documentoSelecionado.id &&
+        normalizarTexto(doc.nome) === normalizarTexto(novoNome)
+      );
+
+      if (jaExiste) {
+        mostrarMensagemPainel("Já existe um arquivo ativo com esse mesmo nome. Renomeação cancelada.", "erro");
+        return;
+      }
+
+      try {
+        mostrarMensagemPainel("Renomeando arquivo...");
+
+        const token = await obterToken();
+        const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
+        const driveId = driveItem.parentReference?.driveId || documentoSelecionado.driveId;
+
+        const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}`;
+
+        const resposta = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: novoNome
+          })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        documentoSelecionado.nome = novoNome;
+
+        await registrarHistorico(
+          documentoSelecionado,
+          "RENOMEOU",
+          `Arquivo renomeado de "${antigoNome}" para "${novoNome}".`
+        );
+
+        mostrarMensagemPainel("Arquivo renomeado com sucesso.");
+        document.getElementById("boxRenomear").style.display = "none";
+        document.getElementById("novoNomeArquivo").value = "";
+
+        await listarDocumentos();
+        fecharPainel();
+        mostrarMensagem("Arquivo renomeado com sucesso.");
+
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Erro ao renomear arquivo. Veja o console para detalhes.", "erro");
+      }
+    };
+
     window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
@@ -427,6 +569,8 @@
       document.getElementById("painelCaminho").textContent = documento.caminho || "";
 
       document.getElementById("painelLateral").classList.add("aberto");
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("novoNomeArquivo").value = "";
 
       await carregarHistoricoDocumento(documento);
       await carregarAnotacaoDocumento(documento);
@@ -434,6 +578,8 @@
 
     window.fecharPainel = function () {
       document.getElementById("painelLateral").classList.remove("aberto");
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("novoNomeArquivo").value = "";
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
@@ -531,6 +677,9 @@
             nome,
             caminho,
             id: item.fields.UniqueId,
+            listItemId: item.id,
+            driveItemId: "",
+            driveId: "",
             link: "https://eduieda.sharepoint.com" + caminho
           };
         });
@@ -870,6 +1019,52 @@
       color: #b00020;
     }
 
+    .formAcao {
+      display: none;
+      margin: 16px 0;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+    }
+
+    .formAcao h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .formAcao input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .formAcao small {
+      display: block;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .linhaBotoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .linhaBotoes button {
+      margin: 0;
+      padding: 9px 10px;
+      font-size: 12px;
+    }
+
+    .linhaBotoes .secundario {
+      background: #64748b;
+    }
+
     .anotacaoBox {
       margin: 16px 0;
     }
@@ -1029,13 +1224,23 @@
 
       <div class="acoes">
         <button class="principal" onclick="abrirPdfSelecionado()">Abrir PDF e registrar acesso</button>
-        <button class="desativado" title="Será implementado depois">Renomear</button>
+        <button onclick="prepararRenomear()">Renomear</button>
         <button class="desativado" title="Será implementado depois">Substituir</button>
         <button class="desativado" title="Será implementado depois">Arquivar</button>
         <button class="desativado" title="Será implementado depois">Mesclar</button>
       </div>
 
       <div id="mensagemPainel" class="mensagemPainel"></div>
+
+      <div id="boxRenomear" class="formAcao">
+        <h3>Renomear arquivo</h3>
+        <input id="novoNomeArquivo" type="text" placeholder="Novo nome do arquivo">
+        <small>O sistema adiciona .pdf automaticamente se você não digitar.</small>
+        <div class="linhaBotoes">
+          <button onclick="confirmarRenomear()">Confirmar renomeação</button>
+          <button class="secundario" onclick="cancelarRenomear()">Cancelar</button>
+        </div>
+      </div>
 
       <div class="anotacaoBox">
         <h3>Anotações do arquivo</h3>
