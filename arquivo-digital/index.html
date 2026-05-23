@@ -1245,7 +1245,12 @@
         await new Promise(resolve => setTimeout(resolve, 1200));
 
         await listarDocumentos();
-        await carregarDashboard();
+        if (typeof carregarDadosDeApoio === "function") {
+          await carregarDadosDeApoio();
+        }
+        if (typeof atualizarDashboard === "function") {
+          atualizarDashboard();
+        }
 
         const documentoNovo = documentosCarregados.find(doc =>
           normalizarTexto(doc.nome) === normalizarTexto(nomeFinal)
@@ -1262,7 +1267,12 @@
           motivo.trim() || "Novo documento enviado ao Arquivo Digital."
         );
 
-        await carregarDashboard();
+        if (typeof carregarDadosDeApoio === "function") {
+          await carregarDadosDeApoio();
+        }
+        if (typeof atualizarDashboard === "function") {
+          atualizarDashboard();
+        }
 
         mostrarMensagem(existeAtivo ? "Arquivo enviado e substituição registrada." : "Novo PDF enviado e registrado com sucesso.");
 
@@ -2115,6 +2125,7 @@ function renderizarDocumentos(listaArquivos) {
   </aside>
 </body>
 </html>
+
 
 
 
