@@ -2579,8 +2579,309 @@ function renderizarDocumentos(listaArquivos) {
       </div>
     </div>
   </aside>
+
+<!-- AJUSTE PASSO 83 - INICIO -->
+<script type="module">
+  import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
+
+  const CONFIG_PASSO_83 = {
+    clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+    tenantId: "f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
+    redirectUri: "https://escolaieda.com/arquivo-digital/",
+    siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
+    alertasSistemaListId: "9abdb5fc-c009-4a59-9f91-03677b001b56"
+  };
+
+  const msal83 = new PublicClientApplication({
+    auth: {
+      clientId: CONFIG_PASSO_83.clientId,
+      authority: `https://login.microsoftonline.com/${CONFIG_PASSO_83.tenantId}`,
+      redirectUri: CONFIG_PASSO_83.redirectUri
+    },
+    cache: {
+      cacheLocation: "sessionStorage",
+      storeAuthStateInCookie: false
+    }
+  });
+
+  let paresDiferentes83 = new Set();
+  let ultimoCarregamento83 = 0;
+  let aplicando83 = false;
+
+  function normalizar83(texto) {
+    return (texto || "")
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\.pdf$/i, "")
+      .replace(/[^a-zA-Z0-9 ]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  function chavePar83(a, b) {
+    const x = normalizar83(a);
+    const y = normalizar83(b);
+    if (!x || !y) return "";
+    return [x, y].sort().join("||");
+  }
+
+  function extrairNomesPdf83(texto) {
+    const bruto = (texto || "").toString();
+    const encontrados = bruto.match(/[A-ZÀ-Ú0-9][A-ZÀ-Ú0-9 ._\-()]+?\.pdf/gi) || [];
+
+    return [...new Set(encontrados.map(x => x.trim()))];
+  }
+
+  function dividirPossivelPar83(texto) {
+    const nomes = extrairNomesPdf83(texto);
+    if (nomes.length >= 2) return [nomes[0], nomes[1]];
+
+    const partes = (texto || "")
+      .split(/\|\|| x | X |↔|<->|—|-{2,}|;|,/g)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    if (partes.length >= 2) return [partes[0], partes[1]];
+    return [];
+  }
+
+  async function obterToken83() {
+    const conta = msal83.getAllAccounts()[0];
+    if (!conta) return null;
+
+    try {
+      const resposta = await msal83.acquireTokenSilent({
+        scopes: ["User.Read", "Sites.ReadWrite.All"],
+        account: conta
+      });
+
+      return resposta.accessToken;
+    } catch (erro) {
+      console.warn("Passo 83: nao foi possivel obter token silenciosamente.", erro);
+      return null;
+    }
+  }
+
+  function itemIndicaPessoasDiferentes83(fields) {
+    const texto = [
+      fields?.Title,
+      fields?.TIPO_ALERTA,
+      fields?.STATUS,
+      fields?.OBSERVACAO
+    ].join(" ");
+
+    return /pessoas\s+diferentes|sao\s+pessoas\s+diferentes|são\s+pessoas\s+diferentes|diferentes|ignorado|ignorada|resolvido|resolvida/i.test(texto);
+  }
+
+  async function carregarParesDiferentes83(forcar = false) {
+    const agora = Date.now();
+
+    if (!forcar && agora - ultimoCarregamento83 < 30000) {
+      return;
+    }
+
+    ultimoCarregamento83 = agora;
+
+    try {
+      await msal83.initialize();
+      await msal83.handleRedirectPromise().catch(() => null);
+
+      const token = await obterToken83();
+      if (!token) return;
+
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG_PASSO_83.siteId}/lists/${CONFIG_PASSO_83.alertasSistemaListId}/items?$expand=fields($select=Title,TIPO_ALERTA,STATUS,OBSERVACAO)&$top=999`;
+
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        console.warn("Passo 83: falha ao ler ALERTAS_SISTEMA.", await resposta.text());
+        return;
+      }
+
+      const dados = await resposta.json();
+      const novoSet = new Set();
+
+      (dados.value || []).forEach(item => {
+        const fields = item.fields || {};
+        if (!itemIndicaPessoasDiferentes83(fields)) return;
+
+        const texto = [fields.Title, fields.TIPO_ALERTA, fields.STATUS, fields.OBSERVACAO].join(" ");
+        const par = dividirPossivelPar83(texto);
+
+        if (par.length >= 2) {
+          const chave = chavePar83(par[0], par[1]);
+          if (chave) novoSet.add(chave);
+        }
+      });
+
+      paresDiferentes83 = novoSet;
+    } catch (erro) {
+      console.warn("Passo 83: erro ao carregar pares ignorados.", erro);
+    }
+  }
+
+  function obterNomeDocumentoSelecionado83() {
+    const candidatos = [
+      document.getElementById("painelTitulo"),
+      document.getElementById("painelNome"),
+      document.querySelector("#painelLateral .painelTopo h2")
+    ];
+
+    for (const el of candidatos) {
+      const txt = (el?.textContent || "").trim();
+      if (txt) return txt;
+    }
+
+    return "";
+  }
+
+  function procurarSecaoPorTitulo83(titulo) {
+    const regex = new RegExp(titulo, "i");
+    const headings = [...document.querySelectorAll("h1,h2,h3,h4,strong")];
+    const h = headings.find(x => regex.test((x.textContent || "").trim()));
+    return h || null;
+  }
+
+  function filtrarNomesParecidosDoPainel83() {
+    const painel = document.getElementById("painelLateral");
+    if (!painel || !painel.classList.contains("aberto")) return;
+
+    const nomeSelecionado = obterNomeDocumentoSelecionado83();
+    if (!nomeSelecionado) return;
+
+    const tituloSecao = procurarSecaoPorTitulo83("Nomes\\s+parecidos");
+    if (!tituloSecao || !painel.contains(tituloSecao)) return;
+
+    const elementos = [...painel.querySelectorAll("div, article, li")].filter(el => {
+      const txt = el.textContent || "";
+      return /\.pdf/i.test(txt) && /poss[ií]vel|semelhan[cç]a|ativo|arquivado/i.test(txt);
+    });
+
+    let visiveis = 0;
+
+    elementos.forEach(el => {
+      const txt = el.textContent || "";
+      const nomes = extrairNomesPdf83(txt);
+      let nomeOutro = nomes.find(n => normalizar83(n) !== normalizar83(nomeSelecionado));
+
+      if (!nomeOutro && nomes.length === 1) {
+        nomeOutro = nomes[0];
+      }
+
+      const chave = chavePar83(nomeSelecionado, nomeOutro);
+
+      if (chave && paresDiferentes83.has(chave)) {
+        el.style.display = "none";
+        el.setAttribute("data-passo-83-oculto", "1");
+      } else {
+        if (el.getAttribute("data-passo-83-oculto") === "1") {
+          el.style.display = "";
+          el.removeAttribute("data-passo-83-oculto");
+        }
+
+        const rect = el.getBoundingClientRect();
+        if (rect.height > 0 && getComputedStyle(el).display !== "none") {
+          visiveis++;
+        }
+      }
+    });
+
+    let aviso = document.getElementById("avisoNomesParecidosFiltrados83");
+
+    if (!aviso) {
+      aviso = document.createElement("p");
+      aviso.id = "avisoNomesParecidosFiltrados83";
+      aviso.style.color = "#64748b";
+      aviso.style.marginTop = "8px";
+      aviso.textContent = "Nenhum nome parecido pendente.";
+      tituloSecao.insertAdjacentElement("afterend", aviso);
+    }
+
+    aviso.style.display = elementos.length > 0 && visiveis === 0 ? "block" : "none";
+  }
+
+  function controlarVisibilidadeCentralDuplicidades83() {
+    const titulo = procurarSecaoPorTitulo83("Central\\s+de\\s+duplicidades");
+    if (!titulo) return;
+
+    let secao = titulo.closest("section, article, .card, .centralDuplicidades, div");
+    if (!secao) secao = titulo.parentElement;
+    if (!secao) return;
+
+    const botoesDeCaso = [...secao.querySelectorAll("button")].filter(btn => {
+      const txt = (btn.textContent || "").trim();
+      return txt && !/atualizar\s+an[aá]lise/i.test(txt);
+    });
+
+    const texto = secao.textContent || "";
+    const nomesPdf = extrairNomesPdf83(texto);
+    const temCasoPorTexto = /poss[ií]vel\s+duplicidade|s[aã]o\s+pessoas\s+diferentes|abrir\s+no\s+painel|ver\s+arquivo/i.test(texto);
+    const temCaso = botoesDeCaso.length > 0 || nomesPdf.length >= 2 || temCasoPorTexto;
+
+    secao.style.display = temCaso ? "" : "none";
+    secao.setAttribute("data-passo-83-controlado", "1");
+  }
+
+  function aplicarAjustes83() {
+    if (aplicando83) return;
+    aplicando83 = true;
+
+    requestAnimationFrame(() => {
+      try {
+        filtrarNomesParecidosDoPainel83();
+        controlarVisibilidadeCentralDuplicidades83();
+      } finally {
+        aplicando83 = false;
+      }
+    });
+  }
+
+  document.addEventListener("click", async event => {
+    const alvo = event.target?.closest?.("button");
+    if (!alvo) return;
+
+    const texto = alvo.textContent || "";
+
+    if (/s[aã]o\s+pessoas\s+diferentes/i.test(texto)) {
+      setTimeout(async () => {
+        await carregarParesDiferentes83(true);
+        aplicarAjustes83();
+      }, 1200);
+    }
+  }, true);
+
+  const observer83 = new MutationObserver(() => {
+    setTimeout(aplicarAjustes83, 200);
+  });
+
+  async function iniciarPasso83() {
+    await carregarParesDiferentes83(true);
+    aplicarAjustes83();
+
+    observer83.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+
+    setInterval(async () => {
+      await carregarParesDiferentes83(false);
+      aplicarAjustes83();
+    }, 15000);
+  }
+
+  iniciarPasso83();
+</script>
+<!-- AJUSTE PASSO 83 - FIM -->
 </body>
 </html>
+
 
 
 
