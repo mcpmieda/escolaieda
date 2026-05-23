@@ -16,6 +16,8 @@
       documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16"
     };
 
+    let documentosCarregados = [];
+
     const msalConfig = {
       auth: {
         clientId: CONFIG.clientId,
@@ -35,6 +37,15 @@
       scopes: ["User.Read", "Sites.Read.All"]
     };
 
+    function normalizarTexto(texto) {
+      return (texto || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
     async function obterToken() {
       const conta = msalInstance.getAllAccounts()[0];
 
@@ -52,6 +63,47 @@
       } catch (erro) {
         await msalInstance.acquireTokenRedirect(loginRequest);
       }
+    }
+
+    function renderizarDocumentos(listaArquivos) {
+      const lista = document.getElementById("listaDocumentos");
+      const contador = document.getElementById("contadorResultados");
+
+      contador.textContent = `${listaArquivos.length} resultado(s) encontrado(s)`;
+
+      if (!listaArquivos.length) {
+        lista.innerHTML = "<li>Nenhum documento encontrado.</li>";
+        return;
+      }
+
+      lista.innerHTML = "";
+
+      listaArquivos.forEach(item => {
+        const nome = item.nome;
+        const link = item.link;
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${nome}</strong><br>
+          <a href="${link}" target="_blank" rel="noopener">Abrir PDF</a>
+        `;
+        lista.appendChild(li);
+      });
+    }
+
+    function filtrarDocumentos() {
+      const termo = normalizarTexto(document.getElementById("campoBusca").value);
+
+      if (!termo) {
+        renderizarDocumentos(documentosCarregados);
+        return;
+      }
+
+      const filtrados = documentosCarregados.filter(doc =>
+        normalizarTexto(doc.nome).includes(termo)
+      );
+
+      renderizarDocumentos(filtrados);
     }
 
     async function listarDocumentos() {
@@ -77,25 +129,19 @@
         const dados = await resposta.json();
         const arquivos = (dados.value || []).filter(item => item.fields && item.fields.FileLeafRef);
 
-        if (!arquivos.length) {
-          lista.innerHTML = "<li>Nenhum documento encontrado.</li>";
-          return;
-        }
-
-        lista.innerHTML = "";
-
-        arquivos.forEach(item => {
+        documentosCarregados = arquivos.map(item => {
           const nome = item.fields.FileLeafRef;
           const caminho = item.fields.FileRef;
-          const link = "https://eduieda.sharepoint.com" + caminho;
 
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <strong>${nome}</strong><br>
-            <a href="${link}" target="_blank" rel="noopener">Abrir PDF</a>
-          `;
-          lista.appendChild(li);
+          return {
+            nome,
+            caminho,
+            id: item.fields.UniqueId,
+            link: "https://eduieda.sharepoint.com" + caminho
+          };
         });
+
+        renderizarDocumentos(documentosCarregados);
 
       } catch (erro) {
         lista.innerHTML = `<li class="erro">Erro ao carregar documentos: ${erro.message}</li>`;
@@ -136,6 +182,8 @@
       await msalInstance.logoutRedirect({ account: conta });
     };
 
+    window.filtrarDocumentos = filtrarDocumentos;
+
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
   </script>
@@ -150,7 +198,7 @@
     }
 
     .card {
-      max-width: 900px;
+      max-width: 950px;
       margin: auto;
       background: white;
       border-radius: 18px;
@@ -191,15 +239,33 @@
       display: none;
     }
 
+    .busca {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 16px;
+      margin: 10px 0 8px 0;
+    }
+
+    .contador {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 15px;
+    }
+
     ul {
-      padding-left: 20px;
+      padding-left: 0;
+      list-style: none;
     }
 
     li {
       margin-bottom: 14px;
-      padding: 12px;
+      padding: 14px;
       background: #f8fafc;
-      border-radius: 10px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
     }
 
     a {
@@ -227,6 +293,17 @@
 
     <div id="areaSistema">
       <h2>Documentos ativos</h2>
+
+      <input
+        id="campoBusca"
+        class="busca"
+        type="text"
+        placeholder="Digite o nome do aluno ou parte do nome..."
+        oninput="filtrarDocumentos()"
+      >
+
+      <div id="contadorResultados" class="contador">Carregando...</div>
+
       <ul id="listaDocumentos">
         <li>Aguardando carregamento...</li>
       </ul>
