@@ -20,7 +20,7 @@
     };
 
     let documentosAtivos = [];
-    let documentosArquivados = [];
+    let documentosLixeira = [];
     let documentosCarregados = [];
     let modoListaAtual = "ativos";
     let historicoCarregado = [];
@@ -74,7 +74,7 @@
     }
 
 
-    function ordenarArquivadosMaisRecentes(lista) {
+    function ordenarLixeiraMaisRecentes(lista) {
       const copia = [...(lista || [])];
 
       return copia.sort((a, b) => {
@@ -111,7 +111,7 @@
 
       const padroes = [
         /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
-        /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
+        /^Documento na Lixeira na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
         /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
         /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i
       ];
@@ -158,7 +158,7 @@
     }
 
     function buscarNomesParecidos(documento) {
-      const todos = [...documentosAtivos, ...documentosArquivados]
+      const todos = [...documentosAtivos, ...documentosLixeira]
         .filter(doc => doc && doc.id !== documento.id);
 
       return todos
@@ -406,25 +406,25 @@
 
     function atualizarBotoesModoLista() {
       const btnAtivos = document.getElementById("btnVerAtivos");
-      const btnArquivados = document.getElementById("btnVerArquivados");
+      const btnLixeira = document.getElementById("btnVerLixeira");
 
-      if (!btnAtivos || !btnArquivados) return;
+      if (!btnAtivos || !btnLixeira) return;
 
       btnAtivos.classList.toggle("ativo", modoListaAtual === "ativos");
-      btnArquivados.classList.toggle("ativo", modoListaAtual === "arquivados");
+      btnLixeira.classList.toggle("ativo", modoListaAtual === "na Lixeira");
 
       document.getElementById("tituloListaDocumentos").textContent = modoListaAtual === "ativos"
         ? "Documentos ativos"
-        : "Documentos arquivados";
+        : "Lixeira";
 
       document.getElementById("campoBusca").placeholder = modoListaAtual === "ativos"
         ? "Digite o nome do aluno ou parte do nome..."
-        : "Digite para pesquisar nos documentos arquivados...";
+        : "Digite para pesquisar nos documentos na Lixeira...";
     }
 
     function aplicarListaAtual() {
-      documentosCarregados = modoListaAtual === "arquivados"
-        ? documentosArquivados
+      documentosCarregados = modoListaAtual === "na Lixeira"
+        ? documentosLixeira
         : documentosAtivos;
 
       atualizarBotoesModoLista();
@@ -439,8 +439,8 @@
       aplicarListaAtual();
     };
 
-    window.mostrarDocumentosArquivados = function () {
-      modoListaAtual = "arquivados";
+    window.mostrarDocumentosLixeira = function () {
+      modoListaAtual = "na Lixeira";
       document.getElementById("campoBusca").value = "";
       fecharPainel();
       aplicarListaAtual();
@@ -490,7 +490,7 @@
     }
 
     window.marcarPessoasDiferentesCentral = async function (idA, idB) {
-      const todos = [...documentosAtivos, ...documentosArquivados];
+      const todos = [...documentosAtivos, ...documentosLixeira];
       const a = todos.find(doc => doc.id === idA);
       const b = todos.find(doc => doc.id === idB);
 
@@ -568,7 +568,7 @@
     }
 
     function gerarParesDuplicidades() {
-      const todos = [...documentosAtivos, ...documentosArquivados]
+      const todos = [...documentosAtivos, ...documentosLixeira]
         .filter(doc => doc && doc.nome && doc.id);
 
       const pares = [];
@@ -625,7 +625,7 @@
       if (!pares.length) {
         caixa.innerHTML = `
           <div class="duplicidadeVazia">
-            Nenhum nome parecido encontrado entre ativos e arquivados.
+            Nenhum nome parecido encontrado entre ativos e na Lixeira.
           </div>
         `;
         return;
@@ -670,7 +670,7 @@
 
     window.abrirArquivoDaCentral = async function (id, status) {
       if (status === "ARQUIVADO") {
-        modoListaAtual = "arquivados";
+        modoListaAtual = "na Lixeira";
       } else {
         modoListaAtual = "ativos";
       }
@@ -741,7 +741,7 @@
 
       const padroes = [
         /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
-        /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
+        /^Documento na Lixeira na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
         /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
         /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i,
         /^Documento aberto pelo botão ABRIR PDF no painel lateral\.\s*/i,
@@ -1273,7 +1273,7 @@
       return await resposta.json();
     }
 
-    async function obterOuCriarPastaArquivados(driveId) {
+    async function obterOuCriarPastaLixeira(driveId) {
       const token = await obterToken();
       const nomePasta = "_ARQUIVADOS";
       const urlBuscar = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomePasta)}`;
@@ -1350,7 +1350,7 @@
         const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
         const drive = await obterDriveDaBibliotecaAtivos();
         const driveId = drive.id;
-        const pastaArquivados = await obterOuCriarPastaArquivados(driveId);
+        const pastaLixeira = await obterOuCriarPastaLixeira(driveId);
 
         const urlMover = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}`;
 
@@ -1362,7 +1362,7 @@
           },
           body: JSON.stringify({
             parentReference: {
-              id: pastaArquivados.id
+              id: pastaLixeira.id
             }
           })
         });
@@ -1380,8 +1380,8 @@
         document.getElementById("boxArquivar").style.display = "none";
         document.getElementById("motivoArquivar").value = "";
 
-        await atualizarDadosMantendoPainel("arquivados");
-        mostrarMensagem("Arquivo arquivado com sucesso. Ele saiu da lista principal e foi para a pasta _ARQUIVADOS.");
+        await atualizarDadosMantendoPainel("na Lixeira");
+        mostrarMensagem("Documento enviado para a Lixeira com sucesso. Ele saiu da lista principal, mas não foi excluído.");
 
       } catch (erro) {
         console.error(erro);
@@ -1486,7 +1486,7 @@
         document.getElementById("motivoRestaurar").value = "";
 
         modoListaAtual = "ativos";
-        await atualizarDadosMantendoPainel("arquivados");
+        await atualizarDadosMantendoPainel("na Lixeira");
         mostrarMensagem("Arquivo restaurado com sucesso para Documentos ativos.");
 
       } catch (erro) {
@@ -1925,7 +1925,7 @@ function renderizarDocumentos(listaArquivos) {
           .filter(item => String(item.fields.FileDirRef || "") === CONFIG.documentosAtivosRootPath)
           .map(mapear);
 
-        documentosArquivados = arquivos
+        documentosLixeira = arquivos
           .filter(item => String(item.fields.FileDirRef || "") === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS`)
           .map(mapear);
 
@@ -2921,8 +2921,8 @@ window.baixarRelatorioArquivo = function () {
         </div>
 
         <div class="cardDash">
-          <span>Documentos arquivados</span>
-          <strong id="dashArquivados">0</strong>
+          <span>Lixeira</span>
+          <strong id="dashLixeira">0</strong>
         </div>
 
         <div class="cardDash">
@@ -2962,7 +2962,7 @@ window.baixarRelatorioArquivo = function () {
       </div>
       <div class="abasDocumentos">
         <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
-        <button id="btnVerArquivados" class="abaDocumento" onclick="mostrarDocumentosArquivados()">Arquivados</button>
+        <button id="btnVerLixeira" class="abaDocumento" onclick="mostrarDocumentosLixeira()">Lixeira</button>
       </div>
 
       <h2 id="tituloListaDocumentos">Documentos ativos</h2>
@@ -3004,7 +3004,7 @@ window.baixarRelatorioArquivo = function () {
         <button class="principal" onclick="abrirPdfSelecionado()">ABRIR PDF</button>
         <button id="btnRenomear" onclick="prepararRenomear()">Renomear</button>
         <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
-        <button id="btnArquivar" onclick="prepararArquivar()">Arquivar</button>
+        <button id="btnArquivar" onclick="prepararArquivar()">Mover para Lixeira</button>
         <button id="btnRestaurar" onclick="prepararRestaurar()" style="display:none">Restaurar</button>
         <button class="desativado" title="Será implementado depois">Mesclar</button>
       </div>
@@ -3033,19 +3033,19 @@ window.baixarRelatorioArquivo = function () {
       </div>
 
       <div id="boxArquivar" class="formAcao alertaAcao">
-        <h3>Arquivar arquivo</h3>
-        <p>O arquivo será movido para a pasta <strong>_ARQUIVADOS</strong> dentro da biblioteca de documentos. Ele não será excluído.</p>
-        <textarea id="motivoArquivar" placeholder="Informe o motivo do arquivamento..."></textarea>
+        <h3>Mover documento para Lixeira</h3>
+        <p>O documento será enviado para a <strong>Lixeira</strong> interna do sistema. Ele não será excluído.</p>
+        <textarea id="motivoArquivar" placeholder="Informe o motivo para enviar à Lixeira..."></textarea>
         <div class="linhaBotoes">
-          <button onclick="confirmarArquivar()">Confirmar arquivamento</button>
+          <button onclick="confirmarArquivar()">Confirmar envio para Lixeira</button>
           <button class="secundario" onclick="cancelarArquivar()">Cancelar</button>
         </div>
       </div>
 
       <div id="boxRestaurar" class="formAcao alertaAcao">
-        <h3>Restaurar arquivo</h3>
-        <p>O arquivo será movido da pasta <strong>_ARQUIVADOS</strong> para a lista principal de documentos ativos.</p>
-        <textarea id="motivoRestaurar" placeholder="Informe o motivo da restauração..."></textarea>
+        <h3>Restaurar da Lixeira</h3>
+        <p>O documento será restaurado da <strong>Lixeira</strong> para a lista principal de documentos ativos.</p>
+        <textarea id="motivoRestaurar" placeholder="Informe o motivo para restaurar da Lixeira..."></textarea>
         <div class="linhaBotoes">
           <button onclick="confirmarRestaurar()">Confirmar restauração</button>
           <button class="secundario" onclick="cancelarRestaurar()">Cancelar</button>
@@ -4156,6 +4156,7 @@ window.baixarRelatorioArquivo = function () {
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
