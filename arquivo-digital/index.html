@@ -2710,9 +2710,9 @@ function renderizarDocumentos(listaArquivos) {
   /* INICIO PASSO 91 RELATORIO CSS */
 .relatorioArquivoBox {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
-  margin: 12px 0 16px 0;
+  margin: 12px 0 12px 0;
 }
 
 .btnRelatorio {
@@ -2726,6 +2726,21 @@ function renderizarDocumentos(listaArquivos) {
 
 .btnRelatorio:hover {
   filter: brightness(1.05);
+}
+
+.visualizacaoRelatorioArquivo {
+  display: none;
+  white-space: pre-wrap;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 0 0 16px 0;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #334155;
 }
 /* FIM PASSO 91 RELATORIO CSS */
 </style>
@@ -2999,9 +3014,9 @@ function renderizarDocumentos(listaArquivos) {
       </div>
       <!-- INICIO PASSO 91 RELATORIO -->
 <div class="relatorioArquivoBox">
-  <button class="btnRelatorio" onclick="copiarRelatorioArquivo()">Copiar relatório</button>
-  <button class="btnRelatorio" onclick="baixarRelatorioArquivo()">Baixar TXT</button>
+  <button id="btnVisualizarRelatorio" class="btnRelatorio" type="button" onclick="visualizarRelatorioArquivo()">Visualizar relatório</button>
 </div>
+<pre id="visualizacaoRelatorioArquivo" class="visualizacaoRelatorioArquivo"></pre>
 <!-- FIM PASSO 91 RELATORIO -->
 <h3>Histórico do arquivo</h3>
       <div id="historicoArquivo">
@@ -3643,86 +3658,30 @@ function montarRelatorioArquivo() {
   }
   linhas.push("");
 
-  linhas.push("HISTÓRICO DO ARQUIVO");
+  linhas.push("HISTÓRICO");
   linhas.push("----------------------------------------");
-  linhas.push(textoSeguroRelatorio(historico) || "Sem histórico disponível.");
+  linhas.push(textoSeguroRelatorio(historico) || "Sem histórico carregado para este arquivo.");
   linhas.push("");
 
   linhas.push("VERSÕES DO SHAREPOINT");
   linhas.push("----------------------------------------");
-  linhas.push(textoSeguroRelatorio(versoes) || "Sem informações de versões disponíveis.");
+  linhas.push(textoSeguroRelatorio(versoes) || "Sem versões exibidas no painel.");
   linhas.push("");
 
   return linhas.join("\n");
 }
 
-window.copiarRelatorioArquivo = async function () {
-  try {
-    const relatorio = montarRelatorioArquivo();
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(relatorio);
-    } else {
-      const textarea = document.createElement("textarea");
-      textarea.value = relatorio;
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      textarea.remove();
-    }
-
-    if (typeof mostrarMensagemPainel === "function") {
-      mostrarMensagemPainel("Relatório copiado.");
-    }
-  } catch (erro) {
-    console.error(erro);
-    if (typeof mostrarMensagemPainel === "function") {
-      mostrarMensagemPainel("Erro ao copiar relatório.", "erro");
-    } else {
-      alert("Erro ao copiar relatório.");
-    }
+function visualizarRelatorioArquivo() {
+  const caixa = document.getElementById("visualizacaoRelatorioArquivo");
+  if (!caixa) {
+    return;
   }
-};
 
-window.baixarRelatorioArquivo = function () {
-  try {
-    const relatorio = montarRelatorioArquivo();
-    const nomeArquivo =
-      document.getElementById("painelNome")?.innerText ||
-      document.getElementById("painelTitulo")?.innerText ||
-      "arquivo";
+  const relatorio = montarRelatorioArquivo();
 
-    const nomeLimpo = normalizarTexto(nomeArquivo)
-      .replace(/\.pdf$/i, "")
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "") || "arquivo";
-
-    const blob = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `relatorio_${nomeLimpo}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(url);
-
-    if (typeof mostrarMensagemPainel === "function") {
-      mostrarMensagemPainel("Relatório baixado em TXT.");
-    }
-  } catch (erro) {
-    console.error(erro);
-    if (typeof mostrarMensagemPainel === "function") {
-      mostrarMensagemPainel("Erro ao baixar relatório.", "erro");
-    } else {
-      alert("Erro ao baixar relatório.");
-    }
-  }
-};
+  caixa.textContent = relatorio;
+  caixa.style.display = "block";
+}
 // FIM PASSO 91 RELATORIO JS
 </script>
 
@@ -3895,27 +3854,6 @@ window.baixarRelatorioArquivo = function () {
     .itemVersao small {
       color: #64748b;
     }
-  /* INICIO PASSO 91 RELATORIO CSS */
-.relatorioArquivoBox {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 12px 0 16px 0;
-}
-
-.btnRelatorio {
-  background: #334155;
-  color: #ffffff;
-  border-radius: 10px;
-  padding: 9px 10px;
-  font-size: 12px;
-  margin: 0;
-}
-
-.btnRelatorio:hover {
-  filter: brightness(1.05);
-}
-/* FIM PASSO 91 RELATORIO CSS */
 </style>
 <!-- AJUSTE PASSO 84 - FIM -->
 
@@ -4479,6 +4417,7 @@ window.baixarRelatorioArquivo = function () {
 <!-- PASSO113_UPLOAD_DIRETO_FIM -->
 </body>
 </html>
+
 
 
 
