@@ -7967,6 +7967,329 @@ window.baixarRelatorioArquivo = function () {
 })();
 </script>
 <!-- PASSO108_UPLOAD_MODAL_INPUT_VISIVEL_FIM -->
+<!-- PASSO109_CORRIGIR_MODAL_UPLOAD_INICIO -->
+<style>
+  /* Passo 109 - ajustes finais do modal de envio */
+  .passo109-rodape-upload {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .passo109-rodape-upload button {
+    margin: 0 !important;
+  }
+
+  .passo109-esconder-cancelar {
+    display: none !important;
+  }
+
+  .passo109-botao-enviar {
+    background: #0f2f66 !important;
+    color: #fff !important;
+  }
+
+  .passo109-lista-ajustada {
+    min-height: 145px !important;
+    max-height: 230px !important;
+    overflow: auto !important;
+  }
+
+  .passo109-status-fixo {
+    min-height: 34px !important;
+    margin: 8px 0 !important;
+    padding: 8px 10px !important;
+    border-radius: 10px !important;
+    background: #eef6ff !important;
+    color: #0f2f66 !important;
+    font-weight: 700 !important;
+  }
+</style>
+
+<script>
+(function () {
+  const PASSO = "109";
+
+  function texto(el) {
+    return (el && (el.innerText || el.textContent) || "").trim();
+  }
+
+  function normalizar(txt) {
+    return (txt || "")
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
+  function buscarModalUpload() {
+    const idsProvaveis = [
+      "modalUploadFinal106",
+      "modalUpload108",
+      "modalUpload98",
+      "modalUpload"
+    ];
+
+    for (const id of idsProvaveis) {
+      const el = document.getElementById(id);
+      if (el && el.querySelector && el.querySelector('input[type="file"]')) return el;
+    }
+
+    const candidatos = Array.from(document.querySelectorAll("body *")).filter(el => {
+      if (!el.querySelector) return false;
+      if (!el.querySelector('input[type="file"]')) return false;
+      const t = normalizar(texto(el));
+      return t.includes("enviar pdf") && t.includes("pdfs selecionados");
+    });
+
+    if (!candidatos.length) return null;
+
+    candidatos.sort((a, b) => {
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      return (rb.width * rb.height) - (ra.width * ra.height);
+    });
+
+    return candidatos[0];
+  }
+
+  function buscarCampoArquivos(modal) {
+    if (!modal) return null;
+
+    const inputs = Array.from(modal.querySelectorAll('input[type="file"]'));
+    const visiveis = inputs.filter(input => {
+      const r = input.getBoundingClientRect();
+      const st = getComputedStyle(input);
+      return r.width > 0 && r.height > 0 && st.display !== "none" && st.visibility !== "hidden";
+    });
+
+    return visiveis[0] || inputs[0] || document.getElementById("inputNovoDocumento");
+  }
+
+  function buscarCampoMotivo(modal) {
+    if (!modal) return null;
+
+    const campos = Array.from(modal.querySelectorAll("textarea, input[type='text']"));
+    const motivos = campos.filter(el => normalizar(el.placeholder + " " + texto(el.parentElement)).includes("motivo"));
+
+    return motivos[0] || campos[0] || null;
+  }
+
+  function buscarStatus(modal) {
+    if (!modal) return null;
+
+    const ids = [
+      "modalUploadFinal106Status",
+      "modalUpload108Status",
+      "modalUpload98Status",
+      "modalUploadStatus",
+      "statusUploadMassa"
+    ];
+
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && modal.contains(el)) return el;
+    }
+
+    let status = Array.from(modal.querySelectorAll("div, p, small")).find(el => {
+      const t = normalizar(texto(el));
+      return t.includes("carregado") || t.includes("selecione") || t.includes("pdf");
+    });
+
+    if (status) {
+      status.classList.add("passo109-status-fixo");
+    }
+
+    return status;
+  }
+
+  function definirStatus(modal, msg, tipo) {
+    const status = buscarStatus(modal);
+    if (!status) return;
+
+    status.textContent = msg;
+    status.classList.add("passo109-status-fixo");
+
+    if (tipo === "erro") {
+      status.style.background = "#fff0f0";
+      status.style.color = "#b00020";
+    } else if (tipo === "ok") {
+      status.style.background = "#ecfdf5";
+      status.style.color = "#065f46";
+    } else {
+      status.style.background = "#eef6ff";
+      status.style.color = "#0f2f66";
+    }
+  }
+
+  function copiarMotivoParaCamposConhecidos(motivo) {
+    const ids = [
+      "motivoUploadNovo",
+      "motivoEnvioMassa",
+      "motivoEnvioMassa101",
+      "motivoEnvioMassa102",
+      "motivoUploadFinal106",
+      "motivoUpload108",
+      "motivoEnvioPdf",
+      "motivoNovoDocumento"
+    ];
+
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = motivo;
+    });
+
+    document.querySelectorAll("textarea").forEach(el => {
+      const contexto = normalizar((el.placeholder || "") + " " + texto(el.parentElement));
+      if (contexto.includes("motivo") && contexto.includes("envio")) {
+        el.value = motivo;
+      }
+    });
+  }
+
+  function ajustarListaVisual(modal) {
+    if (!modal) return;
+
+    const caixas = Array.from(modal.querySelectorAll("div")).filter(div => {
+      const t = normalizar(texto(div));
+      return t.includes("pdfs selecionados") || t.includes("pdf selecionado");
+    });
+
+    caixas.forEach(caixa => {
+      const itens = caixa.querySelectorAll("button, li, .arquivo, .item, div");
+      if (itens.length >= 2) caixa.classList.add("passo109-lista-ajustada");
+    });
+  }
+
+  function organizarBotoes(modal) {
+    if (!modal) return;
+
+    const botoes = Array.from(modal.querySelectorAll("button"));
+    const btnLimpar = botoes.find(b => normalizar(texto(b)) === "limpar" || normalizar(texto(b)).includes("limpar lista"));
+    const btnCancelar = botoes.find(b => normalizar(texto(b)) === "cancelar");
+    const btnEnviar = botoes.find(b => normalizar(texto(b)).includes("enviar pdf"));
+
+    if (btnCancelar) {
+      btnCancelar.classList.add("passo109-esconder-cancelar");
+      btnCancelar.style.display = "none";
+    }
+
+    if (btnEnviar) {
+      btnEnviar.classList.add("passo109-botao-enviar");
+      btnEnviar.textContent = "Enviar PDF(s)";
+    }
+
+    if (btnLimpar && btnEnviar) {
+      const pai = btnLimpar.parentElement || btnEnviar.parentElement;
+      pai.classList.add("passo109-rodape-upload");
+
+      if (btnLimpar.nextSibling !== btnEnviar) {
+        btnLimpar.insertAdjacentElement("afterend", btnEnviar);
+      }
+    }
+  }
+
+  async function enviarArquivosDoModal(modal) {
+    const input = buscarCampoArquivos(modal);
+    const motivoCampo = buscarCampoMotivo(modal);
+    const motivo = (motivoCampo && motivoCampo.value || "").trim();
+
+    if (!input || !input.files || !input.files.length) {
+      definirStatus(modal, "Selecione pelo menos um PDF antes de enviar.", "erro");
+      return;
+    }
+
+    if (!motivo) {
+      definirStatus(modal, "Informe o motivo do envio antes de continuar.", "erro");
+      if (motivoCampo) motivoCampo.focus();
+      return;
+    }
+
+    copiarMotivoParaCamposConhecidos(motivo);
+
+    const btnEnviar = Array.from(modal.querySelectorAll("button")).find(b => normalizar(texto(b)).includes("enviar pdf"));
+    const textoOriginal = btnEnviar ? btnEnviar.textContent : "";
+
+    try {
+      if (btnEnviar) {
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = "Enviando...";
+      }
+
+      definirStatus(modal, "Enviando PDF(s). Aguarde...", "info");
+
+      if (typeof window.enviarNovoDocumento === "function") {
+        await window.enviarNovoDocumento(input);
+      } else if (typeof window.enviarArquivosUploadMassa === "function") {
+        await window.enviarArquivosUploadMassa(input.files, motivo);
+      } else if (typeof window.confirmarEnvioUploadMassa === "function") {
+        await window.confirmarEnvioUploadMassa();
+      } else {
+        throw new Error("Funcao de envio nao encontrada no sistema.");
+      }
+
+      definirStatus(modal, "Envio concluído. Confira a lista e a Central de Duplicidades se houver conflitos.", "ok");
+
+    } catch (erro) {
+      console.error("Erro no envio pelo modal passo 109:", erro);
+      definirStatus(modal, "Erro ao enviar: " + (erro && erro.message ? erro.message : erro), "erro");
+    } finally {
+      if (btnEnviar) {
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = textoOriginal || "Enviar PDF(s)";
+      }
+    }
+  }
+
+  function vincularEnviar(modal) {
+    if (!modal || modal.dataset.passo109Vinculado === "sim") return;
+
+    const botoes = Array.from(modal.querySelectorAll("button"));
+    const btnEnviar = botoes.find(b => normalizar(texto(b)).includes("enviar pdf"));
+
+    if (!btnEnviar) return;
+
+    btnEnviar.dataset.passo109 = "sim";
+    btnEnviar.onclick = function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+      enviarArquivosDoModal(modal);
+      return false;
+    };
+
+    modal.dataset.passo109Vinculado = "sim";
+  }
+
+  function aplicar() {
+    const modal = buscarModalUpload();
+    if (!modal) return;
+
+    organizarBotoes(modal);
+    ajustarListaVisual(modal);
+    vincularEnviar(modal);
+  }
+
+  document.addEventListener("change", function (ev) {
+    if (ev.target && ev.target.matches && ev.target.matches('input[type="file"]')) {
+      setTimeout(aplicar, 100);
+      setTimeout(aplicar, 500);
+    }
+  }, true);
+
+  document.addEventListener("click", function () {
+    setTimeout(aplicar, 50);
+    setTimeout(aplicar, 300);
+  }, true);
+
+  setInterval(aplicar, 1000);
+  setTimeout(aplicar, 500);
+  setTimeout(aplicar, 1500);
+})();
+</script>
+<!-- PASSO109_CORRIGIR_MODAL_UPLOAD_FIM -->
 </body>
 </html>
 
@@ -8481,5 +8804,6 @@ window.baixarRelatorioArquivo = function () {
 })();
 </script>
 <!-- PASSO107_MODAL_UPLOAD_FIX_FIM -->
+
 
 
