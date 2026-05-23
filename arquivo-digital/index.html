@@ -409,6 +409,27 @@
       atualizarDashboard();
     }
 
+
+    function limparMotivoHistoricoSeguro(texto) {
+      let limpo = (texto || "").toString().trim();
+
+      const padroes = [
+        /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
+        /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
+        /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
+        /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i,
+        /^Documento aberto pelo botão ABRIR PDF no painel lateral\.\s*/i,
+        /^Documento aberto pelo botão Abrir PDF no painel lateral\.\s*/i,
+        /^Documento aberto pelo sistema Arquivo Digital\.\s*/i,
+        /^Motivo:\s*/i
+      ];
+
+      padroes.forEach(padrao => {
+        limpo = limpo.replace(padrao, "");
+      });
+
+      return limpo.trim();
+    }
     async function carregarHistoricoDocumento(documento) {
       const caixa = document.getElementById("historicoArquivo");
       caixa.innerHTML = "<p>Carregando histórico...</p>";
@@ -428,7 +449,7 @@
             <strong>${item.ACAO || ""}</strong><br>
             <span>${formatarData(item.DATA_HORA)}</span><br>
             <span>${item.USUARIO_NOME || ""} - ${item.USUARIO_EMAIL || ""}</span><br>
-            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${limparObservacaoHistorico(item.OBSERVACAO)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
+            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${limparMotivoHistoricoSeguro(item.OBSERVACAO)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
           </div>
         `).join("");
 
@@ -1931,5 +1952,6 @@
   </aside>
 </body>
 </html>
+
 
 
