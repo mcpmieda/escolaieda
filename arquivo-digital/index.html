@@ -386,6 +386,146 @@
       aplicarListaAtual();
     };
 
+
+    function pontuacaoDuplicidadeCentral(nomeA, nomeB) {
+      if (typeof calcularPontuacaoNomes === "function") {
+        return calcularPontuacaoNomes(nomeA, nomeB);
+      }
+
+      const limpar = nome => normalizarTexto(nome).replace(/\.pdf$/i, "").trim();
+      const a = limpar(nomeA);
+      const b = limpar(nomeB);
+
+      if (!a || !b) return 0;
+      if (a === b) return 10;
+      if (a.includes(b) || b.includes(a)) return 5;
+
+      const palavrasA = a.split(/[^a-z0-9]+/).filter(p => p.length >= 3);
+      const palavrasB = b.split(/[^a-z0-9]+/).filter(p => p.length >= 3);
+      return palavrasA.filter(p => palavrasB.includes(p)).length;
+    }
+
+    function textoSeguroCentral(valor) {
+      const div = document.createElement("div");
+      div.textContent = (valor || "").toString();
+      return div.innerHTML;
+    }
+
+    function gerarParesDuplicidades() {
+      const todos = [...documentosAtivos, ...documentosArquivados]
+        .filter(doc => doc && doc.nome && doc.id);
+
+      const pares = [];
+      const vistos = new Set();
+
+      for (let i = 0; i < todos.length; i++) {
+        for (let j = i + 1; j < todos.length; j++) {
+          const a = todos[i];
+          const b = todos[j];
+
+          if (a.id === b.id) continue;
+
+          const chave = [a.id, b.id].sort().join("|");
+          if (vistos.has(chave)) continue;
+          vistos.add(chave);
+
+          const pontos = pontuacaoDuplicidadeCentral(a.nome, b.nome);
+          const nomeA = normalizarTexto(a.nome).replace(/\.pdf$/i, "").trim();
+          const nomeB = normalizarTexto(b.nome).replace(/\.pdf$/i, "").trim();
+          const mesmoNome = nomeA === nomeB;
+
+          if (mesmoNome || pontos >= 2) {
+            pares.push({
+              a,
+              b,
+              pontos: mesmoNome ? pontos + 10 : pontos,
+              mesmoNome
+            });
+          }
+        }
+      }
+
+      return pares
+        .sort((x, y) => y.pontos - x.pontos || x.a.nome.localeCompare(y.a.nome))
+        .slice(0, 40);
+    }
+
+    window.atualizarCentralDuplicidades = function () {
+      const caixa = document.getElementById("listaCentralDuplicidades");
+      const resumo = document.getElementById("resumoCentralDuplicidades");
+
+      if (!caixa || !resumo) {
+        return;
+      }
+
+      const pares = gerarParesDuplicidades();
+
+      resumo.textContent = pares.length
+        ? `${pares.length} possível(is) caso(s) para revisar`
+        : "Nenhum caso suspeito encontrado no momento";
+
+      if (!pares.length) {
+        caixa.innerHTML = `
+          <div class="duplicidadeVazia">
+            Nenhum nome parecido encontrado entre ativos e arquivados.
+          </div>
+        `;
+        return;
+      }
+
+      caixa.innerHTML = pares.map((par, index) => {
+        const statusA = par.a.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+        const statusB = par.b.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+        const tagA = par.a.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
+        const tagB = par.b.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
+        const alerta = par.mesmoNome ? "Mesmo nome" : "Nome parecido";
+
+        return `
+          <div class="cardDuplicidade">
+            <div class="duplicidadeTopo">
+              <strong>${alerta}</strong>
+              <span>${par.pontos} ponto(s)</span>
+            </div>
+
+            <div class="duplicidadeColunas">
+              <div class="duplicidadeArquivo">
+                <span class="${tagA}">${statusA}</span>
+                <strong>${textoSeguroCentral(par.a.nome)}</strong>
+                <button onclick="abrirArquivoDaCentral('${par.a.id}', '${par.a.status}')">Abrir no painel</button>
+              </div>
+
+              <div class="duplicidadeArquivo">
+                <span class="${tagB}">${statusB}</span>
+                <strong>${textoSeguroCentral(par.b.nome)}</strong>
+                <button onclick="abrirArquivoDaCentral('${par.b.id}', '${par.b.status}')">Abrir no painel</button>
+              </div>
+            </div>
+
+            <small>Revise os dois documentos antes de arquivar, substituir ou mesclar.</small>
+          </div>
+        `;
+      }).join("");
+    };
+
+    window.abrirArquivoDaCentral = async function (id, status) {
+      if (status === "ARQUIVADO") {
+        modoListaAtual = "arquivados";
+      } else {
+        modoListaAtual = "ativos";
+      }
+
+      aplicarListaAtual();
+
+      const indice = documentosCarregados.findIndex(doc => doc.id === id);
+
+      if (indice < 0) {
+        mostrarMensagem("Arquivo não encontrado na lista atual.", "erro");
+        return;
+      }
+
+      await selecionarDocumento(indice);
+      document.getElementById("painelLateral")?.scrollTo?.(0, 0);
+    };
     async function registrarHistorico(documento, acao, observacao = "") {
       const token = await obterToken();
       const conta = msalInstance.getAllAccounts()[0];
@@ -2032,6 +2172,112 @@ function renderizarDocumentos(listaArquivos) {
     .btnAtualizar {
       display: none !important;
     }
+
+    .centralDuplicidades {
+      margin: 26px 0;
+      padding: 18px;
+      border-radius: 18px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+
+    .centralDuplicidadesTopo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .centralDuplicidadesTopo h2 {
+      margin: 0 0 4px 0;
+      color: #9a3412;
+    }
+
+    .centralDuplicidadesTopo p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .centralDuplicidadesTopo button {
+      background: #9a3412;
+      white-space: nowrap;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .resumoCentralDuplicidades {
+      margin: 10px 0 14px 0;
+      color: #7c2d12;
+      font-weight: bold;
+    }
+
+    .listaCentralDuplicidades {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cardDuplicidade {
+      padding: 14px;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid #fdba74;
+    }
+
+    .duplicidadeTopo {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: #9a3412;
+    }
+
+    .duplicidadeColunas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .duplicidadeArquivo {
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    .duplicidadeArquivo strong {
+      display: block;
+      margin: 7px 0;
+      color: #0f2f66;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .duplicidadeArquivo button {
+      margin: 0;
+      padding: 8px 10px;
+      font-size: 12px;
+      background: #0f2f66;
+    }
+
+    .duplicidadeVazia {
+      padding: 14px;
+      border-radius: 12px;
+      background: white;
+      color: #64748b;
+      border: 1px dashed #fdba74;
+    }
+
+    @media (max-width: 700px) {
+      .centralDuplicidadesTopo,
+      .duplicidadeColunas {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2089,6 +2335,20 @@ function renderizarDocumentos(listaArquivos) {
         </div>
       </div>
 
+
+      <div class="centralDuplicidades">
+        <div class="centralDuplicidadesTopo">
+          <div>
+            <h2>Central de duplicidades</h2>
+            <p>Revise arquivos com nomes iguais ou parecidos antes de arquivar, substituir ou mesclar.</p>
+          </div>
+          <button onclick="atualizarCentralDuplicidades()">Atualizar análise</button>
+        </div>
+        <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
+        <div id="listaCentralDuplicidades" class="listaCentralDuplicidades">
+          <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
+        </div>
+      </div>
       <div class="abasDocumentos">
         <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
         <button id="btnVerArquivados" class="abaDocumento" onclick="mostrarDocumentosArquivados()">Arquivados</button>
@@ -2205,6 +2465,7 @@ function renderizarDocumentos(listaArquivos) {
   </aside>
 </body>
 </html>
+
 
 
 
