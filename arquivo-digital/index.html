@@ -111,7 +111,7 @@
 
       const padroes = [
         /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
-        /^Arquivo na lixeira na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
+        /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
         /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
         /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i
       ];
@@ -415,11 +415,11 @@
 
       document.getElementById("tituloListaDocumentos").textContent = modoListaAtual === "ativos"
         ? "Documentos ativos"
-        : "Lixeira";
+        : "Documentos arquivados";
 
       document.getElementById("campoBusca").placeholder = modoListaAtual === "ativos"
         ? "Digite o nome do aluno ou parte do nome..."
-        : "Digite para pesquisar nos documentos na lixeira...";
+        : "Digite para pesquisar nos documentos arquivados...";
     }
 
     function aplicarListaAtual() {
@@ -662,7 +662,7 @@
             <div class="duplicidadeAcoes">
               <button class="btnPessoasDiferentes" onclick="marcarPessoasDiferentesCentral('${par.a.id}', '${par.b.id}')">São pessoas diferentes</button>
             </div>
-            <small>Revise os dois documentos antes de mover para a lixeira, substituir ou mesclar.</small>
+            <small>Revise os dois documentos antes de arquivar, substituir ou mesclar.</small>
           </div>
         `;
       }).join("");
@@ -741,7 +741,7 @@
 
       const padroes = [
         /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
-        /^Arquivo na lixeira na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
+        /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
         /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
         /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i,
         /^Documento aberto pelo botão ABRIR PDF no painel lateral\.\s*/i,
@@ -1080,7 +1080,7 @@
 
       const nomeSemPdf = documentoSelecionado.nome.replace(/\.pdf$/i, "");
       document.getElementById("boxSubstituir").style.display = "none";
-      document.getElementById("boxMover para lixeira").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("novoNomeArquivo").value = nomeSemPdf;
       document.getElementById("boxRenomear").style.display = "block";
       mostrarMensagemPainel("Confira o novo nome antes de confirmar.");
@@ -1172,7 +1172,7 @@
       }
 
       document.getElementById("boxRenomear").style.display = "none";
-      document.getElementById("boxMover para lixeira").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "block";
       document.getElementById("arquivoSubstituto").value = "";
       mostrarMensagemPainel("Escolha o PDF mais atual para substituir o conteúdo deste arquivo.");
@@ -1310,7 +1310,7 @@
       return await respostaCriar.json();
     }
 
-    window.prepararMover para lixeira = function () {
+    window.prepararArquivar = function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
         return;
@@ -1318,28 +1318,28 @@
 
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "none";
-      document.getElementById("boxMover para lixeira").style.display = "block";
-      document.getElementById("motivoMover para lixeira").value = "";
-      mostrarMensagemPainel("Informe o motivo do envio para a lixeira antes de confirmar.");
+      document.getElementById("boxArquivar").style.display = "block";
+      document.getElementById("motivoArquivar").value = "";
+      mostrarMensagemPainel("Informe o motivo do arquivamento antes de confirmar.");
     };
 
-    window.cancelarMover para lixeira = function () {
-      document.getElementById("boxMover para lixeira").style.display = "none";
-      document.getElementById("motivoMover para lixeira").value = "";
+    window.cancelarArquivar = function () {
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("motivoArquivar").value = "";
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
     };
 
-    window.confirmarMover para lixeira = async function () {
+    window.confirmarArquivar = async function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
         return;
       }
 
-      const motivo = (document.getElementById("motivoMover para lixeira").value || "").trim();
+      const motivo = (document.getElementById("motivoArquivar").value || "").trim();
 
       if (!motivo) {
-        mostrarMensagemPainel("Informe um motivo para mover para a lixeira este arquivo.", "erro");
+        mostrarMensagemPainel("Informe um motivo para arquivar este arquivo.", "erro");
         return;
       }
 
@@ -1377,15 +1377,15 @@
           motivo
         );
 
-        document.getElementById("boxMover para lixeira").style.display = "none";
-        document.getElementById("motivoMover para lixeira").value = "";
+        document.getElementById("boxArquivar").style.display = "none";
+        document.getElementById("motivoArquivar").value = "";
 
         await atualizarDadosMantendoPainel("arquivados");
-        mostrarMensagem("Arquivo na lixeira com sucesso. Ele saiu da lista principal e foi para a pasta _ARQUIVADOS.");
+        mostrarMensagem("Arquivo arquivado com sucesso. Ele saiu da lista principal e foi para a pasta _ARQUIVADOS.");
 
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao mover para a lixeira arquivo. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Erro ao arquivar arquivo. Veja o console para detalhes.", "erro");
       }
     };
 
@@ -1415,7 +1415,7 @@
 
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "none";
-      document.getElementById("boxMover para lixeira").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("boxRestaurar").style.display = "block";
       document.getElementById("motivoRestaurar").value = "";
       mostrarMensagemPainel("Informe o motivo para restaurar este arquivo para a lista principal.");
@@ -1632,7 +1632,7 @@
       const estaArquivado = documento.status === "ARQUIVADO";
       document.getElementById("btnRenomear").style.display = estaArquivado ? "none" : "inline-block";
       document.getElementById("btnSubstituir").style.display = estaArquivado ? "none" : "inline-block";
-      document.getElementById("btnMover para lixeira").style.display = estaArquivado ? "none" : "inline-block";
+      document.getElementById("btnArquivar").style.display = estaArquivado ? "none" : "inline-block";
       document.getElementById("btnRestaurar").style.display = estaArquivado ? "inline-block" : "none";
 
       document.getElementById("painelLateral").classList.add("aberto");
@@ -1640,8 +1640,8 @@
       document.getElementById("novoNomeArquivo").value = "";
       document.getElementById("boxSubstituir").style.display = "none";
       document.getElementById("arquivoSubstituto").value = "";
-      document.getElementById("boxMover para lixeira").style.display = "none";
-      document.getElementById("motivoMover para lixeira").value = "";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("motivoArquivar").value = "";
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
 
@@ -1657,8 +1657,8 @@
       document.getElementById("novoNomeArquivo").value = "";
       document.getElementById("boxSubstituir").style.display = "none";
       document.getElementById("arquivoSubstituto").value = "";
-      document.getElementById("boxMover para lixeira").style.display = "none";
-      document.getElementById("motivoMover para lixeira").value = "";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("motivoArquivar").value = "";
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
       documentoSelecionado = null;
@@ -2178,223 +2178,6 @@ window.baixarRelatorioArquivo = function () {
   }
 };
 // FIM PASSO 91 RELATORIO JS
-
-
-    /* PASSO96_UPLOAD_MASSA_LOGICA */
-    function limparNomeArquivoUpload96(nome) {
-      return (nome || "")
-        .replace(/[\\/:*?"<>|]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function separarNomeExtensao96(nome) {
-      const limpo = limparNomeArquivoUpload96(nome);
-      const semPdf = limpo.replace(/\.pdf$/i, "");
-      return {
-        base: semPdf || "DOCUMENTO",
-        ext: ".pdf"
-      };
-    }
-
-    function gerarSufixoConflito96() {
-      const agora = new Date();
-      const p = n => String(n).padStart(2, "0");
-      return `${agora.getFullYear()}${p(agora.getMonth() + 1)}${p(agora.getDate())}-${p(agora.getHours())}${p(agora.getMinutes())}${p(agora.getSeconds())}`;
-    }
-
-    function atualizarAvisoUpload96(texto, tipo = "") {
-      const el = document.getElementById("avisoUploadNovo96");
-      if (!el) return;
-      el.textContent = texto;
-      el.className = tipo ? `avisoUploadNovo96 ${tipo}` : "avisoUploadNovo96";
-    }
-
-    window.abrirSeletorNovoDocumento = function () {
-      const modal = document.getElementById("modalUploadNovo96");
-      const input = document.getElementById("inputUploadNovo96");
-      const motivo = document.getElementById("motivoUploadNovo96");
-
-      if (!modal || !input || !motivo) {
-        const antigo = document.getElementById("inputNovoDocumento");
-        if (antigo) antigo.click();
-        return;
-      }
-
-      input.value = "";
-      motivo.value = "";
-      atualizarAvisoUpload96("Se algum PDF tiver nome igual a outro ativo ou na Lixeira, ele será enviado com nome de conflito para evitar substituição acidental.");
-      modal.classList.add("aberto");
-    };
-
-    window.fecharModalUpload96 = function () {
-      const modal = document.getElementById("modalUploadNovo96");
-      if (modal) modal.classList.remove("aberto");
-    };
-
-    window.confirmarUploadNovo96 = async function () {
-      const input = document.getElementById("inputUploadNovo96");
-      const motivoEl = document.getElementById("motivoUploadNovo96");
-
-      const arquivos = Array.from(input?.files || []);
-      const motivo = (motivoEl?.value || "").trim() || "Envio de novo PDF.";
-
-      if (!arquivos.length) {
-        atualizarAvisoUpload96("Selecione ao menos um arquivo PDF.", "erro");
-        return;
-      }
-
-      const pdfs = arquivos.filter(arq => /\.pdf$/i.test(arq.name) || arq.type === "application/pdf");
-
-      if (!pdfs.length) {
-        atualizarAvisoUpload96("Nenhum PDF válido foi selecionado.", "erro");
-        return;
-      }
-
-      atualizarAvisoUpload96(`Preparando envio de ${pdfs.length} PDF(s)...`);
-
-      try {
-        if (typeof carregarDadosDeApoio === "function") {
-          await carregarDadosDeApoio();
-        }
-
-        const normalizar = typeof normalizarTexto === "function"
-          ? normalizarTexto
-          : texto => (texto || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-
-        const ativos = (typeof documentosAtivos !== "undefined" && Array.isArray(documentosAtivos)) ? documentosAtivos : [];
-        const lixeira = (typeof documentosArquivados !== "undefined" && Array.isArray(documentosArquivados)) ? documentosArquivados : [];
-        const carregados = (typeof documentosCarregados !== "undefined" && Array.isArray(documentosCarregados)) ? documentosCarregados : [];
-
-        const existentes = new Set([...ativos, ...lixeira, ...carregados].map(doc => normalizar(doc.nome)));
-        const nomesDaRemessa = new Set();
-
-        const driveId = await obterDriveDocumentosAtivos();
-        const conflitos = [];
-        const enviados = [];
-        const falhas = [];
-
-        for (const arquivo of pdfs) {
-          let nomeFinal = limparNomeArquivoUpload96(arquivo.name);
-
-          if (!/\.pdf$/i.test(nomeFinal)) {
-            nomeFinal += ".pdf";
-          }
-
-          let chave = normalizar(nomeFinal);
-          let houveConflito = false;
-
-          if (existentes.has(chave) || nomesDaRemessa.has(chave)) {
-            houveConflito = true;
-            conflitos.push(nomeFinal);
-
-            const partes = separarNomeExtensao96(nomeFinal);
-            const sufixo = gerarSufixoConflito96();
-
-            let contador = 1;
-            do {
-              nomeFinal = `${partes.base} - CONFLITO ${sufixo}${contador > 1 ? " " + contador : ""}${partes.ext}`;
-              chave = normalizar(nomeFinal);
-              contador++;
-            } while (existentes.has(chave) || nomesDaRemessa.has(chave));
-          }
-
-          nomesDaRemessa.add(chave);
-          existentes.add(chave);
-
-          try {
-            atualizarAvisoUpload96(`Enviando: ${nomeFinal}`);
-
-            const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
-
-            const respostaUpload = await fetch(urlUpload, {
-              method: "PUT",
-              headers: {
-                Authorization: `Bearer ${await obterToken()}`,
-                "Content-Type": "application/pdf"
-              },
-              body: arquivo
-            });
-
-            if (!respostaUpload.ok) {
-              throw new Error(await respostaUpload.text());
-            }
-
-            const respostaJson = await respostaUpload.json();
-
-            const docTemp = {
-              nome: nomeFinal,
-              id: respostaJson?.sharepointIds?.listItemUniqueId || respostaJson?.id || "",
-              caminho: `/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS/${nomeFinal}`,
-              link: respostaJson?.webUrl || ""
-            };
-
-            const obs = houveConflito
-              ? `${motivo} | Conflito de nome detectado. O arquivo foi enviado com nome alternativo para evitar substituição acidental.`
-              : motivo;
-
-            await registrarHistorico(docTemp, "ENVIOU", obs);
-
-            enviados.push(nomeFinal);
-
-          } catch (erroArquivo) {
-            console.error("Erro no envio de arquivo:", arquivo.name, erroArquivo);
-            falhas.push(arquivo.name);
-          }
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 1200));
-
-        if (typeof carregarDadosDeApoio === "function") {
-          await carregarDadosDeApoio();
-        }
-
-        if (typeof filtrarDocumentos === "function") {
-          filtrarDocumentos();
-        }
-
-        if (typeof atualizarDashboard === "function") {
-          atualizarDashboard();
-        }
-
-        if (typeof atualizarTudo84 === "function") {
-          setTimeout(() => atualizarTudo84(), 800);
-        }
-
-        let textoFinal = `${enviados.length} PDF(s) enviado(s) com sucesso.`;
-
-        if (conflitos.length) {
-          textoFinal += ` ${conflitos.length} conflito(s) de nome foram detectados. Confira a Central de Duplicidades.`;
-        }
-
-        if (falhas.length) {
-          textoFinal += ` ${falhas.length} arquivo(s) falharam.`;
-        }
-
-        atualizarAvisoUpload96(textoFinal, falhas.length ? "erro" : "sucesso");
-
-        if (typeof mostrarMensagem === "function") {
-          mostrarMensagem(textoFinal, falhas.length ? "erro" : "info");
-        }
-
-        if (!falhas.length) {
-          setTimeout(() => window.fecharModalUpload96(), 1800);
-        }
-
-      } catch (erro) {
-        console.error(erro);
-        atualizarAvisoUpload96("Erro ao enviar PDF(s). Veja o console para detalhes.", "erro");
-      }
-    };
-
-    document.addEventListener("click", event => {
-      const modal = document.getElementById("modalUploadNovo96");
-      if (!modal || !modal.classList.contains("aberto")) return;
-      if (event.target === modal) {
-        window.fecharModalUpload96();
-      }
-    });
-
 </script>
 
   <style>
@@ -3123,9 +2906,9 @@ window.baixarRelatorioArquivo = function () {
 
     <div id="areaSistema">
             <div class="areaUploadNovo">
-        <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar PDF(s)</button>
+        <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
         <input id="inputNovoDocumento" type="file" accept="application/pdf" style="display:none" onchange="enviarNovoDocumento(this)">
-        <small>Use esta opção para enviar um ou vários PDFs. Conflitos de nome serão sinalizados automaticamente.</small>
+        <small>Envie apenas cópias/testes enquanto estivermos configurando o sistema.</small>
       </div>
 <div class="dashboardTopo">
         <h2>Dashboard inicial</h2>
@@ -3138,7 +2921,7 @@ window.baixarRelatorioArquivo = function () {
         </div>
 
         <div class="cardDash">
-          <span>Lixeira</span>
+          <span>Documentos arquivados</span>
           <strong id="dashArquivados">0</strong>
         </div>
 
@@ -3168,7 +2951,7 @@ window.baixarRelatorioArquivo = function () {
         <div class="centralDuplicidadesTopo">
           <div>
             <h2>Central de duplicidades</h2>
-            <p>Revise arquivos com nomes iguais ou parecidos antes de mover para a lixeira, substituir ou mesclar.</p>
+            <p>Revise arquivos com nomes iguais ou parecidos antes de arquivar, substituir ou mesclar.</p>
           </div>
           <button onclick="atualizarCentralDuplicidades()">Atualizar análise</button>
         </div>
@@ -3221,7 +3004,7 @@ window.baixarRelatorioArquivo = function () {
         <button class="principal" onclick="abrirPdfSelecionado()">ABRIR PDF</button>
         <button id="btnRenomear" onclick="prepararRenomear()">Renomear</button>
         <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
-        <button id="btnMover para lixeira" onclick="prepararMover para lixeira()">Mover para lixeira</button>
+        <button id="btnArquivar" onclick="prepararArquivar()">Arquivar</button>
         <button id="btnRestaurar" onclick="prepararRestaurar()" style="display:none">Restaurar</button>
         <button class="desativado" title="Será implementado depois">Mesclar</button>
       </div>
@@ -3249,19 +3032,19 @@ window.baixarRelatorioArquivo = function () {
         </div>
       </div>
 
-      <div id="boxMover para lixeira" class="formAcao alertaAcao">
-        <h3>Mover para lixeira</h3>
-        <p>O arquivo será enviado para a <strong>Lixeira</strong> do sistema. Ele não será excluído.</p>
-        <textarea id="motivoMover para lixeira" placeholder="Informe o motivo do envio para a lixeira..."></textarea>
+      <div id="boxArquivar" class="formAcao alertaAcao">
+        <h3>Arquivar arquivo</h3>
+        <p>O arquivo será movido para a pasta <strong>_ARQUIVADOS</strong> dentro da biblioteca de documentos. Ele não será excluído.</p>
+        <textarea id="motivoArquivar" placeholder="Informe o motivo do arquivamento..."></textarea>
         <div class="linhaBotoes">
-          <button onclick="confirmarMover para lixeira()">Confirmar envio para a lixeira</button>
-          <button class="secundario" onclick="cancelarMover para lixeira()">Cancelar</button>
+          <button onclick="confirmarArquivar()">Confirmar arquivamento</button>
+          <button class="secundario" onclick="cancelarArquivar()">Cancelar</button>
         </div>
       </div>
 
       <div id="boxRestaurar" class="formAcao alertaAcao">
-        <h3>Restaurar da lixeira</h3>
-        <p>O arquivo será restaurado da <strong>Lixeira</strong> para a lista principal de documentos ativos.</p>
+        <h3>Restaurar arquivo</h3>
+        <p>O arquivo será movido da pasta <strong>_ARQUIVADOS</strong> para a lista principal de documentos ativos.</p>
         <textarea id="motivoRestaurar" placeholder="Informe o motivo da restauração..."></textarea>
         <div class="linhaBotoes">
           <button onclick="confirmarRestaurar()">Confirmar restauração</button>
@@ -4003,7 +3786,7 @@ window.baixarRelatorioArquivo = function () {
       if (!btn) return;
 
       const texto = btn.textContent || "";
-      if (/s[aã]o\s+pessoas\s+diferentes|atualizar\s+an[aá]lise|mover para a lixeira|restaurar|substituir|renomear/i.test(texto)) {
+      if (/s[aã]o\s+pessoas\s+diferentes|atualizar\s+an[aá]lise|arquivar|restaurar|substituir|renomear/i.test(texto)) {
         setTimeout(atualizarTudo84, 1500);
         setTimeout(atualizarTudo84, 3500);
       }
@@ -4371,163 +4154,8 @@ window.baixarRelatorioArquivo = function () {
 /* FIM PASSO 91 RELATORIO CSS */
 </style>
 <!-- AJUSTE PASSO 84 - FIM -->
-
-<!-- PASSO96_MODAL_UPLOAD -->
-<div id="modalUploadNovo96" class="modalUploadNovo96">
-  <div class="modalUploadCartao96">
-    <div class="modalUploadTopo96">
-      <div>
-        <h2>Enviar novo PDF</h2>
-        <p>Envie um ou vários PDFs para o Arquivo Digital.</p>
-      </div>
-      <button type="button" onclick="fecharModalUpload96()" class="btnFecharModal96">X</button>
-    </div>
-
-    <div class="modalUploadConteudo96">
-      <label class="labelUpload96">
-        Selecione os arquivos PDF
-        <input id="inputUploadNovo96" type="file" accept="application/pdf,.pdf" multiple>
-      </label>
-
-      <label class="labelUpload96">
-        Motivo/observação para este envio
-        <textarea id="motivoUploadNovo96" placeholder="Exemplo: envio inicial, complementação de documento, digitalização atualizada..."></textarea>
-      </label>
-
-      <div id="avisoUploadNovo96" class="avisoUploadNovo96">
-        Se algum PDF tiver nome igual a outro ativo ou na Lixeira, ele será enviado com nome de conflito para evitar substituição acidental.
-      </div>
-
-      <div class="linhaUploadBotoes96">
-        <button type="button" onclick="confirmarUploadNovo96()">Enviar PDF(s)</button>
-        <button type="button" class="secundario" onclick="fecharModalUpload96()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-  /* PASSO96_CSS_UPLOAD */
-  .modalUploadNovo96 {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, .45);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 2500;
-  }
-
-  .modalUploadNovo96.aberto {
-    display: flex;
-  }
-
-  .modalUploadCartao96 {
-    width: min(560px, 94vw);
-    max-height: 92vh;
-    overflow: auto;
-    background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 18px 50px rgba(0,0,0,.24);
-  }
-
-  .modalUploadTopo96 {
-    background: #0f2f66;
-    color: #fff;
-    padding: 18px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .modalUploadTopo96 h2 {
-    margin: 0 0 4px 0;
-    font-size: 20px;
-  }
-
-  .modalUploadTopo96 p {
-    margin: 0;
-    opacity: .88;
-    font-size: 13px;
-  }
-
-  .btnFecharModal96 {
-    background: rgba(255,255,255,.18);
-    padding: 7px 10px;
-    border-radius: 8px;
-    margin: 0;
-  }
-
-  .modalUploadConteudo96 {
-    padding: 18px;
-  }
-
-  .labelUpload96 {
-    display: block;
-    margin-bottom: 14px;
-    font-weight: bold;
-    color: #0f2f66;
-  }
-
-  .labelUpload96 input,
-  .labelUpload96 textarea {
-    display: block;
-    width: 100%;
-    margin-top: 6px;
-    box-sizing: border-box;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    padding: 12px;
-    font-family: Arial, sans-serif;
-    font-weight: normal;
-  }
-
-  .labelUpload96 textarea {
-    min-height: 80px;
-    resize: vertical;
-  }
-
-  .avisoUploadNovo96 {
-    padding: 12px;
-    border-radius: 12px;
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
-    color: #9a3412;
-    font-size: 13px;
-    margin-bottom: 14px;
-  }
-
-  .avisoUploadNovo96.sucesso {
-    background: #ecfdf5;
-    border-color: #bbf7d0;
-    color: #065f46;
-  }
-
-  .avisoUploadNovo96.erro {
-    background: #fff0f0;
-    border-color: #fecaca;
-    color: #b00020;
-  }
-
-  .linhaUploadBotoes96 {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
-
-  .linhaUploadBotoes96 button {
-    margin: 0;
-  }
-
-  .linhaUploadBotoes96 .secundario {
-    background: #64748b;
-  }
-</style>
 </body>
 </html>
-
 
 
 
