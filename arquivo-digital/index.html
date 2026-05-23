@@ -2001,7 +2001,1087 @@ function renderizarDocumentos(listaArquivos) {
         ajustarAlturaAnotacao();
       }
     }, 800);
-    await msalInstance.handleRedirectPromise();
+// === PATCH PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO ===
+function obterDataMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const data = campos.DATA_HORA || campos.Created || campos.Modified || campos.DATA_ATUALIZACAO || "";
+  const d = new Date(data);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function obterChaveArquivoMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const id = (campos.ARQUIVO_ID || "").toString().trim();
+  const nome = (campos.Title || campos.ARQUIVO || campos.FileLeafRef || "").toString().trim().toUpperCase();
+  return id || nome;
+}
+
+function normalizarAcaoDashboard(acao) {
+  const valor = (acao || "").toString().trim().toUpperCase();
+  if (valor === "ANOTACAO") return "ANOTAÇÃO";
+  if (valor === "VISUALIZOU") return "VISUALIZOU";
+  if (valor === "SUBSTITUIU") return "SUBSTITUIU";
+  if (valor === "RENOMEOU") return "RENOMEOU";
+  if (valor === "ARQUIVOU") return "ARQUIVOU";
+  if (valor === "RESTAUROU") return "RESTAUROU";
+  if (valor === "ENVIOU") return "ENVIOU";
+  if (valor === "BAIXOU") return "BAIXOU";
+  return valor || "MOVIMENTOU";
+}
+
+function formatarLinhaMovimentacaoDashboard(campos) {
+  const arquivo = campos.Title || campos.ARQUIVO || "Arquivo";
+  const acao = normalizarAcaoDashboard(campos.ACAO);
+  const usuario = campos.USUARIO_NOME || campos.USUARIO_EMAIL || "Usuário";
+  const data = formatarData(campos.DATA_HORA || campos.Created || campos.Modified || "");
+  return `
+    <div class="linhaMovimentacaoArquivo">
+      <strong>${arquivo}</strong>
+      <span>${acao} - ${data}</span>
+      <small>${usuario}</small>
+    </div>
+  `;
+}
+
+function encontrarCardMovimentacoesArquivo() {
+  let card = document.getElementById("cardMovimentacoesArquivoUnico");
+  if (card) return card;
+
+  const rotulos = [
+    "Último acesso registrado",
+    "Últimos acessos registrados",
+    "Últimos acessos",
+    "Últimas movimentações por arquivo",
+    "Últimas movimentações"
+  ];
+
+  const candidatos = Array.from(document.querySelectorAll("div, section, article"))
+    .filter(el => {
+      const texto = (el.textContent || "").trim();
+      return texto.length > 0 && texto.length < 1600 && rotulos.some(r => texto.includes(r));
+    })
+    .sort((a, b) => (a.textContent || "").length - (b.textContent || "").length);
+
+  if (candidatos.length) {
+    card = candidatos[0];
+
+    // Tenta subir para o cartao visual, se o candidato for apenas o titulo interno
+    let atual = card;
+    for (let i = 0; i < 3; i++) {
+      if (!atual.parentElement) break;
+      const cls = (atual.parentElement.className || "").toString().toLowerCase();
+      if (cls.includes("card") || cls.includes("dash") || cls.includes("metric") || cls.includes("stat") || cls.includes("quadr")) {
+        atual = atual.parentElement;
+        break;
+      }
+      atual = atual.parentElement;
+    }
+
+    card = atual;
+    card.id = "cardMovimentacoesArquivoUnico";
+    card.classList.add("cardMovimentacoesArquivo");
+    return card;
+  }
+
+  const container =
+    document.getElementById("dashboardCards") ||
+    document.getElementById("dashboard") ||
+    document.querySelector(".dashboardCards") ||
+    document.querySelector(".dashboard-cards") ||
+    document.querySelector(".dashboardGrid") ||
+    document.querySelector(".dashboard-grid") ||
+    document.querySelector(".dashboard") ||
+    document.getElementById("areaSistema");
+
+  if (!container) return null;
+
+  card = document.createElement("div");
+  card.id = "cardMovimentacoesArquivoUnico";
+  card.className = "cardMovimentacoesArquivo";
+  container.prepend(card);
+  return card;
+}
+
+async function atualizarMovimentacoesPorArquivoDashboard() {
+  try {
+    const card = encontrarCardMovimentacoesArquivo();
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+      <div class="listaMovimentacoesArquivo">Carregando...</div>
+    `;
+
+    const token = await obterToken();
+    const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+    const resposta = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    const itens = (dados.value || []).filter(item => item.fields);
+
+    const porArquivo = new Map();
+
+    itens.forEach(item => {
+      const chave = obterChaveArquivoMovimentacao(item);
+      if (!chave) return;
+
+      const existente = porArquivo.get(chave);
+      if (!existente || obterDataMovimentacao(item) > obterDataMovimentacao(existente)) {
+        porArquivo.set(chave, item);
+      }
+    });
+
+    const ultimos = Array.from(porArquivo.values())
+      .sort((a, b) => obterDataMovimentacao(b) - obterDataMovimentacao(a))
+      .slice(0, 3);
+
+    const lista = card.querySelector(".listaMovimentacoesArquivo");
+
+    if (!ultimos.length) {
+      lista.innerHTML = `<div class="linhaMovimentacaoArquivo vazio">Nenhuma movimentação registrada.</div>`;
+      return;
+    }
+
+    lista.innerHTML = ultimos.map(item => formatarLinhaMovimentacaoDashboard(item.fields)).join("");
+
+  } catch (erro) {
+    console.error("Erro ao atualizar movimentações por arquivo:", erro);
+    const card = encontrarCardMovimentacoesArquivo();
+    if (card) {
+      card.innerHTML = `
+        <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+        <div class="linhaMovimentacaoArquivo erro">Não foi possível carregar.</div>
+      `;
+    }
+  }
+}
+
+// Mantém o dashboard atualizado sem depender de botao manual
+setTimeout(atualizarMovimentacoesPorArquivoDashboard, 1800);
+setInterval(atualizarMovimentacoesPorArquivoDashboard, 20000);
+
+try {
+  const registrarHistoricoOriginalPasso93 = registrarHistorico;
+  registrarHistorico = async function (...args) {
+    const resultado = await registrarHistoricoOriginalPasso93.apply(this, args);
+    setTimeout(atualizarMovimentacoesPorArquivoDashboard, 600);
+    return resultado;
+  };
+} catch (e) {
+  console.warn("Nao foi possivel envolver registrarHistorico para atualizar o dashboard automaticamente.", e);
+}
+// === FIM PATCH PASSO 93 V2 ===
+
+
+// === PATCH PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO ===
+function obterDataMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const data = campos.DATA_HORA || campos.Created || campos.Modified || campos.DATA_ATUALIZACAO || "";
+  const d = new Date(data);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function obterChaveArquivoMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const id = (campos.ARQUIVO_ID || "").toString().trim();
+  const nome = (campos.Title || campos.ARQUIVO || campos.FileLeafRef || "").toString().trim().toUpperCase();
+  return id || nome;
+}
+
+function normalizarAcaoDashboard(acao) {
+  const valor = (acao || "").toString().trim().toUpperCase();
+  if (valor === "ANOTACAO") return "ANOTAÇÃO";
+  if (valor === "VISUALIZOU") return "VISUALIZOU";
+  if (valor === "SUBSTITUIU") return "SUBSTITUIU";
+  if (valor === "RENOMEOU") return "RENOMEOU";
+  if (valor === "ARQUIVOU") return "ARQUIVOU";
+  if (valor === "RESTAUROU") return "RESTAUROU";
+  if (valor === "ENVIOU") return "ENVIOU";
+  if (valor === "BAIXOU") return "BAIXOU";
+  return valor || "MOVIMENTOU";
+}
+
+function formatarLinhaMovimentacaoDashboard(campos) {
+  const arquivo = campos.Title || campos.ARQUIVO || "Arquivo";
+  const acao = normalizarAcaoDashboard(campos.ACAO);
+  const usuario = campos.USUARIO_NOME || campos.USUARIO_EMAIL || "Usuário";
+  const data = formatarData(campos.DATA_HORA || campos.Created || campos.Modified || "");
+  return `
+    <div class="linhaMovimentacaoArquivo">
+      <strong>${arquivo}</strong>
+      <span>${acao} - ${data}</span>
+      <small>${usuario}</small>
+    </div>
+  `;
+}
+
+function encontrarCardMovimentacoesArquivo() {
+  let card = document.getElementById("cardMovimentacoesArquivoUnico");
+  if (card) return card;
+
+  const rotulos = [
+    "Último acesso registrado",
+    "Últimos acessos registrados",
+    "Últimos acessos",
+    "Últimas movimentações por arquivo",
+    "Últimas movimentações"
+  ];
+
+  const candidatos = Array.from(document.querySelectorAll("div, section, article"))
+    .filter(el => {
+      const texto = (el.textContent || "").trim();
+      return texto.length > 0 && texto.length < 1600 && rotulos.some(r => texto.includes(r));
+    })
+    .sort((a, b) => (a.textContent || "").length - (b.textContent || "").length);
+
+  if (candidatos.length) {
+    card = candidatos[0];
+
+    // Tenta subir para o cartao visual, se o candidato for apenas o titulo interno
+    let atual = card;
+    for (let i = 0; i < 3; i++) {
+      if (!atual.parentElement) break;
+      const cls = (atual.parentElement.className || "").toString().toLowerCase();
+      if (cls.includes("card") || cls.includes("dash") || cls.includes("metric") || cls.includes("stat") || cls.includes("quadr")) {
+        atual = atual.parentElement;
+        break;
+      }
+      atual = atual.parentElement;
+    }
+
+    card = atual;
+    card.id = "cardMovimentacoesArquivoUnico";
+    card.classList.add("cardMovimentacoesArquivo");
+    return card;
+  }
+
+  const container =
+    document.getElementById("dashboardCards") ||
+    document.getElementById("dashboard") ||
+    document.querySelector(".dashboardCards") ||
+    document.querySelector(".dashboard-cards") ||
+    document.querySelector(".dashboardGrid") ||
+    document.querySelector(".dashboard-grid") ||
+    document.querySelector(".dashboard") ||
+    document.getElementById("areaSistema");
+
+  if (!container) return null;
+
+  card = document.createElement("div");
+  card.id = "cardMovimentacoesArquivoUnico";
+  card.className = "cardMovimentacoesArquivo";
+  container.prepend(card);
+  return card;
+}
+
+async function atualizarMovimentacoesPorArquivoDashboard() {
+  try {
+    const card = encontrarCardMovimentacoesArquivo();
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+      <div class="listaMovimentacoesArquivo">Carregando...</div>
+    `;
+
+    const token = await obterToken();
+    const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+    const resposta = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    const itens = (dados.value || []).filter(item => item.fields);
+
+    const porArquivo = new Map();
+
+    itens.forEach(item => {
+      const chave = obterChaveArquivoMovimentacao(item);
+      if (!chave) return;
+
+      const existente = porArquivo.get(chave);
+      if (!existente || obterDataMovimentacao(item) > obterDataMovimentacao(existente)) {
+        porArquivo.set(chave, item);
+      }
+    });
+
+    const ultimos = Array.from(porArquivo.values())
+      .sort((a, b) => obterDataMovimentacao(b) - obterDataMovimentacao(a))
+      .slice(0, 3);
+
+    const lista = card.querySelector(".listaMovimentacoesArquivo");
+
+    if (!ultimos.length) {
+      lista.innerHTML = `<div class="linhaMovimentacaoArquivo vazio">Nenhuma movimentação registrada.</div>`;
+      return;
+    }
+
+    lista.innerHTML = ultimos.map(item => formatarLinhaMovimentacaoDashboard(item.fields)).join("");
+
+  } catch (erro) {
+    console.error("Erro ao atualizar movimentações por arquivo:", erro);
+    const card = encontrarCardMovimentacoesArquivo();
+    if (card) {
+      card.innerHTML = `
+        <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+        <div class="linhaMovimentacaoArquivo erro">Não foi possível carregar.</div>
+      `;
+    }
+  }
+}
+
+// Mantém o dashboard atualizado sem depender de botao manual
+setTimeout(atualizarMovimentacoesPorArquivoDashboard, 1800);
+setInterval(atualizarMovimentacoesPorArquivoDashboard, 20000);
+
+try {
+  const registrarHistoricoOriginalPasso93 = registrarHistorico;
+  registrarHistorico = async function (...args) {
+    const resultado = await registrarHistoricoOriginalPasso93.apply(this, args);
+    setTimeout(atualizarMovimentacoesPorArquivoDashboard, 600);
+    return resultado;
+  };
+} catch (e) {
+  console.warn("Nao foi possivel envolver registrarHistorico para atualizar o dashboard automaticamente.", e);
+}
+// === FIM PATCH PASSO 93 V2 ===
+ 
+// === PATCH PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO ===
+function obterDataMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const data = campos.DATA_HORA || campos.Created || campos.Modified || campos.DATA_ATUALIZACAO || "";
+  const d = new Date(data);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function obterChaveArquivoMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const id = (campos.ARQUIVO_ID || "").toString().trim();
+  const nome = (campos.Title || campos.ARQUIVO || campos.FileLeafRef || "").toString().trim().toUpperCase();
+  return id || nome;
+}
+
+function normalizarAcaoDashboard(acao) {
+  const valor = (acao || "").toString().trim().toUpperCase();
+  if (valor === "ANOTACAO") return "ANOTAÇÃO";
+  if (valor === "VISUALIZOU") return "VISUALIZOU";
+  if (valor === "SUBSTITUIU") return "SUBSTITUIU";
+  if (valor === "RENOMEOU") return "RENOMEOU";
+  if (valor === "ARQUIVOU") return "ARQUIVOU";
+  if (valor === "RESTAUROU") return "RESTAUROU";
+  if (valor === "ENVIOU") return "ENVIOU";
+  if (valor === "BAIXOU") return "BAIXOU";
+  return valor || "MOVIMENTOU";
+}
+
+function formatarLinhaMovimentacaoDashboard(campos) {
+  const arquivo = campos.Title || campos.ARQUIVO || "Arquivo";
+  const acao = normalizarAcaoDashboard(campos.ACAO);
+  const usuario = campos.USUARIO_NOME || campos.USUARIO_EMAIL || "Usuário";
+  const data = formatarData(campos.DATA_HORA || campos.Created || campos.Modified || "");
+  return `
+    <div class="linhaMovimentacaoArquivo">
+      <strong>${arquivo}</strong>
+      <span>${acao} - ${data}</span>
+      <small>${usuario}</small>
+    </div>
+  `;
+}
+
+function encontrarCardMovimentacoesArquivo() {
+  let card = document.getElementById("cardMovimentacoesArquivoUnico");
+  if (card) return card;
+
+  const rotulos = [
+    "Último acesso registrado",
+    "Últimos acessos registrados",
+    "Últimos acessos",
+    "Últimas movimentações por arquivo",
+    "Últimas movimentações"
+  ];
+
+  const candidatos = Array.from(document.querySelectorAll("div, section, article"))
+    .filter(el => {
+      const texto = (el.textContent || "").trim();
+      return texto.length > 0 && texto.length < 1600 && rotulos.some(r => texto.includes(r));
+    })
+    .sort((a, b) => (a.textContent || "").length - (b.textContent || "").length);
+
+  if (candidatos.length) {
+    card = candidatos[0];
+
+    // Tenta subir para o cartao visual, se o candidato for apenas o titulo interno
+    let atual = card;
+    for (let i = 0; i < 3; i++) {
+      if (!atual.parentElement) break;
+      const cls = (atual.parentElement.className || "").toString().toLowerCase();
+      if (cls.includes("card") || cls.includes("dash") || cls.includes("metric") || cls.includes("stat") || cls.includes("quadr")) {
+        atual = atual.parentElement;
+        break;
+      }
+      atual = atual.parentElement;
+    }
+
+    card = atual;
+    card.id = "cardMovimentacoesArquivoUnico";
+    card.classList.add("cardMovimentacoesArquivo");
+    return card;
+  }
+
+  const container =
+    document.getElementById("dashboardCards") ||
+    document.getElementById("dashboard") ||
+    document.querySelector(".dashboardCards") ||
+    document.querySelector(".dashboard-cards") ||
+    document.querySelector(".dashboardGrid") ||
+    document.querySelector(".dashboard-grid") ||
+    document.querySelector(".dashboard") ||
+    document.getElementById("areaSistema");
+
+  if (!container) return null;
+
+  card = document.createElement("div");
+  card.id = "cardMovimentacoesArquivoUnico";
+  card.className = "cardMovimentacoesArquivo";
+  container.prepend(card);
+  return card;
+}
+
+async function atualizarMovimentacoesPorArquivoDashboard() {
+  try {
+    const card = encontrarCardMovimentacoesArquivo();
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+      <div class="listaMovimentacoesArquivo">Carregando...</div>
+    `;
+
+    const token = await obterToken();
+    const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+    const resposta = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    const itens = (dados.value || []).filter(item => item.fields);
+
+    const porArquivo = new Map();
+
+    itens.forEach(item => {
+      const chave = obterChaveArquivoMovimentacao(item);
+      if (!chave) return;
+
+      const existente = porArquivo.get(chave);
+      if (!existente || obterDataMovimentacao(item) > obterDataMovimentacao(existente)) {
+        porArquivo.set(chave, item);
+      }
+    });
+
+    const ultimos = Array.from(porArquivo.values())
+      .sort((a, b) => obterDataMovimentacao(b) - obterDataMovimentacao(a))
+      .slice(0, 3);
+
+    const lista = card.querySelector(".listaMovimentacoesArquivo");
+
+    if (!ultimos.length) {
+      lista.innerHTML = `<div class="linhaMovimentacaoArquivo vazio">Nenhuma movimentação registrada.</div>`;
+      return;
+    }
+
+    lista.innerHTML = ultimos.map(item => formatarLinhaMovimentacaoDashboard(item.fields)).join("");
+
+  } catch (erro) {
+    console.error("Erro ao atualizar movimentações por arquivo:", erro);
+    const card = encontrarCardMovimentacoesArquivo();
+    if (card) {
+      card.innerHTML = `
+        <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+        <div class="linhaMovimentacaoArquivo erro">Não foi possível carregar.</div>
+      `;
+    }
+  }
+}
+
+// Mantém o dashboard atualizado sem depender de botao manual
+setTimeout(atualizarMovimentacoesPorArquivoDashboard, 1800);
+setInterval(atualizarMovimentacoesPorArquivoDashboard, 20000);
+
+try {
+  const registrarHistoricoOriginalPasso93 = registrarHistorico;
+  registrarHistorico = async function (...args) {
+    const resultado = await registrarHistoricoOriginalPasso93.apply(this, args);
+    setTimeout(atualizarMovimentacoesPorArquivoDashboard, 600);
+    return resultado;
+  };
+} catch (e) {
+  console.warn("Nao foi possivel envolver registrarHistorico para atualizar o dashboard automaticamente.", e);
+}
+// === FIM PATCH PASSO 93 V2 ===
+ 
+// === PATCH PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO ===
+function obterDataMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const data = campos.DATA_HORA || campos.Created || campos.Modified || campos.DATA_ATUALIZACAO || "";
+  const d = new Date(data);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function obterChaveArquivoMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const id = (campos.ARQUIVO_ID || "").toString().trim();
+  const nome = (campos.Title || campos.ARQUIVO || campos.FileLeafRef || "").toString().trim().toUpperCase();
+  return id || nome;
+}
+
+function normalizarAcaoDashboard(acao) {
+  const valor = (acao || "").toString().trim().toUpperCase();
+  if (valor === "ANOTACAO") return "ANOTAÇÃO";
+  if (valor === "VISUALIZOU") return "VISUALIZOU";
+  if (valor === "SUBSTITUIU") return "SUBSTITUIU";
+  if (valor === "RENOMEOU") return "RENOMEOU";
+  if (valor === "ARQUIVOU") return "ARQUIVOU";
+  if (valor === "RESTAUROU") return "RESTAUROU";
+  if (valor === "ENVIOU") return "ENVIOU";
+  if (valor === "BAIXOU") return "BAIXOU";
+  return valor || "MOVIMENTOU";
+}
+
+function formatarLinhaMovimentacaoDashboard(campos) {
+  const arquivo = campos.Title || campos.ARQUIVO || "Arquivo";
+  const acao = normalizarAcaoDashboard(campos.ACAO);
+  const usuario = campos.USUARIO_NOME || campos.USUARIO_EMAIL || "Usuário";
+  const data = formatarData(campos.DATA_HORA || campos.Created || campos.Modified || "");
+  return `
+    <div class="linhaMovimentacaoArquivo">
+      <strong>${arquivo}</strong>
+      <span>${acao} - ${data}</span>
+      <small>${usuario}</small>
+    </div>
+  `;
+}
+
+function encontrarCardMovimentacoesArquivo() {
+  let card = document.getElementById("cardMovimentacoesArquivoUnico");
+  if (card) return card;
+
+  const rotulos = [
+    "Último acesso registrado",
+    "Últimos acessos registrados",
+    "Últimos acessos",
+    "Últimas movimentações por arquivo",
+    "Últimas movimentações"
+  ];
+
+  const candidatos = Array.from(document.querySelectorAll("div, section, article"))
+    .filter(el => {
+      const texto = (el.textContent || "").trim();
+      return texto.length > 0 && texto.length < 1600 && rotulos.some(r => texto.includes(r));
+    })
+    .sort((a, b) => (a.textContent || "").length - (b.textContent || "").length);
+
+  if (candidatos.length) {
+    card = candidatos[0];
+
+    // Tenta subir para o cartao visual, se o candidato for apenas o titulo interno
+    let atual = card;
+    for (let i = 0; i < 3; i++) {
+      if (!atual.parentElement) break;
+      const cls = (atual.parentElement.className || "").toString().toLowerCase();
+      if (cls.includes("card") || cls.includes("dash") || cls.includes("metric") || cls.includes("stat") || cls.includes("quadr")) {
+        atual = atual.parentElement;
+        break;
+      }
+      atual = atual.parentElement;
+    }
+
+    card = atual;
+    card.id = "cardMovimentacoesArquivoUnico";
+    card.classList.add("cardMovimentacoesArquivo");
+    return card;
+  }
+
+  const container =
+    document.getElementById("dashboardCards") ||
+    document.getElementById("dashboard") ||
+    document.querySelector(".dashboardCards") ||
+    document.querySelector(".dashboard-cards") ||
+    document.querySelector(".dashboardGrid") ||
+    document.querySelector(".dashboard-grid") ||
+    document.querySelector(".dashboard") ||
+    document.getElementById("areaSistema");
+
+  if (!container) return null;
+
+  card = document.createElement("div");
+  card.id = "cardMovimentacoesArquivoUnico";
+  card.className = "cardMovimentacoesArquivo";
+  container.prepend(card);
+  return card;
+}
+
+async function atualizarMovimentacoesPorArquivoDashboard() {
+  try {
+    const card = encontrarCardMovimentacoesArquivo();
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+      <div class="listaMovimentacoesArquivo">Carregando...</div>
+    `;
+
+    const token = await obterToken();
+    const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+    const resposta = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    const itens = (dados.value || []).filter(item => item.fields);
+
+    const porArquivo = new Map();
+
+    itens.forEach(item => {
+      const chave = obterChaveArquivoMovimentacao(item);
+      if (!chave) return;
+
+      const existente = porArquivo.get(chave);
+      if (!existente || obterDataMovimentacao(item) > obterDataMovimentacao(existente)) {
+        porArquivo.set(chave, item);
+      }
+    });
+
+    const ultimos = Array.from(porArquivo.values())
+      .sort((a, b) => obterDataMovimentacao(b) - obterDataMovimentacao(a))
+      .slice(0, 3);
+
+    const lista = card.querySelector(".listaMovimentacoesArquivo");
+
+    if (!ultimos.length) {
+      lista.innerHTML = `<div class="linhaMovimentacaoArquivo vazio">Nenhuma movimentação registrada.</div>`;
+      return;
+    }
+
+    lista.innerHTML = ultimos.map(item => formatarLinhaMovimentacaoDashboard(item.fields)).join("");
+
+  } catch (erro) {
+    console.error("Erro ao atualizar movimentações por arquivo:", erro);
+    const card = encontrarCardMovimentacoesArquivo();
+    if (card) {
+      card.innerHTML = `
+        <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+        <div class="linhaMovimentacaoArquivo erro">Não foi possível carregar.</div>
+      `;
+    }
+  }
+}
+
+// Mantém o dashboard atualizado sem depender de botao manual
+setTimeout(atualizarMovimentacoesPorArquivoDashboard, 1800);
+setInterval(atualizarMovimentacoesPorArquivoDashboard, 20000);
+
+try {
+  const registrarHistoricoOriginalPasso93 = registrarHistorico;
+  registrarHistorico = async function (...args) {
+    const resultado = await registrarHistoricoOriginalPasso93.apply(this, args);
+    setTimeout(atualizarMovimentacoesPorArquivoDashboard, 600);
+    return resultado;
+  };
+} catch (e) {
+  console.warn("Nao foi possivel envolver registrarHistorico para atualizar o dashboard automaticamente.", e);
+}
+// === FIM PATCH PASSO 93 V2 ===
+ 
+// === PATCH PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO ===
+function obterDataMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const data = campos.DATA_HORA || campos.Created || campos.Modified || campos.DATA_ATUALIZACAO || "";
+  const d = new Date(data);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function obterChaveArquivoMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const id = (campos.ARQUIVO_ID || "").toString().trim();
+  const nome = (campos.Title || campos.ARQUIVO || campos.FileLeafRef || "").toString().trim().toUpperCase();
+  return id || nome;
+}
+
+function normalizarAcaoDashboard(acao) {
+  const valor = (acao || "").toString().trim().toUpperCase();
+  if (valor === "ANOTACAO") return "ANOTAÇÃO";
+  if (valor === "VISUALIZOU") return "VISUALIZOU";
+  if (valor === "SUBSTITUIU") return "SUBSTITUIU";
+  if (valor === "RENOMEOU") return "RENOMEOU";
+  if (valor === "ARQUIVOU") return "ARQUIVOU";
+  if (valor === "RESTAUROU") return "RESTAUROU";
+  if (valor === "ENVIOU") return "ENVIOU";
+  if (valor === "BAIXOU") return "BAIXOU";
+  return valor || "MOVIMENTOU";
+}
+
+function formatarLinhaMovimentacaoDashboard(campos) {
+  const arquivo = campos.Title || campos.ARQUIVO || "Arquivo";
+  const acao = normalizarAcaoDashboard(campos.ACAO);
+  const usuario = campos.USUARIO_NOME || campos.USUARIO_EMAIL || "Usuário";
+  const data = formatarData(campos.DATA_HORA || campos.Created || campos.Modified || "");
+  return `
+    <div class="linhaMovimentacaoArquivo">
+      <strong>${arquivo}</strong>
+      <span>${acao} - ${data}</span>
+      <small>${usuario}</small>
+    </div>
+  `;
+}
+
+function encontrarCardMovimentacoesArquivo() {
+  let card = document.getElementById("cardMovimentacoesArquivoUnico");
+  if (card) return card;
+
+  const rotulos = [
+    "Último acesso registrado",
+    "Últimos acessos registrados",
+    "Últimos acessos",
+    "Últimas movimentações por arquivo",
+    "Últimas movimentações"
+  ];
+
+  const candidatos = Array.from(document.querySelectorAll("div, section, article"))
+    .filter(el => {
+      const texto = (el.textContent || "").trim();
+      return texto.length > 0 && texto.length < 1600 && rotulos.some(r => texto.includes(r));
+    })
+    .sort((a, b) => (a.textContent || "").length - (b.textContent || "").length);
+
+  if (candidatos.length) {
+    card = candidatos[0];
+
+    // Tenta subir para o cartao visual, se o candidato for apenas o titulo interno
+    let atual = card;
+    for (let i = 0; i < 3; i++) {
+      if (!atual.parentElement) break;
+      const cls = (atual.parentElement.className || "").toString().toLowerCase();
+      if (cls.includes("card") || cls.includes("dash") || cls.includes("metric") || cls.includes("stat") || cls.includes("quadr")) {
+        atual = atual.parentElement;
+        break;
+      }
+      atual = atual.parentElement;
+    }
+
+    card = atual;
+    card.id = "cardMovimentacoesArquivoUnico";
+    card.classList.add("cardMovimentacoesArquivo");
+    return card;
+  }
+
+  const container =
+    document.getElementById("dashboardCards") ||
+    document.getElementById("dashboard") ||
+    document.querySelector(".dashboardCards") ||
+    document.querySelector(".dashboard-cards") ||
+    document.querySelector(".dashboardGrid") ||
+    document.querySelector(".dashboard-grid") ||
+    document.querySelector(".dashboard") ||
+    document.getElementById("areaSistema");
+
+  if (!container) return null;
+
+  card = document.createElement("div");
+  card.id = "cardMovimentacoesArquivoUnico";
+  card.className = "cardMovimentacoesArquivo";
+  container.prepend(card);
+  return card;
+}
+
+async function atualizarMovimentacoesPorArquivoDashboard() {
+  try {
+    const card = encontrarCardMovimentacoesArquivo();
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+      <div class="listaMovimentacoesArquivo">Carregando...</div>
+    `;
+
+    const token = await obterToken();
+    const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+    const resposta = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    const itens = (dados.value || []).filter(item => item.fields);
+
+    const porArquivo = new Map();
+
+    itens.forEach(item => {
+      const chave = obterChaveArquivoMovimentacao(item);
+      if (!chave) return;
+
+      const existente = porArquivo.get(chave);
+      if (!existente || obterDataMovimentacao(item) > obterDataMovimentacao(existente)) {
+        porArquivo.set(chave, item);
+      }
+    });
+
+    const ultimos = Array.from(porArquivo.values())
+      .sort((a, b) => obterDataMovimentacao(b) - obterDataMovimentacao(a))
+      .slice(0, 3);
+
+    const lista = card.querySelector(".listaMovimentacoesArquivo");
+
+    if (!ultimos.length) {
+      lista.innerHTML = `<div class="linhaMovimentacaoArquivo vazio">Nenhuma movimentação registrada.</div>`;
+      return;
+    }
+
+    lista.innerHTML = ultimos.map(item => formatarLinhaMovimentacaoDashboard(item.fields)).join("");
+
+  } catch (erro) {
+    console.error("Erro ao atualizar movimentações por arquivo:", erro);
+    const card = encontrarCardMovimentacoesArquivo();
+    if (card) {
+      card.innerHTML = `
+        <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+        <div class="linhaMovimentacaoArquivo erro">Não foi possível carregar.</div>
+      `;
+    }
+  }
+}
+
+// Mantém o dashboard atualizado sem depender de botao manual
+setTimeout(atualizarMovimentacoesPorArquivoDashboard, 1800);
+setInterval(atualizarMovimentacoesPorArquivoDashboard, 20000);
+
+try {
+  const registrarHistoricoOriginalPasso93 = registrarHistorico;
+  registrarHistorico = async function (...args) {
+    const resultado = await registrarHistoricoOriginalPasso93.apply(this, args);
+    setTimeout(atualizarMovimentacoesPorArquivoDashboard, 600);
+    return resultado;
+  };
+} catch (e) {
+  console.warn("Nao foi possivel envolver registrarHistorico para atualizar o dashboard automaticamente.", e);
+}
+// === FIM PATCH PASSO 93 V2 ===
+ 
+// === PATCH PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO ===
+function obterDataMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const data = campos.DATA_HORA || campos.Created || campos.Modified || campos.DATA_ATUALIZACAO || "";
+  const d = new Date(data);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function obterChaveArquivoMovimentacao(item) {
+  const campos = item?.fields || item || {};
+  const id = (campos.ARQUIVO_ID || "").toString().trim();
+  const nome = (campos.Title || campos.ARQUIVO || campos.FileLeafRef || "").toString().trim().toUpperCase();
+  return id || nome;
+}
+
+function normalizarAcaoDashboard(acao) {
+  const valor = (acao || "").toString().trim().toUpperCase();
+  if (valor === "ANOTACAO") return "ANOTAÇÃO";
+  if (valor === "VISUALIZOU") return "VISUALIZOU";
+  if (valor === "SUBSTITUIU") return "SUBSTITUIU";
+  if (valor === "RENOMEOU") return "RENOMEOU";
+  if (valor === "ARQUIVOU") return "ARQUIVOU";
+  if (valor === "RESTAUROU") return "RESTAUROU";
+  if (valor === "ENVIOU") return "ENVIOU";
+  if (valor === "BAIXOU") return "BAIXOU";
+  return valor || "MOVIMENTOU";
+}
+
+function formatarLinhaMovimentacaoDashboard(campos) {
+  const arquivo = campos.Title || campos.ARQUIVO || "Arquivo";
+  const acao = normalizarAcaoDashboard(campos.ACAO);
+  const usuario = campos.USUARIO_NOME || campos.USUARIO_EMAIL || "Usuário";
+  const data = formatarData(campos.DATA_HORA || campos.Created || campos.Modified || "");
+  return `
+    <div class="linhaMovimentacaoArquivo">
+      <strong>${arquivo}</strong>
+      <span>${acao} - ${data}</span>
+      <small>${usuario}</small>
+    </div>
+  `;
+}
+
+function encontrarCardMovimentacoesArquivo() {
+  let card = document.getElementById("cardMovimentacoesArquivoUnico");
+  if (card) return card;
+
+  const rotulos = [
+    "Último acesso registrado",
+    "Últimos acessos registrados",
+    "Últimos acessos",
+    "Últimas movimentações por arquivo",
+    "Últimas movimentações"
+  ];
+
+  const candidatos = Array.from(document.querySelectorAll("div, section, article"))
+    .filter(el => {
+      const texto = (el.textContent || "").trim();
+      return texto.length > 0 && texto.length < 1600 && rotulos.some(r => texto.includes(r));
+    })
+    .sort((a, b) => (a.textContent || "").length - (b.textContent || "").length);
+
+  if (candidatos.length) {
+    card = candidatos[0];
+
+    // Tenta subir para o cartao visual, se o candidato for apenas o titulo interno
+    let atual = card;
+    for (let i = 0; i < 3; i++) {
+      if (!atual.parentElement) break;
+      const cls = (atual.parentElement.className || "").toString().toLowerCase();
+      if (cls.includes("card") || cls.includes("dash") || cls.includes("metric") || cls.includes("stat") || cls.includes("quadr")) {
+        atual = atual.parentElement;
+        break;
+      }
+      atual = atual.parentElement;
+    }
+
+    card = atual;
+    card.id = "cardMovimentacoesArquivoUnico";
+    card.classList.add("cardMovimentacoesArquivo");
+    return card;
+  }
+
+  const container =
+    document.getElementById("dashboardCards") ||
+    document.getElementById("dashboard") ||
+    document.querySelector(".dashboardCards") ||
+    document.querySelector(".dashboard-cards") ||
+    document.querySelector(".dashboardGrid") ||
+    document.querySelector(".dashboard-grid") ||
+    document.querySelector(".dashboard") ||
+    document.getElementById("areaSistema");
+
+  if (!container) return null;
+
+  card = document.createElement("div");
+  card.id = "cardMovimentacoesArquivoUnico";
+  card.className = "cardMovimentacoesArquivo";
+  container.prepend(card);
+  return card;
+}
+
+async function atualizarMovimentacoesPorArquivoDashboard() {
+  try {
+    const card = encontrarCardMovimentacoesArquivo();
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+      <div class="listaMovimentacoesArquivo">Carregando...</div>
+    `;
+
+    const token = await obterToken();
+    const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+    const resposta = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(await resposta.text());
+    }
+
+    const dados = await resposta.json();
+    const itens = (dados.value || []).filter(item => item.fields);
+
+    const porArquivo = new Map();
+
+    itens.forEach(item => {
+      const chave = obterChaveArquivoMovimentacao(item);
+      if (!chave) return;
+
+      const existente = porArquivo.get(chave);
+      if (!existente || obterDataMovimentacao(item) > obterDataMovimentacao(existente)) {
+        porArquivo.set(chave, item);
+      }
+    });
+
+    const ultimos = Array.from(porArquivo.values())
+      .sort((a, b) => obterDataMovimentacao(b) - obterDataMovimentacao(a))
+      .slice(0, 3);
+
+    const lista = card.querySelector(".listaMovimentacoesArquivo");
+
+    if (!ultimos.length) {
+      lista.innerHTML = `<div class="linhaMovimentacaoArquivo vazio">Nenhuma movimentação registrada.</div>`;
+      return;
+    }
+
+    lista.innerHTML = ultimos.map(item => formatarLinhaMovimentacaoDashboard(item.fields)).join("");
+
+  } catch (erro) {
+    console.error("Erro ao atualizar movimentações por arquivo:", erro);
+    const card = encontrarCardMovimentacoesArquivo();
+    if (card) {
+      card.innerHTML = `
+        <div class="tituloMovimentacoesArquivo">Últimas movimentações por arquivo</div>
+        <div class="linhaMovimentacaoArquivo erro">Não foi possível carregar.</div>
+      `;
+    }
+  }
+}
+
+// Mantém o dashboard atualizado sem depender de botao manual
+setTimeout(atualizarMovimentacoesPorArquivoDashboard, 1800);
+setInterval(atualizarMovimentacoesPorArquivoDashboard, 20000);
+
+try {
+  const registrarHistoricoOriginalPasso93 = registrarHistorico;
+  registrarHistorico = async function (...args) {
+    const resultado = await registrarHistoricoOriginalPasso93.apply(this, args);
+    setTimeout(atualizarMovimentacoesPorArquivoDashboard, 600);
+    return resultado;
+  };
+} catch (e) {
+  console.warn("Nao foi possivel envolver registrarHistorico para atualizar o dashboard automaticamente.", e);
+}
+// === FIM PATCH PASSO 93 V2 ===
+await msalInstance.handleRedirectPromise();
     await atualizarTela();
   // INICIO PASSO 91 RELATORIO JS
 function textoSeguroRelatorio(valor) {
@@ -2875,6 +3955,59 @@ window.baixarRelatorioArquivo = function () {
   filter: brightness(1.05);
 }
 /* FIM PASSO 91 RELATORIO CSS */
+    /* === CSS PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO === */
+    .cardMovimentacoesArquivo {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(15, 47, 102, .08);
+      cursor: default;
+    }
+
+    .tituloMovimentacoesArquivo {
+      color: #0f2f66;
+      font-weight: 800;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .listaMovimentacoesArquivo {
+      display: grid;
+      gap: 8px;
+    }
+
+    .linhaMovimentacaoArquivo {
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+
+    .linhaMovimentacaoArquivo strong {
+      display: block;
+      color: #0f2f66;
+      margin-bottom: 3px;
+      word-break: break-word;
+    }
+
+    .linhaMovimentacaoArquivo span,
+    .linhaMovimentacaoArquivo small {
+      display: block;
+      color: #64748b;
+      line-height: 1.35;
+    }
+
+    .linhaMovimentacaoArquivo.erro {
+      color: #b00020;
+      background: #fff0f0;
+    }
+
+    .linhaMovimentacaoArquivo.vazio {
+      color: #64748b;
+    }
+    /* === FIM CSS PASSO 93 V2 === */
 </style>
 </head>
 <body>
@@ -4138,10 +5271,64 @@ window.baixarRelatorioArquivo = function () {
   filter: brightness(1.05);
 }
 /* FIM PASSO 91 RELATORIO CSS */
+    /* === CSS PASSO 93 V2 - MOVIMENTACOES POR ARQUIVO === */
+    .cardMovimentacoesArquivo {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(15, 47, 102, .08);
+      cursor: default;
+    }
+
+    .tituloMovimentacoesArquivo {
+      color: #0f2f66;
+      font-weight: 800;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .listaMovimentacoesArquivo {
+      display: grid;
+      gap: 8px;
+    }
+
+    .linhaMovimentacaoArquivo {
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+
+    .linhaMovimentacaoArquivo strong {
+      display: block;
+      color: #0f2f66;
+      margin-bottom: 3px;
+      word-break: break-word;
+    }
+
+    .linhaMovimentacaoArquivo span,
+    .linhaMovimentacaoArquivo small {
+      display: block;
+      color: #64748b;
+      line-height: 1.35;
+    }
+
+    .linhaMovimentacaoArquivo.erro {
+      color: #b00020;
+      background: #fff0f0;
+    }
+
+    .linhaMovimentacaoArquivo.vazio {
+      color: #64748b;
+    }
+    /* === FIM CSS PASSO 93 V2 === */
 </style>
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
