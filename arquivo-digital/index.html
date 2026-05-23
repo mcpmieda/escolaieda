@@ -2003,7 +2003,168 @@ function renderizarDocumentos(listaArquivos) {
     }, 800);
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
-  </script>
+  // INICIO PASSO 91 RELATORIO JS
+function textoSeguroRelatorio(valor) {
+  return (valor || "").toString().replace(/\s+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function obterTextoElementoRelatorio(seletor) {
+  const el = document.querySelector(seletor);
+  return el ? textoSeguroRelatorio(el.innerText || el.textContent || "") : "";
+}
+
+function encontrarTextoVersoesRelatorio() {
+  const candidatos = [
+    "#versoesSharePoint",
+    "#versoesArquivo",
+    "#listaVersoes",
+    "#historicoVersoes",
+    ".versoesSharePoint",
+    ".versoesArquivo",
+    ".listaVersoes",
+    ".historicoVersoes"
+  ];
+
+  for (const seletor of candidatos) {
+    const el = document.querySelector(seletor);
+    if (el && textoSeguroRelatorio(el.innerText || el.textContent || "")) {
+      return textoSeguroRelatorio(el.innerText || el.textContent || "");
+    }
+  }
+
+  const titulos = Array.from(document.querySelectorAll("#painelLateral h3, #painelLateral h2, #painelLateral strong"));
+  const tituloVersao = titulos.find(el => normalizarTexto(el.innerText || el.textContent || "").includes("verso"));
+
+  if (tituloVersao) {
+    let texto = "";
+    let atual = tituloVersao.parentElement;
+    if (atual) {
+      texto = textoSeguroRelatorio(atual.innerText || atual.textContent || "");
+    }
+    if (!texto && tituloVersao.nextElementSibling) {
+      texto = textoSeguroRelatorio(tituloVersao.nextElementSibling.innerText || tituloVersao.nextElementSibling.textContent || "");
+    }
+    return texto;
+  }
+
+  return "";
+}
+
+function montarRelatorioArquivo() {
+  const nomeArquivo =
+    document.getElementById("painelNome")?.innerText ||
+    document.getElementById("painelTitulo")?.innerText ||
+    "Arquivo selecionado";
+
+  const anotacaoAtual = document.getElementById("campoAnotacao")?.value || "";
+  const statusAnotacao = document.getElementById("statusAnotacao")?.innerText || "";
+  const historico = obterTextoElementoRelatorio("#historicoArquivo");
+  const versoes = encontrarTextoVersoesRelatorio();
+
+  const linhas = [];
+
+  linhas.push("RELATÓRIO DO ARQUIVO DIGITAL");
+  linhas.push("Escola Iêda MCPM");
+  linhas.push("");
+  linhas.push("Arquivo:");
+  linhas.push(textoSeguroRelatorio(nomeArquivo));
+  linhas.push("");
+  linhas.push("Gerado em:");
+  linhas.push(new Date().toLocaleString("pt-BR"));
+  linhas.push("");
+
+  linhas.push("ANOTAÇÃO ATUAL");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(anotacaoAtual) || "Sem anotação atual.");
+  if (statusAnotacao) {
+    linhas.push("");
+    linhas.push("Status da anotação:");
+    linhas.push(textoSeguroRelatorio(statusAnotacao));
+  }
+  linhas.push("");
+
+  linhas.push("HISTÓRICO DO ARQUIVO");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(historico) || "Sem histórico disponível.");
+  linhas.push("");
+
+  linhas.push("VERSÕES DO SHAREPOINT");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(versoes) || "Sem informações de versões disponíveis.");
+  linhas.push("");
+
+  return linhas.join("\n");
+}
+
+window.copiarRelatorioArquivo = async function () {
+  try {
+    const relatorio = montarRelatorioArquivo();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(relatorio);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = relatorio;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Relatório copiado.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Erro ao copiar relatório.", "erro");
+    } else {
+      alert("Erro ao copiar relatório.");
+    }
+  }
+};
+
+window.baixarRelatorioArquivo = function () {
+  try {
+    const relatorio = montarRelatorioArquivo();
+    const nomeArquivo =
+      document.getElementById("painelNome")?.innerText ||
+      document.getElementById("painelTitulo")?.innerText ||
+      "arquivo";
+
+    const nomeLimpo = normalizarTexto(nomeArquivo)
+      .replace(/\.pdf$/i, "")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "") || "arquivo";
+
+    const blob = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio_${nomeLimpo}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Relatório baixado em TXT.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Erro ao baixar relatório.", "erro");
+    } else {
+      alert("Erro ao baixar relatório.");
+    }
+  }
+};
+// FIM PASSO 91 RELATORIO JS
+</script>
 
   <style>
     body {
@@ -2693,7 +2854,28 @@ function renderizarDocumentos(listaArquivos) {
     .itemVersao small {
       color: #64748b;
     }
-  </style>
+  /* INICIO PASSO 91 RELATORIO CSS */
+.relatorioArquivoBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+}
+
+.btnRelatorio {
+  background: #334155;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.btnRelatorio:hover {
+  filter: brightness(1.05);
+}
+/* FIM PASSO 91 RELATORIO CSS */
+</style>
 </head>
 <body>
   <div class="card">
@@ -2876,7 +3058,13 @@ function renderizarDocumentos(listaArquivos) {
       <div id="versoesSharePoint">
         <p>Selecione um arquivo para carregar as versões.</p>
       </div>
-      <h3>Histórico do arquivo</h3>
+      <!-- INICIO PASSO 91 RELATORIO -->
+<div class="relatorioArquivoBox">
+  <button class="btnRelatorio" onclick="copiarRelatorioArquivo()">Copiar relatório</button>
+  <button class="btnRelatorio" onclick="baixarRelatorioArquivo()">Baixar TXT</button>
+</div>
+<!-- FIM PASSO 91 RELATORIO -->
+<h3>Histórico do arquivo</h3>
       <div id="historicoArquivo">
         <p>Selecione um arquivo para carregar o histórico.</p>
       </div>
@@ -3180,6 +3368,167 @@ function renderizarDocumentos(listaArquivos) {
   }
 
   iniciarPasso83();
+// INICIO PASSO 91 RELATORIO JS
+function textoSeguroRelatorio(valor) {
+  return (valor || "").toString().replace(/\s+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function obterTextoElementoRelatorio(seletor) {
+  const el = document.querySelector(seletor);
+  return el ? textoSeguroRelatorio(el.innerText || el.textContent || "") : "";
+}
+
+function encontrarTextoVersoesRelatorio() {
+  const candidatos = [
+    "#versoesSharePoint",
+    "#versoesArquivo",
+    "#listaVersoes",
+    "#historicoVersoes",
+    ".versoesSharePoint",
+    ".versoesArquivo",
+    ".listaVersoes",
+    ".historicoVersoes"
+  ];
+
+  for (const seletor of candidatos) {
+    const el = document.querySelector(seletor);
+    if (el && textoSeguroRelatorio(el.innerText || el.textContent || "")) {
+      return textoSeguroRelatorio(el.innerText || el.textContent || "");
+    }
+  }
+
+  const titulos = Array.from(document.querySelectorAll("#painelLateral h3, #painelLateral h2, #painelLateral strong"));
+  const tituloVersao = titulos.find(el => normalizarTexto(el.innerText || el.textContent || "").includes("verso"));
+
+  if (tituloVersao) {
+    let texto = "";
+    let atual = tituloVersao.parentElement;
+    if (atual) {
+      texto = textoSeguroRelatorio(atual.innerText || atual.textContent || "");
+    }
+    if (!texto && tituloVersao.nextElementSibling) {
+      texto = textoSeguroRelatorio(tituloVersao.nextElementSibling.innerText || tituloVersao.nextElementSibling.textContent || "");
+    }
+    return texto;
+  }
+
+  return "";
+}
+
+function montarRelatorioArquivo() {
+  const nomeArquivo =
+    document.getElementById("painelNome")?.innerText ||
+    document.getElementById("painelTitulo")?.innerText ||
+    "Arquivo selecionado";
+
+  const anotacaoAtual = document.getElementById("campoAnotacao")?.value || "";
+  const statusAnotacao = document.getElementById("statusAnotacao")?.innerText || "";
+  const historico = obterTextoElementoRelatorio("#historicoArquivo");
+  const versoes = encontrarTextoVersoesRelatorio();
+
+  const linhas = [];
+
+  linhas.push("RELATÓRIO DO ARQUIVO DIGITAL");
+  linhas.push("Escola Iêda MCPM");
+  linhas.push("");
+  linhas.push("Arquivo:");
+  linhas.push(textoSeguroRelatorio(nomeArquivo));
+  linhas.push("");
+  linhas.push("Gerado em:");
+  linhas.push(new Date().toLocaleString("pt-BR"));
+  linhas.push("");
+
+  linhas.push("ANOTAÇÃO ATUAL");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(anotacaoAtual) || "Sem anotação atual.");
+  if (statusAnotacao) {
+    linhas.push("");
+    linhas.push("Status da anotação:");
+    linhas.push(textoSeguroRelatorio(statusAnotacao));
+  }
+  linhas.push("");
+
+  linhas.push("HISTÓRICO DO ARQUIVO");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(historico) || "Sem histórico disponível.");
+  linhas.push("");
+
+  linhas.push("VERSÕES DO SHAREPOINT");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(versoes) || "Sem informações de versões disponíveis.");
+  linhas.push("");
+
+  return linhas.join("\n");
+}
+
+window.copiarRelatorioArquivo = async function () {
+  try {
+    const relatorio = montarRelatorioArquivo();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(relatorio);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = relatorio;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Relatório copiado.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Erro ao copiar relatório.", "erro");
+    } else {
+      alert("Erro ao copiar relatório.");
+    }
+  }
+};
+
+window.baixarRelatorioArquivo = function () {
+  try {
+    const relatorio = montarRelatorioArquivo();
+    const nomeArquivo =
+      document.getElementById("painelNome")?.innerText ||
+      document.getElementById("painelTitulo")?.innerText ||
+      "arquivo";
+
+    const nomeLimpo = normalizarTexto(nomeArquivo)
+      .replace(/\.pdf$/i, "")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "") || "arquivo";
+
+    const blob = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio_${nomeLimpo}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Relatório baixado em TXT.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Erro ao baixar relatório.", "erro");
+    } else {
+      alert("Erro ao baixar relatório.");
+    }
+  }
+};
+// FIM PASSO 91 RELATORIO JS
 </script>
 <!-- AJUSTE PASSO 83 - FIM -->
 
@@ -3436,6 +3785,167 @@ function renderizarDocumentos(listaArquivos) {
     iniciar84();
   }
 })();
+// INICIO PASSO 91 RELATORIO JS
+function textoSeguroRelatorio(valor) {
+  return (valor || "").toString().replace(/\s+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function obterTextoElementoRelatorio(seletor) {
+  const el = document.querySelector(seletor);
+  return el ? textoSeguroRelatorio(el.innerText || el.textContent || "") : "";
+}
+
+function encontrarTextoVersoesRelatorio() {
+  const candidatos = [
+    "#versoesSharePoint",
+    "#versoesArquivo",
+    "#listaVersoes",
+    "#historicoVersoes",
+    ".versoesSharePoint",
+    ".versoesArquivo",
+    ".listaVersoes",
+    ".historicoVersoes"
+  ];
+
+  for (const seletor of candidatos) {
+    const el = document.querySelector(seletor);
+    if (el && textoSeguroRelatorio(el.innerText || el.textContent || "")) {
+      return textoSeguroRelatorio(el.innerText || el.textContent || "");
+    }
+  }
+
+  const titulos = Array.from(document.querySelectorAll("#painelLateral h3, #painelLateral h2, #painelLateral strong"));
+  const tituloVersao = titulos.find(el => normalizarTexto(el.innerText || el.textContent || "").includes("verso"));
+
+  if (tituloVersao) {
+    let texto = "";
+    let atual = tituloVersao.parentElement;
+    if (atual) {
+      texto = textoSeguroRelatorio(atual.innerText || atual.textContent || "");
+    }
+    if (!texto && tituloVersao.nextElementSibling) {
+      texto = textoSeguroRelatorio(tituloVersao.nextElementSibling.innerText || tituloVersao.nextElementSibling.textContent || "");
+    }
+    return texto;
+  }
+
+  return "";
+}
+
+function montarRelatorioArquivo() {
+  const nomeArquivo =
+    document.getElementById("painelNome")?.innerText ||
+    document.getElementById("painelTitulo")?.innerText ||
+    "Arquivo selecionado";
+
+  const anotacaoAtual = document.getElementById("campoAnotacao")?.value || "";
+  const statusAnotacao = document.getElementById("statusAnotacao")?.innerText || "";
+  const historico = obterTextoElementoRelatorio("#historicoArquivo");
+  const versoes = encontrarTextoVersoesRelatorio();
+
+  const linhas = [];
+
+  linhas.push("RELATÓRIO DO ARQUIVO DIGITAL");
+  linhas.push("Escola Iêda MCPM");
+  linhas.push("");
+  linhas.push("Arquivo:");
+  linhas.push(textoSeguroRelatorio(nomeArquivo));
+  linhas.push("");
+  linhas.push("Gerado em:");
+  linhas.push(new Date().toLocaleString("pt-BR"));
+  linhas.push("");
+
+  linhas.push("ANOTAÇÃO ATUAL");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(anotacaoAtual) || "Sem anotação atual.");
+  if (statusAnotacao) {
+    linhas.push("");
+    linhas.push("Status da anotação:");
+    linhas.push(textoSeguroRelatorio(statusAnotacao));
+  }
+  linhas.push("");
+
+  linhas.push("HISTÓRICO DO ARQUIVO");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(historico) || "Sem histórico disponível.");
+  linhas.push("");
+
+  linhas.push("VERSÕES DO SHAREPOINT");
+  linhas.push("----------------------------------------");
+  linhas.push(textoSeguroRelatorio(versoes) || "Sem informações de versões disponíveis.");
+  linhas.push("");
+
+  return linhas.join("\n");
+}
+
+window.copiarRelatorioArquivo = async function () {
+  try {
+    const relatorio = montarRelatorioArquivo();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(relatorio);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = relatorio;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Relatório copiado.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Erro ao copiar relatório.", "erro");
+    } else {
+      alert("Erro ao copiar relatório.");
+    }
+  }
+};
+
+window.baixarRelatorioArquivo = function () {
+  try {
+    const relatorio = montarRelatorioArquivo();
+    const nomeArquivo =
+      document.getElementById("painelNome")?.innerText ||
+      document.getElementById("painelTitulo")?.innerText ||
+      "arquivo";
+
+    const nomeLimpo = normalizarTexto(nomeArquivo)
+      .replace(/\.pdf$/i, "")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "") || "arquivo";
+
+    const blob = new Blob([relatorio], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio_${nomeLimpo}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Relatório baixado em TXT.");
+    }
+  } catch (erro) {
+    console.error(erro);
+    if (typeof mostrarMensagemPainel === "function") {
+      mostrarMensagemPainel("Erro ao baixar relatório.", "erro");
+    } else {
+      alert("Erro ao baixar relatório.");
+    }
+  }
+};
+// FIM PASSO 91 RELATORIO JS
 </script>
 
 <style>
@@ -3607,10 +4117,32 @@ function renderizarDocumentos(listaArquivos) {
     .itemVersao small {
       color: #64748b;
     }
-  </style>
+  /* INICIO PASSO 91 RELATORIO CSS */
+.relatorioArquivoBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+}
+
+.btnRelatorio {
+  background: #334155;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.btnRelatorio:hover {
+  filter: brightness(1.05);
+}
+/* FIM PASSO 91 RELATORIO CSS */
+</style>
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
