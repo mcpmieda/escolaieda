@@ -1137,7 +1137,142 @@
       }
     };
 
-    function renderizarDocumentos(listaArquivos) {
+        let driveDocumentosAtivosId = null;
+
+    async function obterDriveDocumentosAtivos() {
+      if (driveDocumentosAtivosId) {
+        return driveDocumentosAtivosId;
+      }
+
+      const token = await obterToken();
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/drive`;
+
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const dados = await resposta.json();
+      driveDocumentosAtivosId = dados.id;
+      return driveDocumentosAtivosId;
+    }
+
+    function limparNomeArquivoPdf(nomeOriginal) {
+      let nome = (nomeOriginal || "DOCUMENTO.pdf")
+        .replace(/[\\/:*?"<>|]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!nome.toLowerCase().endsWith(".pdf")) {
+        nome += ".pdf";
+      }
+
+      return nome.toUpperCase();
+    }
+
+    window.abrirSeletorNovoDocumento = function () {
+      const input = document.getElementById("inputNovoDocumento");
+      if (input) {
+        input.click();
+      }
+    };
+
+    window.enviarNovoDocumento = async function (input) {
+      const arquivo = input?.files?.[0];
+
+      if (!arquivo) {
+        return;
+      }
+
+      input.value = "";
+
+      if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
+        mostrarMensagem("Selecione apenas arquivos PDF.", "erro");
+        return;
+      }
+
+      const nomeFinal = limparNomeArquivoPdf(arquivo.name);
+
+      const existeAtivo = documentosCarregados.some(doc =>
+        normalizarTexto(doc.nome) === normalizarTexto(nomeFinal)
+      );
+
+      let aviso = `Enviar o arquivo abaixo para DOCUMENTOS_ATIVOS?\n\n${nomeFinal}`;
+
+      if (existeAtivo) {
+        aviso += "\n\nATENÇÃO: já existe um arquivo ativo com esse mesmo nome. Se continuar, o arquivo atual poderá ser substituído.";
+      }
+
+      if (!confirm(aviso)) {
+        return;
+      }
+
+      const motivo = prompt("Informe o motivo do envio/cadastro:", "Novo documento enviado ao Arquivo Digital.");
+
+      if (motivo === null) {
+        return;
+      }
+
+      try {
+        mostrarMensagem("Enviando PDF para o SharePoint...");
+
+        const token = await obterToken();
+        const driveId = await obterDriveDocumentosAtivos();
+
+        const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
+
+        const respostaUpload = await fetch(urlUpload, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/pdf"
+          },
+          body: arquivo
+        });
+
+        if (!respostaUpload.ok) {
+          throw new Error(await respostaUpload.text());
+        }
+
+        await respostaUpload.json();
+
+        // Pequena pausa para o SharePoint atualizar a biblioteca antes de reler
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
+        await listarDocumentos();
+        await carregarDashboard();
+
+        const documentoNovo = documentosCarregados.find(doc =>
+          normalizarTexto(doc.nome) === normalizarTexto(nomeFinal)
+        ) || {
+          nome: nomeFinal,
+          id: "",
+          caminho: `/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS/${nomeFinal}`,
+          link: ""
+        };
+
+        await registrarHistorico(
+          documentoNovo,
+          existeAtivo ? "SUBSTITUIU" : "ENVIOU",
+          motivo.trim() || "Novo documento enviado ao Arquivo Digital."
+        );
+
+        await carregarDashboard();
+
+        mostrarMensagem(existeAtivo ? "Arquivo enviado e substituição registrada." : "Novo PDF enviado e registrado com sucesso.");
+
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem("Erro ao enviar o PDF: " + erro.message, "erro");
+      }
+    };
+
+function renderizarDocumentos(listaArquivos) {
       const lista = document.getElementById("listaDocumentos");
       const contador = document.getElementById("contadorResultados");
 
@@ -1783,6 +1918,29 @@
         grid-column: span 2;
       }
     }
+  
+    .areaUploadNovo {
+      margin: 0 0 18px 0;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .areaUploadNovo small {
+      color: #64748b;
+    }
+
+    .btnNovoDocumento {
+      background: #0f2f66;
+      color: white;
+      margin: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -1799,7 +1957,12 @@
     <div id="mensagemSistema" class="mensagem"></div>
 
     <div id="areaSistema">
-      <div class="dashboardTopo">
+            <div class="areaUploadNovo">
+        <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
+        <input id="inputNovoDocumento" type="file" accept="application/pdf" style="display:none" onchange="enviarNovoDocumento(this)">
+        <small>Envie apenas cópias/testes enquanto estivermos configurando o sistema.</small>
+      </div>
+<div class="dashboardTopo">
         <h2>Dashboard inicial</h2>
         <button class="btnAtualizar" onclick="recarregarDashboard()">Atualizar dashboard</button>
       </div>
@@ -1952,6 +2115,7 @@
   </aside>
 </body>
 </html>
+
 
 
 
