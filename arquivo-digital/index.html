@@ -249,31 +249,56 @@
       document.getElementById("statusAnotacao").textContent = texto;
     }
 
+    function escaparHtml(valor) {
+      const div = document.createElement("div");
+      div.textContent = (valor || "").toString();
+      return div.innerHTML;
+    }
+
     function atualizarDashboard() {
       const hoje = dataLocalISO();
       const acessosHoje = historicoCarregado.filter(item => dataLocalISO(item.DATA_HORA) === hoje);
-      const ultimoAcesso = historicoCarregado
+
+      const ultimosAcessos = historicoCarregado
         .filter(item => item.DATA_HORA)
-        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))[0];
+        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
+        .slice(0, 3);
 
       const arquivosComAnotacao = anotacoesCarregadas.filter(item =>
         (item.ANOTACAO || "").trim().length > 0
       ).length;
 
-      document.getElementById("dashDocumentos").textContent = documentosAtivos.length;
-      const dashArquivados = document.getElementById("dashArquivados");
-      if (dashArquivados) {
-        dashArquivados.textContent = documentosArquivados.length;
-      }
+      document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
       document.getElementById("dashAcessos").textContent = historicoCarregado.length;
       document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
       document.getElementById("dashAnotacoes").textContent = arquivosComAnotacao;
 
-      document.getElementById("dashUltimoAcesso").textContent = ultimoAcesso
-        ? `${ultimoAcesso.ARQUIVO || "Arquivo"} - ${formatarData(ultimoAcesso.DATA_HORA)}`
-        : "Nenhum acesso registrado";
-    }
+      const dashArquivados = document.getElementById("dashArquivados");
+      if (dashArquivados) {
+        dashArquivados.textContent = documentosArquivados ? documentosArquivados.length : 0;
+      }
 
+      const caixaUltimos = document.getElementById("dashUltimoAcesso");
+      if (!caixaUltimos) return;
+
+      if (!ultimosAcessos.length) {
+        caixaUltimos.textContent = "Nenhum acesso registrado";
+        return;
+      }
+
+      caixaUltimos.innerHTML = ultimosAcessos.map(item => {
+        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não identificado";
+        const arquivo = item.ARQUIVO || "Arquivo";
+        const acao = item.ACAO || "AÇÃO";
+
+        return `
+          <div class="ultimoAcessoItem">
+            <strong>${escaparHtml(arquivo)}</strong>
+            <span>${escaparHtml(acao)} - ${formatarData(item.DATA_HORA)} - ${escaparHtml(usuario)}</span>
+          </div>
+        `;
+      }).join("");
+    }
     async function carregarDadosDeApoio() {
       const token = await obterToken();
 
@@ -707,8 +732,7 @@
         document.getElementById("boxRenomear").style.display = "none";
         document.getElementById("novoNomeArquivo").value = "";
 
-        await listarDocumentos();
-        fecharPainel();
+        await atualizarDadosMantendoPainel();
         mostrarMensagem("Arquivo renomeado com sucesso.");
 
       } catch (erro) {
@@ -799,9 +823,7 @@
         document.getElementById("boxSubstituir").style.display = "none";
         document.getElementById("arquivoSubstituto").value = "";
 
-        await carregarHistoricoDocumento(documentoSelecionado);
-        await listarDocumentos();
-        await carregarDadosDeApoio();
+        await atualizarDadosMantendoPainel();
         mostrarMensagemPainel("Arquivo substituído com sucesso. O histórico foi atualizado.");
 
       } catch (erro) {
@@ -934,9 +956,7 @@
         document.getElementById("boxArquivar").style.display = "none";
         document.getElementById("motivoArquivar").value = "";
 
-        fecharPainel();
-        await listarDocumentos();
-        await carregarDadosDeApoio();
+        await atualizarDadosMantendoPainel("arquivados");
         mostrarMensagem("Arquivo arquivado com sucesso. Ele saiu da lista principal e foi para a pasta _ARQUIVADOS.");
 
       } catch (erro) {
@@ -1042,9 +1062,7 @@
         document.getElementById("motivoRestaurar").value = "";
 
         modoListaAtual = "ativos";
-        fecharPainel();
-        await listarDocumentos();
-        await carregarDadosDeApoio();
+        await atualizarDadosMantendoPainel("arquivados");
         mostrarMensagem("Arquivo restaurado com sucesso para Documentos ativos.");
 
       } catch (erro) {
@@ -1053,6 +1071,65 @@
       }
     };
 
+
+    function guardarPainelSelecionadoParaReabrir(modoDestino = "") {
+      if (!documentoSelecionado || !documentoSelecionado.id) {
+        return;
+      }
+
+      sessionStorage.setItem("arquivoDigitalReabrirDocumentoId", documentoSelecionado.id);
+      sessionStorage.setItem("arquivoDigitalReabrirDocumentoNome", documentoSelecionado.nome || "");
+
+      if (modoDestino) {
+        sessionStorage.setItem("arquivoDigitalReabrirModo", modoDestino);
+      } else if (typeof modoListaAtual !== "undefined") {
+        sessionStorage.setItem("arquivoDigitalReabrirModo", modoListaAtual);
+      }
+    }
+
+    async function reabrirPainelSelecionadoSePossivel() {
+      const id = sessionStorage.getItem("arquivoDigitalReabrirDocumentoId") || "";
+      const nome = sessionStorage.getItem("arquivoDigitalReabrirDocumentoNome") || "";
+      const modo = sessionStorage.getItem("arquivoDigitalReabrirModo") || "";
+
+      sessionStorage.removeItem("arquivoDigitalReabrirDocumentoId");
+      sessionStorage.removeItem("arquivoDigitalReabrirDocumentoNome");
+      sessionStorage.removeItem("arquivoDigitalReabrirModo");
+
+      if (modo && typeof modoListaAtual !== "undefined") {
+        modoListaAtual = modo;
+      }
+
+      if (typeof aplicarListaAtual === "function") {
+        aplicarListaAtual();
+      }
+
+      let indice = documentosCarregados.findIndex(doc => doc.id === id);
+
+      if (indice < 0 && nome) {
+        indice = documentosCarregados.findIndex(doc => normalizarTexto(doc.nome) === normalizarTexto(nome));
+      }
+
+      if (indice >= 0) {
+        await selecionarDocumento(indice);
+      }
+    }
+
+    async function atualizarDadosMantendoPainel(modoDestino = "") {
+      guardarPainelSelecionadoParaReabrir(modoDestino);
+
+      if (modoDestino && typeof modoListaAtual !== "undefined") {
+        modoListaAtual = modoDestino;
+      }
+
+      await listarDocumentos();
+
+      if (typeof carregarDadosDeApoio === "function") {
+        await carregarDadosDeApoio();
+      }
+
+      await reabrirPainelSelecionadoSePossivel();
+    }
     window.selecionarDocumento = async function (indice) {
       const documento = documentosCarregados[indice];
 
@@ -1951,6 +2028,10 @@ function renderizarDocumentos(listaArquivos) {
       margin: 0;
     }
 
+
+    .btnAtualizar {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -1974,7 +2055,6 @@ function renderizarDocumentos(listaArquivos) {
       </div>
 <div class="dashboardTopo">
         <h2>Dashboard inicial</h2>
-        <button class="btnAtualizar" onclick="recarregarDashboard()">Atualizar dashboard</button>
       </div>
 
       <div class="dashboard">
@@ -2004,8 +2084,8 @@ function renderizarDocumentos(listaArquivos) {
         </div>
 
         <div class="cardDash largo">
-          <span>Último acesso registrado</span>
-          <strong id="dashUltimoAcesso">Nenhum acesso registrado</strong>
+          <span>Últimos acessos registrados</span>
+          <div id="dashUltimoAcesso" class="listaUltimosAcessos">Nenhum acesso registrado</div>
         </div>
       </div>
 
@@ -2125,6 +2205,7 @@ function renderizarDocumentos(listaArquivos) {
   </aside>
 </body>
 </html>
+
 
 
 
