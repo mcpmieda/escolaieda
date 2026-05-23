@@ -19,6 +19,8 @@
     };
 
     let documentosCarregados = [];
+    let historicoCarregado = [];
+    let anotacoesCarregadas = [];
     let documentoSelecionado = null;
     let anotacaoAtualItemId = null;
     let timerSalvarAnotacao = null;
@@ -60,6 +62,14 @@
       }
     }
 
+    function dataLocalISO(data) {
+      const d = data ? new Date(data) : new Date();
+      const ano = d.getFullYear();
+      const mes = String(d.getMonth() + 1).padStart(2, "0");
+      const dia = String(d.getDate()).padStart(2, "0");
+      return `${ano}-${mes}-${dia}`;
+    }
+
     async function obterToken() {
       const conta = msalInstance.getAllAccounts()[0];
 
@@ -77,6 +87,31 @@
       } catch (erro) {
         await msalInstance.acquireTokenRedirect(loginRequest);
       }
+    }
+
+    async function buscarTodosItens(urlInicial, token) {
+      let url = urlInicial;
+      let todos = [];
+      let seguranca = 0;
+
+      while (url && seguranca < 50) {
+        const resposta = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        const dados = await resposta.json();
+        todos = todos.concat(dados.value || []);
+        url = dados["@odata.nextLink"] || "";
+        seguranca++;
+      }
+
+      return todos;
     }
 
     function mostrarMensagem(texto, tipo = "info") {
@@ -104,6 +139,72 @@
     function atualizarStatusAnotacao(texto) {
       document.getElementById("statusAnotacao").textContent = texto;
     }
+
+    function atualizarDashboard() {
+      const hoje = dataLocalISO();
+      const acessosHoje = historicoCarregado.filter(item => dataLocalISO(item.DATA_HORA) === hoje);
+      const ultimoAcesso = historicoCarregado
+        .filter(item => item.DATA_HORA)
+        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))[0];
+
+      const arquivosComAnotacao = anotacoesCarregadas.filter(item =>
+        (item.ANOTACAO || "").trim().length > 0
+      ).length;
+
+      document.getElementById("dashDocumentos").textContent = documentosCarregados.length;
+      document.getElementById("dashAcessos").textContent = historicoCarregado.length;
+      document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
+      document.getElementById("dashAnotacoes").textContent = arquivosComAnotacao;
+
+      document.getElementById("dashUltimoAcesso").textContent = ultimoAcesso
+        ? `${ultimoAcesso.ARQUIVO || "Arquivo"} - ${formatarData(ultimoAcesso.DATA_HORA)}`
+        : "Nenhum acesso registrado";
+    }
+
+    async function carregarDadosDeApoio() {
+      const token = await obterToken();
+
+      const urlHistorico = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+
+      const itensHistorico = await buscarTodosItens(urlHistorico, token);
+
+      historicoCarregado = itensHistorico.map(item => ({
+        ID: item.id,
+        ARQUIVO: item.fields?.Title || "",
+        USUARIO_EMAIL: item.fields?.USUARIO_EMAIL || "",
+        ACAO: item.fields?.ACAO || "",
+        USUARIO_NOME: item.fields?.USUARIO_NOME || "",
+        DATA_HORA: item.fields?.DATA_HORA || "",
+        ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
+        OBSERVACAO: item.fields?.OBSERVACAO || ""
+      }));
+
+      const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
+
+      const itensAnotacoes = await buscarTodosItens(urlAnotacoes, token);
+
+      anotacoesCarregadas = itensAnotacoes.map(item => ({
+        ID: item.id,
+        ARQUIVO: item.fields?.Title || "",
+        ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
+        ANOTACAO: item.fields?.ANOTACAO || "",
+        ATUALIZADO_POR: item.fields?.ATUALIZADO_POR || "",
+        DATA_ATUALIZACAO: item.fields?.DATA_ATUALIZACAO || ""
+      }));
+
+      atualizarDashboard();
+    }
+
+    window.recarregarDashboard = async function () {
+      try {
+        mostrarMensagem("Atualizando dashboard...");
+        await carregarDadosDeApoio();
+        mostrarMensagem("Dashboard atualizado.");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem("Erro ao atualizar dashboard.", "erro");
+      }
+    };
 
     async function registrarHistorico(documento, acao, observacao = "") {
       const token = await obterToken();
@@ -136,6 +237,21 @@
         const erro = await resposta.text();
         throw new Error(erro);
       }
+
+      const novoItem = await resposta.json();
+
+      historicoCarregado.push({
+        ID: novoItem.id,
+        ARQUIVO: documento.nome,
+        USUARIO_EMAIL: conta?.username || "",
+        ACAO: acao,
+        USUARIO_NOME: conta?.name || "",
+        DATA_HORA: new Date().toISOString(),
+        ARQUIVO_ID: documento.id || "",
+        OBSERVACAO: observacao
+      });
+
+      atualizarDashboard();
     }
 
     async function carregarHistoricoDocumento(documento) {
@@ -143,25 +259,9 @@
       caixa.innerHTML = "<p>Carregando histórico...</p>";
 
       try {
-        const token = await obterToken();
-
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=100`;
-
-        const resposta = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!resposta.ok) {
-          throw new Error(await resposta.text());
-        }
-
-        const dados = await resposta.json();
-
-        const historico = (dados.value || [])
-          .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id)
-          .sort((a, b) => new Date(b.fields.DATA_HORA) - new Date(a.fields.DATA_HORA));
+        const historico = historicoCarregado
+          .filter(item => item.ARQUIVO_ID === documento.id)
+          .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA));
 
         if (!historico.length) {
           caixa.innerHTML = "<p>Nenhum histórico registrado para este arquivo.</p>";
@@ -170,10 +270,10 @@
 
         caixa.innerHTML = historico.map(item => `
           <div class="itemHistorico">
-            <strong>${item.fields.ACAO || ""}</strong><br>
-            <span>${formatarData(item.fields.DATA_HORA)}</span><br>
-            <span>${item.fields.USUARIO_NOME || ""} - ${item.fields.USUARIO_EMAIL || ""}</span><br>
-            <small>${item.fields.OBSERVACAO || ""}</small>
+            <strong>${item.ACAO || ""}</strong><br>
+            <span>${formatarData(item.DATA_HORA)}</span><br>
+            <span>${item.USUARIO_NOME || ""} - ${item.USUARIO_EMAIL || ""}</span><br>
+            <small>${item.OBSERVACAO || ""}</small>
           </div>
         `).join("");
 
@@ -190,28 +290,12 @@
       atualizarStatusAnotacao("Carregando anotação...");
 
       try {
-        const token = await obterToken();
-
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=100`;
-
-        const resposta = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!resposta.ok) {
-          throw new Error(await resposta.text());
-        }
-
-        const dados = await resposta.json();
-
-        const item = (dados.value || []).find(x => x.fields && x.fields.ARQUIVO_ID === documento.id);
+        const item = anotacoesCarregadas.find(x => x.ARQUIVO_ID === documento.id);
 
         if (item) {
-          anotacaoAtualItemId = item.id;
-          textarea.value = item.fields.ANOTACAO || "";
-          atualizarStatusAnotacao(`Última atualização: ${formatarData(item.fields.DATA_ATUALIZACAO)} - ${item.fields.ATUALIZADO_POR || ""}`);
+          anotacaoAtualItemId = item.ID;
+          textarea.value = item.ANOTACAO || "";
+          atualizarStatusAnotacao(`Última atualização: ${formatarData(item.DATA_ATUALIZACAO)} - ${item.ATUALIZADO_POR || ""}`);
         } else {
           atualizarStatusAnotacao("Nenhuma anotação salva ainda.");
         }
@@ -231,13 +315,15 @@
       const texto = document.getElementById("campoAnotacao").value || "";
       const token = await obterToken();
       const conta = msalInstance.getAllAccounts()[0];
+      const agora = new Date().toISOString();
+      const atualizadoPor = conta?.name || conta?.username || "";
 
       const campos = {
         Title: documentoSelecionado.nome,
         ARQUIVO_ID: documentoSelecionado.id || "",
         ANOTACAO: texto,
-        ATUALIZADO_POR: conta?.name || conta?.username || "",
-        DATA_ATUALIZACAO: new Date().toISOString()
+        ATUALIZADO_POR: atualizadoPor,
+        DATA_ATUALIZACAO: agora
       };
 
       if (anotacaoAtualItemId) {
@@ -254,6 +340,13 @@
 
         if (!resposta.ok) {
           throw new Error(await resposta.text());
+        }
+
+        const itemLocal = anotacoesCarregadas.find(x => String(x.ID) === String(anotacaoAtualItemId));
+        if (itemLocal) {
+          itemLocal.ANOTACAO = texto;
+          itemLocal.ATUALIZADO_POR = atualizadoPor;
+          itemLocal.DATA_ATUALIZACAO = agora;
         }
 
       } else {
@@ -274,8 +367,18 @@
 
         const novoItem = await resposta.json();
         anotacaoAtualItemId = novoItem.id;
+
+        anotacoesCarregadas.push({
+          ID: novoItem.id,
+          ARQUIVO: documentoSelecionado.nome,
+          ARQUIVO_ID: documentoSelecionado.id || "",
+          ANOTACAO: texto,
+          ATUALIZADO_POR: atualizadoPor,
+          DATA_ATUALIZACAO: agora
+        });
       }
 
+      atualizarDashboard();
       atualizarStatusAnotacao(`Salvo automaticamente em ${new Date().toLocaleString("pt-BR")}`);
     }
 
@@ -415,21 +518,10 @@
       try {
         const token = await obterToken();
 
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId)&$top=50`;
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId)&$top=999`;
 
-        const resposta = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!resposta.ok) {
-          const textoErro = await resposta.text();
-          throw new Error(textoErro);
-        }
-
-        const dados = await resposta.json();
-        const arquivos = (dados.value || []).filter(item => item.fields && item.fields.FileLeafRef);
+        const itens = await buscarTodosItens(url, token);
+        const arquivos = itens.filter(item => item.fields && item.fields.FileLeafRef);
 
         documentosCarregados = arquivos.map(item => {
           const nome = item.fields.FileLeafRef;
@@ -444,6 +536,7 @@
         });
 
         renderizarDocumentos(documentosCarregados);
+        atualizarDashboard();
 
       } catch (erro) {
         lista.innerHTML = `<li class="erro">Erro ao carregar documentos: ${erro.message}</li>`;
@@ -470,6 +563,7 @@
         `;
 
         await listarDocumentos();
+        await carregarDadosDeApoio();
       } else {
         document.getElementById("usuario").innerHTML = "";
       }
@@ -500,7 +594,7 @@
     }
 
     .card {
-      max-width: 950px;
+      max-width: 1100px;
       margin: auto;
       background: white;
       border-radius: 18px;
@@ -539,6 +633,65 @@
     #areaSistema {
       margin-top: 25px;
       display: none;
+    }
+
+    .dashboardTopo {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .dashboardTopo h2 {
+      margin: 0;
+      color: #0f2f66;
+    }
+
+    .btnAtualizar {
+      background: #475569;
+      padding: 9px 12px;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 16px 0 18px 0;
+    }
+
+    .cardDash {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 84px;
+    }
+
+    .cardDash span {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .cardDash strong {
+      display: block;
+      font-size: 28px;
+      color: #0f2f66;
+    }
+
+    .cardDash.largo {
+      grid-column: span 4;
+      min-height: auto;
+    }
+
+    .cardDash.largo strong {
+      font-size: 14px;
+      color: #1f2937;
+      line-height: 1.4;
     }
 
     .busca {
@@ -772,6 +925,20 @@
     .textoErro {
       color: #b00020;
     }
+
+    @media (max-width: 820px) {
+      body {
+        padding: 16px;
+      }
+
+      .dashboard {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+
+      .cardDash.largo {
+        grid-column: span 2;
+      }
+    }
   </style>
 </head>
 <body>
@@ -788,6 +955,38 @@
     <div id="mensagemSistema" class="mensagem"></div>
 
     <div id="areaSistema">
+      <div class="dashboardTopo">
+        <h2>Dashboard inicial</h2>
+        <button class="btnAtualizar" onclick="recarregarDashboard()">Atualizar dashboard</button>
+      </div>
+
+      <div class="dashboard">
+        <div class="cardDash">
+          <span>Documentos ativos</span>
+          <strong id="dashDocumentos">0</strong>
+        </div>
+
+        <div class="cardDash">
+          <span>Acessos registrados</span>
+          <strong id="dashAcessos">0</strong>
+        </div>
+
+        <div class="cardDash">
+          <span>Acessos hoje</span>
+          <strong id="dashAcessosHoje">0</strong>
+        </div>
+
+        <div class="cardDash">
+          <span>Arquivos com anotações</span>
+          <strong id="dashAnotacoes">0</strong>
+        </div>
+
+        <div class="cardDash largo">
+          <span>Último acesso registrado</span>
+          <strong id="dashUltimoAcesso">Nenhum acesso registrado</strong>
+        </div>
+      </div>
+
       <h2>Documentos ativos</h2>
 
       <input
