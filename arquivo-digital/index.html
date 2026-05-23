@@ -4347,8 +4347,84 @@ window.baixarRelatorioArquivo = function () {
   }, 1200);
 })();
 </script>
+
+<script>
+/* PASSO98B_CORRIGIR_MODAL_UPLOAD */
+(function () {
+  function mostrarModalUpload98B() {
+    const modal = document.getElementById("modalUpload98");
+    const status = document.getElementById("modalUpload98Status");
+
+    if (modal) {
+      modal.style.display = "flex";
+      modal.classList.add("aberto");
+
+      if (status) {
+        status.textContent = "Escolha um PDF para enviar ao Arquivo Digital.";
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  function abrirSeletorDiretoFallback98B() {
+    const input = document.getElementById("inputNovoDocumento");
+    if (input) input.click();
+  }
+
+  function abrirUpload98B(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (typeof event.stopImmediatePropagation === "function") {
+        event.stopImmediatePropagation();
+      }
+    }
+
+    if (!mostrarModalUpload98B()) {
+      abrirSeletorDiretoFallback98B();
+    }
+
+    return false;
+  }
+
+  function instalar98B() {
+    window.abrirSeletorNovoDocumento = abrirUpload98B;
+
+    const botoes = document.querySelectorAll("button, a");
+
+    botoes.forEach(btn => {
+      const texto = (btn.textContent || "").trim().toLowerCase();
+      const onclick = (btn.getAttribute("onclick") || "").toLowerCase();
+
+      if (
+        texto.includes("enviar novo pdf") ||
+        texto.includes("enviar pdf") ||
+        texto.includes("enviar pdf(s)") ||
+        onclick.includes("abrirseletornovodocumento")
+      ) {
+        if (!btn.dataset.passo98b) {
+          btn.dataset.passo98b = "1";
+          btn.addEventListener("click", abrirUpload98B, true);
+        }
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", instalar98B);
+  window.addEventListener("load", instalar98B);
+
+  setTimeout(instalar98B, 500);
+  setTimeout(instalar98B, 1500);
+  setTimeout(instalar98B, 3000);
+})();
+</script>
 </body>
 </html>
+
 
 
 
