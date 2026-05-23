@@ -78,8 +78,99 @@
       } catch {
         return data;
       }
+
+    function limparObservacaoHistorico(texto) {
+      let limpo = (texto || "").toString().trim();
+
+      const padroes = [
+        /^Arquivo restaurado da pasta _ARQUIVADOS para a lista principal\.\s*Motivo:\s*/i,
+        /^Arquivo arquivado na pasta _ARQUIVADOS\.\s*Motivo:\s*/i,
+        /^Arquivo substituído por uma nova versão\.\s*Motivo:\s*/i,
+        /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i
+      ];
+
+      padroes.forEach(padrao => {
+        limpo = limpo.replace(padrao, "");
+      });
+
+      return limpo.trim();
+    }    }
+
+    function obterPalavrasNome(nome) {
+      const ignorar = new Set(["pdf", "de", "da", "do", "das", "dos", "e", "a", "o"]);
+
+      return normalizarTexto(nome)
+        .replace(/\.pdf$/i, "")
+        .split(/[^a-z0-9]+/)
+        .filter(palavra => palavra.length >= 3 && !ignorar.has(palavra));
     }
 
+    function calcularPontuacaoNomes(nomeA, nomeB) {
+      const palavrasA = obterPalavrasNome(nomeA);
+      const palavrasB = obterPalavrasNome(nomeB);
+
+      if (!palavrasA.length || !palavrasB.length) {
+        return 0;
+      }
+
+      let iguais = 0;
+      palavrasA.forEach(palavra => {
+        if (palavrasB.includes(palavra)) {
+          iguais++;
+        }
+      });
+
+      const normalA = normalizarTexto(nomeA).replace(/\.pdf$/i, "");
+      const normalB = normalizarTexto(nomeB).replace(/\.pdf$/i, "");
+
+      if (normalA.includes(normalB) || normalB.includes(normalA)) {
+        iguais += 2;
+      }
+
+      return iguais;
+    }
+
+    function buscarNomesParecidos(documento) {
+      const todos = [...documentosAtivos, ...documentosArquivados]
+        .filter(doc => doc && doc.id !== documento.id);
+
+      return todos
+        .map(doc => ({
+          doc,
+          pontos: calcularPontuacaoNomes(documento.nome, doc.nome)
+        }))
+        .filter(item => item.pontos >= 2)
+        .sort((a, b) => b.pontos - a.pontos || a.doc.nome.localeCompare(b.doc.nome))
+        .slice(0, 8);
+    }
+
+    function carregarNomesParecidos(documento) {
+      const caixa = document.getElementById("nomesParecidosArquivo");
+
+      if (!caixa) {
+        return;
+      }
+
+      const parecidos = buscarNomesParecidos(documento);
+
+      if (!parecidos.length) {
+        caixa.innerHTML = "<p>Nenhum nome parecido encontrado.</p>";
+        return;
+      }
+
+      caixa.innerHTML = parecidos.map(item => {
+        const status = item.doc.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+        const classe = item.doc.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
+
+        return `
+          <div class="nomeParecido">
+            <strong>${item.doc.nome}</strong>
+            <span class="${classe}">${status}</span>
+            <small>Possível semelhança pelo nome. Confira antes de substituir, renomear ou mesclar.</small>
+          </div>
+        `;
+      }).join("");
+    }
     function dataLocalISO(data) {
       const d = data ? new Date(data) : new Date();
       const ano = d.getFullYear();
@@ -337,7 +428,7 @@
             <strong>${item.ACAO || ""}</strong><br>
             <span>${formatarData(item.DATA_HORA)}</span><br>
             <span>${item.USUARIO_NOME || ""} - ${item.USUARIO_EMAIL || ""}</span><br>
-            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo/observação:</strong> ${item.OBSERVACAO}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
+            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${limparObservacaoHistorico(item.OBSERVACAO)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
           </div>
         `).join("");
 
@@ -816,7 +907,7 @@
         await registrarHistorico(
           documentoSelecionado,
           "ARQUIVOU",
-          `Arquivo arquivado na pasta _ARQUIVADOS. Motivo: ${motivo}`
+          motivo
         );
 
         document.getElementById("boxArquivar").style.display = "none";
@@ -923,7 +1014,7 @@
         await registrarHistorico(
           documentoSelecionado,
           "RESTAUROU",
-          `Arquivo restaurado da pasta _ARQUIVADOS para a lista principal. Motivo: ${motivo}`
+          motivo
         );
 
         document.getElementById("boxRestaurar").style.display = "none";
@@ -953,8 +1044,10 @@
 
       document.getElementById("painelTitulo").textContent = documento.nome;
       document.getElementById("painelNome").textContent = documento.nome;
-      document.getElementById("painelId").textContent = documento.id || "";
-      document.getElementById("painelCaminho").textContent = documento.caminho || "";
+      const painelId = document.getElementById("painelId");
+      if (painelId) painelId.textContent = documento.id || "";
+      const painelCaminho = document.getElementById("painelCaminho");
+      if (painelCaminho) painelCaminho.textContent = documento.caminho || "";
       document.getElementById("painelStatus").textContent = documento.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
 
       const estaArquivado = documento.status === "ARQUIVADO";
@@ -973,6 +1066,7 @@
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
 
+      carregarNomesParecidos(documento);
       await carregarHistoricoDocumento(documento);
       await carregarAnotacaoDocumento(documento);
     };
@@ -1571,6 +1665,52 @@
       background: #475569;
     }
 
+
+    .nomesParecidosBox {
+      margin: 16px 0;
+    }
+
+    .nomeParecido {
+      padding: 10px;
+      border-radius: 10px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .nomeParecido strong {
+      display: block;
+      color: #9a3412;
+      margin-bottom: 5px;
+    }
+
+    .nomeParecido small {
+      display: block;
+      color: #64748b;
+      margin-top: 5px;
+      line-height: 1.35;
+    }
+
+    .tagAtivo,
+    .tagArquivado {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .tagAtivo {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tagArquivado {
+      background: #e2e8f0;
+      color: #475569;
+    }
     .itemHistorico {
       padding: 10px;
       border-radius: 10px;
@@ -1711,22 +1851,12 @@
       </div>
 
       <div class="campoInfo">
-        <strong>ID interno</strong>
-        <span id="painelId"></span>
-      </div>
-
-      <div class="campoInfo">
-        <strong>Caminho</strong>
-        <span id="painelCaminho"></span>
-      </div>
-
-      <div class="campoInfo">
         <strong>Status</strong>
         <span id="painelStatus"></span>
       </div>
 
       <div class="acoes">
-        <button class="principal" onclick="abrirPdfSelecionado()">Abrir PDF e registrar acesso</button>
+        <button class="principal" onclick="abrirPdfSelecionado()">ABRIR PDF</button>
         <button id="btnRenomear" onclick="prepararRenomear()">Renomear</button>
         <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
         <button id="btnArquivar" onclick="prepararArquivar()">Arquivar</button>
@@ -1786,6 +1916,13 @@
         </div>
       </div>
 
+
+      <div class="nomesParecidosBox">
+        <h3>Nomes parecidos</h3>
+        <div id="nomesParecidosArquivo">
+          <p>Selecione um arquivo para verificar nomes parecidos.</p>
+        </div>
+      </div>
       <h3>Histórico do arquivo</h3>
       <div id="historicoArquivo">
         <p>Selecione um arquivo para carregar o histórico.</p>
@@ -1794,4 +1931,5 @@
   </aside>
 </body>
 </html>
+
 
