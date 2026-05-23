@@ -337,7 +337,7 @@
             <strong>${item.ACAO || ""}</strong><br>
             <span>${formatarData(item.DATA_HORA)}</span><br>
             <span>${item.USUARIO_NOME || ""} - ${item.USUARIO_EMAIL || ""}</span><br>
-            <small>${item.OBSERVACAO || ""}</small>
+            ${item.OBSERVACAO ? `<div class="motivoHistorico"><strong>Motivo/observação:</strong> ${item.OBSERVACAO}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
           </div>
         `).join("");
 
@@ -1150,7 +1150,33 @@
     };
 
     window.filtrarDocumentos = filtrarDocumentos;
+    // Clique fora do painel lateral para fechar
+    window.addEventListener("click", function (event) {
+      const painel = document.getElementById("painelLateral");
 
+      if (!painel || !painel.classList.contains("aberto")) {
+        return;
+      }
+
+      if (painel.contains(event.target)) {
+        return;
+      }
+
+      if (event.target.closest(".itemArquivo")) {
+        return;
+      }
+
+      fecharPainel();
+    });
+
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        const painel = document.getElementById("painelLateral");
+        if (painel && painel.classList.contains("aberto")) {
+          fecharPainel();
+        }
+      }
+    });
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
   </script>
@@ -1559,6 +1585,26 @@
       color: #64748b;
     }
 
+
+    .motivoHistorico {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #eef3ff;
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .motivoHistorico strong {
+      color: #0f2f66;
+    }
+
+    .motivoHistorico.vazio {
+      background: #f8fafc;
+      color: #94a3b8;
+      font-style: italic;
+    }
     .textoErro {
       color: #b00020;
     }
@@ -1748,3 +1794,4 @@
   </aside>
 </body>
 </html>
+
