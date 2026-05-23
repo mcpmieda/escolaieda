@@ -13,7 +13,8 @@
       tenantId: "f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
       redirectUri: "https://escolaieda.com/arquivo-digital/",
       siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
-      documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16"
+      documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
+      historicoAcessosListId: "144b31da-83f8-4ba4-b573-61fd8e5ac09f"
     };
 
     let documentosCarregados = [];
@@ -34,7 +35,7 @@
     await msalInstance.initialize();
 
     const loginRequest = {
-      scopes: ["User.Read", "Sites.Read.All"]
+      scopes: ["User.Read", "Sites.ReadWrite.All"]
     };
 
     function normalizarTexto(texto) {
@@ -65,6 +66,69 @@
       }
     }
 
+    function mostrarMensagem(texto, tipo = "info") {
+      const msg = document.getElementById("mensagemSistema");
+      msg.textContent = texto;
+      msg.className = tipo === "erro" ? "mensagem erroBox" : "mensagem";
+      msg.style.display = "block";
+
+      setTimeout(() => {
+        msg.style.display = "none";
+      }, 4000);
+    }
+
+    async function registrarHistorico(documento, acao, observacao = "") {
+      const token = await obterToken();
+      const conta = msalInstance.getAllAccounts()[0];
+
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items`;
+
+      const corpo = {
+        fields: {
+          Title: documento.nome,
+          USUARIO_EMAIL: conta?.username || "",
+          ACAO: acao,
+          USUARIO_NOME: conta?.name || "",
+          DATA_HORA: new Date().toISOString(),
+          ARQUIVO_ID: documento.id || "",
+          OBSERVACAO: observacao
+        }
+      };
+
+      const resposta = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(corpo)
+      });
+
+      if (!resposta.ok) {
+        const erro = await resposta.text();
+        throw new Error(erro);
+      }
+    }
+
+    window.abrirDocumento = async function (indice) {
+      const documento = documentosCarregados[indice];
+
+      if (!documento) {
+        mostrarMensagem("Documento não encontrado na lista carregada.", "erro");
+        return;
+      }
+
+      try {
+        await registrarHistorico(documento, "VISUALIZOU", "Documento aberto pelo sistema Arquivo Digital.");
+        mostrarMensagem("Acesso registrado no histórico.");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem("Não foi possível registrar o histórico, mas o PDF será aberto.", "erro");
+      }
+
+      window.open(documento.link, "_blank", "noopener");
+    };
+
     function renderizarDocumentos(listaArquivos) {
       const lista = document.getElementById("listaDocumentos");
       const contador = document.getElementById("contadorResultados");
@@ -79,13 +143,12 @@
       lista.innerHTML = "";
 
       listaArquivos.forEach(item => {
-        const nome = item.nome;
-        const link = item.link;
+        const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
 
         const li = document.createElement("li");
         li.innerHTML = `
-          <strong>${nome}</strong><br>
-          <a href="${link}" target="_blank" rel="noopener">Abrir PDF</a>
+          <strong>${item.nome}</strong><br>
+          <button class="btnPequeno" onclick="abrirDocumento(${indiceOriginal})">Abrir PDF</button>
         `;
         lista.appendChild(li);
       });
@@ -222,6 +285,12 @@
       margin-right: 8px;
     }
 
+    .btnPequeno {
+      padding: 8px 12px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
     #btnSair {
       background: #666;
       display: none;
@@ -255,6 +324,21 @@
       margin-bottom: 15px;
     }
 
+    .mensagem {
+      display: none;
+      margin: 15px 0;
+      padding: 12px;
+      background: #ecfdf5;
+      color: #065f46;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .erroBox {
+      background: #fff0f0;
+      color: #b00020;
+    }
+
     ul {
       padding-left: 0;
       list-style: none;
@@ -266,11 +350,6 @@
       background: #f8fafc;
       border-radius: 12px;
       border: 1px solid #e5e7eb;
-    }
-
-    a {
-      color: #0f2f66;
-      font-weight: bold;
     }
 
     .erro {
@@ -290,6 +369,7 @@
     <button id="btnSair" onclick="sair()">Sair</button>
 
     <div id="usuario" class="info"></div>
+    <div id="mensagemSistema" class="mensagem"></div>
 
     <div id="areaSistema">
       <h2>Documentos ativos</h2>
