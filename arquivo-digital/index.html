@@ -304,82 +304,57 @@
         function atualizarDashboard() {
       const hoje = dataLocalISO();
 
-      const historico = Array.isArray(historicoCarregado) ? historicoCarregado : [];
-
-      const documentosBase =
-        (typeof documentosAtivos !== "undefined" && Array.isArray(documentosAtivos) && documentosAtivos.length)
-          ? documentosAtivos
-          : (Array.isArray(documentosCarregados) ? documentosCarregados : []);
-
-      const anotacoesBase =
-        (typeof anotacoesCarregadas !== "undefined" && Array.isArray(anotacoesCarregadas))
-          ? anotacoesCarregadas
-          : [];
-
-      const movimentacoesHoje = historico.filter(item =>
-        item.DATA_HORA && dataLocalISO(item.DATA_HORA) === hoje
+      const acessosHoje = historicoCarregado.filter(item =>
+        dataLocalISO(item.DATA_HORA) === hoje
       );
 
       const arquivosComAnotacao = new Set(
-        anotacoesBase
-          .filter(item => item && item.ARQUIVO_ID && item.ANOTACAO)
-          .map(item => item.ARQUIVO_ID)
+        (anotacoesCarregadas || [])
+          .filter(item => item.ARQUIVO_ID || item.ARQUIVO)
+          .map(item => item.ARQUIVO_ID || normalizarTexto(item.ARQUIVO || ""))
       ).size;
 
-      const movimentacoesPorArquivo = [];
-      const jaIncluidos = new Set();
-
-      historico
-        .filter(item => item && item.DATA_HORA)
-        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
-        .forEach(item => {
-          const chave = item.ARQUIVO_ID || normalizarTexto(item.ARQUIVO || "");
-
-          if (!chave) return;
-
-          if (!jaIncluidos.has(chave)) {
-            jaIncluidos.add(chave);
-            movimentacoesPorArquivo.push(item);
-          }
-        });
-
-      const ultimasMovimentacoes = movimentacoesPorArquivo.slice(0, 3);
-
-      const dashDocumentos = document.getElementById("dashDocumentos");
-      const dashAcessos = document.getElementById("dashAcessos");
-      const dashAcessosHoje = document.getElementById("dashAcessosHoje");
-      const dashAnotacoes = document.getElementById("dashAnotacoes");
-
-      if (dashDocumentos) dashDocumentos.textContent = documentosBase.length;
-      if (dashAcessos) dashAcessos.textContent = historico.length;
-      if (dashAcessosHoje) dashAcessosHoje.textContent = movimentacoesHoje.length;
-      if (dashAnotacoes) dashAnotacoes.textContent = arquivosComAnotacao;
-
-      const cardUltimos = document.getElementById("dashUltimoAcesso")?.closest(".cardDash");
-      const tituloUltimos = cardUltimos?.querySelector("span");
-
-      if (tituloUltimos) {
-        tituloUltimos.textContent = "Últimas movimentações por arquivo";
-      }
+      document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
+      document.getElementById("dashAcessos").textContent = historicoCarregado.length;
+      document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
+      document.getElementById("dashAnotacoes").textContent = arquivosComAnotacao;
 
       const caixaUltimos = document.getElementById("dashUltimoAcesso");
       if (!caixaUltimos) return;
 
-      if (!ultimasMovimentacoes.length) {
+      const vistos = new Set();
+
+      const movimentacoesUnicas = historicoCarregado
+        .filter(item => item && item.DATA_HORA && (item.ARQUIVO_ID || item.ARQUIVO))
+        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
+        .filter(item => {
+          const chave = item.ARQUIVO_ID
+            ? `id:${item.ARQUIVO_ID}`
+            : `nome:${normalizarTexto(item.ARQUIVO || "")}`;
+
+          if (!chave || vistos.has(chave)) {
+            return false;
+          }
+
+          vistos.add(chave);
+          return true;
+        })
+        .slice(0, 3);
+
+      if (!movimentacoesUnicas.length) {
         caixaUltimos.textContent = "Nenhuma movimentação registrada";
         return;
       }
 
-      caixaUltimos.innerHTML = ultimasMovimentacoes.map(item => {
+      caixaUltimos.innerHTML = movimentacoesUnicas.map(item => {
         const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não identificado";
         const arquivo = item.ARQUIVO || "Arquivo";
-        const acao = item.ACAO || "AÇÃO";
-        const data = item.DATA_HORA ? formatarData(item.DATA_HORA) : "";
+        const acao = item.ACAO || "MOVIMENTOU";
 
         return `
           <div class="ultimoAcessoItem">
             <strong>${escaparHtml(arquivo)}</strong>
-            <span>${escaparHtml(acao)} - ${data} - ${escaparHtml(usuario)}</span>
+            <span>${escaparHtml(acao)} - ${formatarData(item.DATA_HORA)} - ${escaparHtml(usuario)}</span>
           </div>
         `;
       }).join("");
@@ -2966,8 +2941,8 @@ window.baixarRelatorioArquivo = function () {
         </div>
 
         <div class="cardDash largo">
-          <span>Últimos acessos registrados</span>
-          <div id="dashUltimoAcesso" class="listaUltimosAcessos">Nenhum acesso registrado</div>
+          <span>Últimas movimentações por arquivo</span>
+          <div id="dashUltimoAcesso" class="listaUltimosAcessos">Nenhuma movimentação registrada</div>
         </div>
       </div>
 
@@ -4181,6 +4156,7 @@ window.baixarRelatorioArquivo = function () {
 <!-- AJUSTE PASSO 84 - FIM -->
 </body>
 </html>
+
 
 
 
