@@ -4506,8 +4506,104 @@ window.baixarRelatorioArquivo = function () {
 })();
 </script>
 <!-- PASSO99_FIX_MODAL_ENVIO_FIM -->
+<!-- PASSO112_FECHAR_MODAL_UPLOAD_INICIO -->
+<script>
+(function () {
+  function fecharModalUpload112() {
+    const ids = [
+      "modalUpload98",
+      "modalUpload105",
+      "modalUpload106",
+      "modalUpload108",
+      "modalUpload111"
+    ];
+
+    ids.forEach(id => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+
+      modal.classList.remove("aberto");
+      modal.classList.remove("aberto98");
+      modal.classList.remove("aberto105");
+      modal.classList.remove("aberto106");
+      modal.classList.remove("aberto108");
+      modal.classList.remove("aberto111");
+
+      if (modal.style) {
+        modal.style.display = "none";
+      }
+    });
+
+    document.body.classList.remove("modalUpload105Aberto");
+    document.body.classList.remove("modalUpload111Aberto");
+  }
+
+  function instalarFechamento112() {
+    if (window.__passo112UploadInstalado) return;
+    window.__passo112UploadInstalado = true;
+
+    const enviarOriginal = window.enviarNovoDocumento;
+
+    if (typeof enviarOriginal === "function") {
+      window.enviarNovoDocumento = async function () {
+        const retorno = await enviarOriginal.apply(this, arguments);
+
+        setTimeout(fecharModalUpload112, 900);
+        setTimeout(fecharModalUpload112, 1800);
+
+        return retorno;
+      };
+    }
+
+    const fecharOriginal98 = window.fecharModalUpload98;
+    window.fecharModalUpload98 = function () {
+      if (typeof fecharOriginal98 === "function") {
+        try { fecharOriginal98.apply(this, arguments); } catch (erro) { console.warn(erro); }
+      }
+      fecharModalUpload112();
+    };
+
+    window.cancelarModalUpload98 = window.fecharModalUpload98;
+    window.cancelarUpload98 = window.fecharModalUpload98;
+
+    document.addEventListener("click", function (event) {
+      const modal = event.target;
+
+      if (
+        modal &&
+        modal.id &&
+        /^modalUpload(98|105|106|108|111)$/.test(modal.id)
+      ) {
+        fecharModalUpload112();
+      }
+
+      const botao = event.target && event.target.closest ? event.target.closest("button") : null;
+      if (!botao) return;
+
+      const texto = (botao.textContent || "").trim().toLowerCase();
+
+      if (texto === "cancelar" && botao.closest("[id^='modalUpload']")) {
+        event.preventDefault();
+        fecharModalUpload112();
+      }
+    }, true);
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        fecharModalUpload112();
+      }
+    });
+  }
+
+  setTimeout(instalarFechamento112, 300);
+  setTimeout(instalarFechamento112, 1000);
+  setTimeout(instalarFechamento112, 2000);
+})();
+</script>
+<!-- PASSO112_FECHAR_MODAL_UPLOAD_FIM -->
 </body>
 </html>
+
 
 
 
