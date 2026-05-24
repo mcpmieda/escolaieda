@@ -756,7 +756,13 @@
       return limpo.trim();
     }
 
-    async function carregarHistoricoDocumento(documento) {
+    
+    function formatarAcaoHistorico(acao) {
+      const texto = (acao || "").toString().trim();
+      if (texto.toUpperCase() === "ARQUIVOU") return "FOI PARA LIXEIRA";
+      return texto;
+    }
+async function carregarHistoricoDocumento(documento) {
       const caixa = document.getElementById("historicoArquivo");
       caixa.innerHTML = "<p>Carregando histórico...</p>";
 
@@ -3043,6 +3049,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
