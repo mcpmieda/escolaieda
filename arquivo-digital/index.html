@@ -955,10 +955,10 @@
       central.classList.toggle("discreta", quantidadePares === 0);
       central.classList.toggle("comAlerta", quantidadePares > 0);
       central.classList.toggle("centralFechada", quantidadePares > 0 && !centralDuplicidadesAberta);
-      caixa.hidden = quantidadePares === 0 || !centralDuplicidadesAberta;
+      caixa.style.display = quantidadePares > 0 && centralDuplicidadesAberta ? "grid" : "none";
 
       if (botao) {
-        botao.hidden = quantidadePares === 0;
+        botao.style.display = quantidadePares > 0 ? "inline-block" : "none";
         botao.textContent = centralDuplicidadesAberta ? "Ocultar casos" : "Mostrar casos";
       }
     }
@@ -3442,12 +3442,11 @@ function renderizarDocumentos(listaArquivos) {
             <p>Revise arquivos com nomes iguais ou parecidos antes de arquivar, substituir ou mesclar.</p>
           </div>
           <div class="acoesCentralDuplicidades">
-            <button id="btnAlternarCentralDuplicidades" onclick="alternarCentralDuplicidades()" hidden>Mostrar casos</button>
-            <button onclick="atualizarCentralDuplicidades()">Atualizar análise</button>
+            <button id="btnAlternarCentralDuplicidades" onclick="alternarCentralDuplicidades()" style="display:none">Mostrar casos</button>
           </div>
         </div>
         <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
-        <div id="listaCentralDuplicidades" class="listaCentralDuplicidades">
+        <div id="listaCentralDuplicidades" class="listaCentralDuplicidades" style="display:none">
           <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
         </div>
         <details class="paresIgnoradosDuplicidade">
