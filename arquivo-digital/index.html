@@ -634,6 +634,7 @@
     let paresDuplicidadesIgnorados = new Set();
     let paresDuplicidadesIgnoradosDetalhes = [];
     let carregouIgnoradosDuplicidade = false;
+    let centralDuplicidadesAberta = false;
 
     function chaveIgnorarDuplicidade(idA, idB) {
       return [idA, idB].sort().join("|");
@@ -945,6 +946,7 @@
     function aplicarEstadoVisualCentralDuplicidades(quantidadePares) {
       const central = document.getElementById("centralDuplicidades");
       const caixa = document.getElementById("listaCentralDuplicidades");
+      const botao = document.getElementById("btnAlternarCentralDuplicidades");
 
       if (!central || !caixa) {
         return;
@@ -952,8 +954,20 @@
 
       central.classList.toggle("discreta", quantidadePares === 0);
       central.classList.toggle("comAlerta", quantidadePares > 0);
-      caixa.hidden = quantidadePares === 0;
+      central.classList.toggle("centralFechada", quantidadePares > 0 && !centralDuplicidadesAberta);
+      caixa.hidden = quantidadePares === 0 || !centralDuplicidadesAberta;
+
+      if (botao) {
+        botao.hidden = quantidadePares === 0;
+        botao.textContent = centralDuplicidadesAberta ? "Ocultar casos" : "Mostrar casos";
+      }
     }
+
+    window.alternarCentralDuplicidades = function () {
+      centralDuplicidadesAberta = !centralDuplicidadesAberta;
+      const quantidade = gerarParesDuplicidades().length;
+      aplicarEstadoVisualCentralDuplicidades(quantidade);
+    };
 
     window.atualizarCentralDuplicidades = async function () {
       const caixa = document.getElementById("listaCentralDuplicidades");
@@ -1023,22 +1037,15 @@
     };
 
     window.abrirArquivoDaCentral = async function (id, status) {
-      if (status === "ARQUIVADO") {
-        modoListaAtual = "na Lixeira";
-      } else {
-        modoListaAtual = "ativos";
-      }
+      const todos = [...documentosAtivos, ...documentosLixeira];
+      const documento = todos.find(doc => doc.id === id);
 
-      aplicarListaAtual();
-
-      const indice = documentosCarregados.findIndex(doc => doc.id === id);
-
-      if (indice < 0) {
+      if (!documento) {
         mostrarMensagem("Arquivo não encontrado na lista atual.", "erro");
         return;
       }
 
-      await selecionarDocumento(indice);
+      await abrirDocumentoNoPainel(documento);
       document.getElementById("painelLateral")?.scrollTo?.(0, 0);
     };
     async function registrarHistorico(documento, acao, observacao = "") {
@@ -2078,9 +2085,7 @@ try {
         caixa.innerHTML = "<p class='textoErro'>NÃ£o foi possÃ­vel carregar as versoes do SharePoint.</p>";
       }
     }
-    window.selecionarDocumento = async function (indice) {
-      const documento = documentosCarregados[indice];
-
+    async function abrirDocumentoNoPainel(documento) {
       if (!documento) {
         mostrarMensagem("Documento não encontrado.", "erro");
         return;
@@ -2116,6 +2121,11 @@ try {
       await carregarHistoricoDocumento(documento);
       await carregarAnotacaoDocumento(documento);
       await carregarVersoesSharePointDocumento(documento);
+    }
+
+    window.selecionarDocumento = async function (indice) {
+      const documento = documentosCarregados[indice];
+      await abrirDocumentoNoPainel(documento);
     };
 
     window.fecharPainel = function () {
@@ -3067,6 +3077,10 @@ function renderizarDocumentos(listaArquivos) {
       border-color: #fdba74;
     }
 
+    .centralDuplicidades.centralFechada {
+      padding-bottom: 14px;
+    }
+
     .centralDuplicidadesTopo {
       display: flex;
       justify-content: space-between;
@@ -3096,6 +3110,13 @@ function renderizarDocumentos(listaArquivos) {
       white-space: nowrap;
       padding: 10px 12px;
       font-size: 13px;
+    }
+
+    .acoesCentralDuplicidades {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .resumoCentralDuplicidades {
@@ -3420,7 +3441,10 @@ function renderizarDocumentos(listaArquivos) {
             <h2>Central de duplicidades</h2>
             <p>Revise arquivos com nomes iguais ou parecidos antes de arquivar, substituir ou mesclar.</p>
           </div>
-          <button onclick="atualizarCentralDuplicidades()">Atualizar análise</button>
+          <div class="acoesCentralDuplicidades">
+            <button id="btnAlternarCentralDuplicidades" onclick="alternarCentralDuplicidades()" hidden>Mostrar casos</button>
+            <button onclick="atualizarCentralDuplicidades()">Atualizar análise</button>
+          </div>
         </div>
         <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
         <div id="listaCentralDuplicidades" class="listaCentralDuplicidades">
