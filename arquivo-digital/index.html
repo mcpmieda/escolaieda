@@ -1585,21 +1585,21 @@ try {
       await reabrirPainelSelecionadoSePossivel();
     }
 
-        window.baixarVersaoSharePoint = async function (versionId) {
+        window.visualizarVersaoSharePoint = async function (versionId) {
       const info = window.versaoDownloadDocumentoAtual;
 
       if (!info || !info.driveId || !info.driveItemId) {
-        mostrarMensagemPainel("NÃ£o foi possÃ­vel identificar o arquivo para baixar a versÃ£o.", "erro");
+        mostrarMensagemPainel("NÃ£o foi possÃ­vel identificar o arquivo para baixar a versao.", "erro");
         return;
       }
 
       if (!versionId) {
-        mostrarMensagemPainel("VersÃ£o invÃ¡lida.", "erro");
+        mostrarMensagemPainel("Versao invÃ¡lida.", "erro");
         return;
       }
 
       try {
-        mostrarMensagemPainel("Preparando download da versÃ£o...");
+        mostrarMensagemPainel("Abrindo versao...");
 
         const token = await obterToken();
 
@@ -1616,25 +1616,25 @@ try {
         }
 
         const blob = await resposta.blob();
-        const nomeBase = (info.nome || "arquivo.pdf").replace(/\.pdf$/i, "");
-        const versaoLimpa = String(versionId).replace(/[\\/:*?"<>|]+/g, "-");
-        const nomeDownload = `${nomeBase} - versao ${versaoLimpa}.pdf`;
+        // Visualizacao em nova aba; nome de download nao e necessario.
+        
+        
 
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = nomeDownload;
-        document.body.appendChild(link);
-        link.click();
+        // Sem download forcado: abre em nova aba.
+        
+        window.open(link.href, "_blank");
 
         setTimeout(() => {
           URL.revokeObjectURL(link.href);
-          link.remove();
+          
         }, 2000);
 
-        mostrarMensagemPainel("Download da versÃ£o iniciado.");
+        mostrarMensagemPainel("Versao aberta em nova aba.");
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("NÃ£o foi possÃ­vel baixar esta versÃ£o.", "erro");
+        mostrarMensagemPainel("NÃ£o foi possÃ­vel baixar esta versao.", "erro");
       }
     };
 
@@ -1646,11 +1646,11 @@ try {
       window.versaoDownloadDocumentoAtual = null;
 
       if (!documento || !documento.listItemId) {
-        caixa.innerHTML = "<p>Selecione um arquivo para carregar as versÃµes.</p>";
+        caixa.innerHTML = "<p>Selecione um arquivo para carregar as versoes.</p>";
         return;
       }
 
-      caixa.innerHTML = "<p>Carregando versÃµes do SharePoint...</p>";
+      caixa.innerHTML = "<p>Carregando versoes do SharePoint...</p>";
 
       try {
         const token = await obterToken();
@@ -1681,7 +1681,7 @@ try {
         const versoes = dados.value || [];
 
         if (!versoes.length) {
-          caixa.innerHTML = "<p>Nenhuma versÃ£o encontrada.</p>";
+          caixa.innerHTML = "<p>Nenhuma versao encontrada.</p>";
           return;
         }
 
@@ -1693,12 +1693,12 @@ try {
           const ehAtual = indice === 0;
 
           const botao = ehAtual
-            ? `<button class="secundario btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Abrir versÃ£o atual</button>`
-            : `<button class="secundario btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Baixar versÃ£o</button>`;
+            ? `<button class="secundario btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versao atual</button>`
+            : `<button class="secundario btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versao</button>`;
 
           return `
             <div class="itemVersao">
-              <strong>${ehAtual ? "VersÃ£o atual" : "VersÃ£o anterior"} ${escaparHtml(numero)}</strong>
+              <strong>${ehAtual ? "Versao atual" : "Versao anterior"} ${escaparHtml(numero)}</strong>
               <span>${data}</span>
               <small>${escaparHtml(usuario)} ${tamanho ? " - " + escaparHtml(tamanho) : ""}</small>
               <div class="acoesVersaoSharePoint">
@@ -1710,13 +1710,13 @@ try {
 
         caixa.querySelectorAll(".btnVersaoSharePoint[data-version-id]").forEach(botao => {
           botao.addEventListener("click", () => {
-            baixarVersaoSharePoint(botao.dataset.versionId);
+            visualizarVersaoSharePoint(botao.dataset.versionId);
           });
         });
 
       } catch (erro) {
         console.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>NÃ£o foi possÃ­vel carregar as versÃµes do SharePoint.</p>";
+        caixa.innerHTML = "<p class='textoErro'>NÃ£o foi possÃ­vel carregar as versoes do SharePoint.</p>";
       }
     }
     window.selecionarDocumento = async function (indice) {
@@ -3125,6 +3125,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
