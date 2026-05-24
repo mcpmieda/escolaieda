@@ -1,0 +1,33 @@
+PASSO 195 - PONTO SEGURO CENTRAL DASHBOARD PAINEL ESQUERDA
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+Criar ponto seguro depois que a Central de Duplicidades no dashboard com painel lateral esquerdo foi testada e aprovada.
+
+Estado marcado:
+
+- Dashboard sem cartao "Arquivos com anotacoes".
+- Central de Duplicidades no dashboard.
+- Card da Central compacto.
+- Casos da Central abrem em painel lateral proprio.
+- Painel da Central abre pela esquerda.
+- Painel de documentos continua abrindo pela direita.
+- Funcoes da Central preservadas:
+  - Abrir no painel;
+  - Sao pessoas diferentes;
+  - Desfazer;
+  - Desfazer todos.
+
+Tag criada e enviada:
+
+- ponto-seguro-central-dashboard-painel-esquerda-ok
+
+Commit apontado pela tag:
+
+- 2558a09 Mover painel da central para esquerda
+
+Resultado:
+
+Ponto seguro criado no GitHub.
