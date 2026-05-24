@@ -98,6 +98,19 @@
         return 0;
       });
     }
+
+    function ordenarPorModificacaoMaisRecente(lista) {
+      return [...(lista || [])].sort((a, b) => {
+        const dataA = new Date(a.modificado || a.dataModificacao || 0).getTime() || 0;
+        const dataB = new Date(b.modificado || b.dataModificacao || 0).getTime() || 0;
+
+        if (dataA !== dataB) {
+          return dataB - dataA;
+        }
+
+        return (a.nome || "").localeCompare(b.nome || "", "pt-BR");
+      });
+    }
     function formatarData(data) {
       if (!data) return "";
       try {
@@ -2323,16 +2336,23 @@ function renderizarDocumentos(listaArquivos) {
       const contador = document.getElementById("contadorResultados");
       const movimentacoesRecentes = obterUltimasMovimentacoesPorArquivo(20);
 
-      contador.textContent = `${listaArquivos.length} resultado(s) encontrado(s)`;
+      const totalFiltrado = listaArquivos.length;
+      const listaExibida = modoListaAtual === "ativos"
+        ? ordenarPorModificacaoMaisRecente(listaArquivos).slice(0, 20)
+        : listaArquivos;
 
-      if (!listaArquivos.length) {
+      contador.textContent = modoListaAtual === "ativos"
+        ? `${listaExibida.length} documento(s) ativo(s) recente(s) exibido(s)`
+        : `${listaExibida.length} resultado(s) encontrado(s)`;
+
+      if (!listaExibida.length) {
         lista.innerHTML = "<li>Nenhum documento encontrado.</li>";
         return;
       }
 
       lista.innerHTML = "";
 
-      listaArquivos.forEach(item => {
+      listaExibida.forEach(item => {
         const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
         const chaveId = item.id ? `id:${item.id}` : "";
         const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
