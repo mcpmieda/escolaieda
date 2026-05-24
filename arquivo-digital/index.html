@@ -616,8 +616,21 @@
       atualizarDashboard();
     }
 
+    function atualizarBotoesFiltroDocumentos() {
+      document.querySelectorAll(".filtroDocumento").forEach(botao => {
+        botao.classList.toggle("ativo", botao.dataset.filtro === filtroDocumentosEspecial);
+      });
+    }
+
+    window.aplicarFiltroDocumentos = function (filtro) {
+      filtroDocumentosEspecial = filtro || "todos";
+      atualizarBotoesFiltroDocumentos();
+      filtrarDocumentos();
+    };
+
     window.mostrarDocumentosAtivos = function () {
       modoListaAtual = "ativos";
+      filtroDocumentosEspecial = "todos";
       document.getElementById("campoBusca").value = "";
       fecharPainel();
       aplicarListaAtual();
@@ -625,6 +638,7 @@
 
     window.mostrarDocumentosLixeira = function () {
       modoListaAtual = "na Lixeira";
+      filtroDocumentosEspecial = "todos";
       document.getElementById("campoBusca").value = "";
       fecharPainel();
       aplicarListaAtual();
@@ -636,6 +650,7 @@
     let carregouIgnoradosDuplicidade = false;
     let centralDuplicidadesAberta = false;
     let totalParesCentralDuplicidades = 0;
+    let filtroDocumentosEspecial = "todos";
 
     function chaveIgnorarDuplicidade(idA, idB) {
       return [idA, idB].sort().join("|");
@@ -2385,17 +2400,46 @@ function renderizarDocumentos(listaArquivos) {
       });
     }
 
+    function documentoTemAnotacao(documento) {
+      if (!documento) return false;
+
+      const id = documento.id || "";
+      const nome = normalizarTexto(documento.nome || "");
+
+      return (anotacoesCarregadas || []).some(item => {
+        const texto = (item.ANOTACAO || "").trim();
+        if (!texto) return false;
+
+        if (item.ARQUIVO_ID && item.ARQUIVO_ID === id) return true;
+        return normalizarTexto(item.ARQUIVO || "") === nome;
+      });
+    }
+
+    function documentoTemDuplicidade(documento) {
+      return buscarNomesParecidos(documento).some(item => {
+        const outro = item.doc;
+        if (!outro || !outro.id) return false;
+        return !paresDuplicidadesIgnorados.has(chaveIgnorarDuplicidade(documento.id, outro.id));
+      });
+    }
+
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
 
-      if (!termo) {
-        renderizarDocumentos(documentosCarregados);
-        return;
-      }
+      const filtrados = documentosCarregados.filter(doc => {
+        const passouBusca = !termo || normalizarTexto(doc.nome).includes(termo);
+        if (!passouBusca) return false;
 
-      const filtrados = documentosCarregados.filter(doc =>
-        normalizarTexto(doc.nome).includes(termo)
-      );
+        if (filtroDocumentosEspecial === "anotacao") {
+          return documentoTemAnotacao(doc);
+        }
+
+        if (filtroDocumentosEspecial === "duplicidade") {
+          return documentoTemDuplicidade(doc);
+        }
+
+        return true;
+      });
 
       renderizarDocumentos(filtrados);
     }
@@ -2667,6 +2711,28 @@ function renderizarDocumentos(listaArquivos) {
 
     .abaDocumento.ativo {
       background: #0f2f66;
+      color: white;
+    }
+
+    .filtrosDocumentos {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 12px 0;
+    }
+
+    .filtroDocumento {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .filtroDocumento.ativo {
+      background: #0f2f66;
+      border-color: #0f2f66;
       color: white;
     }
 
@@ -3460,6 +3526,11 @@ function renderizarDocumentos(listaArquivos) {
       <div class="abasDocumentos">
         <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
         <button id="btnVerLixeira" class="abaDocumento" onclick="mostrarDocumentosLixeira()">Lixeira</button>
+      </div>
+      <div class="filtrosDocumentos">
+        <button class="filtroDocumento ativo" data-filtro="todos" onclick="aplicarFiltroDocumentos('todos')">Todos</button>
+        <button class="filtroDocumento" data-filtro="anotacao" onclick="aplicarFiltroDocumentos('anotacao')">Com anotação</button>
+        <button class="filtroDocumento" data-filtro="duplicidade" onclick="aplicarFiltroDocumentos('duplicidade')">Com duplicidade</button>
       </div>
 
       <h2 id="tituloListaDocumentos">Documentos ativos</h2>
