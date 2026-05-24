@@ -1,0 +1,32 @@
+PASSO 193 - CORRIGIR PAINEL DA CENTRAL SEMPRE VISIVEL
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+O painel lateral da Central ficou sempre visivel. O ideal e aparecer somente ao clicar no dashboard da Central e desaparecer ao clicar fora, como o painel do PDF.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Backup criado:
+
+- backups_locais/index_antes_corrigir_painel_central_visivel_*.html
+
+Alteracao realizada:
+
+- O painel da Central tem largura maior que o painel normal, entao precisava ficar mais deslocado para a direita quando fechado.
+- Adicionado `right: -760px` em `.painelCentralDuplicidades`.
+- Ajustado o clique fora para fechar o painel da Central quando ele estiver aberto.
+- Clique no proprio card da Central ou dentro do painel nao fecha imediatamente.
+
+Validacao:
+
+- JS OK.
+
+Resultado esperado:
+
+- Painel da Central fica totalmente invisivel quando fechado.
+- Painel aparece apenas ao clicar em Abrir Central.
+- Clique fora fecha o painel da Central.

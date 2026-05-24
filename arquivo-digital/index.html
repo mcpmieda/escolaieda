@@ -2491,6 +2491,17 @@ function renderizarDocumentos(listaArquivos) {
     // Clique fora do painel lateral para fechar
     window.addEventListener("click", function (event) {
       const painel = document.getElementById("painelLateral");
+      const painelCentral = document.getElementById("painelCentralDuplicidades");
+
+      if (
+        painelCentral &&
+        painelCentral.classList.contains("aberto") &&
+        !painelCentral.contains(event.target) &&
+        !event.target.closest("#centralDuplicidades")
+      ) {
+        fecharPainelCentralDuplicidades();
+        return;
+      }
 
       if (!painel || !painel.classList.contains("aberto")) {
         return;
@@ -2774,6 +2785,7 @@ function renderizarDocumentos(listaArquivos) {
     .painelCentralDuplicidades {
       width: 720px;
       max-width: 96vw;
+      right: -760px;
     }
 
     .painelTopo {
