@@ -1114,11 +1114,6 @@
         normalizarTexto(doc.nome) === normalizarTexto(novoNome)
       );
 
-      if (jaExiste) {
-        mostrarMensagemPainel("Já existe um arquivo ativo com esse mesmo nome. Renomeação cancelada.", "erro");
-        return;
-      }
-
       try {
         mostrarMensagemPainel("Renomeando arquivo...");
 
@@ -3008,6 +3003,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
