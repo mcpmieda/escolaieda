@@ -447,7 +447,6 @@
     };
 
 
-
     let paresDuplicidadesIgnorados = new Set();
     let carregouIgnoradosDuplicidade = false;
 
@@ -2707,43 +2706,7 @@ function renderizarDocumentos(listaArquivos) {
     .itemVersao small {
       color: #64748b;
     }
-  /* INICIO PASSO 91 RELATORIO CSS */
-.relatorioArquivoBox {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  margin: 12px 0 12px 0;
-}
-
-.btnRelatorio {
-  background: #334155;
-  color: #ffffff;
-  border-radius: 10px;
-  padding: 9px 10px;
-  font-size: 12px;
-  margin: 0;
-}
-
-.btnRelatorio:hover {
-  filter: brightness(1.05);
-}
-
-.visualizacaoRelatorioArquivo {
-  display: none;
-  white-space: pre-wrap;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px;
-  margin: 0 0 16px 0;
-  max-height: 320px;
-  overflow: auto;
-  font-size: 12px;
-  line-height: 1.45;
-  color: #334155;
-}
-/* FIM PASSO 91 RELATORIO CSS */
-</style>
+  </style>
 
 </head>
 <body>
@@ -2927,13 +2890,7 @@ function renderizarDocumentos(listaArquivos) {
       <div id="versoesSharePoint">
         <p>Selecione um arquivo para carregar as versões.</p>
       </div>
-      <!-- INICIO PASSO 91 RELATORIO -->
-<div class="relatorioArquivoBox">
-  <button id="btnVisualizarRelatorio" class="btnRelatorio" type="button" onclick="visualizarRelatorioArquivo()">Visualizar relatório</button>
-</div>
-<pre id="visualizacaoRelatorioArquivo" class="visualizacaoRelatorioArquivo"></pre>
-<!-- FIM PASSO 91 RELATORIO -->
-<h3>Histórico do arquivo</h3>
+      <h3>Histórico do arquivo</h3>
       <div id="historicoArquivo">
         <p>Selecione um arquivo para carregar o histórico.</p>
       </div>
@@ -3051,33 +3008,6 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
