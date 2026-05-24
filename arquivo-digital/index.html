@@ -492,16 +492,9 @@
         dataLocalISO(item.DATA_HORA) === hoje
       );
 
-      const arquivosComAnotacao = new Set(
-        (anotacoesCarregadas || [])
-          .filter(item => item.ARQUIVO_ID || item.ARQUIVO)
-          .map(item => item.ARQUIVO_ID || normalizarTexto(item.ARQUIVO || ""))
-      ).size;
-
       document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
       document.getElementById("dashAcessos").textContent = historicoCarregado.length;
       document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
-      document.getElementById("dashAnotacoes").textContent = arquivosComAnotacao;
 
       const caixaUltimos = document.getElementById("dashUltimoAcesso");
       if (!caixaUltimos) return;
@@ -616,21 +609,8 @@
       atualizarDashboard();
     }
 
-    function atualizarBotoesFiltroDocumentos() {
-      document.querySelectorAll(".filtroDocumento").forEach(botao => {
-        botao.classList.toggle("ativo", botao.dataset.filtro === filtroDocumentosEspecial);
-      });
-    }
-
-    window.aplicarFiltroDocumentos = function (filtro) {
-      filtroDocumentosEspecial = filtro || "todos";
-      atualizarBotoesFiltroDocumentos();
-      filtrarDocumentos();
-    };
-
     window.mostrarDocumentosAtivos = function () {
       modoListaAtual = "ativos";
-      filtroDocumentosEspecial = "todos";
       document.getElementById("campoBusca").value = "";
       fecharPainel();
       aplicarListaAtual();
@@ -638,7 +618,6 @@
 
     window.mostrarDocumentosLixeira = function () {
       modoListaAtual = "na Lixeira";
-      filtroDocumentosEspecial = "todos";
       document.getElementById("campoBusca").value = "";
       fecharPainel();
       aplicarListaAtual();
@@ -650,7 +629,6 @@
     let carregouIgnoradosDuplicidade = false;
     let centralDuplicidadesAberta = false;
     let totalParesCentralDuplicidades = 0;
-    let filtroDocumentosEspecial = "todos";
 
     function chaveIgnorarDuplicidade(idA, idB) {
       return [idA, idB].sort().join("|");
@@ -2400,34 +2378,12 @@ function renderizarDocumentos(listaArquivos) {
       });
     }
 
-    function documentoTemAnotacao(documento) {
-      if (!documento) return false;
-
-      const id = documento.id || "";
-      const nome = normalizarTexto(documento.nome || "");
-
-      return (anotacoesCarregadas || []).some(item => {
-        const texto = (item.ANOTACAO || "").trim();
-        if (!texto) return false;
-
-        if (item.ARQUIVO_ID && item.ARQUIVO_ID === id) return true;
-        return normalizarTexto(item.ARQUIVO || "") === nome;
-      });
-    }
-
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
 
-      const filtrados = documentosCarregados.filter(doc => {
-        const passouBusca = !termo || normalizarTexto(doc.nome).includes(termo);
-        if (!passouBusca) return false;
-
-        if (filtroDocumentosEspecial === "anotacao") {
-          return documentoTemAnotacao(doc);
-        }
-
-        return true;
-      });
+      const filtrados = documentosCarregados.filter(doc =>
+        !termo || normalizarTexto(doc.nome).includes(termo)
+      );
 
       renderizarDocumentos(filtrados);
     }
@@ -2699,28 +2655,6 @@ function renderizarDocumentos(listaArquivos) {
 
     .abaDocumento.ativo {
       background: #0f2f66;
-      color: white;
-    }
-
-    .filtrosDocumentos {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 0 0 12px 0;
-    }
-
-    .filtroDocumento {
-      background: #f8fafc;
-      color: #334155;
-      border: 1px solid #cbd5e1;
-      padding: 8px 12px;
-      margin: 0;
-      font-size: 13px;
-    }
-
-    .filtroDocumento.ativo {
-      background: #0f2f66;
-      border-color: #0f2f66;
       color: white;
     }
 
@@ -3121,6 +3055,12 @@ function renderizarDocumentos(listaArquivos) {
       border: 1px solid #fed7aa;
     }
 
+    .dashboard .centralDuplicidades {
+      margin: 0;
+      align-items: stretch;
+      text-align: left;
+    }
+
     .centralDuplicidades.discreta {
       padding: 14px;
       background: #f8fafc;
@@ -3144,9 +3084,19 @@ function renderizarDocumentos(listaArquivos) {
       margin-bottom: 12px;
     }
 
+    .dashboard .centralDuplicidadesTopo {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
     .centralDuplicidadesTopo h2 {
       margin: 0 0 4px 0;
       color: #9a3412;
+    }
+
+    .dashboard .centralDuplicidadesTopo h2 {
+      font-size: 14px;
     }
 
     .centralDuplicidades.discreta .centralDuplicidadesTopo h2 {
@@ -3158,6 +3108,10 @@ function renderizarDocumentos(listaArquivos) {
       color: #64748b;
       font-size: 14px;
       line-height: 1.35;
+    }
+
+    .dashboard .centralDuplicidadesTopo p {
+      display: none;
     }
 
     .centralDuplicidadesTopo button {
@@ -3172,6 +3126,10 @@ function renderizarDocumentos(listaArquivos) {
       gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
+    }
+
+    .dashboard .acoesCentralDuplicidades {
+      justify-content: flex-start;
     }
 
     .resumoCentralDuplicidades {
@@ -3478,9 +3436,26 @@ function renderizarDocumentos(listaArquivos) {
           <strong id="dashAcessosHoje">0</strong>
         </div>
 
-        <div class="cardDash">
-          <span>Arquivos com anotações</span>
-          <strong id="dashAnotacoes">0</strong>
+        <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta">
+          <div class="centralDuplicidadesTopo">
+            <div>
+              <h2>Central de duplicidades</h2>
+              <p>Revise arquivos com nomes iguais ou parecidos antes de arquivar, substituir ou mesclar.</p>
+            </div>
+            <div class="acoesCentralDuplicidades">
+              <button id="btnAlternarCentralDuplicidades" onclick="alternarCentralDuplicidades()" style="display:none">Mostrar casos</button>
+            </div>
+          </div>
+          <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
+          <div id="listaCentralDuplicidades" class="listaCentralDuplicidades" style="display:none">
+            <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
+          </div>
+          <details class="paresIgnoradosDuplicidade">
+            <summary>Pares marcados como pessoas diferentes</summary>
+            <div id="listaParesIgnoradosDuplicidade" class="listaParesIgnoradosDuplicidade">
+              <div class="duplicidadeIgnoradaVazia">Carregando pares ignorados...</div>
+            </div>
+          </details>
         </div>
 
         <div class="cardDash largo">
@@ -3490,34 +3465,9 @@ function renderizarDocumentos(listaArquivos) {
       </div>
 
 
-      <div id="centralDuplicidades" class="centralDuplicidades discreta">
-        <div class="centralDuplicidadesTopo">
-          <div>
-            <h2>Central de duplicidades</h2>
-            <p>Revise arquivos com nomes iguais ou parecidos antes de arquivar, substituir ou mesclar.</p>
-          </div>
-          <div class="acoesCentralDuplicidades">
-            <button id="btnAlternarCentralDuplicidades" onclick="alternarCentralDuplicidades()" style="display:none">Mostrar casos</button>
-          </div>
-        </div>
-        <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
-        <div id="listaCentralDuplicidades" class="listaCentralDuplicidades" style="display:none">
-          <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
-        </div>
-        <details class="paresIgnoradosDuplicidade">
-          <summary>Pares marcados como pessoas diferentes</summary>
-          <div id="listaParesIgnoradosDuplicidade" class="listaParesIgnoradosDuplicidade">
-            <div class="duplicidadeIgnoradaVazia">Carregando pares ignorados...</div>
-          </div>
-        </details>
-      </div>
       <div class="abasDocumentos">
         <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
         <button id="btnVerLixeira" class="abaDocumento" onclick="mostrarDocumentosLixeira()">Lixeira</button>
-      </div>
-      <div class="filtrosDocumentos">
-        <button class="filtroDocumento ativo" data-filtro="todos" onclick="aplicarFiltroDocumentos('todos')">Todos</button>
-        <button class="filtroDocumento" data-filtro="anotacao" onclick="aplicarFiltroDocumentos('anotacao')">Com anotação</button>
       </div>
 
       <h2 id="tituloListaDocumentos">Documentos ativos</h2>

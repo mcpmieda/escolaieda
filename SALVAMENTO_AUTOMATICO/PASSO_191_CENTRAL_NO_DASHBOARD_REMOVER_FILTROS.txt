@@ -1,0 +1,46 @@
+PASSO 191 - CENTRAL NO DASHBOARD E REMOCAO DOS FILTROS
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+Remover os filtros "Todos" e "Com anotacao".
+Remover do dashboard o contador "Arquivos com anotacoes".
+Usar o lugar desse cartao para exibir a Central de Duplicidades, com opcao de expandir ao clicar, preservando as funcoes da Central.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Backup criado:
+
+- backups_locais/index_antes_central_no_dashboard_20260524_134428.html
+
+Alteracoes realizadas:
+
+- Removida a area de filtros da lista de documentos.
+- Removida a logica do filtro "Com anotacao".
+- Removido o contador `dashAnotacoes`.
+- Removido o cartao "Arquivos com anotacoes".
+- A Central de Duplicidades foi movida para o lugar desse cartao no dashboard.
+- A Central continua com:
+  - resumo;
+  - botao Mostrar casos/Ocultar casos;
+  - cards de duplicidade;
+  - botao Abrir no painel;
+  - Sao pessoas diferentes;
+  - Pares marcados como pessoas diferentes;
+  - Desfazer;
+  - Desfazer todos.
+
+Validacao:
+
+- JS OK.
+- Busca confirmou que os filtros removidos nao ficaram no index.
+- A Central segue com apenas um `centralDuplicidades`, um `listaCentralDuplicidades` e um `btnAlternarCentralDuplicidades`.
+
+Resultado esperado:
+
+- Dashboard fica mais objetivo.
+- A Central ganha destaque no proprio dashboard.
+- A lista de documentos volta a ter apenas Ativos/Lixeira e busca por nome.
