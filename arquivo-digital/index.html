@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1003,7 +1003,7 @@ async function carregarHistoricoDocumento(documento) {
         anotacaoUltimoTextoSalvo = texto;
       }
 
-      atualizarStatusAnotacao(`Salvo automaticamente em ${new Date().toLocaleString("pt-BR")}`);
+      atualizarStatusAnotacao(`Salvo em ${new Date().toLocaleString("pt-BR")}`);
 
       if (documentoSelecionado) {
         await carregarHistoricoDocumento(documentoSelecionado); // Atualiza histórico após salvar anotação
@@ -1013,17 +1013,7 @@ async function carregarHistoricoDocumento(documento) {
     window.agendarSalvarAnotacao = function () {
       clearTimeout(timerSalvarAnotacao);
       anotacaoUltimoTextoSalvo = "";
-      atualizarStatusAnotacao("Digitando...");
-
-      timerSalvarAnotacao = setTimeout(async () => {
-        try {
-          atualizarStatusAnotacao("Salvando...");
-          await salvarAnotacaoAgora();
-        } catch (erro) {
-          console.error(erro);
-          atualizarStatusAnotacao("Erro ao salvar anotação.");
-        }
-      }, 1200);
+      atualizarStatusAnotacao("Alteracao nao salva. Clique em Salvar anotacao.");
     };
 
     window.salvarAnotacaoManual = async function () {
@@ -2913,7 +2903,7 @@ function renderizarDocumentos(listaArquivos) {
 
       <div class="anotacaoBox">
         <h3>Anotações do arquivo</h3>
-        <textarea id="campoAnotacao" placeholder="Digite observações sobre este arquivo..." oninput="agendarSalvarAnotacao()"></textarea>
+        <textarea id="campoAnotacao" placeholder="Digite observações sobre este arquivo..."></textarea>
         <div class="linhaAnotacao">
           <small id="statusAnotacao">Selecione um arquivo.</small>
           <button class="btnSalvar" onclick="salvarAnotacaoManual()">Salvar agora</button>
@@ -3049,6 +3039,9 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
+
+
 
 
 
