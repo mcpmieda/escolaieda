@@ -1422,13 +1422,14 @@ open AQUI
 o Codex deve interpretar isso como:
 
 ```text
-Ler o arquivo C:\Users\Eugui\Downloads\AQUI.txt, seguir exatamente as instrucoes contidas nele, executar a tarefa solicitada e, ao final, excluir o arquivo AQUI.txt da pasta Downloads.
+Ler o arquivo AQUI disponivel em C:\Users\Eugui\Downloads, seguir exatamente as instrucoes contidas nele, executar a tarefa solicitada e, ao final, excluir o arquivo AQUI usado da pasta Downloads.
 ```
 
-### Caminho padrao do arquivo AQUI
+### Caminhos padrao do arquivo AQUI
 
 ```text
 C:\Users\Eugui\Downloads\AQUI.txt
+C:\Users\Eugui\Downloads\AQUI.docx
 ```
 
 ### Regras para executar `open AQUI`
@@ -1439,50 +1440,61 @@ C:\Users\Eugui\Downloads\AQUI.txt
 C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda
 ```
 
-2. Verificar se o arquivo existe:
+2. Verificar se existe `AQUI.txt` ou `AQUI.docx`:
 
 ```powershell
 Test-Path "$env:USERPROFILE\Downloads\AQUI.txt"
+Test-Path "$env:USERPROFILE\Downloads\AQUI.docx"
 ```
 
-3. Se o arquivo nao existir, avisar o usuario:
+3. Dar preferencia para `AQUI.txt` se os dois existirem.
+
+4. Se nenhum arquivo existir, avisar o usuario:
 
 ```text
-Nao encontrei C:\Users\Eugui\Downloads\AQUI.txt. Crie o arquivo e tente novamente.
+Nao encontrei C:\Users\Eugui\Downloads\AQUI.txt nem C:\Users\Eugui\Downloads\AQUI.docx. Crie o arquivo e tente novamente.
 ```
 
-4. Se existir, ler todo o conteudo:
+5. Se existir `AQUI.txt`, ler todo o conteudo:
 
 ```powershell
 Get-Content -Raw "$env:USERPROFILE\Downloads\AQUI.txt"
 ```
 
-5. Tratar o conteudo de `AQUI.txt` como a instrucao principal da tarefa atual.
+6. Se existir `AQUI.docx`, tratar o Word como a instrucao principal da tarefa atual:
+   - extrair e ler o texto do documento;
+   - se houver imagens relevantes, extrair as imagens internas do `.docx`;
+   - analisar as imagens extraidas quando a tarefa depender delas;
+   - se a imagem tiver texto, tentar interpretar visualmente ou usar OCR local se disponivel.
 
-6. Antes de alterar qualquer arquivo, seguir as regras normais do projeto:
+7. Tratar o conteudo de `AQUI.txt` ou `AQUI.docx` como a instrucao principal da tarefa atual.
+
+8. Antes de alterar qualquer arquivo, seguir as regras normais do projeto:
    - ler `AGENTS.md`;
    - rodar `git status --short`;
    - rodar `git log -1 --oneline`;
    - criar backup se for alterar `arquivo-digital/index.html`;
    - gerar relatorio em `diagnosticos`;
    - alterar somente o necessario;
-   - nao fazer commit automaticamente, a menos que o arquivo `AQUI.txt` mande claramente.
+   - fazer commit/push automaticamente para mudancas pequenas e validadas, conforme combinado com o usuario;
+   - nao fazer commit automatico para mudancas grandes ou sensiveis sem confirmar.
 
-7. Ao terminar a tarefa, apagar o arquivo:
+9. Ao terminar a tarefa, apagar somente o arquivo AQUI que foi usado:
 
 ```powershell
 Remove-Item "$env:USERPROFILE\Downloads\AQUI.txt" -Force
+Remove-Item "$env:USERPROFILE\Downloads\AQUI.docx" -Force
 ```
 
-8. Se a tarefa falhar antes de ler o conteudo, nao apagar o arquivo.
-9. Se a tarefa for lida e executada, apagar o arquivo ao final, mesmo que o resultado seja apenas diagnostico.
-10. No resumo final, dizer:
-    - que leu o arquivo `AQUI.txt`;
+10. Se a tarefa falhar antes de ler o conteudo, nao apagar o arquivo.
+11. Se a tarefa for lida e executada, apagar o arquivo ao final, mesmo que o resultado seja apenas diagnostico.
+12. No resumo final, dizer:
+    - que leu o arquivo `AQUI.txt` ou `AQUI.docx`;
     - o que executou;
     - onde gerou relatorio, se houver;
-    - se apagou o arquivo `AQUI.txt`.
+    - se apagou o arquivo AQUI usado.
 
 ### Importante
 
 `open AQUI` nao significa abrir uma janela ou editor.
-Neste projeto, `open AQUI` significa ler, executar e excluir o arquivo `Downloads\AQUI.txt`.
+Neste projeto, `open AQUI` significa ler, executar e excluir o arquivo `Downloads\AQUI.txt` ou `Downloads\AQUI.docx`.
