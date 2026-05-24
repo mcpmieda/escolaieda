@@ -1,109 +1,132 @@
-# AGENTS.md — Projeto Arquivo Digital Escolar
+# AGENTS_ATUALIZADO_COMPLETO.md — Arquivo Digital Escolar
 
-> Este arquivo é a memória técnica principal do projeto.  
-> O Codex deve ler este arquivo antes de alterar qualquer arquivo do repositório.
+> **ESTE É O AGENTS MAIS ATUAL DO PROJETO ARQUIVO DIGITAL ESCOLAR.**  
+> Este arquivo deve ser lido antes de qualquer novo diagnóstico, alteração por Codex, PowerShell ou ChatGPT.  
+> Existe outro `AGENTS.md` na pasta local do projeto, mas este documento foi criado depois dos pontos seguros mais recentes e deve ser considerado a versão técnica mais completa e atualizada.
 
 ---
 
-## 1. Identidade e objetivo do projeto
+## 0. Aviso importante sobre este documento
 
-O projeto se chama **Arquivo Digital Escolar**.
+Este documento foi criado para permitir que um novo chat/Codex continue o projeto como se estivesse acompanhando a conversa anterior.
 
-Objetivo: construir e manter um sistema web para a Escola Iêda MCPM, publicado em:
+Ele consolida:
+
+- objetivo do sistema;
+- decisões tomadas;
+- estrutura conhecida;
+- regras técnicas;
+- passos executados;
+- pontos seguros criados;
+- problemas encontrados;
+- soluções aprovadas;
+- comportamento esperado;
+- próximos passos recomendados.
+
+**Não foi possível incluir literalmente todo o texto integral de todas as mensagens da conversa**, porque a conversa completa é muito longa e parte dela foi resumida pelo ambiente. Em vez disso, este AGENTS traz uma reconstrução técnica extremamente detalhada e confiável com base no histórico disponível, nos diagnósticos, nos testes informados pelo usuário e nos pontos seguros aprovados.
+
+Sempre que houver conflito entre este arquivo e um AGENTS antigo, este arquivo deve prevalecer.
+
+---
+
+## 1. Identidade do projeto
+
+O projeto se chama:
+
+```text
+Arquivo Digital Escolar
+```
+
+Site publicado:
 
 ```text
 https://escolaieda.com/arquivo-digital/
 ```
 
-O sistema deve organizar documentos escolares em PDF com:
-
-- login Microsoft;
-- integração com Microsoft 365, SharePoint e Microsoft Graph;
-- listagem e busca de documentos;
-- painel lateral de detalhes;
-- histórico de ações;
-- anotações por arquivo;
-- Lixeira;
-- versões do SharePoint;
-- relatório apenas para visualização;
-- Central de Duplicidades;
-- dashboard.
-
-O foco atual do projeto é **estabilizar, diagnosticar e limpar tecnicamente o `index.html` antes de adicionar funções grandes**, evitando remendos acumulados e protegendo o que já funciona.
-
----
-
-## 2. Como o Codex deve trabalhar neste projeto
-
-### 2.1. Regra principal
-
-Nunca tentar “terminar o site inteiro” de uma vez.
-
-Trabalhar sempre em ciclos pequenos:
-
-```text
-diagnóstico → backup → alteração mínima → relatório → teste manual → commit → tag/ponto seguro
-```
-
-### 2.2. Antes de qualquer alteração
-
-O Codex deve:
-
-1. ler este `AGENTS.md`;
-2. ler os relatórios mais recentes da pasta `diagnosticos`, se ela existir;
-3. rodar `git status`;
-4. rodar `git log -1 --oneline`;
-5. verificar se há alterações pendentes;
-6. se houver alteração pendente, não sobrescrever sem entender;
-7. criar backup antes de mexer no `arquivo-digital/index.html`;
-8. gerar relatório do diagnóstico em `diagnosticos`.
-
-### 2.3. Durante alterações
-
-O Codex deve:
-
-- alterar somente o necessário;
-- preservar o que já funciona;
-- evitar reescrever o `index.html` inteiro;
-- não adicionar scripts concorrentes ao final do arquivo sem diagnóstico;
-- não usar regex ampla sem confirmar o trecho atual;
-- procurar funções existentes antes de criar novas;
-- manter UTF-8;
-- registrar no relatório o que foi alterado, onde e por quê.
-
-### 2.4. Depois de alterações
-
-O Codex deve:
-
-- gerar relatório em `diagnosticos`;
-- mostrar resumo curto do que mudou;
-- não fazer commit automaticamente se o usuário ainda não testou;
-- pedir teste manual quando a alteração afetar comportamento visual, login, SharePoint, histórico, upload, painel ou duplicidades;
-- só criar commit/tag depois de aprovação explícita do usuário.
-
----
-
-## 3. Estrutura conhecida do projeto
-
-### Repositório GitHub
+Repositório GitHub:
 
 ```text
 mcpmieda/escolaieda
 ```
 
-### Pasta local conhecida no computador do usuário
+Pasta local conhecida no computador do usuário:
 
 ```text
 C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda
 ```
 
-### Arquivo principal
+Arquivo principal do sistema:
 
 ```text
 arquivo-digital\index.html
 ```
 
-### Estrutura conhecida do repositório
+O usuário está construindo um sistema web para organizar documentos escolares em PDF da Escola Iêda MCPM, com integração ao Microsoft 365, SharePoint e Microsoft Graph.
+
+---
+
+## 2. Objetivo principal do sistema
+
+O Arquivo Digital Escolar deve permitir:
+
+- login com conta Microsoft;
+- listagem de PDFs escolares;
+- busca por nome;
+- abertura de painel lateral ao clicar no arquivo;
+- abertura do PDF somente por botão próprio dentro do painel;
+- histórico de ações;
+- anotações por documento;
+- envio de novo PDF;
+- renomear documento;
+- substituir conteúdo do PDF mantendo versões do SharePoint;
+- enviar para Lixeira;
+- restaurar da Lixeira;
+- visualizar versões anteriores do SharePoint;
+- Central de Duplicidades;
+- Dashboard com indicadores;
+- prevenção contra substituições acidentais;
+- operação simples para usuário leigo.
+
+O foco atual não é criar grandes funcionalidades novas, mas estabilizar o sistema para entrega, corrigindo riscos reais e fazendo pequenos polimentos seguros.
+
+---
+
+## 3. Preferências de condução do usuário
+
+O usuário prefere:
+
+- passos curtos e objetivos;
+- pouca leitura por vez;
+- comandos prontos para PowerShell;
+- arquivos `.txt` para scripts longos;
+- alterações pequenas e específicas;
+- diagnóstico antes de mudanças arriscadas;
+- sempre testar no site publicado antes de commit/tag;
+- sempre criar backup antes de mexer no `index.html`;
+- sempre gerar relatório em `diagnosticos`;
+- quando possível, acelerar o processo com scripts PowerShell;
+- evitar colar códigos longos diretamente no chat;
+- receber o arquivo `.txt` para baixar e um comando curto para executar.
+
+O usuário cansou do fluxo via Codex para alterações simples, pois ficou confuso e mais lento. A preferência atual é:
+
+```text
+ChatGPT cria script direto em .txt
+Usuário baixa
+Usuário executa no PowerShell
+Usuário testa
+Usuário publica
+Usuário confirma
+ChatGPT orienta commit/tag/ponto seguro
+```
+
+O Codex pode ser usado para diagnósticos grandes, mas alterações pequenas devem continuar pelo método antigo com scripts diretos.
+
+---
+
+## 4. Estrutura conhecida do repositório
+
+Estrutura conhecida:
 
 ```text
 escolaieda/
@@ -123,41 +146,33 @@ escolaieda/
 └─ professores.html
 ```
 
-### Pastas locais auxiliares
+Pastas locais auxiliares:
 
 ```text
 backups_locais\
 diagnosticos\
 ```
 
-Essas pastas são locais e devem ficar fora do Git.
+Essas pastas devem ficar fora do Git.
 
-### `.gitignore`
-
-Já foi criado e enviado ao GitHub com:
+`.gitignore` já deve conter:
 
 ```text
 backups_locais/
 diagnosticos/
 ```
 
-Commit relacionado:
-
-```text
-702e388 Ignorar backups e diagnosticos locais
-```
-
 ---
 
-## 4. SharePoint, Graph e Microsoft 365
+## 5. SharePoint, Graph e Microsoft 365
 
-### Site SharePoint
+Site SharePoint:
 
 ```text
 https://eduieda.sharepoint.com/sites/ARQUIVODIGITAL
 ```
 
-### Bibliotecas/listas conhecidas
+Bibliotecas/listas conhecidas:
 
 ```text
 DOCUMENTOS_ATIVOS
@@ -167,17 +182,34 @@ ANOTACOES_ARQUIVOS
 ALERTAS_SISTEMA
 ```
 
-### Decisão técnica sobre Lixeira
+### 5.1. Decisão técnica sobre Lixeira
 
-Apesar de existir a biblioteca `DOCUMENTOS_ARQUIVADOS`, durante a implementação foi adotada a estratégia técnica de usar a pasta interna:
+Apesar da existência da biblioteca `DOCUMENTOS_ARQUIVADOS`, a estratégia técnica atual aprovada é usar a pasta interna:
 
 ```text
 DOCUMENTOS_ATIVOS/_ARQUIVADOS
 ```
 
-para a função de Lixeira/arquivamento, pois mover arquivos entre bibliotecas diferentes via Graph pode ser mais delicado.
+Na interface do usuário, usar sempre:
 
-### IDs conhecidos
+```text
+Lixeira
+```
+
+Internamente, podem continuar existindo termos técnicos como:
+
+```text
+ARQUIVADO
+_ARQUIVADOS
+tagArquivado
+estaArquivado
+```
+
+Não trocar esses nomes técnicos só por estética. Trocar apenas textos visíveis para usuário quando necessário.
+
+---
+
+## 6. IDs conhecidos do Microsoft Graph
 
 Site ID usado no código:
 
@@ -209,9 +241,7 @@ Lista `ALERTAS_SISTEMA`:
 9abdb5fc-c009-4a59-9f91-03677b001b56
 ```
 
-### Entra ID / Microsoft Graph
-
-Aplicativo conhecido no Entra:
+Aplicativo Entra ID:
 
 ```text
 Portal Escolar Iêda
@@ -235,7 +265,7 @@ Redirect URI configurada:
 https://escolaieda.com/arquivo-digital/
 ```
 
-Permissões Microsoft Graph já usadas/concedidas:
+Permissões Graph usadas/concedidas:
 
 ```text
 User.Read
@@ -243,496 +273,24 @@ Sites.Read.All
 Sites.ReadWrite.All
 ```
 
-### Segurança
-
-Não incluir tokens, senhas ou credenciais em código, documentação, relatórios ou commits.
+Nunca incluir tokens, senhas ou credenciais em commits, relatórios, código ou documentação.
 
 ---
 
-## 5. Funcionalidades já feitas ou já confirmadas em algum ponto
+## 7. Regras de ouro para qualquer alteração
 
-### 5.1. Login e acesso
-
-- Login Microsoft funcionando com MSAL.
-- Usuário conectado aparece com nome e conta.
-- Leitura de PDFs do SharePoint funcionando.
-- Permissões Graph configuradas e testadas.
-
-### 5.2. Listagem e busca
-
-- Lista documentos ativos.
-- Busca instantânea por parte do nome.
-- Documentos da Lixeira também podem ser listados/restaurados.
-- Documentos da Lixeira devem aparecer ordenados do mais recente ao menos recente quando possível.
-
-### 5.3. Painel lateral por arquivo
-
-Decisão importante:
+Sempre seguir:
 
 ```text
-Clicar no nome do arquivo NÃO deve abrir o PDF diretamente.
+diagnóstico → backup → alteração pequena → relatório → teste no site publicado → commit → tag/ponto seguro
 ```
 
-Fluxo desejado:
-
-```text
-Clique no arquivo
-→ abre painel lateral na mesma página
-→ mostra detalhes, histórico, anotações e ações
-→ PDF só abre pelo botão ABRIR PDF dentro do painel
-```
-
-Ações esperadas no painel:
-
-- ABRIR PDF;
-- renomear;
-- substituir;
-- enviar para Lixeira;
-- restaurar da Lixeira;
-- ver histórico;
-- ver anotações;
-- ver versões do SharePoint;
-- visualizar relatório.
-
-O registro de acesso deve ocorrer ao clicar no botão **ABRIR PDF**, não ao apenas selecionar/clicar no arquivo.
-
-### 5.4. Histórico
-
-A lista `HISTORICO_ACESSOS` registra ações como:
-
-```text
-VISUALIZOU
-RENOMEOU
-SUBSTITUIU
-ARQUIVOU / Enviou para Lixeira
-RESTAUROU
-ENVIOU
-ANOTACAO
-```
-
-O histórico do painel deve mostrar:
-
-- ação;
-- data/hora;
-- usuário;
-- motivo/observação digitado pelo usuário quando houver;
-- anotações registradas no histórico.
-
-Regra decidida:
-
-Quando houver motivo digitado pelo usuário, mostrar **somente o motivo do usuário**, sem frases automáticas longas como:
-
-```text
-Arquivo restaurado da pasta _ARQUIVADOS para a lista principal. Motivo:
-```
-
-### 5.5. Anotações por arquivo
-
-Regras desejadas:
-
-- cada arquivo tem caixa de texto de anotações;
-- a anotação atual fica salva em `ANOTACOES_ARQUIVOS`;
-- alterações reais de anotação também aparecem no histórico;
-- a caixa de anotação deve iniciar menor e crescer conforme o texto;
-- o histórico deve manter alterações reais da anotação, não apenas substituir tudo;
-- evitar duplicar a mesma anotação quando o usuário salva sem alterar o texto.
-
-Problema atual:
-
-```text
-No último teste, o usuário não viu as anotações aparecerem no histórico.
-```
-
-Não está confirmado se o problema é:
-
-- falha de exibição;
-- falha de gravação;
-- cache;
-- diferença entre site local/publicado;
-- efeito colateral de ajustes anteriores;
-- problema no vínculo entre arquivo e anotação.
-
-Esse problema deve ser diagnosticado antes de commit/tag.
-
-### 5.6. Dashboard
-
-Dashboard atual funcionando com cartões como:
-
-- documentos ativos;
-- acessos/movimentações;
-- acessos hoje;
-- arquivos com anotações;
-- duplicidades pendentes;
-- últimas movimentações por arquivo.
-
-Decisão implementada:
-
-```text
-Últimas movimentações por arquivo
-→ considera todas as ações
-→ mostra cada PDF apenas uma vez
-→ usa a movimentação mais recente daquele arquivo
-```
-
-O dashboard deve atualizar pelas ações do sistema, sem depender de botão manual de atualizar.
-
-### 5.7. Lixeira
-
-Terminologia decidida:
-
-```text
-Na interface, usar Lixeira.
-Evitar Arquivado, Arquivados e Arquivar para usuários leigos.
-```
-
-Internamente a pasta técnica pode continuar sendo:
-
-```text
-_ARQUIVADOS
-```
-
-Comportamento esperado:
-
-```text
-Enviar para Lixeira
-→ move para DOCUMENTOS_ATIVOS/_ARQUIVADOS
-→ não exclui definitivamente
-→ registra histórico
-```
-
-```text
-Restaurar
-→ move da pasta _ARQUIVADOS para a lista principal
-→ registra histórico
-```
-
-### 5.8. Substituição e versões
-
-- É possível substituir o conteúdo de um PDF mantendo o nome.
-- O SharePoint mantém versões do arquivo.
-- A seção “Versões do SharePoint” foi adicionada ao painel.
-
-### 5.9. Relatório
-
-Decisão mais recente:
-
-```text
-Relatório apenas para visualização.
-```
-
-O relatório não deve mais ter funções de copiar ou baixar.
-
-Foram removidos/zerados em ponto anterior:
-
-```text
-baixarRelatorioArquivo: 0
-copiarRelatorioArquivo: 0
-new Blob: 0
-clipboard.writeText: 0
-```
-
-Função atual esperada:
-
-```text
-visualizarRelatorioArquivo
-```
-
-O relatório aparece dentro do próprio painel lateral.
-
-### 5.10. Central de Duplicidades
-
-Central de Duplicidades básica existe ou já funcionou.
-
-Funcionalidades conhecidas:
-
-- detecta nomes iguais ou parecidos;
-- exibe cartão “Duplicidades pendentes” no dashboard;
-- ao clicar, abre a central/modal de duplicidades;
-- possui ação **São pessoas diferentes**;
-- pares marcados como “São pessoas diferentes” deixam de aparecer como pendência;
-- no painel do PDF, nomes parecidos também respeitam a marcação de pessoas diferentes.
-
-Tentativa problemática:
-
-- A função **São a mesma pessoa** foi tentada no Passo 115.
-- Essa tentativa bagunçou a visualização e os botões não funcionaram.
-- O passo foi revertido.
-- Não tentar recriar essa função sem diagnóstico e limpeza do trecho de duplicidades.
-
-### 5.11. Upload
-
-Estado desejado atual:
-
-- upload direto de um PDF pelo botão principal;
-- sem caixinha/modal de upload;
-- não mexer em upload em massa por enquanto.
-
-Histórico:
-
-- houve várias tentativas de modal/upload em massa entre os Passos 98 e 113;
-- essas tentativas geraram conflitos e camadas acumuladas;
-- depois foi decidido voltar ao envio simples/direto;
-- o ponto seguro `ponto-seguro-upload-direto` foi criado;
-- após novas tentativas, a orientação final foi: deixar sem caixinha e seguir a linha principal.
-
----
-
-## 6. Estado seguro e histórico recente
-
-### 6.1. Ponto seguro confirmado antes da última alteração não commitada
-
-```text
-ponto-seguro-js-relatorio-separado
-```
-
-Commit:
-
-```text
-fce9b62 Separar JS do relatorio da central de duplicidades
-```
-
-Esse ponto seguro foi criado após confirmar que o JS do relatório ficou em script próprio e que o Git estava limpo.
-
-### 6.2. Ponto seguro anterior importante
-
-```text
-ponto-seguro-relatorio-apenas-visualizacao
-```
-
-Commit:
-
-```text
-17643dd Deixar relatorio apenas para visualizacao
-```
-
-Nesse ponto, o relatório deixou de ter botões/funções de copiar e baixar, ficando apenas para visualização.
-
-### 6.3. Situação atual após o último passo executado
-
-O **Passo 134** foi executado e alterou o arquivo:
-
-```text
-arquivo-digital/index.html
-```
-
-Ele removeu CSS duplicado dentro do bloco da Central de Duplicidades.
-
-Importante:
-
-```text
-O Passo 134 ainda NÃO foi commitado.
-O status após o Passo 134 mostrou:
- M arquivo-digital/index.html
-```
-
-Backup criado pelo Passo 134:
-
-```text
-C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda\backups_locais\index.backup_antes_passo134_css_duplicado_central_20260523_182315.html
-```
-
-Relatório gerado pelo Passo 134:
-
-```text
-C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda\diagnosticos\PASSO_134_LIMPAR_CSS_DUPLICADO_CENTRAL_20260523_182315.txt
-```
-
-Não criar ponto seguro ainda porque o usuário relatou que não viu as anotações aparecerem no histórico no último teste.
-
-### 6.4. Estado confirmado no Passo 132 V2
-
-```text
-Blocos script: 9
-Inicio JS relatorio: 1
-Fim JS relatorio: 1
-Relatorio dentro de script proprio: True
-Relatorio com fechamento proprio: True
-```
-
-### 6.5. Resultado do Passo 134
-
-O Passo 134 removeu 48 linhas relacionadas a estilos já existentes no bloco principal:
-
-```text
-.itemHistorico.anotacaoEvento
-.anotacaoHistorico
-#campoAnotacao
-.linhaDataArquivo
-.itemVersao
-```
-
-Depois da limpeza, ficaram:
-
-```text
-itemHistorico.anotacaoEvento depois: 1
-anotacaoHistorico depois: 1
-campoAnotacao depois: 1
-linhaDataArquivo depois: 1
-itemVersao depois: 7
-cardDuplicidadesDashboard84 depois: 8
-modalDuplicidades84 depois: 2
-```
-
-Essa alteração ainda não está commitada.
-
----
-
-## 7. Problemas encontrados e lições aprendidas
-
-### 7.1. `index.html` acumulado
-
-O `index.html` ficou grande e acumulou muitos blocos.
-
-Tamanho aproximado observado:
-
-```text
-144 KB / 4.827 linhas após Passo 116
-133,79 KB / 4.505 linhas após limpezas
-```
-
-O tamanho exato atual após Passo 134 não foi confirmado.
-
-Lição:
-
-```text
-Não adicionar blocos novos no final do index.html sem diagnosticar onde a função correta já existe.
-```
-
-### 7.2. Upload/modal acumulado
-
-Houve tentativas de:
-
-- modal pequeno;
-- modal grande;
-- modal final;
-- input visível;
-- scripts de correção;
-- scripts de fechamento;
-- envio em massa.
-
-Problemas gerados:
-
-- duas caixas aparecendo;
-- botão de enviar não funcionando;
-- janela não fechando;
-- lista de arquivos não carregando;
-- comportamento antigo acumulado.
-
-Decisão final:
-
-```text
-Não mexer no upload em massa por enquanto.
-Manter envio direto simples.
-```
-
-### 7.3. Histórico quebrado em tentativa anterior
-
-Houve tentativa de corrigir histórico que quebrou login/página.
-
-Lições:
-
-- login/MSAL é sensível;
-- não alterar blocos de inicialização sem diagnóstico;
-- qualquer mudança em funções globais deve ser mínima;
-- se a página parar em “Verificando login...”, reverter imediatamente.
-
-### 7.4. Central de Duplicidades bagunçada
-
-A tentativa de adicionar “São a mesma pessoa” gerou:
-
-- visual bagunçado;
-- botões repetidos;
-- botões sem funcionar.
-
-Lições:
-
-- diagnosticar HTML/JS atual antes de mexer na Central;
-- preferir limpar/refatorar antes de adicionar ações novas;
-- não recriar “São a mesma pessoa” sem plano específico.
-
----
-
-## 8. Regras que não podem ser esquecidas
-
-### 8.1. Trabalhar um passo por vez
-
-O usuário pediu explicitamente que o trabalho seja feito passo a passo.
-
-### 8.2. Diagnóstico antes de função grande
-
-Antes de qualquer função grande:
-
-```text
-fazer diagnóstico específico
-```
-
-Exemplos:
-
-- diagnóstico do dashboard;
-- diagnóstico da Central de Duplicidades;
-- diagnóstico do painel lateral;
-- diagnóstico do histórico;
-- diagnóstico das anotações;
-- diagnóstico do upload.
-
-### 8.3. Evitar áreas sensíveis sem necessidade
-
-Não alterar sem diagnóstico:
-
-```text
-upload
-modalUpload98
-PASSO112
-PASSO113
-inputNovoDocumento
-login Microsoft
-MSAL
-CONFIG
-CONFIG_PASSO_83
-Graph API
-listas SharePoint
-clientId
-tenantId
-siteId
-IDs de listas
-```
-
-### 8.4. Código longo em arquivo `.txt`
-
-Quando o ChatGPT entregar scripts longos ao usuário, preferir:
-
-- arquivo `.txt` para baixar;
-- comando curto para PowerShell lendo da pasta Downloads.
-
-Padrão preferido atual:
+Antes de alterar:
 
 ```powershell
-Set-Location "$env:USERPROFILE\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda"; $tmp = Join-Path $env:TEMP "NOME_DO_PASSO.ps1"; Get-Content -Raw "$env:USERPROFILE\Downloads\NOME_DO_ARQUIVO.txt" | Set-Content -Path $tmp -Encoding UTF8; & $tmp
+git status --short
+git log -1 --oneline
 ```
-
-Esse padrão funcionou melhor que `Invoke-Expression`.
-
-### 8.5. Relatórios
-
-Sempre gerar relatórios em:
-
-```text
-diagnosticos\
-```
-
-Relatórios devem informar:
-
-- data/hora;
-- commit atual;
-- status do Git;
-- arquivos analisados;
-- o que foi encontrado;
-- o que foi alterado;
-- riscos;
-- próximos passos;
-- se a alteração é segura para commit ou ainda precisa de teste.
-
-### 8.6. Backups
 
 Antes de mexer em `arquivo-digital/index.html`, criar backup em:
 
@@ -740,22 +298,13 @@ Antes de mexer em `arquivo-digital/index.html`, criar backup em:
 backups_locais\
 ```
 
-Nome sugerido:
+Gerar relatório em:
 
 ```text
-index.backup_antes_PASSO_XXX_DESCRICAO_YYYYMMDD_HHMMSS.html
+diagnosticos\
 ```
 
-### 8.7. Git
-
-Antes de alterar:
-
-```powershell
-git status
-git log -1 --oneline
-```
-
-Depois de teste aprovado:
+Depois que o usuário testar e aprovar:
 
 ```powershell
 git add arquivo-digital/index.html
@@ -763,14 +312,550 @@ git commit -m "Mensagem objetiva"
 git push
 ```
 
-Se quebrar:
+Para ponto seguro:
+
+```powershell
+git tag nome-do-ponto-seguro
+git push origin nome-do-ponto-seguro
+```
+
+Se quebrar algo após commit:
 
 ```powershell
 git revert --no-edit HEAD
 git push
 ```
 
-### 8.8. Tags/pontos seguros conhecidos
+---
+
+## 8. Áreas sensíveis
+
+Não alterar sem diagnóstico específico:
+
+```text
+login Microsoft
+MSAL
+CONFIG
+siteId
+clientId
+tenantId
+IDs das listas
+SharePoint/Graph
+função de substituição do painel
+upload
+histórico
+anotações
+Central de Duplicidades
+Lixeira/restaurar
+```
+
+Não reintroduzir blocos antigos removidos:
+
+```text
+modalUpload98
+modalUpload105
+modalUpload106
+modalUpload108
+modalUpload111
+PASSO98
+PASSO99
+PASSO112
+PASSO113
+modalDuplicidades84
+CONFIG_PASSO_83
+cardDuplicidadesDashboard84
+btnVisualizarRelatorio
+visualizacaoRelatorioArquivo
+relatorioArquivoBox
+```
+
+Não recriar a função:
+
+```text
+São a mesma pessoa
+```
+
+sem pedido explícito e diagnóstico específico. Uma tentativa anterior bagunçou visual e botões.
+
+---
+
+## 9. Funcionalidades consolidadas
+
+### 9.1. Login
+
+O login Microsoft/MSAL está funcionando e deve ser preservado.
+
+Critério de teste:
+
+```text
+Site não pode travar em "Verificando login..."
+Usuário deve conseguir entrar e listar documentos.
+```
+
+### 9.2. Listagem e busca
+
+O sistema lista documentos ativos e documentos da Lixeira.
+
+Busca funciona por nome.
+
+Variáveis importantes:
+
+```text
+documentosAtivos
+documentosLixeira
+documentosCarregados
+modoListaAtual
+```
+
+A lista exibida depende do modo atual:
+
+```text
+ativos
+na Lixeira
+```
+
+### 9.3. Painel lateral
+
+Decisão central:
+
+```text
+Clicar no nome do arquivo NÃO abre o PDF diretamente.
+```
+
+Fluxo correto:
+
+```text
+Clicar no arquivo → abrir painel lateral → usuário decide ação
+```
+
+O painel deve conter:
+
+- nome;
+- ID/caminho quando disponível;
+- status;
+- botão ABRIR PDF;
+- renomear;
+- substituir;
+- enviar para Lixeira;
+- restaurar;
+- anotações;
+- histórico;
+- versões do SharePoint;
+- nomes parecidos.
+
+O PDF só abre pelo botão:
+
+```text
+ABRIR PDF
+```
+
+O histórico de visualização só deve registrar quando o usuário clicar em ABRIR PDF, não ao apenas selecionar o arquivo.
+
+### 9.4. Histórico
+
+Lista SharePoint:
+
+```text
+HISTORICO_ACESSOS
+```
+
+Ações importantes:
+
+```text
+VISUALIZOU
+RENOMEOU
+SUBSTITUIU
+ARQUIVOU
+RESTAUROU
+ENVIOU
+ANOTACAO
+```
+
+Na interface, `ARQUIVOU` deve aparecer como:
+
+```text
+FOI PARA LIXEIRA
+```
+
+Função importante:
+
+```text
+formatarAcaoHistorico
+```
+
+O histórico deve mostrar motivos do usuário sem textos automáticos longos, quando possível.
+
+### 9.5. Anotações
+
+Lista SharePoint:
+
+```text
+ANOTACOES_ARQUIVOS
+```
+
+Funções importantes:
+
+```text
+carregarAnotacaoDocumento
+salvarAnotacaoAgora
+agendarSalvarAnotacao
+salvarAnotacaoManual
+registrarHistorico
+carregarHistoricoDocumento
+```
+
+Decisão aplicada:
+
+```text
+Anotações não devem salvar automaticamente texto incompleto.
+Salvar deve ocorrer pelo botão existente.
+```
+
+Ajuste feito:
+
+- `agendarSalvarAnotacao` passou a apenas indicar que há alteração não salva;
+- `salvarAnotacaoManual` salva quando o usuário clica;
+- evita múltiplas anotações incompletas.
+
+As anotações foram testadas depois e consideradas funcionando.
+
+### 9.6. Dashboard
+
+Dashboard existe e mostra:
+
+- total de documentos;
+- movimentações;
+- acessos hoje;
+- arquivos com anotações;
+- duplicidades pendentes;
+- últimas movimentações por arquivo.
+
+Decisão:
+
+```text
+Últimas movimentações por arquivo
+→ mostra cada PDF uma vez
+→ usa movimentação mais recente daquele arquivo
+```
+
+Dashboard deve atualizar após ações do sistema.
+
+### 9.7. Lixeira
+
+Interface deve falar:
+
+```text
+Lixeira
+```
+
+Evitar no visual para usuário:
+
+```text
+Arquivado
+Arquivados
+Arquivar
+```
+
+Comportamento:
+
+```text
+Enviar para Lixeira → move para DOCUMENTOS_ATIVOS/_ARQUIVADOS
+Restaurar → move de _ARQUIVADOS para raiz de DOCUMENTOS_ATIVOS
+```
+
+A função técnica pode manter `ARQUIVADO`.
+
+Correção aprovada:
+
+- onde aparecia `arquivando...`, `arquivou`, etc., foi ajustado para Lixeira ou FOI PARA LIXEIRA.
+
+### 9.8. Substituição e versões
+
+Substituição intencional:
+
+- ocorre apenas pelo painel lateral;
+- usuário escolhe arquivo substituto;
+- SharePoint preserva versões;
+- histórico registra `SUBSTITUIU`.
+
+Função de substituição usa endpoint:
+
+```text
+/drives/{driveId}/items/{driveItem.id}/content
+```
+
+Esse fluxo deve ser preservado.
+
+Versões do SharePoint:
+
+- seção `Versões do SharePoint` no painel;
+- versão atual pode abrir no navegador;
+- versões anteriores foram ajustadas para visualizar corretamente PDF em nova aba;
+- problema de download estranho foi corrigido;
+- textos quebrados como `VersÃ£o` foram corrigidos/evitados.
+
+### 9.9. Abertura de PDF com nome correto
+
+Problema identificado:
+
+- ao substituir arquivo, o PDF abria no navegador com nome original do arquivo enviado, não com o nome exibido no sistema.
+
+Foi ajustado para abrir PDF com título/nome do sistema quando possível.
+
+### 9.10. Relatório no painel
+
+Decisão:
+
+```text
+Remover/evitar relatório no painel.
+```
+
+Não reintroduzir:
+
+```text
+btnVisualizarRelatorio
+visualizacaoRelatorioArquivo
+relatorioArquivoBox
+```
+
+### 9.11. Upload direto
+
+Fluxo aprovado:
+
+```text
+Enviar novo PDF → abrir seletor de arquivo diretamente
+```
+
+Sem modal/caixinha antiga.
+
+Marcador preservado:
+
+```text
+UPLOAD_DIRETO_LIMPO
+```
+
+O bloco `UPLOAD_DIRETO_LIMPO` não faz upload por conta própria; ele encaminha para:
+
+```text
+window.enviarNovoDocumento
+```
+
+---
+
+## 10. Central de Duplicidades — estado final aprovado
+
+A Central de Duplicidades foi bastante trabalhada.
+
+### 10.1. Comportamento geral
+
+A Central:
+
+- analisa automaticamente ao abrir/carregar documentos;
+- se não houver suspeitos, fica discreta;
+- se houver suspeitos, mostra aviso/cartões;
+- mantém botão `Atualizar análise`;
+- usa `ALERTAS_SISTEMA` para pares marcados como `São pessoas diferentes`;
+- painel lateral também respeita pares ignorados;
+- Central vermelha é desejada, pois chama atenção do usuário leigo.
+
+### 10.2. Funções importantes
+
+Preservar:
+
+```text
+atualizarCentralDuplicidades
+gerarParesDuplicidades
+carregarParesDuplicidadeIgnorados
+marcarPessoasDiferentesCentral
+calcularPontuacaoNomes
+buscarNomesParecidos
+deveExibirNomeParecido
+primeiroESegundoNomeParecidos
+```
+
+### 10.3. Ajustes executados
+
+Foi feito refinamento progressivo usando 308 arquivos de teste:
+
+- antes: 50 casos suspeitos;
+- depois do Passo 175: 19 casos;
+- depois do Passo 176: 13 casos;
+- depois do Passo 177: 11 casos.
+
+O usuário aprovou seguir com 11 casos.
+
+### 10.4. Regra atual consolidada
+
+Regra aprovada:
+
+```text
+- nomes exatamente iguais aparecem;
+- nomes compactos iguais ou claramente contidos aparecem;
+- 4 pontos ou mais aparecem;
+- 3 pontos aparecem somente se primeiro/segundo nomes atenderem critério mais forte;
+- 2 pontos não aparecem;
+- se primeiro nome for parecido, mas não igual, o segundo nome precisa ser exatamente igual;
+- se primeiro nome for igual, o segundo nome pode ser igual/parecido;
+- pares marcados como São pessoas diferentes não aparecem mais.
+```
+
+### 10.5. Exemplos que devem continuar aparecendo
+
+Com base nos testes:
+
+```text
+ADEILTON DA SILVA SANTOS.pdf
+ADILSON DA SILVA SANTOS.pdf
+
+ADRIANA MOREIRA DA SILVA.pdf
+ADRIANO MOREIRA DA SILVA.pdf
+
+ADRIANA SILVA SANTOS.pdf
+ADRIANO DA SILVA SANTOS.pdf
+
+CAMILA SILVA.pdf
+CAMILA SILVA SANTOS.pdf
+
+CAMILA SILVA.pdf
+CAMILA SILVA SOUZA.pdf
+
+CLEIDIONICE SOUZA OLIVEIRA.pdf
+CLEIDIONICE SOUZA DE OLIVEIRA.pdf
+
+CLEUZA PEREIRA DA COSTA.pdf
+CREUSA PEREIRA DA COSTA.pdf
+
+ANA PAULA SILVA DOS SANTOS.pdf
+ANA PAULA DIAS SANTOS.pdf
+
+ANA PAULA SILVA DOS SANTOS.pdf
+ANA PAULA SOUZA DOS SANTOS.pdf
+
+ANA PAULA SOUZA DOS SANTOS.pdf
+ANA PAULA DIAS SANTOS.pdf
+
+CLÁUDIA MARIA BISPO DOS SANTOS.pdf
+CLAUDIA MARIA DOS SANTOS COSTA.pdf
+```
+
+### 10.6. Possível melhoria futura
+
+Não aplicar agora, mas pode ser ideia futura:
+
+```text
+Mostrar possíveis semelhanças leves
+```
+
+Essa opção ficaria escondida por padrão e poderia mostrar pares mais fracos sem contar como pendência principal.
+
+---
+
+## 11. Upload com nome igual — estado final aprovado
+
+Este foi o ajuste mais recente.
+
+### 11.1. Problema antigo
+
+Antes, ao enviar novo PDF com nome já existente, o sistema mostrava aviso:
+
+```text
+ATENÇÃO: já existe um arquivo ativo com esse mesmo nome.
+Se continuar, o arquivo atual poderá ser substituído.
+```
+
+Isso era perigoso porque usuário leigo poderia clicar em OK sem ler e substituir documento de outra pessoa.
+
+Diagnóstico confirmou:
+
+- upload comum usava `PUT`;
+- URL era montada com `/root:/NOME:/content`;
+- se o caminho já existisse, poderia substituir;
+- o próprio código registrava como `SUBSTITUIU` quando detectava nome igual;
+- a verificação usava `documentosCarregados`, que poderia estar apontando para Lixeira, não necessariamente ativos.
+
+### 11.2. Decisão aprovada
+
+Regra final:
+
+```text
+Upload comum nunca substitui arquivo existente.
+Se já existir nome igual, o sistema gera nome livre automaticamente.
+Substituição só ocorre pelo botão Substituir dentro do painel lateral.
+```
+
+Exemplo:
+
+```text
+TESTEI.pdf
+TESTEI (2).pdf
+TESTEI (3).pdf
+```
+
+### 11.3. Ajuste aplicado
+
+Foram inseridas funções semelhantes a:
+
+```text
+separarNomePdf
+gerarNomeLivreUploadPdf
+```
+
+A lógica usa:
+
+```text
+documentosAtivos
+```
+
+como fonte de nomes ocupados.
+
+O upload comum agora:
+
+- calcula `nomeSolicitado`;
+- calcula `nomeFinal`;
+- identifica `nomeFoiAjustado`;
+- avisa o usuário de forma legível;
+- envia com nome livre;
+- registra histórico como `ENVIOU`;
+- nunca registra `SUBSTITUIU` no upload comum;
+- mantém função `Substituir` do painel intacta.
+
+### 11.4. Texto final do aviso
+
+Por causa de problema de codificação nos acentos, o aviso foi trocado para texto sem acentos:
+
+```text
+Ja existe um arquivo ativo com o nome:
+
+TESTEI .PDF
+
+Para evitar substituicao acidental, o novo PDF sera enviado automaticamente como:
+
+TESTEI (2).pdf
+
+Depois confira a Central de Duplicidades.
+```
+
+Usuário testou e confirmou:
+
+```text
+funcionou perfeitamente
+```
+
+### 11.5. Ponto seguro criado
+
+Ponto seguro atual:
+
+```text
+ponto-seguro-upload-nome-igual-numeracao-ok
+```
+
+Esse ponto foi enviado para o GitHub com sucesso.
+
+---
+
+## 12. Pontos seguros recentes e importantes
+
+Pontos seguros conhecidos ao longo do projeto:
 
 ```text
 ponto-seguro-arquivo-digital
@@ -784,492 +869,540 @@ ponto-seguro-pos-reversao-duplicidades
 ponto-seguro-pos-limpeza-relatorio
 ponto-seguro-relatorio-apenas-visualizacao
 ponto-seguro-js-relatorio-separado
+ponto-seguro-agents-css-central-ok
+ponto-seguro-central-duplicidades-sem-blocos-antigos
+ponto-seguro-upload-direto-sem-modal-antigo
+ponto-seguro-upload-direto-limpo
+ponto-seguro-textos-lixeira-ok
+ponto-seguro-painel-sem-relatorio
+ponto-seguro-historico-lixeira-ok
+ponto-seguro-central-automatica-discreta-ok
+ponto-seguro-entrega-checklist-ok
+ponto-seguro-duplicidades-refinadas-ok
+ponto-seguro-upload-nome-igual-numeracao-ok
 ```
 
-No estado atual, o ponto seguro confirmado mais recente é:
+Ponto seguro mais atual e mais importante:
 
 ```text
-ponto-seguro-js-relatorio-separado
-commit fce9b62
+ponto-seguro-upload-nome-igual-numeracao-ok
 ```
 
-### 8.9. Não criar ponto seguro se houver dúvida
-
-No momento atual, por causa da dúvida sobre anotações no histórico:
+Estado atual aprovado nesse ponto:
 
 ```text
-não commitar o Passo 134
-não criar tag nova
-diagnosticar primeiro
+Checklist geral passou.
+Central de Duplicidades refinada.
+Upload comum com nome igual não substitui.
+Sistema renomeia automaticamente.
+Aviso legível.
+Histórico registra como ENVIOU.
+Central acusa naturalmente.
 ```
 
 ---
 
-## 9. Próximo passo recomendado
+## 13. Commits recentes citados
 
-### Passo 135 — diagnóstico das anotações no histórico
-
-Próximo passo técnico imediato:
+Commits observados durante a conversa:
 
 ```text
-Diagnosticar por que as anotações podem não aparecer no histórico do arquivo.
+6a36894 Atualizar AGENTS com central automatica
+0dd2e9b Refinar duplicidades com primeiro nome parecido
 ```
 
-O diagnóstico deve verificar:
-
-- funções de salvar anotação;
-- funções de registrar histórico;
-- funções de carregar histórico;
-- filtros por ação `ANOTACAO`;
-- renderização da anotação dentro do painel;
-- ligação entre ID/nome/caminho do arquivo e registros nas listas;
-- se o Passo 134 pode ter afetado a exibição;
-- se o problema pode ser cache/local/publicado;
-- se há duplicidade de função relacionada a histórico/anotação.
-
-O diagnóstico não deve alterar o site.
-
-Depois do diagnóstico:
-
-- se for só exibição, corrigir apenas renderização;
-- se for gravação, corrigir apenas função de salvar/registrar;
-- se o Passo 134 não afetou anotações, testar e depois commitar o Passo 134;
-- se o Passo 134 causou problema, reverter ou corrigir com alteração mínima.
-
----
-
-## 10. Pendências
-
-### 10.1. Técnicas imediatas
-
-1. Diagnosticar anotações no histórico.
-2. Decidir se mantém ou reverte o Passo 134.
-3. Se o Passo 134 estiver ok, fazer commit e tag.
-4. Continuar limpeza técnica do `index.html` somente com diagnóstico.
-5. Melhorar Central de Duplicidades.
-6. Revisar abertura dos dois arquivos no painel.
-7. Criar relatório geral do dashboard.
-8. Criar filtros avançados.
-9. Avaliar permissões por perfil.
-10. Melhorar layout profissional.
-
-### 10.2. Funcionais futuras
-
-- melhorar Central de Duplicidades;
-- reavaliar função “São a mesma pessoa”;
-- criar fluxo seguro para conflitos:
-  - mesmo nome;
-  - nomes parecidos;
-  - documento ativo + documento na Lixeira;
-  - possível duplicidade real;
-- criar relatório geral do dashboard;
-- criar filtros avançados;
-- criar controle de perfis/permissões dentro da interface;
-- criar tela/seção de Alertas;
-- melhorar abertura/visualização dos PDFs, se necessário;
-- voltar ao upload em massa somente depois de limpar a área de upload.
-
-### 10.3. Não confirmado
-
-- Se a biblioteca `DOCUMENTOS_ARQUIVADOS` será usada futuramente ou se `_ARQUIVADOS` continuará definitivo.
-- Se haverá perfis diferentes de usuário.
-- Se haverá OCR/leitura do conteúdo dos PDFs.
-- Se haverá mesclagem real de PDFs.
-- Se haverá integração com outras páginas do site.
-- Se haverá painel administrativo separado.
-- Se será necessário conectar ao SharePoint via PowerShell.
-- Se as anotações não aparecem por erro real no código ou por cache/teste específico.
-- Se o histórico deve mostrar só anotação atual ou também versões anteriores das anotações.
-
----
-
-## 11. Como iniciar uma sessão no Codex neste projeto
-
-Quando o usuário abrir o PowerShell na pasta do projeto, o Codex deve receber ou inferir esta rotina:
-
-1. Ler `AGENTS.md`.
-2. Ler os últimos relatórios em `diagnosticos`.
-3. Verificar Git:
-   ```powershell
-   git status
-   git log -1 --oneline
-   ```
-4. Confirmar se há alteração pendente do Passo 134.
-5. Não alterar nada antes de diagnosticar as anotações no histórico.
-6. Criar relatório novo em `diagnosticos`.
-7. Sugerir próximo passo seguro.
-
-Prompt inicial recomendado para o usuário colar no Codex:
+Outros commits mencionados:
 
 ```text
-Leia o AGENTS.md e os relatórios mais recentes da pasta diagnosticos. Depois analise o projeto sem alterar nada. Confirme em que ponto estamos, verifique o status do Git, identifique se o Passo 134 ainda está pendente e gere um diagnóstico específico sobre o problema das anotações não aparecerem no histórico. Não altere index.html ainda. Gere relatório em diagnosticos.
+702e388 Ignorar backups e diagnosticos locais
+17643dd Deixar relatorio apenas para visualizacao
+fce9b62 Separar JS do relatorio da central de duplicidades
+35380a9 Tornar central de duplicidades automatica e discreta
+5268580 Refinar duplicidades para reduzir falsos positivos
+e9a100f Deixar duplicidades de tres pontos mais exigentes
+```
+
+Se algum commit não existir localmente no futuro, considerar como referência histórica da conversa, não como fonte única de verdade. Conferir com:
+
+```powershell
+git log --oneline --decorate -20
 ```
 
 ---
 
-## 12. Configuração local desejada para facilitar o usuário
+## 14. Testes manuais já aprovados
 
-O usuário quer reduzir esforço manual.
+O usuário fez checklist geral e informou que estava tudo funcionando.
 
-Se possível, criar um atalho na Área de Trabalho chamado:
+Checklist usado:
 
 ```text
-Arquivo Digital - Codex
+1. Abrir o site com Ctrl + F5
+2. Fazer login Microsoft
+3. Ver se os documentos carregam
+4. Buscar um documento pelo nome
+5. Abrir o painel lateral
+6. Clicar em ABRIR PDF
+7. Salvar uma anotação e ver se aparece no histórico
+8. Enviar um PDF de teste para Lixeira
+9. Restaurar esse PDF de teste
+10. Substituir um PDF de teste
+11. Ver se versões do SharePoint aparecem/abrem
+12. Conferir se a Central fica discreta sem suspeitos e mostra alerta com suspeitos
+13. Conferir o Dashboard depois das ações
 ```
 
-O atalho deve abrir o PowerShell na pasta:
+Resultado informado:
+
+```text
+FIZ O CHECKLIST E ESTA TUDO FUNCIONANDO.
+```
+
+Depois disso foram feitas alterações pequenas adicionais:
+
+- refinamento de duplicidades;
+- upload com nome igual renomeando automaticamente.
+
+Ambas foram testadas e aprovadas.
+
+---
+
+## 15. Problemas encontrados e lições aprendidas
+
+### 15.1. Codificação/acentos
+
+Alguns textos inseridos por scripts apareceram quebrados no navegador:
+
+```text
+JÃi
+substituiÃSÃEo
+serÃi
+```
+
+Solução aplicada:
+
+- para avisos críticos via `confirm`, usar texto sem acentos;
+- isso evita problemas de encoding.
+
+### 15.2. PowerShell e scripts
+
+Alguns scripts falharam por:
+
+- `$()` dentro de strings;
+- aspas quebradas;
+- hash com chaves duplicadas;
+- correspondência exata de trechos que mudavam por acento/quebra de linha.
+
+Lição:
+
+```text
+Para trechos instáveis, usar scripts robustos por posição/regex controlada.
+Evitar depender de bloco inteiro idêntico quando o arquivo muda muito.
+```
+
+### 15.3. Codex
+
+Codex funciona, mas:
+
+- pode demorar;
+- pode gerar muita saída;
+- pode escolher “próximo passo” errado se o prompt for genérico;
+- melhor usar para diagnóstico somente-leitura;
+- alterações pequenas devem ser feitas com script direto do ChatGPT.
+
+Se usar Codex, sempre dar tarefa específica e usar saída em relatório.
+
+### 15.4. Upload
+
+O upload comum era perigoso por usar `PUT` em caminho que poderia existir.
+
+Regra final:
+
+```text
+Upload comum nunca substitui.
+Substituir só pelo painel.
+```
+
+### 15.5. Central de Duplicidades
+
+Se a regra for muito sensível, sobrenomes comuns geram falsos positivos demais.
+
+Sobrenomes muito frequentes no teste:
+
+```text
+SILVA
+SANTOS
+OLIVEIRA
+COSTA
+PEREIRA
+SOUZA
+JESUS
+```
+
+A regra atual reduziu bastante sem perder casos fortes.
+
+---
+
+## 16. Próximos passos recomendados
+
+Como o sistema está em ponto seguro forte, os próximos passos devem ser pequenos.
+
+### 16.1. Próximo passo mais recomendado
+
+Atualizar o `AGENTS.md` local com este arquivo ou manter os dois lado a lado.
+
+Sugestão:
+
+```text
+Manter o antigo como histórico.
+Adicionar este como AGENTS_ATUALIZADO_COMPLETO.md.
+Opcionalmente copiar este conteúdo para AGENTS.md depois de conferir.
+```
+
+### 16.2. Melhorias funcionais possíveis
+
+1. Criar área para desfazer `São pessoas diferentes`.
+
+   Motivo:
+   - hoje o par ignorado some;
+   - se usuário marcou errado, precisa forma de desfazer.
+
+2. Criar filtros úteis:
+
+   Exemplos:
+   - Ativos;
+   - Lixeira;
+   - Com anotação;
+   - Com duplicidade;
+   - Atualizados recentemente;
+   - Enviados hoje;
+   - Substituídos recentemente.
+
+3. Melhorar visual mobile/desktop.
+
+   Motivo:
+   - painel lateral, dashboard e central têm muito conteúdo;
+   - testar responsividade antes de entrega final.
+
+4. Criar instruções curtas de uso para a escola.
+
+   Documento simples:
+   - como enviar PDF;
+   - como abrir painel;
+   - como abrir PDF;
+   - como salvar anotação;
+   - como enviar para Lixeira;
+   - como restaurar;
+   - como interpretar Central de Duplicidades.
+
+5. Criar visão de “semelhanças leves” escondida.
+
+   Não deve contar como pendência principal.
+
+6. Avaliar permissões por perfil.
+
+   Futuro:
+   - quem pode enviar;
+   - quem pode excluir/enviar para Lixeira;
+   - quem pode substituir;
+   - quem só visualiza.
+
+7. Melhorar mensagens visuais.
+
+   Trocar alguns `confirm`, `prompt`, `alert` por caixas próprias do sistema, com visual mais profissional.
+
+### 16.3. Não recomendado agora
+
+Não iniciar agora:
+
+```text
+upload em massa
+São a mesma pessoa
+mesclagem real de PDFs
+OCR
+grande refatoração do index.html
+mudança de estrutura SharePoint
+alteração de login/MSAL
+```
+
+Esses itens exigem diagnóstico grande e podem quebrar áreas estáveis.
+
+---
+
+## 17. Comando para verificar estado antes de continuar
+
+Sempre que voltar ao projeto:
+
+```powershell
+Set-Location "$env:USERPROFILE\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda"
+git status --short
+git log -1 --oneline
+git tag --points-at HEAD
+```
+
+O estado ideal atual deve estar limpo e com tag recente:
+
+```text
+ponto-seguro-upload-nome-igual-numeracao-ok
+```
+
+---
+
+## 18. Modelo de comando para executar scripts enviados pelo ChatGPT
+
+Padrão preferido:
+
+```powershell
+Set-Location "$env:USERPROFILE\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda"; $tmp = Join-Path $env:TEMP "NOME_DO_PASSO.ps1"; Get-Content -Raw "$env:USERPROFILE\Downloads\NOME_DO_ARQUIVO.txt" | Set-Content -Path $tmp -Encoding UTF8; & $tmp
+```
+
+Depois de teste aprovado:
+
+```powershell
+git add arquivo-digital/index.html
+git commit -m "Mensagem objetiva"
+git push
+```
+
+Para tag:
+
+```powershell
+git tag nome-da-tag
+git push origin nome-da-tag
+```
+
+---
+
+## 19. Resumo cronológico técnico do ponto zero até agora
+
+### Fase 1 — Criação/estrutura base
+
+- Sistema criado dentro de `arquivo-digital/index.html`.
+- Integração com Microsoft login/MSAL.
+- Configuração Graph/SharePoint.
+- Listagem inicial de documentos PDF.
+- Busca por documentos.
+- Abertura de PDFs.
+
+### Fase 2 — Painel lateral
+
+- Decisão de não abrir PDF diretamente ao clicar no nome.
+- Clique passou a abrir painel lateral.
+- Botão ABRIR PDF virou ação própria.
+- Histórico de acesso passou a ser associado ao botão ABRIR PDF.
+
+### Fase 3 — Histórico e anotações
+
+- Criado histórico de ações.
+- Criadas anotações por arquivo.
+- Ajuste para anotações não salvarem automaticamente textos incompletos.
+- Salvar anotação pelo botão.
+- Histórico de anotação mantido.
+
+### Fase 4 — Lixeira
+
+- Enviar para Lixeira implementado via `_ARQUIVADOS`.
+- Restaurar implementado.
+- Interface passou a usar “Lixeira”.
+- `ARQUIVOU` passou a aparecer como `FOI PARA LIXEIRA`.
+
+### Fase 5 — Substituição e versões
+
+- Substituir PDF pelo painel.
+- Preservar versões SharePoint.
+- Exibir versões no painel.
+- Visualizar versão atual/anterior.
+- Corrigir visualização de versão anterior que baixava arquivo estranho.
+- Corrigir nome/título de abertura do PDF quando necessário.
+
+### Fase 6 — Limpezas
+
+- Removidos modais antigos de upload.
+- Removidos blocos antigos da Central.
+- Removidos elementos antigos de relatório do painel.
+- Mantido upload direto limpo.
+- Criado/atualizado AGENTS antigo com estado parcial.
+
+### Fase 7 — Central de Duplicidades
+
+- Central automática e discreta.
+- Painel respeita pares ignorados.
+- Ajustes sucessivos de pontuação.
+- Teste com 308 arquivos.
+- Redução de 50 para 11 suspeitos.
+- Ponto seguro criado.
+
+### Fase 8 — Entrega/checklist
+
+- Usuário fez checklist geral no site publicado.
+- Tudo funcionou.
+- Ponto seguro de checklist criado.
+
+### Fase 9 — Upload seguro com nome igual
+
+- Discussão do risco de usuário leigo substituir arquivo sem perceber.
+- Decisão: upload comum nunca substitui.
+- Se nome igual existir, renomeia automaticamente.
+- Ajuste aplicado.
+- Corrigido aviso com caracteres quebrados.
+- Usuário testou e aprovou.
+- Ponto seguro mais atual criado:
+
+```text
+ponto-seguro-upload-nome-igual-numeracao-ok
+```
+
+---
+
+## 20. Estado atual em linguagem simples
+
+O sistema atualmente está assim:
+
+```text
+O site funciona.
+O login funciona.
+Os documentos carregam.
+O painel lateral funciona.
+O PDF abre pelo botão correto.
+Anotações funcionam.
+Histórico funciona.
+Lixeira/restaurar funciona.
+Substituir funciona.
+Versões SharePoint funcionam.
+Dashboard funciona.
+Central de Duplicidades funciona e está refinada.
+Upload direto funciona.
+Upload com nome igual não substitui mais; renomeia automaticamente.
+```
+
+Esse é o melhor ponto seguro conhecido até agora.
+
+---
+
+## 21. Texto de contexto para novo ChatGPT/Codex
+
+Se um novo chat ler este arquivo, considerar:
+
+```text
+Você está continuando um projeto real chamado Arquivo Digital Escolar.
+O usuário prefere passos curtos, scripts .txt para baixar e comandos PowerShell prontos.
+Não explique demais.
+Não faça grandes refatorações.
+Sempre proteger o que já funciona.
+Sempre criar backup, relatório, teste, commit e tag.
+O ponto seguro mais atual é ponto-seguro-upload-nome-igual-numeracao-ok.
+```
+
+Próxima resposta ideal ao usuário, se ele disser “vamos continuar”:
+
+```text
+Vamos confirmar o estado primeiro:
+git status --short
+git log -1 --oneline
+git tag --points-at HEAD
+```
+
+Depois perguntar qual alteração pequena ele quer fazer.
+
+---
+
+## 22. Anexo — resumo conversacional detalhado
+
+Abaixo está um resumo narrativo dos principais trechos da conversa recente. Ele não é transcrição literal completa, mas preserva as decisões e intenções.
+
+### Continuidade e AGENTS
+
+O usuário perguntou se deveria continuar na mesma conversa ou abrir outra. Foi explicado que poderia continuar, mas que um `AGENTS.md` ajudaria outros chats/Codex a saber os detalhes. O usuário pediu um resumo técnico em formato AGENTS com objetivo, estrutura, funcionalidades, problemas, decisões, pendências, próximos passos e cuidados para Codex/PowerShell.
+
+### Fluxo PowerShell/Codex
+
+O usuário quis reduzir trabalho manual de colar scripts longos. Tentamos usar Codex pelo PowerShell. O usuário percebeu que a saída ficava confusa e que diagnósticos demoravam. Foi concluído que o melhor fluxo seria:
+
+```text
+Scripts diretos do ChatGPT para mudanças pequenas.
+Codex somente para diagnósticos maiores.
+```
+
+### Anotações
+
+O usuário percebeu que anotações estavam salvando automaticamente e gerando registros incompletos. Foi decidido que o ideal era salvar apenas pelo botão existente. Ajustes foram feitos para desativar autosave real e manter apenas o status de alteração não salva. Depois o usuário testou e confirmou funcionamento.
+
+### Textos de Lixeira
+
+O usuário percebeu que ao mover para Lixeira ainda apareciam termos como `arquivando...` e `arquivou`. Foram feitos ajustes para mostrar termos de Lixeira, principalmente no histórico e dashboard. O usuário confirmou que funcionou.
+
+### Versões do SharePoint
+
+O usuário observou que as versões apareciam, mas não havia botão. Adicionamos botão para visualizar/baixar versão. Depois ajustamos para visualizar no navegador em vez de baixar. Houve problema com versão anterior baixando coisa estranha, e isso foi corrigido. O usuário confirmou funcionamento.
+
+### PDF com nome correto
+
+O usuário percebeu que após substituir, ao abrir PDF no navegador aparecia o nome do arquivo enviado do computador, e não o nome mantido no sistema. Foi discutido que o SharePoint mantém nome físico; ajustamos para abertura com título/nome do sistema quando possível. O usuário confirmou 100%.
+
+### Central de Duplicidades automática
+
+O usuário queria que a Central analisasse automaticamente ao abrir o site, sem precisar clicar, e que só aparecesse quando houvesse duplicidade. Ajustamos para Central automática e discreta. O usuário confirmou funcionamento e salvou ponto seguro.
+
+### Checklist de entrega
+
+Codex gerou diagnóstico de entrega final. O relatório recomendou não iniciar funções novas, mas testar o site publicado. O usuário fez checklist completo e disse que tudo estava funcionando. Foi criado ponto seguro.
+
+### Refinamento de duplicidades
+
+O usuário carregou 308 modelos de arquivos para testar duplicidade. A Central inicialmente mostrou 50 suspeitos, com muitos falsos positivos por sobrenomes comuns. Foram feitos refinamentos:
+
+- ocultar 2 pontos;
+- exigir primeiro nome igual/parecido;
+- exigir primeiro e segundo nome para 3 pontos;
+- tornar primeiro nome parecido mais rígido.
+
+Resultado caiu para 11 suspeitos. O usuário aprovou. Criado ponto seguro.
+
+### Upload com nome igual
+
+O usuário levantou risco grave: usuário leigo poderia enviar arquivo com nome igual e substituir documento de outra pessoa. Primeiro discutimos bloquear upload, mas o usuário achou perigoso porque usuário poderia não ler aviso. A solução aprovada foi:
+
+```text
+se nome já existe, sistema renomeia automaticamente e envia;
+depois Central acusa duplicidade.
+```
+
+Foi diagnosticado que upload comum usava `PUT` e podia substituir. Ajustamos para gerar `NOME (2).pdf`, `NOME (3).pdf`. Houve texto quebrado no aviso, corrigido para sem acentos. O usuário testou e disse que funcionou perfeitamente. Criado ponto seguro atual.
+
+---
+
+## 23. Comando para instalar/copiar este AGENTS no projeto
+
+Este arquivo foi criado como:
+
+```text
+AGENTS_ATUALIZADO_COMPLETO.md
+```
+
+Ele deve ser copiado para a pasta local do projeto:
 
 ```text
 C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda
 ```
 
-E executar um script local que:
+Recomenda-se manter o AGENTS antigo e colocar este ao lado dele. Depois, se desejado, copiar também por cima de `AGENTS.md`.
 
-1. entra na pasta do projeto;
-2. mostra último commit;
-3. mostra status do Git;
-4. avisa se houver alterações pendentes;
-5. abre o site publicado no navegador, se solicitado no script;
-6. inicia o Codex se o comando `codex` estiver disponível;
-7. se o Codex não estiver disponível, mostra aviso simples.
-
-Observação:
-
-- Não existe, até agora, comando confirmado para “logar no SharePoint via PowerShell” neste fluxo.
-- A conexão com SharePoint normalmente é testada pelo navegador no site publicado, com login Microsoft.
-- Se `git push` já vinha funcionando, normalmente não precisa reconectar ao GitHub.
-- Se o GitHub pedir autenticação, resolver no momento do erro.
-- O primeiro login do Codex pode abrir autenticação no navegador ou solicitar login conforme instalação local.
+Comandos sugeridos estão na resposta do ChatGPT junto com o link de download.
 
 ---
 
-## 13. Critérios de “pronto” para cada etapa
+## 24. Última atualização deste documento
 
-Uma etapa só deve ser considerada concluída quando:
-
-- o site abre sem travar em “Verificando login...”;
-- login Microsoft continua funcionando;
-- listagem de documentos continua funcionando;
-- função alterada foi testada;
-- não houve perda de acentos;
-- `git status` foi conferido;
-- relatório foi gerado;
-- usuário aprovou;
-- commit foi criado;
-- se for marco importante, tag/ponto seguro foi criado.
-
----
-
-## 14. Resumo do estado atual
-
-Estado final consolidado:
+Gerado em:
 
 ```text
-Último ponto seguro confirmado:
-ponto-seguro-js-relatorio-separado
-commit fce9b62
-
-Última alteração executada, mas ainda não commitada:
-Passo 134 - limpar CSS duplicado dentro da Central
-
-Problema observado depois:
-Usuário não viu as anotações aparecerem no histórico.
-
-Próximo passo recomendado:
-Passo 135 - diagnóstico de anotações no histórico
-
-Regra atual:
-Não commitar o Passo 134 nem criar novo ponto seguro até diagnosticar as anotações.
+2026-05-24
 ```
 
-<!-- ESTADO_ATUAL_PASSO_159_INICIO -->
-# Estado atual consolidado após limpeza geral
-
-Atualizado no Passo 159.
-
-## Ponto estável atual
-
-O projeto está em um estado mais limpo e estável após uma sequência de diagnósticos, remoções de blocos antigos e testes manuais no site publicado.
-
-Pontos seguros recentes criados:
-
-- `ponto-seguro-agents-css-central-ok`
-- `ponto-seguro-central-duplicidades-sem-blocos-antigos`
-- `ponto-seguro-upload-direto-sem-modal-antigo`
-- `ponto-seguro-upload-direto-limpo`
-- `ponto-seguro-textos-lixeira-ok`
-- `ponto-seguro-painel-sem-relatorio`
-- `ponto-seguro-historico-lixeira-ok`
-
-## Decisões recentes importantes
-
-### Central de Duplicidades
-
-Foram removidos blocos antigos/remendos relacionados aos Passos 83 e 84.
-
-Não devem ser recriados sem necessidade:
-
-- `CONFIG_PASSO_83`
-- `modalDuplicidades84`
-- `cardDuplicidadesDashboard84`
-- `contarDuplicidades84`
-- `controlarVisibilidadeCentralDuplicidades83`
-- `filtrarNomesParecidosDoPainel83`
-
-A Central principal que deve ser preservada é a baseada em:
-
-- `atualizarCentralDuplicidades`
-- `marcarPessoasDiferentesCentral`
-- lista `ALERTAS_SISTEMA`
-- botão `São pessoas diferentes`
-
-A função "São a mesma pessoa" não deve ser reintroduzida sem pedido explícito.
-
-### Upload de PDF
-
-O fluxo aprovado é:
-
-`Enviar novo PDF` → abrir diretamente o seletor de arquivo.
-
-Foram removidos os modais antigos de upload dos Passos 98, 98B, 99 e 112.
-
-O fluxo atual limpo usa o bloco:
-
-- `UPLOAD_DIRETO_LIMPO`
-
-Não reintroduzir:
-
-- `modalUpload98`
-- `modalUpload105`
-- `modalUpload106`
-- `modalUpload108`
-- `modalUpload111`
-- `PASSO98`
-- `PASSO99`
-- `PASSO112`
-- `PASSO113`
-
-O usuário testou e aprovou o upload direto.
-
-### Painel lateral
-
-O clique no nome do arquivo deve abrir o painel lateral, não abrir o PDF diretamente.
-
-O painel deve manter:
-
-- dados do arquivo;
-- anotações;
-- nomes parecidos;
-- versões do SharePoint;
-- histórico do arquivo;
-- botões de ação, incluindo abrir/visualizar PDF.
-
-O botão/área de relatório foi removido do painel. Não reintroduzir:
-
-- `btnVisualizarRelatorio`
-- `visualizacaoRelatorioArquivo`
-- `relatorioArquivoBox`
-
-O usuário decidiu que quer deixar o painel com histórico e versões do SharePoint, sem relatório.
-
-### Lixeira
-
-Na interface, usar o termo "Lixeira".
-
-A lógica técnica pode continuar usando:
-
-- `ARQUIVADO`
-- `_ARQUIVADOS`
-- `tagArquivado`
-- variáveis internas como `estaArquivado`
-
-Não trocar esses nomes técnicos automaticamente.
-
-Regra de interface:
-
-- onde for texto visível para usuário, preferir "Lixeira";
-- no histórico, `ARQUIVOU` deve aparecer como `FOI PARA LIXEIRA`.
-
-Foi criada/aplicada a função:
-
-- `formatarAcaoHistorico`
-
-e o histórico deve exibir a ação usando:
-
-- `formatarAcaoHistorico(item.acao)`
-
-### Histórico
-
-O histórico deve continuar registrando ações importantes.
-
-Decisão recente:
-
-- registros antigos com ação técnica `ARQUIVOU` devem aparecer para o usuário como `FOI PARA LIXEIRA`;
-- não é necessário alterar a lista do SharePoint para isso;
-- a conversão deve ocorrer apenas na exibição do site.
-
-### Anotações
-
-Anotações foram testadas e estão funcionando.
-
-Devem continuar:
-
-- salvando no SharePoint;
-- aparecendo no campo de anotação;
-- aparecendo no histórico;
-- mantendo quebras de linha;
-- sem recriar relatório.
-
-Funções importantes a preservar:
-
-- `carregarAnotacaoDocumento`
-- `salvarAnotacaoAgora`
-- `agendarSalvarAnotacao`
-- `salvarAnotacaoManual`
-- `registrarHistorico`
-- `carregarHistoricoDocumento`
-
-### Renomear com nome duplicado
-
-O usuário quer permitir casos de pessoas com mesmo nome.
-
-Observação técnica importante:
-
-SharePoint não aceita dois arquivos com o mesmo nome exato na mesma pasta.
-
-Solução rápida discutida:
-
-- quando renomear para nome já existente, usar numeração automática:
-  - `NOME.pdf`
-  - `NOME (2).pdf`
-  - `NOME (3).pdf`
-
-Solução profissional futura:
-
-- separar nome técnico do arquivo e nome exibido;
-- usar campo como `NOME_EXIBICAO`;
-- manter arquivo físico com nome único;
-- mostrar nome limpo ao usuário.
-
-Estado da implementação de renomear duplicado:
-
-- houve tentativa de permitir nomes iguais removendo bloqueio do site;
-- o SharePoint ainda exige nome físico único;
-- deve-se garantir que a lógica final use nome único automático se essa função for concluída.
-
-### Restaurar
-
-Para restaurar arquivo da Lixeira, o bloqueio de nome já existente pode continuar existindo por segurança, a menos que seja decidido o mesmo comportamento de numeração automática.
-
-Mensagem relacionada a restaurar não deve ser removida sem análise:
-
-- "Renomeie o ativo ou o arquivo na Lixeira antes de restaurar."
-
-### Substituir
-
-Substituir arquivo pode avisar quando já existe arquivo ativo com mesmo nome.
-
-Esse aviso é aceitável e não deve ser removido sem necessidade.
-
-## Estado de limpeza do index.html
-
-Diagnóstico geral recente indicou:
-
-- `modalUpload` zerado;
-- `modalDuplicidades84` zerado;
-- `CONFIG_PASSO_83` zerado;
-- `btnVisualizarRelatorio` zerado;
-- marcadores antigos `PASSO98`, `PASSO99`, `PASSO112`, `PASSO113` zerados;
-- Central principal preservada;
-- Upload direto limpo preservado;
-- Histórico e versões SharePoint preservados.
-
-## Regras para próximas alterações
-
-Sempre seguir esta ordem:
-
-1. Diagnóstico somente-leitura.
-2. Relatório em `diagnosticos`.
-3. Backup em `backups_locais`.
-4. Alteração pequena e específica.
-5. Teste manual no site publicado.
-6. Commit somente se o usuário confirmar funcionamento.
-7. Tag de ponto seguro quando for uma etapa importante.
-
-Não fazer grandes refatorações sem necessidade.
-
-Não recriar blocos antigos removidos.
-
-Não alterar `ARQUIVADO` e `_ARQUIVADOS` técnicos só por estética.
-
-Não abrir PDF diretamente ao clicar no nome do arquivo.
-
-Não remover histórico, anotações ou versões do SharePoint do painel.
-
-## Preferência do usuário para condução
-
-O usuário prefere passos curtos, objetivos e com pouca leitura.
-
-Quando criar scripts longos, entregar em `.txt` para baixar e fornecer comando curto de PowerShell para executar.
-
-Após diagnóstico que confirme o próximo passo, já preparar o próximo arquivo automaticamente, sem esperar muita explicação.
-<!-- ESTADO_ATUAL_PASSO_159_FIM -->
-
-<!-- ESTADO_ATUAL_CENTRAL_AUTOMATICA_DISCRETA_INICIO -->
-# Estado atual consolidado - Central de Duplicidades automática e discreta
-
-Atualizado em 2026-05-24.
-
-## Ponto seguro recomendado mais recente
-
-Último ponto seguro recomendado:
+Estado final registrado:
 
 ```text
-ponto-seguro-central-automatica-discreta-ok
+ponto-seguro-upload-nome-igual-numeracao-ok
 ```
 
-Commit atual observado no início desta atualização:
-
-```text
-35380a9 Tornar central de duplicidades automatica e discreta
-```
-
-## Central de Duplicidades
-
-A Central de Duplicidades agora deve analisar automaticamente após abrir/carregar os documentos.
-
-Comportamento atual esperado:
-
-- ao carregar/listar documentos, a análise da Central roda automaticamente de forma protegida;
-- o botão manual `Atualizar análise` continua existindo;
-- se não houver suspeitos, a Central fica discreta, sem pendências e sem cards/lista visível;
-- se houver suspeitos, a Central mostra aviso/resumo e cards normalmente;
-- pares marcados como `São pessoas diferentes` deixam de aparecer como pendência;
-- o painel lateral também respeita os pares marcados como pessoas diferentes ao exibir nomes parecidos.
-
-Preservar a Central principal baseada em:
-
-- `atualizarCentralDuplicidades`
-- `gerarParesDuplicidades`
-- `carregarParesDuplicidadeIgnorados`
-- `marcarPessoasDiferentesCentral`
-- `ALERTAS_SISTEMA`
-
-Não reintroduzir blocos antigos da Central:
-
-- `CONFIG_PASSO_83`
-- `modalDuplicidades84`
-- `cardDuplicidadesDashboard84`
-- `contarDuplicidades84`
-- `controlarVisibilidadeCentralDuplicidades83`
-- `filtrarNomesParecidosDoPainel83`
-
-Não reintroduzir a função `São a mesma pessoa` sem pedido explícito e diagnóstico específico.
-
-## Regras imediatas
-
-- Não alterar `arquivo-digital/index.html` sem novo diagnóstico e backup.
-- Não fazer commit automaticamente.
-- Se o usuário aprovar o teste manual da Central automática/discreta, pode-se criar o ponto seguro recomendado `ponto-seguro-central-automatica-discreta-ok`.
-<!-- ESTADO_ATUAL_CENTRAL_AUTOMATICA_DISCRETA_FIM -->
-
+Fim do arquivo.
