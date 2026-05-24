@@ -635,6 +635,7 @@
     let paresDuplicidadesIgnoradosDetalhes = [];
     let carregouIgnoradosDuplicidade = false;
     let centralDuplicidadesAberta = false;
+    let totalParesCentralDuplicidades = 0;
 
     function chaveIgnorarDuplicidade(idA, idB) {
       return [idA, idB].sort().join("|");
@@ -965,8 +966,7 @@
 
     window.alternarCentralDuplicidades = function () {
       centralDuplicidadesAberta = !centralDuplicidadesAberta;
-      const quantidade = gerarParesDuplicidades().length;
-      aplicarEstadoVisualCentralDuplicidades(quantidade);
+      aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
     };
 
     window.atualizarCentralDuplicidades = async function () {
@@ -987,6 +987,7 @@
       }
 
       const pares = gerarParesDuplicidades();
+      totalParesCentralDuplicidades = pares.length;
 
       aplicarEstadoVisualCentralDuplicidades(pares.length);
 
