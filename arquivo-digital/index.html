@@ -2049,7 +2049,43 @@ try {
       return nome.toUpperCase();
     }
 
-    window.abrirSeletorNovoDocumento = function () {
+    
+    function separarNomePdf(nome) {
+      const nomeLimpo = limparNomeArquivoPdf(nome);
+      const semPdf = nomeLimpo.replace(/\.pdf$/i, "").trim();
+
+      return {
+        base: semPdf || "DOCUMENTO",
+        extensao: ".pdf"
+      };
+    }
+
+    function gerarNomeLivreUploadPdf(nomeSolicitado) {
+      const partes = separarNomePdf(nomeSolicitado);
+      const ocupados = new Set(
+        (documentosAtivos || [])
+          .filter(doc => doc && doc.nome)
+          .map(doc => normalizarTexto(doc.nome))
+      );
+
+      let candidato = `${partes.base}${partes.extensao}`;
+
+      if (!ocupados.has(normalizarTexto(candidato))) {
+        return candidato;
+      }
+
+      for (let numero = 2; numero <= 9999; numero++) {
+        candidato = `${partes.base} (${numero})${partes.extensao}`;
+
+        if (!ocupados.has(normalizarTexto(candidato))) {
+          return candidato;
+        }
+      }
+
+      const sufixo = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
+      return `${partes.base} (${sufixo})${partes.extensao}`;
+    }
+window.abrirSeletorNovoDocumento = function () {
       const input = document.getElementById("inputNovoDocumento");
       if (input) {
         input.click();
@@ -2070,23 +2106,20 @@ try {
         return;
       }
 
-      const nomeFinal = limparNomeArquivoPdf(arquivo.name);
-
-      const existeAtivo = documentosCarregados.some(doc =>
-        normalizarTexto(doc.nome) === normalizarTexto(nomeFinal)
-      );
+      const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
+      const nomeFinal = gerarNomeLivreUploadPdf(nomeSolicitado);
+      const nomeFoiAjustado = normalizarTexto(nomeFinal) !== normalizarTexto(nomeSolicitado);
 
       let aviso = `Enviar o arquivo abaixo para DOCUMENTOS_ATIVOS?\n\n${nomeFinal}`;
 
-      if (existeAtivo) {
-        aviso += "\n\nATENÇÃO: já existe um arquivo ativo com esse mesmo nome. Se continuar, o arquivo atual poderá ser substituído.";
+      if (nomeFoiAjustado) {
+        aviso = `JÃ¡ existe um arquivo ativo com o nome:\n\n${nomeSolicitado}\n\nPara evitar substituiÃ§Ã£o acidental, o novo PDF serÃ¡ enviado automaticamente como:\n\n${nomeFinal}\n\nDepois confira a Central de Duplicidades.`;
       }
 
       if (!confirm(aviso)) {
         return;
       }
-
-      const motivo = prompt("Informe o motivo do envio/cadastro:", "Novo documento enviado ao Arquivo Digital.");
+const motivo = prompt("Informe o motivo do envio/cadastro:", "Novo documento enviado ao Arquivo Digital.");
 
       if (motivo === null) {
         return;
@@ -2135,22 +2168,26 @@ try {
           link: ""
         };
 
+        const observacaoEnvio = nomeFoiAjustado
+          ? `${motivo.trim() || "Novo documento enviado ao Arquivo Digital."} Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituiÃ§Ã£o acidental.`
+          : (motivo.trim() || "Novo documento enviado ao Arquivo Digital.");
+
         await registrarHistorico(
           documentoNovo,
-          existeAtivo ? "SUBSTITUIU" : "ENVIOU",
-          motivo.trim() || "Novo documento enviado ao Arquivo Digital."
+          "ENVIOU",
+          observacaoEnvio
         );
-
-        if (typeof carregarDadosDeApoio === "function") {
+if (typeof carregarDadosDeApoio === "function") {
           await carregarDadosDeApoio();
         }
         if (typeof atualizarDashboard === "function") {
           atualizarDashboard();
         }
 
-        mostrarMensagem(existeAtivo ? "Arquivo enviado e substituição registrada." : "Novo PDF enviado e registrado com sucesso.");
-
-      } catch (erro) {
+        mostrarMensagem(nomeFoiAjustado
+          ? `Novo PDF enviado como ${nomeFinal}. O nome foi ajustado automaticamente para evitar substituiÃ§Ã£o. Confira a Central de Duplicidades.`
+          : "Novo PDF enviado e registrado com sucesso.");
+} catch (erro) {
         console.error(erro);
         mostrarMensagem("Erro ao enviar o PDF: " + erro.message, "erro");
       }
@@ -3358,6 +3395,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
