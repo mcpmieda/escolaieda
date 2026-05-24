@@ -1215,3 +1215,61 @@ Quando criar scripts longos, entregar em `.txt` para baixar e fornecer comando c
 Após diagnóstico que confirme o próximo passo, já preparar o próximo arquivo automaticamente, sem esperar muita explicação.
 <!-- ESTADO_ATUAL_PASSO_159_FIM -->
 
+<!-- ESTADO_ATUAL_CENTRAL_AUTOMATICA_DISCRETA_INICIO -->
+# Estado atual consolidado - Central de Duplicidades automática e discreta
+
+Atualizado em 2026-05-24.
+
+## Ponto seguro recomendado mais recente
+
+Último ponto seguro recomendado:
+
+```text
+ponto-seguro-central-automatica-discreta-ok
+```
+
+Commit atual observado no início desta atualização:
+
+```text
+35380a9 Tornar central de duplicidades automatica e discreta
+```
+
+## Central de Duplicidades
+
+A Central de Duplicidades agora deve analisar automaticamente após abrir/carregar os documentos.
+
+Comportamento atual esperado:
+
+- ao carregar/listar documentos, a análise da Central roda automaticamente de forma protegida;
+- o botão manual `Atualizar análise` continua existindo;
+- se não houver suspeitos, a Central fica discreta, sem pendências e sem cards/lista visível;
+- se houver suspeitos, a Central mostra aviso/resumo e cards normalmente;
+- pares marcados como `São pessoas diferentes` deixam de aparecer como pendência;
+- o painel lateral também respeita os pares marcados como pessoas diferentes ao exibir nomes parecidos.
+
+Preservar a Central principal baseada em:
+
+- `atualizarCentralDuplicidades`
+- `gerarParesDuplicidades`
+- `carregarParesDuplicidadeIgnorados`
+- `marcarPessoasDiferentesCentral`
+- `ALERTAS_SISTEMA`
+
+Não reintroduzir blocos antigos da Central:
+
+- `CONFIG_PASSO_83`
+- `modalDuplicidades84`
+- `cardDuplicidadesDashboard84`
+- `contarDuplicidades84`
+- `controlarVisibilidadeCentralDuplicidades83`
+- `filtrarNomesParecidosDoPainel83`
+
+Não reintroduzir a função `São a mesma pessoa` sem pedido explícito e diagnóstico específico.
+
+## Regras imediatas
+
+- Não alterar `arquivo-digital/index.html` sem novo diagnóstico e backup.
+- Não fazer commit automaticamente.
+- Se o usuário aprovar o teste manual da Central automática/discreta, pode-se criar o ponto seguro recomendado `ponto-seguro-central-automatica-discreta-ok`.
+<!-- ESTADO_ATUAL_CENTRAL_AUTOMATICA_DISCRETA_FIM -->
+
