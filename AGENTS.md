@@ -1644,6 +1644,43 @@ Ponto seguro:
 ponto-seguro-central-recolhida-otimizada-ok
 ```
 
+---
+
+## 27. Salvamento automatico de passos
+
+Foi criada uma pasta para registrar pequenos passos concluidos durante o trabalho no projeto:
+
+```text
+SALVAMENTO_AUTOMATICO\
+```
+
+Nome escolhido sem espaco para facilitar comandos, Git e automacoes.
+
+Regra operacional:
+
+- a cada pequeno passo concluido, criar um arquivo `.txt` dentro de `SALVAMENTO_AUTOMATICO`;
+- usar nomes como `PASSO_185_DESCRICAO_CURTA.txt`;
+- registrar de forma objetiva:
+  - data;
+  - pedido do usuario;
+  - arquivos alterados;
+  - backup criado, se houver;
+  - validacao feita;
+  - commit/push/tag, se houver;
+  - resultado final.
+
+Objetivo:
+
+```text
+Manter um historico simples, em TXT, para depois consolidar no AGENTS.md.
+```
+
+Primeiro arquivo criado:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_185_CRIAR_SALVAMENTO_AUTOMATICO.txt
+```
+
 ### 26.6. Observacao sobre desempenho
 
 O botao `Mostrar casos` teve travadinha porque recalculava duplicidades ao abrir.
