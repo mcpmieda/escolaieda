@@ -166,7 +166,7 @@
           doc,
           pontos: calcularPontuacaoNomes(documento.nome, doc.nome)
         }))
-        .filter(item => item.pontos >= 2)
+        .filter(item => item.pontos >= 1)
         .sort((a, b) => b.pontos - a.pontos || a.doc.nome.localeCompare(b.doc.nome))
         .slice(0, 8);
     }
@@ -590,7 +590,7 @@
           const nomeB = normalizarTexto(b.nome).replace(/\.pdf$/i, "").trim();
           const mesmoNome = nomeA === nomeB;
 
-          if (mesmoNome || pontos >= 2) {
+          if (mesmoNome || pontos >= 1) {
             pares.push({
               a,
               b,
@@ -3129,6 +3129,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
