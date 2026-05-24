@@ -649,44 +649,44 @@
       return div.innerHTML;
     }
 
-    function gerarParesDuplicidades() {
+        function gerarParesDuplicidades() {
       const todos = [...documentosAtivos, ...documentosLixeira]
         .filter(doc => doc && doc.nome && doc.id);
 
       const pares = [];
       const vistos = new Set();
 
-      for (let i = 0; i < todos.length; i++) {
-        for (let j = i + 1; j < todos.length; j++) {
-          const a = todos[i];
-          const b = todos[j];
+      todos.forEach(a => {
+        const candidatos = buscarNomesParecidos(a);
 
-          if (a.id === b.id) continue;
+        candidatos.forEach(item => {
+          const b = item.doc;
+
+          if (!b || !b.id || a.id === b.id) return;
 
           const chave = [a.id, b.id].sort().join("|");
-          if (vistos.has(chave)) continue;
-          if (paresDuplicidadesIgnorados.has(chave)) continue;
+          if (vistos.has(chave)) return;
+          if (paresDuplicidadesIgnorados.has(chave)) return;
+
           vistos.add(chave);
 
-          const pontos = pontuacaoDuplicidadeCentral(a.nome, b.nome);
           const nomeA = normalizarTexto(a.nome).replace(/\.pdf$/i, "").trim();
           const nomeB = normalizarTexto(b.nome).replace(/\.pdf$/i, "").trim();
           const mesmoNome = nomeA === nomeB;
+          const pontos = item.pontos || pontuacaoDuplicidadeCentral(a.nome, b.nome);
 
-          if (mesmoNome || pontos >= 2) {
-            pares.push({
-              a,
-              b,
-              pontos: mesmoNome ? pontos + 10 : pontos,
-              mesmoNome
-            });
-          }
-        }
-      }
+          pares.push({
+            a,
+            b,
+            pontos: mesmoNome ? pontos + 10 : pontos,
+            mesmoNome
+          });
+        });
+      });
 
       return pares
         .sort((x, y) => y.pontos - x.pontos || x.a.nome.localeCompare(y.a.nome))
-        .slice(0, 40);
+        .slice(0, 50);
     }
 
     window.atualizarCentralDuplicidades = async function () {
@@ -3212,6 +3212,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
