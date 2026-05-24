@@ -1,0 +1,29 @@
+PASSO 189 - DIAGNOSTICO CURTO DO INDEX
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+Fazer um pequeno diagnostico no index para saber se esta saudavel enquanto aguardava a atualizacao do site.
+
+Arquivo analisado:
+
+- arquivo-digital/index.html
+
+Resultado:
+
+- Estado geral saudavel.
+- Git estava limpo.
+- JS OK.
+- Marcadores antigos proibidos nao foram encontrados.
+- Filtro "Com duplicidade" removido corretamente.
+- Funcoes importantes da Central, filtros, painel e upload foram encontradas.
+- Central recolhida segue com lista iniciando em display:none.
+
+Relatorio criado:
+
+- diagnosticos/PASSO_189_DIAGNOSTICO_CURTO_INDEX_SAUDAVEL.md
+
+Alteracoes no index:
+
+- Nenhuma.
