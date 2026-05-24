@@ -124,12 +124,56 @@
     }    }
 
     function obterPalavrasNome(nome) {
-      const ignorar = new Set(["pdf", "de", "da", "do", "das", "dos", "e", "a", "o"]);
+      const ignorar = new Set(["pdf", "de", "da", "do", "das", "dos", "e", "a", "o", "conflito", "documento", "teste", "substituir", "substituido", "substituicao", "versao", "copia", "novo", "nova"]);
 
       return normalizarTexto(nome)
         .replace(/\.pdf$/i, "")
         .split(/[^a-z0-9]+/)
         .filter(palavra => palavra.length >= 3 && !ignorar.has(palavra));
+    }
+
+    function calcularDistanciaPalavras(a, b) {
+      a = normalizarTexto(a || "");
+      b = normalizarTexto(b || "");
+
+      if (a === b) return 0;
+      if (!a || !b) return 99;
+
+      const diferencaTamanho = Math.abs(a.length - b.length);
+      if (diferencaTamanho > 2) return 99;
+
+      const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+
+      for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+      for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+
+      for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+          const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + custo
+          );
+        }
+      }
+
+      return dp[a.length][b.length];
+    }
+
+    function palavrasSaoParecidas(palavraA, palavraB) {
+      if (!palavraA || !palavraB) return false;
+      if (palavraA === palavraB) return true;
+
+      if (palavraA.length < 3 || palavraB.length < 3) return false;
+
+      const distancia = calcularDistanciaPalavras(palavraA, palavraB);
+
+      if (palavraA.length <= 4 || palavraB.length <= 4) {
+        return distancia <= 1;
+      }
+
+      return distancia <= 2;
     }
 
     function calcularPontuacaoNomes(nomeA, nomeB) {
@@ -140,21 +184,38 @@
         return 0;
       }
 
-      let iguais = 0;
-      palavrasA.forEach(palavra => {
-        if (palavrasB.includes(palavra)) {
-          iguais++;
+      let pontos = 0;
+      const usadasB = new Set();
+
+      palavrasA.forEach(palavraA => {
+        const indiceIgual = palavrasB.findIndex((palavraB, indice) =>
+          !usadasB.has(indice) && palavraB === palavraA
+        );
+
+        if (indiceIgual >= 0) {
+          pontos += 1;
+          usadasB.add(indiceIgual);
+          return;
+        }
+
+        const indiceParecido = palavrasB.findIndex((palavraB, indice) =>
+          !usadasB.has(indice) && palavrasSaoParecidas(palavraA, palavraB)
+        );
+
+        if (indiceParecido >= 0) {
+          pontos += 1;
+          usadasB.add(indiceParecido);
         }
       });
 
       const normalA = normalizarTexto(nomeA).replace(/\.pdf$/i, "");
       const normalB = normalizarTexto(nomeB).replace(/\.pdf$/i, "");
 
-      if (normalA.includes(normalB) || normalB.includes(normalA)) {
-        iguais += 2;
+      if (normalA && normalB && (normalA.includes(normalB) || normalB.includes(normalA))) {
+        pontos += 2;
       }
 
-      return iguais;
+      return pontos;
     }
 
     function buscarNomesParecidos(documento) {
@@ -166,7 +227,7 @@
           doc,
           pontos: calcularPontuacaoNomes(documento.nome, doc.nome)
         }))
-        .filter(item => item.pontos >= 1)
+        .filter(item => item.pontos >= 2)
         .sort((a, b) => b.pontos - a.pontos || a.doc.nome.localeCompare(b.doc.nome))
         .slice(0, 8);
     }
@@ -590,7 +651,7 @@
           const nomeB = normalizarTexto(b.nome).replace(/\.pdf$/i, "").trim();
           const mesmoNome = nomeA === nomeB;
 
-          if (mesmoNome || pontos >= 1) {
+          if (mesmoNome || pontos >= 2) {
             pares.push({
               a,
               b,
@@ -3129,6 +3190,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
