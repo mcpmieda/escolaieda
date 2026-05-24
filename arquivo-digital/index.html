@@ -293,8 +293,15 @@
       const segundoA = palavraNomeNaPosicao(nomeA, 1);
       const segundoB = palavraNomeNaPosicao(nomeB, 1);
 
-      return palavrasIguaisOuParecidas(primeiroA, primeiroB) &&
-             palavrasIguaisOuParecidas(segundoA, segundoB);
+      if (!primeiroA || !primeiroB || !segundoA || !segundoB) {
+        return false;
+      }
+
+      if (primeiroA === primeiroB) {
+        return palavrasIguaisOuParecidas(segundoA, segundoB);
+      }
+
+      return palavrasIguaisOuParecidas(primeiroA, primeiroB) && segundoA === segundoB;
     }
     function deveExibirNomeParecido(nomeA, nomeB, pontos) {
       const normalA = nomeNormalSemPdf(nomeA);
@@ -3351,6 +3358,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
