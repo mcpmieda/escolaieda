@@ -1900,3 +1900,94 @@ Salvamento automatico em TXT ativo.
 Atalho de retomada criado.
 Ponto seguro mais atual: ponto-seguro-central-dashboard-painel-esquerda-ok.
 ```
+
+---
+
+## 29. Atualizacao recente - movimentacoes e limite de documentos ativos
+
+Data: 2026-05-24
+
+### 29.1. Ultimas movimentacoes fora do dashboard
+
+O cartao `Ultimas movimentacoes por arquivo` foi removido do dashboard.
+
+Motivo:
+
+```text
+O usuario preferiu que as movimentacoes aparecessem diretamente nos documentos ativos, e nao como tres itens em um cartao do dashboard.
+```
+
+Estado atual:
+
+- a movimentacao recente aparece diretamente no item do documento ativo;
+- a indicacao aparece apenas para os 20 arquivos com movimentacao mais recente;
+- a Lixeira nao mostra essa linha extra;
+- a busca por nome continua funcionando.
+
+Funcao criada:
+
+```text
+obterUltimasMovimentacoesPorArquivo(20)
+```
+
+Commit:
+
+```text
+bd9ded5 Mover movimentacoes para documentos ativos
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_197_MOVIMENTACOES_NOS_DOCUMENTOS_ATIVOS.txt
+```
+
+### 29.2. Ativos limitados aos 20 mais recentes
+
+A aba `Ativos` passou a mostrar apenas os 20 documentos ativos mais recentes.
+
+Motivo:
+
+```text
+Evitar que a pagina liste muitos documentos de uma vez e fique pesada.
+```
+
+Estado atual:
+
+- aba `Ativos` mostra no maximo 20 documentos;
+- documentos aparecem do mais recente para o menos recente;
+- ordenacao usa o campo `modificado`;
+- a Lixeira nao foi alterada;
+- a busca por nome continua funcionando dentro dessa regra de exibicao;
+- a lista de ativos nao despeja todos os documentos.
+
+Funcao criada:
+
+```text
+ordenarPorModificacaoMaisRecente(lista)
+```
+
+Commit:
+
+```text
+71423dc Limitar ativos aos vinte recentes
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_198_ATIVOS_APENAS_20_RECENTES.txt
+```
+
+### 29.3. Estado atual em linguagem simples
+
+Estado mais atual apos essa etapa:
+
+```text
+Dashboard sem cartao de ultimas movimentacoes.
+Movimentacoes recentes aparecem nos documentos ativos.
+Aba Ativos mostra apenas 20 documentos recentes.
+Busca por nome preservada.
+Lixeira preservada.
+Central de Duplicidades no dashboard com painel esquerdo preservada.
+```
