@@ -2113,7 +2113,7 @@ window.abrirSeletorNovoDocumento = function () {
       let aviso = `Enviar o arquivo abaixo para DOCUMENTOS_ATIVOS?\n\n${nomeFinal}`;
 
       if (nomeFoiAjustado) {
-        aviso = `JÃ¡ existe um arquivo ativo com o nome:\n\n${nomeSolicitado}\n\nPara evitar substituiÃ§Ã£o acidental, o novo PDF serÃ¡ enviado automaticamente como:\n\n${nomeFinal}\n\nDepois confira a Central de Duplicidades.`;
+        aviso = `Ja existe um arquivo ativo com o nome:\n\n${nomeSolicitado}\n\nPara evitar substituicao acidental, o novo PDF sera enviado automaticamente como:\n\n${nomeFinal}\n\nDepois confira a Central de Duplicidades.`;
       }
 
       if (!confirm(aviso)) {
@@ -2185,7 +2185,7 @@ if (typeof carregarDadosDeApoio === "function") {
         }
 
         mostrarMensagem(nomeFoiAjustado
-          ? `Novo PDF enviado como ${nomeFinal}. O nome foi ajustado automaticamente para evitar substituiÃ§Ã£o. Confira a Central de Duplicidades.`
+          ? `Novo PDF enviado como ${nomeFinal}. O nome foi ajustado automaticamente para evitar substituicao. Confira a Central de Duplicidades.`
           : "Novo PDF enviado e registrado com sucesso.");
 } catch (erro) {
         console.error(erro);
@@ -3395,6 +3395,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
