@@ -1498,3 +1498,185 @@ Remove-Item "$env:USERPROFILE\Downloads\AQUI.docx" -Force
 
 `open AQUI` nao significa abrir uma janela ou editor.
 Neste projeto, `open AQUI` significa ler, executar e excluir o arquivo `Downloads\AQUI.txt` ou `Downloads\AQUI.docx`.
+
+---
+
+## 26. Atualizacao da sessao Codex - 2026-05-24
+
+Esta secao registra os passos feitos depois do ponto seguro `ponto-seguro-upload-nome-igual-numeracao-ok`.
+
+### 26.1. AGENTS organizado
+
+O arquivo `AGENTS.md` foi consolidado como documento principal atualizado.
+
+As copias soltas foram movidas para:
+
+```text
+backups_locais\agents\
+```
+
+Commit:
+
+```text
+d5d552a Atualizar AGENTS do projeto
+```
+
+### 26.2. Central de Duplicidades - desfazer pessoas diferentes
+
+Foi adicionada uma secao recolhida:
+
+```text
+Pares marcados como pessoas diferentes
+```
+
+Nela, cada par ignorado pode ser desfeito individualmente.
+
+Comportamento:
+
+- carrega itens `IGNORADO` da lista `ALERTAS_SISTEMA`;
+- mostra os pares ignorados;
+- botao `Desfazer` muda o item para `STATUS: ATIVO`;
+- a Central recalcula depois do desfazer.
+
+Commit:
+
+```text
+10385eb Adicionar desfazer pessoas diferentes
+```
+
+Ponto seguro:
+
+```text
+ponto-seguro-desfazer-pessoas-diferentes-ok
+```
+
+### 26.3. Padrao operacional `open AQUI`
+
+Foi criado o padrao:
+
+```text
+open AQUI
+```
+
+Primeira versao aceitava `Downloads\AQUI.txt`.
+
+Depois foi ampliada para aceitar tambem:
+
+```text
+Downloads\AQUI.docx
+```
+
+Regra atual:
+
+- se existir `AQUI.txt`, ele tem prioridade;
+- se existir `AQUI.docx`, ler texto do Word;
+- se o Word tiver imagens importantes, extrair e analisar;
+- apagar o arquivo AQUI usado ao final;
+- para mudancas pequenas e validadas, fazer commit/push automaticamente.
+
+Commits:
+
+```text
+de5a379 Adicionar padrao open AQUI
+c8d1c4f Atualizar padrao open AQUI para Word
+```
+
+### 26.4. Central de Duplicidades - desfazer todos
+
+Foi adicionado o botao:
+
+```text
+Desfazer todos
+```
+
+Ele aparece dentro de `Pares marcados como pessoas diferentes`.
+
+Comportamento:
+
+- mostra a quantidade de pares ignorados;
+- pede confirmacao;
+- percorre todos os itens ignorados;
+- muda cada item para `STATUS: ATIVO`;
+- recalcula a Central depois;
+- em caso de erro no meio, recarrega a analise.
+
+Commit:
+
+```text
+524806c Adicionar desfazer todos pares diferentes
+```
+
+Ponto seguro:
+
+```text
+ponto-seguro-desfazer-todos-pares-diferentes-ok
+```
+
+### 26.5. Central recolhida e painel direto
+
+Pedido do usuario via `open AQUI`:
+
+- a Central deveria aparecer recolhida para evitar rolagem longa;
+- o botao `Abrir no painel` deveria abrir diretamente o painel lateral do PDF.
+
+Ajustes feitos:
+
+- a Central mostra resumo e botao `Mostrar casos`;
+- os cards ficam ocultos inicialmente;
+- `Mostrar casos` / `Ocultar casos` abre e fecha a lista;
+- o botao `Atualizar analise` foi removido da interface;
+- `Abrir no painel` nao troca mais a lista inferior;
+- foi criada a funcao `abrirDocumentoNoPainel(documento)`;
+- `selecionarDocumento(indice)` passou a reutilizar `abrirDocumentoNoPainel`;
+- `abrirArquivoDaCentral` localiza o documento pelo ID em ativos/lixeira e abre o painel lateral diretamente.
+
+Commits:
+
+```text
+319a372 Recolher central e abrir painel direto
+1bcbc18 Corrigir central recolhida
+155a582 Otimizar botao mostrar casos
+```
+
+Ponto seguro:
+
+```text
+ponto-seguro-central-recolhida-otimizada-ok
+```
+
+### 26.6. Observacao sobre desempenho
+
+O botao `Mostrar casos` teve travadinha porque recalculava duplicidades ao abrir.
+
+Correcao aplicada:
+
+- foi criada a variavel `totalParesCentralDuplicidades`;
+- a quantidade e guardada apos a analise;
+- `Mostrar casos` agora apenas abre/fecha a lista ja calculada.
+
+### 26.7. Estado atual aprovado
+
+O usuario testou e confirmou:
+
+```text
+BOTÃO DESFAZER TODOS FUNCIONOU
+FICOU OTIMO
+```
+
+Estado atual:
+
+```text
+Central fica recolhida.
+So aparece o botao Mostrar casos/Ocultar casos.
+Abrir no painel abre direto o painel lateral do documento.
+Mostrar casos ficou mais rapido.
+Desfazer individual funciona.
+Desfazer todos funciona.
+Padrao open AQUI aceita TXT e DOCX.
+```
+
+Ponto seguro mais atual:
+
+```text
+ponto-seguro-central-recolhida-otimizada-ok
+```
