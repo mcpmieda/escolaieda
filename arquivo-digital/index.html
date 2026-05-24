@@ -1585,20 +1585,85 @@ try {
       await reabrirPainelSelecionadoSePossivel();
     }
 
+        window.baixarVersaoSharePoint = async function (versionId) {
+      const info = window.versaoDownloadDocumentoAtual;
+
+      if (!info || !info.driveId || !info.driveItemId) {
+        mostrarMensagemPainel("NÃ£o foi possÃ­vel identificar o arquivo para baixar a versÃ£o.", "erro");
+        return;
+      }
+
+      if (!versionId) {
+        mostrarMensagemPainel("VersÃ£o invÃ¡lida.", "erro");
+        return;
+      }
+
+      try {
+        mostrarMensagemPainel("Preparando download da versÃ£o...");
+
+        const token = await obterToken();
+
+        const url = `https://graph.microsoft.com/v1.0/drives/${info.driveId}/items/${info.driveItemId}/versions/${versionId}/content`;
+
+        const resposta = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        const blob = await resposta.blob();
+        const nomeBase = (info.nome || "arquivo.pdf").replace(/\.pdf$/i, "");
+        const versaoLimpa = String(versionId).replace(/[\\/:*?"<>|]+/g, "-");
+        const nomeDownload = `${nomeBase} - versao ${versaoLimpa}.pdf`;
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = nomeDownload;
+        document.body.appendChild(link);
+        link.click();
+
+        setTimeout(() => {
+          URL.revokeObjectURL(link.href);
+          link.remove();
+        }, 2000);
+
+        mostrarMensagemPainel("Download da versÃ£o iniciado.");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("NÃ£o foi possÃ­vel baixar esta versÃ£o.", "erro");
+      }
+    };
+
     async function carregarVersoesSharePointDocumento(documento) {
       const caixa = document.getElementById("versoesSharePoint");
 
       if (!caixa) return;
 
-      caixa.innerHTML = "<p>Carregando versões do SharePoint...</p>";
+      window.versaoDownloadDocumentoAtual = null;
 
       if (!documento || !documento.listItemId) {
-        caixa.innerHTML = "<p>Não foi possível identificar o item do SharePoint para consultar versões.</p>";
+        caixa.innerHTML = "<p>Selecione um arquivo para carregar as versÃµes.</p>";
         return;
       }
 
+      caixa.innerHTML = "<p>Carregando versÃµes do SharePoint...</p>";
+
       try {
         const token = await obterToken();
+        const driveItem = await obterDriveItemDoDocumento(documento);
+        const driveId = driveItem.parentReference?.driveId || documento.driveId || "";
+        const driveItemId = driveItem.id || documento.driveItemId || "";
+
+        window.versaoDownloadDocumentoAtual = {
+          driveId,
+          driveItemId,
+          nome: documento.nome || driveItem.name || "arquivo.pdf",
+          linkAtual: documento.link || driveItem.webUrl || ""
+        };
 
         const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${documento.listItemId}/driveItem/versions?$top=20`;
 
@@ -1616,7 +1681,7 @@ try {
         const versoes = dados.value || [];
 
         if (!versoes.length) {
-          caixa.innerHTML = "<p>Nenhuma versão retornada pelo SharePoint.</p>";
+          caixa.innerHTML = "<p>Nenhuma versÃ£o encontrada.</p>";
           return;
         }
 
@@ -1624,21 +1689,34 @@ try {
           const data = formatarData(versao.lastModifiedDateTime);
           const usuario = versao.lastModifiedBy?.user?.displayName || versao.lastModifiedBy?.user?.email || "";
           const tamanho = versao.size ? `${Math.round(versao.size / 1024)} KB` : "";
-          const rotulo = indice === 0 ? "Versão atual" : `Versão anterior ${indice}`;
+          const numero = versao.id || `${indice + 1}`;
+          const ehAtual = indice === 0;
+
+          const botao = ehAtual
+            ? `<button class="secundario btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Abrir versÃ£o atual</button>`
+            : `<button class="secundario btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Baixar versÃ£o</button>`;
 
           return `
             <div class="itemVersao">
-              <strong>${rotulo}</strong>
+              <strong>${ehAtual ? "VersÃ£o atual" : "VersÃ£o anterior"} ${escaparHtml(numero)}</strong>
               <span>${data}</span>
-              <small>${usuario}</small>
-              ${tamanho ? `<small>Tamanho: ${tamanho}</small>` : ""}
+              <small>${escaparHtml(usuario)} ${tamanho ? " - " + escaparHtml(tamanho) : ""}</small>
+              <div class="acoesVersaoSharePoint">
+                ${botao}
+              </div>
             </div>
           `;
         }).join("");
 
+        caixa.querySelectorAll(".btnVersaoSharePoint[data-version-id]").forEach(botao => {
+          botao.addEventListener("click", () => {
+            baixarVersaoSharePoint(botao.dataset.versionId);
+          });
+        });
+
       } catch (erro) {
         console.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar as versões do SharePoint.</p>";
+        caixa.innerHTML = "<p class='textoErro'>NÃ£o foi possÃ­vel carregar as versÃµes do SharePoint.</p>";
       }
     }
     window.selecionarDocumento = async function (indice) {
@@ -2945,7 +3023,15 @@ function renderizarDocumentos(listaArquivos) {
   .areaUploadNovo small {
     color: #64748b;
   }
-</style>
+
+    .acoesVersaoSharePoint {
+      margin-top: 8px;
+    }
+
+    .btnVersaoSharePoint {
+      margin-top: 4px;
+      font-size: 12px;
+    }</style>
 
 <script>
 (function () {
@@ -3039,6 +3125,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
