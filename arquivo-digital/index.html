@@ -651,6 +651,7 @@
     let centralDuplicidadesAberta = false;
     let totalParesCentralDuplicidades = 0;
     let filtroDocumentosEspecial = "todos";
+    let idsDocumentosComDuplicidade = new Set();
 
     function chaveIgnorarDuplicidade(idA, idB) {
       return [idA, idB].sort().join("|");
@@ -1003,6 +1004,9 @@
 
       const pares = gerarParesDuplicidades();
       totalParesCentralDuplicidades = pares.length;
+      idsDocumentosComDuplicidade = new Set(
+        pares.flatMap(par => [par.a?.id, par.b?.id]).filter(Boolean)
+      );
 
       aplicarEstadoVisualCentralDuplicidades(pares.length);
 
@@ -2416,11 +2420,7 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     function documentoTemDuplicidade(documento) {
-      return buscarNomesParecidos(documento).some(item => {
-        const outro = item.doc;
-        if (!outro || !outro.id) return false;
-        return !paresDuplicidadesIgnorados.has(chaveIgnorarDuplicidade(documento.id, outro.id));
-      });
+      return !!documento?.id && idsDocumentosComDuplicidade.has(documento.id);
     }
 
     function filtrarDocumentos() {
