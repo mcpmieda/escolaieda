@@ -1,0 +1,40 @@
+PASSO 192 - PAINEL LATERAL DA CENTRAL DE DUPLICIDADES
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+A Central dentro do dashboard funcionou, mas ao mostrar os casos ficou parecendo uma coluna longa.
+O usuario pediu uma parte separada ou painel lateral, parecido com o painel de informacoes do PDF, mais organizado.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Backup criado:
+
+- backups_locais/index_antes_painel_lateral_central_*.html
+
+Alteracao realizada:
+
+- O dashboard ficou apenas com o card compacto da Central.
+- O card mostra resumo e botao para abrir a Central.
+- A lista de casos foi movida para um painel lateral proprio:
+  - painelCentralDuplicidades
+- O painel lateral preserva:
+  - cards de duplicidade;
+  - Abrir no painel;
+  - Sao pessoas diferentes;
+  - Pares marcados como pessoas diferentes;
+  - Desfazer;
+  - Desfazer todos.
+- Tecla ESC fecha primeiro o painel da Central, se ele estiver aberto.
+
+Validacao:
+
+- JS OK.
+
+Resultado esperado:
+
+- Dashboard nao despeja os casos em coluna.
+- Casos de duplicidade aparecem organizados em painel lateral proprio.

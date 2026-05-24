@@ -952,14 +952,21 @@
       caixa.style.display = quantidadePares > 0 && centralDuplicidadesAberta ? "grid" : "none";
 
       if (botao) {
-        botao.style.display = quantidadePares > 0 ? "inline-block" : "none";
-        botao.textContent = centralDuplicidadesAberta ? "Ocultar casos" : "Mostrar casos";
+        botao.style.display = "inline-block";
+        botao.textContent = quantidadePares > 0 ? "Abrir Central" : "Ver Central";
       }
     }
 
     window.alternarCentralDuplicidades = function () {
-      centralDuplicidadesAberta = !centralDuplicidadesAberta;
+      centralDuplicidadesAberta = true;
       aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
+      document.getElementById("painelCentralDuplicidades")?.classList.add("aberto");
+    };
+
+    window.fecharPainelCentralDuplicidades = function () {
+      centralDuplicidadesAberta = false;
+      aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
+      document.getElementById("painelCentralDuplicidades")?.classList.remove("aberto");
     };
 
     window.atualizarCentralDuplicidades = async function () {
@@ -2493,6 +2500,14 @@ function renderizarDocumentos(listaArquivos) {
         return;
       }
 
+      if (event.target.closest("#painelCentralDuplicidades")) {
+        return;
+      }
+
+      if (event.target.closest("#centralDuplicidades")) {
+        return;
+      }
+
       if (event.target.closest(".itemArquivo")) {
         return;
       }
@@ -2502,6 +2517,12 @@ function renderizarDocumentos(listaArquivos) {
 
     window.addEventListener("keydown", function (event) {
       if (event.key === "Escape") {
+        const painelCentral = document.getElementById("painelCentralDuplicidades");
+        if (painelCentral && painelCentral.classList.contains("aberto")) {
+          fecharPainelCentralDuplicidades();
+          return;
+        }
+
         const painel = document.getElementById("painelLateral");
         if (painel && painel.classList.contains("aberto")) {
           fecharPainel();
@@ -2748,6 +2769,11 @@ function renderizarDocumentos(listaArquivos) {
 
     .painelLateral.aberto {
       right: 0;
+    }
+
+    .painelCentralDuplicidades {
+      width: 720px;
+      max-width: 96vw;
     }
 
     .painelTopo {
@@ -3447,15 +3473,6 @@ function renderizarDocumentos(listaArquivos) {
             </div>
           </div>
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
-          <div id="listaCentralDuplicidades" class="listaCentralDuplicidades" style="display:none">
-            <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
-          </div>
-          <details class="paresIgnoradosDuplicidade">
-            <summary>Pares marcados como pessoas diferentes</summary>
-            <div id="listaParesIgnoradosDuplicidade" class="listaParesIgnoradosDuplicidade">
-              <div class="duplicidadeIgnoradaVazia">Carregando pares ignorados...</div>
-            </div>
-          </details>
         </div>
 
         <div class="cardDash largo">
@@ -3487,6 +3504,25 @@ function renderizarDocumentos(listaArquivos) {
       </ul>
     </div>
   </div>
+
+  <aside id="painelCentralDuplicidades" class="painelLateral painelCentralDuplicidades">
+    <div class="painelTopo">
+      <h2>Central de duplicidades</h2>
+      <button class="btnFechar" onclick="fecharPainelCentralDuplicidades()">X</button>
+    </div>
+
+    <div class="painelConteudo">
+      <div id="listaCentralDuplicidades" class="listaCentralDuplicidades" style="display:none">
+        <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
+      </div>
+      <details class="paresIgnoradosDuplicidade">
+        <summary>Pares marcados como pessoas diferentes</summary>
+        <div id="listaParesIgnoradosDuplicidade" class="listaParesIgnoradosDuplicidade">
+          <div class="duplicidadeIgnoradaVazia">Carregando pares ignorados...</div>
+        </div>
+      </details>
+    </div>
+  </aside>
 
   <aside id="painelLateral" class="painelLateral">
     <div class="painelTopo">
