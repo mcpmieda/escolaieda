@@ -250,6 +250,14 @@
           pontos: calcularPontuacaoNomes(documento.nome, doc.nome)
         }))
         .filter(item => item.pontos >= 2)
+        .filter(item => {
+          if (typeof chaveIgnorarDuplicidade !== "function" || !paresDuplicidadesIgnorados) {
+            return true;
+          }
+
+          const chave = chaveIgnorarDuplicidade(documento.id, item.doc.id);
+          return !paresDuplicidadesIgnorados.has(chave);
+        })
         .sort((a, b) => b.pontos - a.pontos || a.doc.nome.localeCompare(b.doc.nome))
         .slice(0, 8);
     }
@@ -3212,6 +3220,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
