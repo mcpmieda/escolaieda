@@ -774,7 +774,12 @@
         return;
       }
 
-      caixa.innerHTML = paresDuplicidadesIgnoradosDetalhes.map(item => `
+      caixa.innerHTML = `
+        <div class="duplicidadeIgnoradaTopo">
+          <span>${paresDuplicidadesIgnoradosDetalhes.length} par(es) ignorado(s)</span>
+          <button onclick="desfazerTodosParesPessoasDiferentesCentral()">Desfazer todos</button>
+        </div>
+      ` + paresDuplicidadesIgnoradosDetalhes.map(item => `
         <div class="duplicidadeIgnorada">
           <div>
             <strong>${textoSeguroCentral(item.nomeA)}</strong>
@@ -783,6 +788,28 @@
           <button onclick='desfazerPessoasDiferentesCentral(${JSON.stringify(item.itemId)}, ${JSON.stringify(item.chave)})'>Desfazer</button>
         </div>
       `).join("");
+    }
+
+    async function desfazerParPessoasDiferentes(itemId) {
+      const token = await obterToken();
+      const alertasSistemaListId = "9abdb5fc-c009-4a59-9f91-03677b001b56";
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${alertasSistemaListId}/items/${itemId}/fields`;
+
+      const resposta = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          STATUS: "ATIVO",
+          OBSERVACAO: "Marcacao de pessoas diferentes desfeita."
+        })
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
     }
 
     window.desfazerPessoasDiferentesCentral = async function (itemId, chave) {
@@ -795,25 +822,7 @@
       if (!confirmar) return;
 
       try {
-        const token = await obterToken();
-        const alertasSistemaListId = "9abdb5fc-c009-4a59-9f91-03677b001b56";
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${alertasSistemaListId}/items/${itemId}/fields`;
-
-        const resposta = await fetch(url, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            STATUS: "ATIVO",
-            OBSERVACAO: "Marcacao de pessoas diferentes desfeita."
-          })
-        });
-
-        if (!resposta.ok) {
-          throw new Error(await resposta.text());
-        }
+        await desfazerParPessoasDiferentes(itemId);
 
         paresDuplicidadesIgnorados.delete(chave);
         paresDuplicidadesIgnoradosDetalhes = paresDuplicidadesIgnoradosDetalhes
@@ -828,6 +837,44 @@
       } catch (erro) {
         console.error(erro);
         mostrarMensagem("Erro ao desfazer marcação.", "erro");
+      }
+    };
+
+    window.desfazerTodosParesPessoasDiferentesCentral = async function () {
+      if (!paresDuplicidadesIgnoradosDetalhes.length) {
+        mostrarMensagem("Nenhum par marcado como pessoas diferentes.");
+        return;
+      }
+
+      const total = paresDuplicidadesIgnoradosDetalhes.length;
+      const confirmar = confirm(`Desfazer todos os ${total} par(es) marcados como pessoas diferentes?\n\nEles poderão aparecer novamente na Central de Duplicidades se ainda forem suspeitos.`);
+      if (!confirmar) return;
+
+      try {
+        mostrarMensagem("Desfazendo marcações. Aguarde...");
+
+        const itens = [...paresDuplicidadesIgnoradosDetalhes];
+        for (const item of itens) {
+          await desfazerParPessoasDiferentes(item.itemId);
+        }
+
+        paresDuplicidadesIgnorados.clear();
+        paresDuplicidadesIgnoradosDetalhes = [];
+        carregouIgnoradosDuplicidade = false;
+
+        mostrarMensagem("Todas as marcações foram desfeitas. A Central foi atualizada.");
+
+        if (typeof atualizarCentralDuplicidades === "function") {
+          await atualizarCentralDuplicidades();
+        }
+      } catch (erro) {
+        console.error(erro);
+        carregouIgnoradosDuplicidade = false;
+        mostrarMensagem("Erro ao desfazer todas as marcações. Atualize a análise e confira os pares restantes.", "erro");
+
+        if (typeof atualizarCentralDuplicidades === "function") {
+          await atualizarCentralDuplicidades();
+        }
       }
     };
 
@@ -3133,6 +3180,13 @@ function renderizarDocumentos(listaArquivos) {
         grid-template-columns: 1fr;
       }
 
+      .duplicidadeIgnoradaTopo {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .duplicidadeIgnoradaTopo button,
       .duplicidadeIgnorada button {
         width: 100%;
       }
@@ -3177,6 +3231,28 @@ function renderizarDocumentos(listaArquivos) {
       margin-top: 10px;
     }
 
+    .duplicidadeIgnoradaTopo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #7c2d12;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .duplicidadeIgnoradaTopo button {
+      margin: 0;
+      padding: 8px 10px;
+      font-size: 12px;
+      background: #9a3412;
+      white-space: nowrap;
+    }
+
     .duplicidadeIgnorada {
       display: flex;
       justify-content: space-between;
@@ -3215,6 +3291,20 @@ function renderizarDocumentos(listaArquivos) {
       border: 1px dashed #cbd5e1;
       color: #64748b;
       font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+      .duplicidadeIgnoradaTopo,
+      .duplicidadeIgnorada {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .duplicidadeIgnoradaTopo button,
+      .duplicidadeIgnorada button {
+        width: 100%;
+      }
     }
   
     .itemHistorico.anotacaoEvento {
