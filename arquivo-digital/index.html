@@ -240,6 +240,63 @@
       return pontos;
     }
 
+    function obterPrimeiraPalavraNome(nome) {
+      const palavras = obterPalavrasNome(nome);
+      return palavras.length ? palavras[0] : "";
+    }
+
+    function primeiroNomeIgualOuParecido(nomeA, nomeB) {
+      const primeiroA = obterPrimeiraPalavraNome(nomeA);
+      const primeiroB = obterPrimeiraPalavraNome(nomeB);
+
+      if (!primeiroA || !primeiroB) return false;
+      if (primeiroA === primeiroB) return true;
+
+      if (typeof palavrasSaoParecidas === "function") {
+        return palavrasSaoParecidas(primeiroA, primeiroB);
+      }
+
+      if (typeof calcularDistanciaPalavras === "function") {
+        return calcularDistanciaPalavras(primeiroA, primeiroB) <= 1;
+      }
+
+      return false;
+    }
+
+    function nomeNormalSemPdf(nome) {
+      return normalizarTexto(nome).replace(/\.pdf$/i, "").trim();
+    }
+
+    function deveExibirNomeParecido(nomeA, nomeB, pontos) {
+      const normalA = nomeNormalSemPdf(nomeA);
+      const normalB = nomeNormalSemPdf(nomeB);
+
+      if (!normalA || !normalB) return false;
+
+      if (normalA === normalB) return true;
+
+      const compactoA = normalA.replace(/[^a-z0-9]+/g, "");
+      const compactoB = normalB.replace(/[^a-z0-9]+/g, "");
+
+      if (compactoA && compactoB && compactoA === compactoB) return true;
+
+      if (
+        compactoA &&
+        compactoB &&
+        (compactoA.includes(compactoB) || compactoB.includes(compactoA)) &&
+        Math.abs(compactoA.length - compactoB.length) <= 8
+      ) {
+        return true;
+      }
+
+      if (pontos >= 4) return true;
+
+      if (pontos >= 3 && primeiroNomeIgualOuParecido(nomeA, nomeB)) {
+        return true;
+      }
+
+      return false;
+    }
     function buscarNomesParecidos(documento) {
       const todos = [...documentosAtivos, ...documentosLixeira]
         .filter(doc => doc && doc.id !== documento.id);
@@ -249,7 +306,7 @@
           doc,
           pontos: calcularPontuacaoNomes(documento.nome, doc.nome)
         }))
-        .filter(item => item.pontos >= 2)
+        .filter(item => deveExibirNomeParecido(documento.nome, item.doc.nome, item.pontos))
         .filter(item => {
           if (typeof chaveIgnorarDuplicidade !== "function" || !paresDuplicidadesIgnorados) {
             return true;
@@ -3265,6 +3322,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
