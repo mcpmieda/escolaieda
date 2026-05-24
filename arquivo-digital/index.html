@@ -1114,8 +1114,38 @@
         normalizarTexto(doc.nome) === normalizarTexto(novoNome)
       );
 
-      try {
-        mostrarMensagemPainel("Renomeando arquivo...");
+      const nomesExistentesRenomear = new Set(
+        documentosAtivos
+          .filter(doc => doc.id !== documentoSelecionado.id)
+          .map(doc => normalizarTexto(doc.nome))
+      );
+
+      function criarNomeUnicoRenomear(nomeBase) {
+        let nomeFinal = nomeBase;
+
+        if (!nomesExistentesRenomear.has(normalizarTexto(nomeFinal))) {
+          return nomeFinal;
+        }
+
+        const semPdf = nomeBase.replace(/\.pdf$/i, "").trim();
+        let contador = 2;
+
+        do {
+          nomeFinal = `${semPdf} (${contador}).pdf`;
+          contador++;
+        } while (nomesExistentesRenomear.has(normalizarTexto(nomeFinal)));
+
+        return nomeFinal;
+      }
+
+      const nomeFinalRenomear = criarNomeUnicoRenomear(novoNome);
+      const houveAjusteNomeDuplicado = normalizarTexto(nomeFinalRenomear) !== normalizarTexto(novoNome);
+try {
+        mostrarMensagemPainel(
+          houveAjusteNomeDuplicado
+            ? `Nome já existente. Renomeando como "${nomeFinalRenomear}"...`
+            : "Renomeando arquivo..."
+        );
 
         const token = await obterToken();
         const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
@@ -1130,7 +1160,7 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            name: novoNome
+            name: nomeFinalRenomear
           })
         });
 
@@ -1138,20 +1168,30 @@
           throw new Error(await resposta.text());
         }
 
-        documentoSelecionado.nome = novoNome;
+        documentoSelecionado.nome = nomeFinalRenomear;
 
         await registrarHistorico(
           documentoSelecionado,
           "RENOMEOU",
-          `Arquivo renomeado de "${antigoNome}" para "${novoNome}".`
+          houveAjusteNomeDuplicado
+            ? `Arquivo renomeado de "${antigoNome}" para "${nomeFinalRenomear}" porque já existia "${novoNome}".`
+            : `Arquivo renomeado de "${antigoNome}" para "${nomeFinalRenomear}".`
         );
 
-        mostrarMensagemPainel("Arquivo renomeado com sucesso.");
+        mostrarMensagemPainel(
+          houveAjusteNomeDuplicado
+            ? `Arquivo renomeado como "${nomeFinalRenomear}" para evitar conflito de nome.`
+            : "Arquivo renomeado com sucesso."
+        );
         document.getElementById("boxRenomear").style.display = "none";
         document.getElementById("novoNomeArquivo").value = "";
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagem("Arquivo renomeado com sucesso.");
+        mostrarMensagem(
+          houveAjusteNomeDuplicado
+            ? `Arquivo renomeado como "${nomeFinalRenomear}". A Central de Duplicidades pode apontar nomes parecidos.`
+            : "Arquivo renomeado com sucesso."
+        );
 
       } catch (erro) {
         console.error(erro);
@@ -3003,6 +3043,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
