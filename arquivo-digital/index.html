@@ -349,7 +349,7 @@
       caixaUltimos.innerHTML = movimentacoesUnicas.map(item => {
         const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não identificado";
         const arquivo = item.ARQUIVO || "Arquivo";
-        const acao = item.ACAO || "MOVIMENTOU";
+        const acao = formatarAcaoHistorico(item.ACAO || "MOVIMENTOU");
 
         return `
           <div class="ultimoAcessoItem">
@@ -1374,7 +1374,7 @@ try {
       }
 
       try {
-        mostrarMensagemPainel("Arquivando arquivo...");
+        mostrarMensagemPainel("Enviando para Lixeira...");
 
         const token = await obterToken();
         const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
@@ -3039,6 +3039,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
