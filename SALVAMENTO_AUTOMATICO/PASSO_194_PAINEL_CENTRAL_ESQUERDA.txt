@@ -1,0 +1,33 @@
+PASSO 194 - PAINEL DA CENTRAL NO LADO ESQUERDO
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+O painel lateral da Central estava conflitando com o painel do documento ao clicar em "Abrir no painel".
+O usuario pediu para colocar somente o painel da Central de Duplicidades no lado esquerdo da tela, sem mexer nos paineis de documentos ativos e lixeira.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Backup criado:
+
+- backups_locais/index_antes_painel_central_esquerda_*.html
+
+Alteracao realizada:
+
+- `.painelCentralDuplicidades` agora fica escondido pelo lado esquerdo.
+- Quando aberto, entra com `left: 0`.
+- O painel lateral normal de documentos continua abrindo pelo lado direito.
+- A sombra do painel da Central foi invertida para combinar com abertura pela esquerda.
+
+Validacao:
+
+- JS OK.
+
+Resultado esperado:
+
+- Central abre pela esquerda.
+- Painel do documento abre pela direita.
+- Os dois fluxos deixam de disputar o mesmo lado da tela.

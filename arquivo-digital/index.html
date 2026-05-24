@@ -2785,7 +2785,14 @@ function renderizarDocumentos(listaArquivos) {
     .painelCentralDuplicidades {
       width: 720px;
       max-width: 96vw;
-      right: -760px;
+      left: -760px;
+      right: auto;
+      box-shadow: 10px 0 30px rgba(0,0,0,.16);
+    }
+
+    .painelCentralDuplicidades.aberto {
+      left: 0;
+      right: auto;
     }
 
     .painelTopo {
