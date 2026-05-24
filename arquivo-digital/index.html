@@ -177,6 +177,31 @@
     }
 
     function calcularPontuacaoNomes(nomeA, nomeB) {
+      const normalA = normalizarTexto(nomeA).replace(/\.pdf$/i, "").trim();
+      const normalB = normalizarTexto(nomeB).replace(/\.pdf$/i, "").trim();
+
+      const compactoA = normalA.replace(/[^a-z0-9]+/g, "");
+      const compactoB = normalB.replace(/[^a-z0-9]+/g, "");
+
+      if (!compactoA || !compactoB) {
+        return 0;
+      }
+
+      if (compactoA === compactoB) {
+        return 10;
+      }
+
+      if (
+        (compactoA.includes(compactoB) || compactoB.includes(compactoA)) &&
+        Math.abs(compactoA.length - compactoB.length) <= 4
+      ) {
+        return 4;
+      }
+
+      if (calcularDistanciaPalavras(compactoA, compactoB) <= 2) {
+        return 4;
+      }
+
       const palavrasA = obterPalavrasNome(nomeA);
       const palavrasB = obterPalavrasNome(nomeB);
 
@@ -207,9 +232,6 @@
           usadasB.add(indiceParecido);
         }
       });
-
-      const normalA = normalizarTexto(nomeA).replace(/\.pdf$/i, "");
-      const normalB = normalizarTexto(nomeB).replace(/\.pdf$/i, "");
 
       if (normalA && normalB && (normalA.includes(normalB) || normalB.includes(normalA))) {
         pontos += 2;
@@ -3190,6 +3212,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
