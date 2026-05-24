@@ -1,0 +1,29 @@
+PASSO 200 - PONTO SEGURO ATIVOS 20 RECENTES
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+Criar ponto seguro para a etapa em que a aba Ativos mostra apenas 20 documentos recentes e as movimentacoes aparecem nos documentos ativos.
+
+Estado marcado:
+
+- Dashboard sem card "Ultimas movimentacoes por arquivo".
+- Movimentacoes recentes aparecem diretamente nos documentos ativos.
+- Aba Ativos mostra apenas os 20 documentos mais recentes.
+- Ordem: mais recente para menos recente.
+- Busca por nome preservada.
+- Lixeira preservada.
+- Central no dashboard com painel esquerdo preservada.
+
+Tag criada e enviada:
+
+- ponto-seguro-ativos-20-recentes-movimentacoes-ok
+
+Commit apontado pela tag:
+
+- 0f0c8a1 Atualizar AGENTS com movimentacoes e ativos recentes
+
+Resultado:
+
+Ponto seguro criado no GitHub.
