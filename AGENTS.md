@@ -1717,3 +1717,186 @@ Ponto seguro mais atual:
 ```text
 ponto-seguro-central-recolhida-otimizada-ok
 ```
+
+---
+
+## 28. Atualizacao recente - filtros, salvamento automatico e Central no dashboard
+
+Data: 2026-05-24
+
+Esta secao registra os passos posteriores a `ponto-seguro-central-recolhida-otimizada-ok`.
+
+### 28.1. Filtros de documentos
+
+Foi feita uma tentativa de adicionar filtros na lista:
+
+```text
+Todos
+Com anotacao
+Com duplicidade
+```
+
+Depois o filtro `Com duplicidade` foi removido, pois a Central de Duplicidades ja cobre esse fluxo.
+
+Depois os filtros restantes tambem foram removidos:
+
+```text
+Todos
+Com anotacao
+```
+
+Estado atual:
+
+```text
+A lista de documentos tem apenas Ativos/Lixeira e busca por nome.
+Nao ha filtros adicionais na lista.
+```
+
+Commits relevantes:
+
+```text
+c046c4e Adicionar filtros de documentos
+79605df Otimizar filtro com duplicidade
+20806a4 Remover filtro com duplicidade
+be2ac15 Mover central para dashboard
+```
+
+Ponto seguro relacionado aos filtros antes das mudancas posteriores:
+
+```text
+ponto-seguro-filtros-documentos-ok
+```
+
+### 28.2. Salvamento automatico
+
+Foi criada a pasta:
+
+```text
+SALVAMENTO_AUTOMATICO\
+```
+
+Regra atual:
+
+- a cada pequeno passo concluido, criar um `.txt` nessa pasta;
+- registrar pedido, arquivo alterado, backup, validacao, commit/push/tag e resultado;
+- usar esses TXT como apoio para atualizar o `AGENTS.md`.
+
+Commit:
+
+```text
+01f265b Adicionar salvamento automatico de passos
+```
+
+### 28.3. Atalho de retomada
+
+Foi criado/atualizado o atalho na Area de Trabalho:
+
+```text
+Arquivo Digital - Continuar Projeto.lnk
+```
+
+Ele aponta para:
+
+```text
+CONTINUAR_PROJETO_ARQUIVO_DIGITAL.ps1
+```
+
+O script:
+
+- entra no projeto;
+- le estado do Git;
+- le os TXT de `SALVAMENTO_AUTOMATICO`;
+- gera prompt de retomada em `prompts_codex\RETOMAR_PROJETO_ARQUIVO_DIGITAL.txt`;
+- tenta copiar o prompt para a area de transferencia.
+
+Commit:
+
+```text
+52df664 Criar atalho para continuar projeto
+```
+
+### 28.4. Central de Duplicidades no dashboard
+
+O cartao `Arquivos com anotacoes` foi removido do dashboard por nao merecer tanta notoriedade.
+
+No lugar dele, foi colocada a Central de Duplicidades.
+
+Evolucao:
+
+1. Central colocada no dashboard.
+2. Resultado expandido no dashboard ficou ruim, parecendo uma coluna longa.
+3. Lista de casos foi movida para painel lateral proprio.
+4. Painel da Central ficou parcialmente visivel quando fechado e foi corrigido.
+5. Painel da Central foi movido para o lado esquerdo para nao conflitar com o painel do documento.
+
+Estado atual aprovado:
+
+```text
+Dashboard mostra card compacto da Central de Duplicidades.
+Ao clicar no card/botao da Central, abre painel lateral proprio pela esquerda.
+Ao clicar em Abrir no painel dentro da Central, o painel do documento abre pela direita.
+Painel da Central fecha ao clicar fora ou apertar ESC.
+Painel de documentos ativos/Lixeira continua funcionando do lado direito.
+```
+
+Funcoes da Central preservadas:
+
+```text
+Abrir no painel
+Sao pessoas diferentes
+Pares marcados como pessoas diferentes
+Desfazer
+Desfazer todos
+```
+
+Commits relevantes:
+
+```text
+be2ac15 Mover central para dashboard
+dd6494d Abrir central em painel lateral
+369c4da Corrigir painel lateral da central
+2558a09 Mover painel da central para esquerda
+db4638e Registrar ponto seguro da central no dashboard
+```
+
+Ponto seguro mais atual:
+
+```text
+ponto-seguro-central-dashboard-painel-esquerda-ok
+```
+
+### 28.5. Diagnostico curto do index
+
+Foi feito diagnostico curto do `arquivo-digital/index.html`.
+
+Resultado:
+
+```text
+Git limpo.
+JS OK.
+Blocos antigos proibidos nao encontrados.
+Funcoes principais encontradas.
+Estado geral saudavel.
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_189_DIAGNOSTICO_CURTO_INDEX_SAUDAVEL.txt
+```
+
+### 28.6. Estado atual em linguagem simples
+
+Estado mais atual aprovado:
+
+```text
+Sistema funcionando.
+Central de Duplicidades fica no dashboard.
+Central abre em painel lateral esquerdo.
+Painel de PDF/documento abre pela direita.
+Lista de documentos sem filtros extras.
+Busca por nome preservada.
+Salvamento automatico em TXT ativo.
+Atalho de retomada criado.
+Ponto seguro mais atual: ponto-seguro-central-dashboard-painel-esquerda-ok.
+```
