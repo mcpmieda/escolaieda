@@ -877,7 +877,7 @@ async function carregarHistoricoDocumento(documento) {
 
           return `
             <div class="itemHistorico">
-              <strong>${esc(item.acao || "")}</strong><br>
+              <strong>${esc(formatarAcaoHistorico(item.acao))}</strong><br>
               <span>${esc(dataFormatada)}</span><br>
               <span>${usuario}${email}</span>
               ${motivoLimpo ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${esc(motivoLimpo)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
@@ -3049,6 +3049,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
