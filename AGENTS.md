@@ -981,3 +981,237 @@ Passo 135 - diagnóstico de anotações no histórico
 Regra atual:
 Não commitar o Passo 134 nem criar novo ponto seguro até diagnosticar as anotações.
 ```
+
+<!-- ESTADO_ATUAL_PASSO_159_INICIO -->
+# Estado atual consolidado após limpeza geral
+
+Atualizado no Passo 159.
+
+## Ponto estável atual
+
+O projeto está em um estado mais limpo e estável após uma sequência de diagnósticos, remoções de blocos antigos e testes manuais no site publicado.
+
+Pontos seguros recentes criados:
+
+- `ponto-seguro-agents-css-central-ok`
+- `ponto-seguro-central-duplicidades-sem-blocos-antigos`
+- `ponto-seguro-upload-direto-sem-modal-antigo`
+- `ponto-seguro-upload-direto-limpo`
+- `ponto-seguro-textos-lixeira-ok`
+- `ponto-seguro-painel-sem-relatorio`
+- `ponto-seguro-historico-lixeira-ok`
+
+## Decisões recentes importantes
+
+### Central de Duplicidades
+
+Foram removidos blocos antigos/remendos relacionados aos Passos 83 e 84.
+
+Não devem ser recriados sem necessidade:
+
+- `CONFIG_PASSO_83`
+- `modalDuplicidades84`
+- `cardDuplicidadesDashboard84`
+- `contarDuplicidades84`
+- `controlarVisibilidadeCentralDuplicidades83`
+- `filtrarNomesParecidosDoPainel83`
+
+A Central principal que deve ser preservada é a baseada em:
+
+- `atualizarCentralDuplicidades`
+- `marcarPessoasDiferentesCentral`
+- lista `ALERTAS_SISTEMA`
+- botão `São pessoas diferentes`
+
+A função "São a mesma pessoa" não deve ser reintroduzida sem pedido explícito.
+
+### Upload de PDF
+
+O fluxo aprovado é:
+
+`Enviar novo PDF` → abrir diretamente o seletor de arquivo.
+
+Foram removidos os modais antigos de upload dos Passos 98, 98B, 99 e 112.
+
+O fluxo atual limpo usa o bloco:
+
+- `UPLOAD_DIRETO_LIMPO`
+
+Não reintroduzir:
+
+- `modalUpload98`
+- `modalUpload105`
+- `modalUpload106`
+- `modalUpload108`
+- `modalUpload111`
+- `PASSO98`
+- `PASSO99`
+- `PASSO112`
+- `PASSO113`
+
+O usuário testou e aprovou o upload direto.
+
+### Painel lateral
+
+O clique no nome do arquivo deve abrir o painel lateral, não abrir o PDF diretamente.
+
+O painel deve manter:
+
+- dados do arquivo;
+- anotações;
+- nomes parecidos;
+- versões do SharePoint;
+- histórico do arquivo;
+- botões de ação, incluindo abrir/visualizar PDF.
+
+O botão/área de relatório foi removido do painel. Não reintroduzir:
+
+- `btnVisualizarRelatorio`
+- `visualizacaoRelatorioArquivo`
+- `relatorioArquivoBox`
+
+O usuário decidiu que quer deixar o painel com histórico e versões do SharePoint, sem relatório.
+
+### Lixeira
+
+Na interface, usar o termo "Lixeira".
+
+A lógica técnica pode continuar usando:
+
+- `ARQUIVADO`
+- `_ARQUIVADOS`
+- `tagArquivado`
+- variáveis internas como `estaArquivado`
+
+Não trocar esses nomes técnicos automaticamente.
+
+Regra de interface:
+
+- onde for texto visível para usuário, preferir "Lixeira";
+- no histórico, `ARQUIVOU` deve aparecer como `FOI PARA LIXEIRA`.
+
+Foi criada/aplicada a função:
+
+- `formatarAcaoHistorico`
+
+e o histórico deve exibir a ação usando:
+
+- `formatarAcaoHistorico(item.acao)`
+
+### Histórico
+
+O histórico deve continuar registrando ações importantes.
+
+Decisão recente:
+
+- registros antigos com ação técnica `ARQUIVOU` devem aparecer para o usuário como `FOI PARA LIXEIRA`;
+- não é necessário alterar a lista do SharePoint para isso;
+- a conversão deve ocorrer apenas na exibição do site.
+
+### Anotações
+
+Anotações foram testadas e estão funcionando.
+
+Devem continuar:
+
+- salvando no SharePoint;
+- aparecendo no campo de anotação;
+- aparecendo no histórico;
+- mantendo quebras de linha;
+- sem recriar relatório.
+
+Funções importantes a preservar:
+
+- `carregarAnotacaoDocumento`
+- `salvarAnotacaoAgora`
+- `agendarSalvarAnotacao`
+- `salvarAnotacaoManual`
+- `registrarHistorico`
+- `carregarHistoricoDocumento`
+
+### Renomear com nome duplicado
+
+O usuário quer permitir casos de pessoas com mesmo nome.
+
+Observação técnica importante:
+
+SharePoint não aceita dois arquivos com o mesmo nome exato na mesma pasta.
+
+Solução rápida discutida:
+
+- quando renomear para nome já existente, usar numeração automática:
+  - `NOME.pdf`
+  - `NOME (2).pdf`
+  - `NOME (3).pdf`
+
+Solução profissional futura:
+
+- separar nome técnico do arquivo e nome exibido;
+- usar campo como `NOME_EXIBICAO`;
+- manter arquivo físico com nome único;
+- mostrar nome limpo ao usuário.
+
+Estado da implementação de renomear duplicado:
+
+- houve tentativa de permitir nomes iguais removendo bloqueio do site;
+- o SharePoint ainda exige nome físico único;
+- deve-se garantir que a lógica final use nome único automático se essa função for concluída.
+
+### Restaurar
+
+Para restaurar arquivo da Lixeira, o bloqueio de nome já existente pode continuar existindo por segurança, a menos que seja decidido o mesmo comportamento de numeração automática.
+
+Mensagem relacionada a restaurar não deve ser removida sem análise:
+
+- "Renomeie o ativo ou o arquivo na Lixeira antes de restaurar."
+
+### Substituir
+
+Substituir arquivo pode avisar quando já existe arquivo ativo com mesmo nome.
+
+Esse aviso é aceitável e não deve ser removido sem necessidade.
+
+## Estado de limpeza do index.html
+
+Diagnóstico geral recente indicou:
+
+- `modalUpload` zerado;
+- `modalDuplicidades84` zerado;
+- `CONFIG_PASSO_83` zerado;
+- `btnVisualizarRelatorio` zerado;
+- marcadores antigos `PASSO98`, `PASSO99`, `PASSO112`, `PASSO113` zerados;
+- Central principal preservada;
+- Upload direto limpo preservado;
+- Histórico e versões SharePoint preservados.
+
+## Regras para próximas alterações
+
+Sempre seguir esta ordem:
+
+1. Diagnóstico somente-leitura.
+2. Relatório em `diagnosticos`.
+3. Backup em `backups_locais`.
+4. Alteração pequena e específica.
+5. Teste manual no site publicado.
+6. Commit somente se o usuário confirmar funcionamento.
+7. Tag de ponto seguro quando for uma etapa importante.
+
+Não fazer grandes refatorações sem necessidade.
+
+Não recriar blocos antigos removidos.
+
+Não alterar `ARQUIVADO` e `_ARQUIVADOS` técnicos só por estética.
+
+Não abrir PDF diretamente ao clicar no nome do arquivo.
+
+Não remover histórico, anotações ou versões do SharePoint do painel.
+
+## Preferência do usuário para condução
+
+O usuário prefere passos curtos, objetivos e com pouca leitura.
+
+Quando criar scripts longos, entregar em `.txt` para baixar e fornecer comando curto de PowerShell para executar.
+
+Após diagnóstico que confirme o próximo passo, já preparar o próximo arquivo automaticamente, sem esperar muita explicação.
+<!-- ESTADO_ATUAL_PASSO_159_FIM -->
+
