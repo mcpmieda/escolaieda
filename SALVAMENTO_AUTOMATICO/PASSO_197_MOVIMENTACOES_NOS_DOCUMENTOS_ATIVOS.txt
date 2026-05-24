@@ -1,0 +1,35 @@
+PASSO 197 - MOVIMENTACOES NOS DOCUMENTOS ATIVOS
+
+Data: 2026-05-24
+
+Pedido do usuario:
+
+Remover do dashboard o cartao "Ultimas movimentacoes por arquivo" e mostrar essas movimentacoes diretamente nos documentos ativos.
+Tambem limitar para apenas os 20 arquivos mais recentes, para evitar peso quando houver muitos documentos.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Backup criado:
+
+- backups_locais/index_antes_movimentacoes_nos_ativos_*.html
+
+Alteracao realizada:
+
+- Removido o card "Ultimas movimentacoes por arquivo" do dashboard.
+- Criada a funcao `obterUltimasMovimentacoesPorArquivo(20)`.
+- A lista de documentos ativos mostra uma linha de movimentacao apenas para os 20 arquivos com movimentacao mais recente.
+- A busca por nome continua normal.
+- A Lixeira nao recebe essa linha de movimentacao, pois o pedido foi para documentos ativos.
+- Depois de carregar historico/anotacoes, a lista e renderizada novamente para mostrar as movimentacoes.
+
+Validacao:
+
+- JS OK.
+
+Resultado esperado:
+
+- Dashboard fica mais limpo.
+- Movimentacoes recentes aparecem diretamente na lista de documentos ativos.
+- Apenas 20 arquivos recentes recebem essa indicacao.

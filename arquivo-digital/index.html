@@ -495,46 +495,6 @@
       document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
       document.getElementById("dashAcessos").textContent = historicoCarregado.length;
       document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
-
-      const caixaUltimos = document.getElementById("dashUltimoAcesso");
-      if (!caixaUltimos) return;
-
-      const vistos = new Set();
-
-      const movimentacoesUnicas = historicoCarregado
-        .filter(item => item && item.DATA_HORA && (item.ARQUIVO_ID || item.ARQUIVO))
-        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
-        .filter(item => {
-          const chave = item.ARQUIVO_ID
-            ? `id:${item.ARQUIVO_ID}`
-            : `nome:${normalizarTexto(item.ARQUIVO || "")}`;
-
-          if (!chave || vistos.has(chave)) {
-            return false;
-          }
-
-          vistos.add(chave);
-          return true;
-        })
-        .slice(0, 3);
-
-      if (!movimentacoesUnicas.length) {
-        caixaUltimos.textContent = "Nenhuma movimentação registrada";
-        return;
-      }
-
-      caixaUltimos.innerHTML = movimentacoesUnicas.map(item => {
-        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não identificado";
-        const arquivo = item.ARQUIVO || "Arquivo";
-        const acao = formatarAcaoHistorico(item.ACAO || "MOVIMENTOU");
-
-        return `
-          <div class="ultimoAcessoItem">
-            <strong>${escaparHtml(arquivo)}</strong>
-            <span>${escaparHtml(acao)} - ${formatarData(item.DATA_HORA)} - ${escaparHtml(usuario)}</span>
-          </div>
-        `;
-      }).join("");
     }
     async function carregarDadosDeApoio() {
       const token = await obterToken();
@@ -568,6 +528,7 @@
       }));
 
       atualizarDashboard();
+      filtrarDocumentos();
     }
 
     window.recarregarDashboard = async function () {
@@ -2360,6 +2321,7 @@ if (typeof carregarDadosDeApoio === "function") {
 function renderizarDocumentos(listaArquivos) {
       const lista = document.getElementById("listaDocumentos");
       const contador = document.getElementById("contadorResultados");
+      const movimentacoesRecentes = obterUltimasMovimentacoesPorArquivo(20);
 
       contador.textContent = `${listaArquivos.length} resultado(s) encontrado(s)`;
 
@@ -2372,17 +2334,50 @@ function renderizarDocumentos(listaArquivos) {
 
       listaArquivos.forEach(item => {
         const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
+        const chaveId = item.id ? `id:${item.id}` : "";
+        const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
+        const movimento = modoListaAtual === "ativos"
+          ? movimentacoesRecentes.get(chaveId) || movimentacoesRecentes.get(chaveNome)
+          : null;
 
         const li = document.createElement("li");
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
             <strong>${item.nome}</strong>
             <span>Clique para ver detalhes, histórico e ações</span>
+            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoHistorico(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${formatarData(item.modificado)}</span>` : ""}
           </button>
         `;
         lista.appendChild(li);
       });
+    }
+
+    function obterUltimasMovimentacoesPorArquivo(limite = 20) {
+      const vistos = new Set();
+      const mapa = new Map();
+
+      historicoCarregado
+        .filter(item => item && item.DATA_HORA && (item.ARQUIVO_ID || item.ARQUIVO))
+        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
+        .forEach(item => {
+          if (vistos.size >= limite) return;
+
+          const chave = item.ARQUIVO_ID
+            ? `id:${item.ARQUIVO_ID}`
+            : `nome:${normalizarTexto(item.ARQUIVO || "")}`;
+
+          if (!chave || vistos.has(chave)) return;
+
+          vistos.add(chave);
+          mapa.set(chave, item);
+
+          if (item.ARQUIVO) {
+            mapa.set(`nome:${normalizarTexto(item.ARQUIVO)}`, item);
+          }
+        });
+
+      return mapa;
     }
 
     function filtrarDocumentos() {
@@ -2754,6 +2749,15 @@ function renderizarDocumentos(listaArquivos) {
       display: block;
       font-size: 13px;
       color: #64748b;
+    }
+
+    .linhaMovimentacaoArquivo {
+      margin-top: 8px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: #eef3ff;
+      color: #0f2f66 !important;
+      font-weight: 700;
     }
 
     .erro {
@@ -3494,10 +3498,6 @@ function renderizarDocumentos(listaArquivos) {
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
         </div>
 
-        <div class="cardDash largo">
-          <span>Últimas movimentações por arquivo</span>
-          <div id="dashUltimoAcesso" class="listaUltimosAcessos">Nenhuma movimentação registrada</div>
-        </div>
       </div>
 
 
