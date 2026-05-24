@@ -632,6 +632,7 @@
 
 
     let paresDuplicidadesIgnorados = new Set();
+    let paresDuplicidadesIgnoradosDetalhes = [];
     let carregouIgnoradosDuplicidade = false;
 
     function chaveIgnorarDuplicidade(idA, idB) {
@@ -659,17 +660,54 @@
 
         const dados = await resposta.json();
 
+        const ignorados = (dados.value || [])
+          .map(item => ({
+            itemId: item.id,
+            fields: item.fields || {}
+          }))
+          .filter(item => item.fields.STATUS === "IGNORADO" && item.fields.ARQUIVO_ID && item.fields.ARQUIVO_ID.includes("|"));
+
         paresDuplicidadesIgnorados = new Set(
-          (dados.value || [])
-            .map(item => item.fields || {})
-            .filter(fields => fields.STATUS === "IGNORADO" && fields.ARQUIVO_ID && fields.ARQUIVO_ID.includes("|"))
-            .map(fields => fields.ARQUIVO_ID)
+          ignorados.map(item => item.fields.ARQUIVO_ID)
         );
 
+        paresDuplicidadesIgnoradosDetalhes = ignorados
+          .map(item => {
+            const nomes = extrairNomesParIgnorado(item.fields);
+
+            return {
+              itemId: item.itemId,
+              chave: item.fields.ARQUIVO_ID,
+              nomeA: nomes[0],
+              nomeB: nomes[1],
+              data: item.fields.DATA_ALERTA || ""
+            };
+          })
+          .sort((a, b) => (b.data || "").localeCompare(a.data || ""));
+
         carregouIgnoradosDuplicidade = true;
+        renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
         console.warn("Erro ao carregar pares ignorados:", erro);
       }
+    }
+
+    function extrairNomesParIgnorado(fields) {
+      const observacao = fields.OBSERVACAO || "";
+      const titulo = fields.Title || "";
+      const texto = observacao.includes(":")
+        ? observacao.split(":").slice(1).join(":")
+        : titulo.replace(/^PESSOAS DIFERENTES:\s*/i, "");
+
+      const partes = texto
+        .split(/\s+\|\s+|\s+\/\s+/)
+        .map(parte => parte.trim())
+        .filter(Boolean);
+
+      return [
+        partes[0] || "Arquivo não identificado",
+        partes[1] || "Arquivo não identificado"
+      ];
     }
 
     window.marcarPessoasDiferentesCentral = async function (idA, idB) {
@@ -726,6 +764,73 @@
         mostrarMensagem("Erro ao marcar como pessoas diferentes.", "erro");
       }
     };
+
+    function renderizarParesIgnoradosDuplicidade() {
+      const caixa = document.getElementById("listaParesIgnoradosDuplicidade");
+      if (!caixa) return;
+
+      if (!paresDuplicidadesIgnoradosDetalhes.length) {
+        caixa.innerHTML = '<div class="duplicidadeIgnoradaVazia">Nenhum par marcado como pessoas diferentes.</div>';
+        return;
+      }
+
+      caixa.innerHTML = paresDuplicidadesIgnoradosDetalhes.map(item => `
+        <div class="duplicidadeIgnorada">
+          <div>
+            <strong>${textoSeguroCentral(item.nomeA)}</strong>
+            <span>${textoSeguroCentral(item.nomeB)}</span>
+          </div>
+          <button onclick='desfazerPessoasDiferentesCentral(${JSON.stringify(item.itemId)}, ${JSON.stringify(item.chave)})'>Desfazer</button>
+        </div>
+      `).join("");
+    }
+
+    window.desfazerPessoasDiferentesCentral = async function (itemId, chave) {
+      if (!itemId || !chave) {
+        mostrarMensagem("Não foi possível identificar o par ignorado.", "erro");
+        return;
+      }
+
+      const confirmar = confirm("Desfazer a marcação de pessoas diferentes?\n\nEste par poderá aparecer novamente na Central de Duplicidades se ainda for suspeito.");
+      if (!confirmar) return;
+
+      try {
+        const token = await obterToken();
+        const alertasSistemaListId = "9abdb5fc-c009-4a59-9f91-03677b001b56";
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${alertasSistemaListId}/items/${itemId}/fields`;
+
+        const resposta = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            STATUS: "ATIVO",
+            OBSERVACAO: "Marcacao de pessoas diferentes desfeita."
+          })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        paresDuplicidadesIgnorados.delete(chave);
+        paresDuplicidadesIgnoradosDetalhes = paresDuplicidadesIgnoradosDetalhes
+          .filter(item => item.chave !== chave);
+        carregouIgnoradosDuplicidade = false;
+
+        mostrarMensagem("Marcação desfeita. A Central foi atualizada.");
+
+        if (typeof atualizarCentralDuplicidades === "function") {
+          await atualizarCentralDuplicidades();
+        }
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem("Erro ao desfazer marcação.", "erro");
+      }
+    };
+
     function pontuacaoDuplicidadeCentral(nomeA, nomeB) {
       if (typeof calcularPontuacaoNomes === "function") {
         return calcularPontuacaoNomes(nomeA, nomeB);
@@ -813,6 +918,7 @@
 
       try {
         await carregarParesDuplicidadeIgnorados();
+        renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
         console.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
         resumo.textContent = "Não foi possível atualizar a Central de Duplicidades agora.";
@@ -3020,6 +3126,16 @@ function renderizarDocumentos(listaArquivos) {
         grid-template-columns: 1fr;
         display: grid;
       }
+
+      .duplicidadeIgnorada {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .duplicidadeIgnorada button {
+        width: 100%;
+      }
     }
 
     .duplicidadeAcoes {
@@ -3035,6 +3151,70 @@ function renderizarDocumentos(listaArquivos) {
       padding: 8px 10px !important;
       font-size: 12px !important;
       margin: 0 !important;
+    }
+
+    .paresIgnoradosDuplicidade {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #fed7aa;
+      color: #475569;
+    }
+
+    .centralDuplicidades.discreta .paresIgnoradosDuplicidade {
+      border-top-color: #e5e7eb;
+    }
+
+    .paresIgnoradosDuplicidade summary {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .listaParesIgnoradosDuplicidade {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .duplicidadeIgnorada {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    .duplicidadeIgnorada strong,
+    .duplicidadeIgnorada span {
+      display: block;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .duplicidadeIgnorada span {
+      margin-top: 3px;
+      color: #64748b;
+    }
+
+    .duplicidadeIgnorada button {
+      margin: 0;
+      padding: 8px 10px;
+      font-size: 12px;
+      background: #0f2f66;
+      white-space: nowrap;
+    }
+
+    .duplicidadeIgnoradaVazia {
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      color: #64748b;
+      font-size: 13px;
     }
   
     .itemHistorico.anotacaoEvento {
@@ -3156,6 +3336,12 @@ function renderizarDocumentos(listaArquivos) {
         <div id="listaCentralDuplicidades" class="listaCentralDuplicidades">
           <div class="duplicidadeVazia">Carregando possíveis duplicidades...</div>
         </div>
+        <details class="paresIgnoradosDuplicidade">
+          <summary>Pares marcados como pessoas diferentes</summary>
+          <div id="listaParesIgnoradosDuplicidade" class="listaParesIgnoradosDuplicidade">
+            <div class="duplicidadeIgnoradaVazia">Carregando pares ignorados...</div>
+          </div>
+        </details>
       </div>
       <div class="abasDocumentos">
         <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
