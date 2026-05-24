@@ -267,6 +267,35 @@
       return normalizarTexto(nome).replace(/\.pdf$/i, "").trim();
     }
 
+    function palavraNomeNaPosicao(nome, posicao) {
+      const palavras = obterPalavrasNome(nome);
+      return palavras.length > posicao ? palavras[posicao] : "";
+    }
+
+    function palavrasIguaisOuParecidas(palavraA, palavraB) {
+      if (!palavraA || !palavraB) return false;
+      if (palavraA === palavraB) return true;
+
+      if (typeof palavrasSaoParecidas === "function") {
+        return palavrasSaoParecidas(palavraA, palavraB);
+      }
+
+      if (typeof calcularDistanciaPalavras === "function") {
+        return calcularDistanciaPalavras(palavraA, palavraB) <= 1;
+      }
+
+      return false;
+    }
+
+    function primeiroESegundoNomeParecidos(nomeA, nomeB) {
+      const primeiroA = palavraNomeNaPosicao(nomeA, 0);
+      const primeiroB = palavraNomeNaPosicao(nomeB, 0);
+      const segundoA = palavraNomeNaPosicao(nomeA, 1);
+      const segundoB = palavraNomeNaPosicao(nomeB, 1);
+
+      return palavrasIguaisOuParecidas(primeiroA, primeiroB) &&
+             palavrasIguaisOuParecidas(segundoA, segundoB);
+    }
     function deveExibirNomeParecido(nomeA, nomeB, pontos) {
       const normalA = nomeNormalSemPdf(nomeA);
       const normalB = nomeNormalSemPdf(nomeB);
@@ -291,7 +320,7 @@
 
       if (pontos >= 4) return true;
 
-      if (pontos >= 3 && primeiroNomeIgualOuParecido(nomeA, nomeB)) {
+      if (pontos >= 3 && primeiroESegundoNomeParecidos(nomeA, nomeB)) {
         return true;
       }
 
@@ -3322,6 +3351,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
