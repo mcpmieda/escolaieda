@@ -186,7 +186,7 @@
       }
 
       caixa.innerHTML = parecidos.map(item => {
-        const status = item.doc.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+        const status = item.doc.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
         const classe = item.doc.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
 
         return `
@@ -632,8 +632,8 @@
       }
 
       caixa.innerHTML = pares.map((par, index) => {
-        const statusA = par.a.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
-        const statusB = par.b.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+        const statusA = par.a.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
+        const statusB = par.b.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
         const tagA = par.a.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
         const tagB = par.b.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
         const alerta = par.mesmoNome ? "Mesmo nome" : "Nome parecido";
@@ -1453,7 +1453,7 @@
         );
 
         if (nomeDuplicadoAtivo) {
-          mostrarMensagemPainel("Já existe um arquivo ativo com esse mesmo nome. Renomeie o ativo ou o arquivado antes de restaurar.", "erro");
+          mostrarMensagemPainel("Já existe um arquivo ativo com esse mesmo nome. Renomeie o ativo ou o arquivo na Lixeira antes de restaurar.", "erro");
           return;
         }
 
@@ -1627,7 +1627,7 @@
       if (painelId) painelId.textContent = documento.id || "";
       const painelCaminho = document.getElementById("painelCaminho");
       if (painelCaminho) painelCaminho.textContent = documento.caminho || "";
-      document.getElementById("painelStatus").textContent = documento.status === "ARQUIVADO" ? "Arquivado" : "Ativo";
+      document.getElementById("painelStatus").textContent = documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
 
       const estaArquivado = documento.status === "ARQUIVADO";
       document.getElementById("btnRenomear").style.display = estaArquivado ? "none" : "inline-block";
@@ -2000,7 +2000,7 @@ function renderizarDocumentos(listaArquivos) {
       }
     });
 
-    // PASSO86_EVENTOS_ANOTACAO
+    // EVENTOS_ANOTACAO
     document.addEventListener("input", (evento) => {
       if (evento.target && evento.target.id === "campoAnotacao") {
         ajustarAlturaAnotacao();
@@ -2668,7 +2668,7 @@ function renderizarDocumentos(listaArquivos) {
       white-space: pre-wrap;
     }
   
-    /* PASSO86_CSS_ANOTACAO_ARQUIVADOS */
+    /* CSS_ANOTACAO_LIXEIRA */
     #campoAnotacao {
       min-height: 70px;
       height: 70px;
@@ -3051,6 +3051,7 @@ function renderizarDocumentos(listaArquivos) {
 <!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
+
 
 
 
