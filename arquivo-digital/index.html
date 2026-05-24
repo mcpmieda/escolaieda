@@ -697,8 +697,20 @@
         .slice(0, 50);
     }
 
+    function aplicarEstadoVisualCentralDuplicidades(quantidadePares) {
+      const central = document.getElementById("centralDuplicidades");
+      const caixa = document.getElementById("listaCentralDuplicidades");
+
+      if (!central || !caixa) {
+        return;
+      }
+
+      central.classList.toggle("discreta", quantidadePares === 0);
+      central.classList.toggle("comAlerta", quantidadePares > 0);
+      caixa.hidden = quantidadePares === 0;
+    }
+
     window.atualizarCentralDuplicidades = async function () {
-      await carregarParesDuplicidadeIgnorados();
       const caixa = document.getElementById("listaCentralDuplicidades");
       const resumo = document.getElementById("resumoCentralDuplicidades");
 
@@ -706,18 +718,24 @@
         return;
       }
 
+      try {
+        await carregarParesDuplicidadeIgnorados();
+      } catch (erro) {
+        console.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
+        resumo.textContent = "Não foi possível atualizar a Central de Duplicidades agora.";
+        return;
+      }
+
       const pares = gerarParesDuplicidades();
 
+      aplicarEstadoVisualCentralDuplicidades(pares.length);
+
       resumo.textContent = pares.length
-        ? `${pares.length} possível(is) caso(s) para revisar`
-        : "Nenhum caso suspeito encontrado no momento";
+        ? `${pares.length} caso(s) suspeito(s). Revise a Central de Duplicidades.`
+        : "Nenhuma duplicidade suspeita no momento.";
 
       if (!pares.length) {
-        caixa.innerHTML = `
-          <div class="duplicidadeVazia">
-            Nenhum nome parecido encontrado entre ativos e na Lixeira.
-          </div>
-        `;
+        caixa.innerHTML = "";
         return;
       }
 
@@ -2134,6 +2152,12 @@ function renderizarDocumentos(listaArquivos) {
 
         aplicarListaAtual();
 
+        if (typeof atualizarCentralDuplicidades === "function") {
+          atualizarCentralDuplicidades().catch(erro => {
+            console.warn("Nao foi possivel atualizar a Central de Duplicidades automaticamente.", erro);
+          });
+        }
+
       } catch (erro) {
         lista.innerHTML = `<li class="erro">Erro ao carregar documentos: ${erro.message}</li>`;
         console.error(erro);
@@ -2749,6 +2773,17 @@ function renderizarDocumentos(listaArquivos) {
       border: 1px solid #fed7aa;
     }
 
+    .centralDuplicidades.discreta {
+      padding: 14px;
+      background: #f8fafc;
+      border-color: #e5e7eb;
+    }
+
+    .centralDuplicidades.comAlerta {
+      background: #fff7ed;
+      border-color: #fdba74;
+    }
+
     .centralDuplicidadesTopo {
       display: flex;
       justify-content: space-between;
@@ -2760,6 +2795,10 @@ function renderizarDocumentos(listaArquivos) {
     .centralDuplicidadesTopo h2 {
       margin: 0 0 4px 0;
       color: #9a3412;
+    }
+
+    .centralDuplicidades.discreta .centralDuplicidadesTopo h2 {
+      color: #334155;
     }
 
     .centralDuplicidadesTopo p {
@@ -2780,6 +2819,12 @@ function renderizarDocumentos(listaArquivos) {
       margin: 10px 0 14px 0;
       color: #7c2d12;
       font-weight: bold;
+    }
+
+    .centralDuplicidades.discreta .resumoCentralDuplicidades {
+      margin-bottom: 0;
+      color: #475569;
+      font-weight: 600;
     }
 
     .listaCentralDuplicidades {
@@ -2969,7 +3014,7 @@ function renderizarDocumentos(listaArquivos) {
       </div>
 
 
-      <div class="centralDuplicidades">
+      <div id="centralDuplicidades" class="centralDuplicidades discreta">
         <div class="centralDuplicidadesTopo">
           <div>
             <h2>Central de duplicidades</h2>
