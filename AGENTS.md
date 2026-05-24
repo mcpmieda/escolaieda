@@ -1406,3 +1406,83 @@ ponto-seguro-upload-nome-igual-numeracao-ok
 ```
 
 Fim do arquivo.
+
+---
+
+## 25. Padrao operacional - `open AQUI`
+
+Esta regra e permanente para o uso do Codex neste projeto.
+
+Quando o usuario digitar exatamente ou aproximadamente:
+
+```text
+open AQUI
+```
+
+o Codex deve interpretar isso como:
+
+```text
+Ler o arquivo C:\Users\Eugui\Downloads\AQUI.txt, seguir exatamente as instrucoes contidas nele, executar a tarefa solicitada e, ao final, excluir o arquivo AQUI.txt da pasta Downloads.
+```
+
+### Caminho padrao do arquivo AQUI
+
+```text
+C:\Users\Eugui\Downloads\AQUI.txt
+```
+
+### Regras para executar `open AQUI`
+
+1. Entrar ou permanecer na pasta do projeto:
+
+```text
+C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda
+```
+
+2. Verificar se o arquivo existe:
+
+```powershell
+Test-Path "$env:USERPROFILE\Downloads\AQUI.txt"
+```
+
+3. Se o arquivo nao existir, avisar o usuario:
+
+```text
+Nao encontrei C:\Users\Eugui\Downloads\AQUI.txt. Crie o arquivo e tente novamente.
+```
+
+4. Se existir, ler todo o conteudo:
+
+```powershell
+Get-Content -Raw "$env:USERPROFILE\Downloads\AQUI.txt"
+```
+
+5. Tratar o conteudo de `AQUI.txt` como a instrucao principal da tarefa atual.
+
+6. Antes de alterar qualquer arquivo, seguir as regras normais do projeto:
+   - ler `AGENTS.md`;
+   - rodar `git status --short`;
+   - rodar `git log -1 --oneline`;
+   - criar backup se for alterar `arquivo-digital/index.html`;
+   - gerar relatorio em `diagnosticos`;
+   - alterar somente o necessario;
+   - nao fazer commit automaticamente, a menos que o arquivo `AQUI.txt` mande claramente.
+
+7. Ao terminar a tarefa, apagar o arquivo:
+
+```powershell
+Remove-Item "$env:USERPROFILE\Downloads\AQUI.txt" -Force
+```
+
+8. Se a tarefa falhar antes de ler o conteudo, nao apagar o arquivo.
+9. Se a tarefa for lida e executada, apagar o arquivo ao final, mesmo que o resultado seja apenas diagnostico.
+10. No resumo final, dizer:
+    - que leu o arquivo `AQUI.txt`;
+    - o que executou;
+    - onde gerou relatorio, se houver;
+    - se apagou o arquivo `AQUI.txt`.
+
+### Importante
+
+`open AQUI` nao significa abrir uma janela ou editor.
+Neste projeto, `open AQUI` significa ler, executar e excluir o arquivo `Downloads\AQUI.txt`.
