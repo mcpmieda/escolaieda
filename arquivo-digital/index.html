@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arquivo Digital - Escola Iêda MCPM</title>
+  <link rel="icon" type="image/png" href="../imagens/arquivo-digital-logo.png">
 
   <script type="module">
     import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
@@ -143,7 +144,8 @@
         modoVisual: "confortavel",
         detalhesCards: "mais",
         analiseDuplicidadesAuto: "sim",
-        limiteRelatorios: 30
+        limiteRelatorios: 30,
+        gavetasCustomizadas: []
       };
     }
 
@@ -171,8 +173,39 @@
       return gaveta || "Gaveta nao informada";
     }
 
+    function normalizarNomeGaveta(valor) {
+      return (valor || "").toString().replace(/\s+/g, " ").trim();
+    }
+
     function chaveGaveta(valor) {
       return (valor || "").toString().trim() || "Gaveta nao informada";
+    }
+
+    function obterOpcoesGavetas() {
+      const mapa = new Map();
+
+      for (let numero = 1; numero <= 34; numero++) {
+        const valor = `Gaveta ${numero}`;
+        mapa.set(normalizarTexto(valor), valor);
+      }
+
+      (preferenciasSistema.gavetasCustomizadas || []).forEach(gaveta => {
+        const valor = normalizarNomeGaveta(gaveta);
+        if (valor) mapa.set(normalizarTexto(valor), valor);
+      });
+
+      [...documentosAtivos, ...documentosLixeira].forEach(doc => {
+        const valor = normalizarNomeGaveta(doc.gaveta);
+        if (valor) mapa.set(normalizarTexto(valor), valor);
+      });
+
+      return [...mapa.values()].sort((a, b) => {
+        const aNao = a === "Gaveta nao informada";
+        const bNao = b === "Gaveta nao informada";
+        if (aNao) return -1;
+        if (bNao) return 1;
+        return a.localeCompare(b, "pt-BR", { numeric: true });
+      });
     }
 
     function obterResumoGavetas() {
@@ -728,6 +761,8 @@
         const campo = document.getElementById(id);
         if (campo) campo.value = valor;
       });
+
+      renderizarGavetasConfiguracao();
     }
 
     window.alternarCentralConfiguracoes = function () {
@@ -754,12 +789,108 @@
       aplicarListaAtual();
 
       if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
-        if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
-          atualizarCentralDuplicidadesSegundoPlano();
-        }
+        atualizarCentralDuplicidadesSegundoPlano();
       }
 
       mostrarMensagem("Configuracoes salvas.");
+    };
+
+    function renderizarGavetasConfiguracao() {
+      const lista = document.getElementById("listaGavetasConfiguracao");
+      if (!lista) return;
+
+      lista.innerHTML = obterOpcoesGavetas()
+        .filter(gaveta => gaveta !== "Gaveta nao informada")
+        .map(gaveta => `<span>${escaparHtml(gaveta)}</span>`)
+        .join("");
+    }
+
+    async function obterColunaGavetaSharePoint(token) {
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/columns`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const dados = await resposta.json();
+      return (dados.value || []).find(coluna =>
+        coluna.name === "GAVETA" ||
+        coluna.displayName === "GAVETA" ||
+        coluna.name === "Gaveta" ||
+        coluna.displayName === "Gaveta"
+      );
+    }
+
+    window.cadastrarNovaGaveta = async function () {
+      const campo = document.getElementById("novaGavetaConfiguracao");
+      const status = document.getElementById("statusCadastroGaveta");
+      const novaGaveta = normalizarNomeGaveta(campo?.value || "");
+
+      if (!novaGaveta) {
+        if (status) status.textContent = "Digite o nome da nova gaveta.";
+        return;
+      }
+
+      const jaExiste = obterOpcoesGavetas().some(gaveta => normalizarTexto(gaveta) === normalizarTexto(novaGaveta));
+      if (jaExiste) {
+        if (status) status.textContent = "Essa gaveta ja existe.";
+        return;
+      }
+
+      if (status) status.textContent = "Cadastrando gaveta no SharePoint...";
+
+      try {
+        const token = await obterToken();
+        const coluna = await obterColunaGavetaSharePoint(token);
+
+        if (!coluna || !coluna.id || !coluna.choice) {
+          throw new Error("Coluna GAVETA Choice nao encontrada.");
+        }
+
+        const escolhasAtuais = coluna.choice.choices || [];
+        const escolhasNovas = [...escolhasAtuais, novaGaveta]
+          .filter(Boolean)
+          .filter((valor, indice, lista) => lista.findIndex(item => normalizarTexto(item) === normalizarTexto(valor)) === indice);
+
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/columns/${coluna.id}`;
+        const resposta = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            choice: {
+              ...coluna.choice,
+              choices: escolhasNovas
+            }
+          })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        preferenciasSistema.gavetasCustomizadas = escolhasNovas.filter(gaveta => !/^Gaveta\s+([1-9]|[12][0-9]|3[0-4])$/i.test(gaveta));
+        salvarPreferenciasSistema();
+        if (campo) campo.value = "";
+        atualizarControlesPreferencias();
+        document.getElementById("gavetaUpload") && (document.getElementById("gavetaUpload").innerHTML = opcoesGavetaHtml());
+        if (documentoSelecionado) {
+          const seletorPainel = document.getElementById("novaGavetaDocumento");
+          if (seletorPainel) seletorPainel.innerHTML = opcoesGavetaHtml(documentoSelecionado.gaveta || "");
+        }
+        renderizarGavetasAtivos();
+        mostrarMensagem("Gaveta cadastrada.");
+        if (status) status.textContent = "Gaveta cadastrada com sucesso.";
+      } catch (erro) {
+        console.error(erro);
+        if (status) status.textContent = "Não foi possível cadastrar a gaveta no SharePoint. Verifique as permissões.";
+        mostrarMensagem("Não foi possível cadastrar a gaveta no SharePoint. Verifique as permissões.", "erro");
+      }
     };
 
     window.abrirAreaGavetas = function () {
@@ -793,12 +924,7 @@
         return a[0].localeCompare(b[0], "pt-BR", { numeric: true });
       });
 
-      lista.innerHTML = `
-        <button class="gavetaCard ${!filtroGavetaAtual ? "ativo" : ""}" type="button" onclick="filtrarPorGaveta('')">
-          <span>Todas as gavetas</span>
-          <strong>${documentosAtivos.length}</strong>
-        </button>
-      ` + entradas.map(([gaveta, total]) => `
+      lista.innerHTML = entradas.map(([gaveta, total]) => `
         <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" onclick='filtrarPorGaveta(${JSON.stringify(gaveta)})'>
           <span>${escaparHtml(gaveta)}</span>
           <strong>${total}</strong>
@@ -807,7 +933,7 @@
     }
 
     window.filtrarPorGaveta = function (gaveta) {
-      filtroGavetaAtual = gaveta || "";
+      filtroGavetaAtual = filtroGavetaAtual === gaveta ? "" : (gaveta || "");
       filtrosAvancados.semGaveta = false;
       renderizarGavetasAtivos();
       filtrarDocumentos();
@@ -815,6 +941,7 @@
 
     window.alternarFiltrosAvancados = function () {
       document.getElementById("filtrosAvancados")?.classList.toggle("aberto");
+      atualizarBotoesFiltros();
     };
 
     window.aplicarFiltroRapido = function (nomeFiltro) {
@@ -840,6 +967,17 @@
     };
 
     function atualizarBotoesFiltros() {
+      const totalAtivos = Object.values(filtrosAvancados).filter(Boolean).length + (filtroGavetaAtual ? 1 : 0);
+      const painelAberto = document.getElementById("filtrosAvancados")?.classList.contains("aberto");
+      const botaoFiltros = document.getElementById("btnFiltrosAvancados");
+      const indicador = document.getElementById("indicadorFiltrosAtivos");
+
+      if (botaoFiltros) botaoFiltros.classList.toggle("ativo", !!painelAberto || totalAtivos > 0);
+      if (indicador) {
+        indicador.textContent = totalAtivos ? `Filtros ativos: ${totalAtivos}` : "";
+        indicador.style.display = totalAtivos ? "inline-flex" : "none";
+      }
+
       Object.entries(filtrosAvancados).forEach(([nome, ativo]) => {
       document.querySelector(`[data-filtro="${nome}"]`)?.classList.toggle("ativo", ativo);
       });
@@ -940,7 +1078,6 @@
         <div class="relatorioCard"><strong>Enviados recentemente</strong><span>${recentesEnviados}</span></div>
         <div class="relatorioCard"><strong>Alterados recentemente</strong><span>${recentesAlterados}</span></div>
         <div class="relatorioCard"><strong>Histórico por usuário</strong><ul>${linhasUsuarios || "<li>Histórico ainda não carregado.</li>"}</ul></div>
-        <div class="relatorioCard relatorioAcesso"><strong>Acesso de usuários</strong><span>Segurança real deve ser mantida por permissões Microsoft Entra ID e SharePoint. Qualquer lista de e-mails no site seria apenas camada auxiliar visual.</span></div>
       `;
     }
 
@@ -2992,11 +3129,12 @@ try {
 
     function opcoesGavetaHtml(valorAtual = "") {
       const opcoes = ['<option value="">Selecione a gaveta</option>'];
-      for (let numero = 1; numero <= 34; numero++) {
-        const valor = `Gaveta ${numero}`;
+      obterOpcoesGavetas()
+        .filter(valor => valor !== "Gaveta nao informada")
+        .forEach(valor => {
         const selecionado = valor === valorAtual ? " selected" : "";
         opcoes.push(`<option value="${valor}"${selecionado}>${valor}</option>`);
-      }
+      });
       return opcoes.join("");
     }
 
@@ -3534,11 +3672,19 @@ function renderizarDocumentos(listaArquivos) {
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
 
+      if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual && !Object.values(filtrosAvancados).some(Boolean)) {
+        document.getElementById("contadorResultados").textContent = `${documentosAtivos.length} documento(s) ativo(s) disponivel(is)`;
+        document.getElementById("listaDocumentos").innerHTML = "<li class=\"mensagemListaVazia\">Selecione uma gaveta para listar os documentos ou use a busca acima.</li>";
+        atualizarBotoesFiltros();
+        return;
+      }
+
       const filtradosBusca = documentosCarregados.filter(doc =>
         !termo || normalizarTexto(doc.nome).includes(termo)
       );
 
       const filtrados = aplicarFiltrosAvancados(filtradosBusca);
+      atualizarBotoesFiltros();
       renderizarDocumentos(filtrados);
     }
 
@@ -3609,13 +3755,14 @@ function renderizarDocumentos(listaArquivos) {
 
       document.getElementById("btnEntrar").style.display = usuario ? "none" : "inline-block";
       document.getElementById("btnSair").style.display = usuario ? "inline-block" : "none";
+      document.getElementById("btnAbrirConfiguracoesTopo").style.display = usuario ? "inline-block" : "none";
       document.getElementById("areaSistema").style.display = usuario ? "block" : "none";
 
       if (usuario) {
         modoListaAtual = preferenciasSistema.guiaInicial || "recentes";
         document.getElementById("usuario").innerHTML = `
-          <strong>Nome:</strong> ${usuario.name || ""}<br>
-          <strong>Conta:</strong> ${usuario.username || ""}
+          <span>${usuario.name || "Usuário conectado"}</span>
+          <small>${usuario.username || ""}</small>
         `;
 
         await listarDocumentos();
@@ -3737,6 +3884,86 @@ function renderizarDocumentos(listaArquivos) {
       border-radius: 16px;
       padding: 30px;
       box-shadow: 0 18px 42px rgba(15, 47, 102, .10);
+    }
+
+    .cabecalhoSistema {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin: -10px -10px 16px;
+      padding: 18px;
+      border-radius: 16px;
+      background:
+        linear-gradient(90deg, rgba(15, 47, 102, .94), rgba(15, 47, 102, .76)),
+        url("../imagens/arquivo-digital-capa.jpg") center/cover;
+      color: #ffffff;
+    }
+
+    .cabecalhoMarca {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .logoSistema {
+      width: 62px;
+      height: 62px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255,255,255,.92);
+      padding: 6px;
+      flex: 0 0 auto;
+    }
+
+    .cabecalhoSistema h1 {
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .cabecalhoSistema .subtituloSistema {
+      color: #dbeafe;
+      margin: 0;
+      max-width: 640px;
+    }
+
+    .cabecalhoAcoes {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 260px;
+    }
+
+    .cabecalhoAcoes #status {
+      width: 100%;
+      margin: 0 0 2px;
+      color: #dbeafe;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .cabecalhoAcoes button {
+      margin: 0;
+    }
+
+    #usuario.info {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 0 0 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 13px;
+    }
+
+    #usuario.info small {
+      color: #64748b;
     }
 
     h1 {
@@ -5500,6 +5727,53 @@ function renderizarDocumentos(listaArquivos) {
       line-height: 1.35;
     }
 
+    .cadastroGavetaBox {
+      display: grid;
+      gap: 8px;
+      margin: 10px 0 12px;
+      padding: 12px;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      background: #f8fbff;
+      color: #334155;
+      font-size: 13px;
+    }
+
+    .linhaCadastroGaveta {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .linhaCadastroGaveta input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .listaGavetasConfiguracao {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .listaGavetasConfiguracao span,
+    .indicadorFiltrosAtivos {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef3ff;
+      color: #0f2f66;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .cardGavetas {
       display: block;
       width: 100%;
@@ -5594,16 +5868,99 @@ function renderizarDocumentos(listaArquivos) {
       border-color: #0f2f66;
     }
 
+    #btnFiltrosAvancados.ativo {
+      background: #0f2f66;
+      color: #ffffff;
+      border-color: #0f2f66;
+    }
+
+    .mensagemListaVazia {
+      padding: 14px;
+      border: 1px dashed #bfdbfe;
+      border-radius: 12px;
+      background: #f8fbff;
+      color: #475569;
+      list-style: none;
+    }
+
     body.modoCompacto .itemArquivo {
-      padding: 10px;
+      padding: 9px 11px;
     }
 
     body.modoCompacto .cardDash {
-      padding: 12px;
+      padding: 10px 12px;
+      min-height: auto;
+    }
+
+    body.modoCompacto {
+      padding: 18px;
+    }
+
+    body.modoCompacto .card {
+      padding: 18px;
+    }
+
+    body.modoCompacto .cabecalhoSistema {
+      margin-bottom: 10px;
+      padding: 14px;
+    }
+
+    body.modoCompacto .logoSistema {
+      width: 52px;
+      height: 52px;
+    }
+
+    body.modoCompacto .dashboard {
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    body.modoCompacto .areaUploadNovo,
+    body.modoCompacto .areaGavetas,
+    body.modoCompacto .centralConfiguracoes {
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    body.modoCompacto .busca {
+      padding: 10px 12px;
+      margin: 6px 0;
+    }
+
+    body.modoCompacto .abasDocumentos,
+    body.modoCompacto .barraFiltros {
+      margin: 8px 0;
     }
 
     body.detalhesReduzidos .itemArquivo > span:not(.seloGaveta):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
       display: none;
+    }
+
+    .itemArquivo:hover {
+      background: #f1f6fd;
+      color: #172033;
+      border-color: #9fc5f8;
+      box-shadow: 0 6px 16px rgba(15, 47, 102, .10);
+    }
+
+    .itemArquivo:hover strong {
+      color: #0f2f66;
+    }
+
+    .itemArquivo:hover span,
+    .itemArquivo:hover .linhaDataArquivo {
+      color: #334155 !important;
+    }
+
+    .itemArquivo:hover .seloGaveta {
+      background: #e8f5ee;
+      color: #17623a !important;
+      border-color: #b7e0c7;
+    }
+
+    .itemArquivo:hover .linhaMovimentacaoArquivo {
+      background: #ffffff;
+      color: #0f2f66 !important;
     }
 
     /* PACOTE3_HISTORICO_RELATORIOS_ACESSO */
@@ -5725,6 +6082,28 @@ function renderizarDocumentos(listaArquivos) {
       .card {
         padding: 16px;
         border-radius: 16px;
+      }
+
+      .cabecalhoSistema,
+      .cabecalhoMarca,
+      .cabecalhoAcoes,
+      .linhaCadastroGaveta {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-width: 0;
+      }
+
+      .cabecalhoAcoes {
+        justify-content: stretch;
+      }
+
+      .cabecalhoAcoes #status {
+        text-align: left;
+      }
+
+      .logoSistema {
+        width: 54px;
+        height: 54px;
       }
 
       h1 {
@@ -5884,15 +6263,21 @@ function renderizarDocumentos(listaArquivos) {
 </head>
 <body>
   <div class="card">
-    <h1>Arquivo Digital</h1>
-    <p class="subtituloSistema">Gestão de documentos escolares com busca, histórico, gaveta física, lixeira, versões e envio seguro de PDFs.</p>
-
-    <p id="status">Verificando login...</p>
-
-    <div class="barraLogin">
-      <button id="btnEntrar" onclick="entrar()">Entrar com Microsoft</button>
-      <button id="btnSair" onclick="sair()">Sair</button>
-    </div>
+    <header class="cabecalhoSistema">
+      <div class="cabecalhoMarca">
+        <img class="logoSistema" src="../imagens/arquivo-digital-logo.png" alt="Escola Iêda MCPM">
+        <div>
+          <h1>Arquivo Digital</h1>
+          <p class="subtituloSistema">Gestão escolar de documentos, gavetas, histórico e envio seguro de PDFs.</p>
+        </div>
+      </div>
+      <div class="cabecalhoAcoes">
+        <p id="status">Verificando login...</p>
+        <button id="btnEntrar" onclick="entrar()">Entrar com Microsoft</button>
+        <button id="btnAbrirConfiguracoesTopo" class="secundario" onclick="alternarCentralConfiguracoes()">Configurações</button>
+        <button id="btnSair" onclick="sair()">Sair</button>
+      </div>
+    </header>
 
     <div id="usuario" class="info"></div>
     <div id="mensagemSistema" class="mensagem"></div>
@@ -5900,7 +6285,6 @@ function renderizarDocumentos(listaArquivos) {
       <div id="areaSistema">
             <div class="areaUploadNovo">
         <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
-        <button class="secundario" onclick="alternarCentralConfiguracoes()">Configurações</button>
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
         <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
       </div>
@@ -5965,9 +6349,14 @@ function renderizarDocumentos(listaArquivos) {
             </select>
           </label>
         </div>
-        <div class="configuracoesAviso">
-          <strong>Acesso de usuários</strong>
-          <span>Controle de acesso avançado deve ser feito por permissões Microsoft/SharePoint. Esta tela usa apenas preferências locais.</span>
+        <div class="cadastroGavetaBox">
+          <strong>Cadastrar nova gaveta</strong>
+          <div class="linhaCadastroGaveta">
+            <input id="novaGavetaConfiguracao" type="text" placeholder="Ex.: Gaveta 35">
+            <button class="secundario" onclick="cadastrarNovaGaveta()">Cadastrar gaveta</button>
+          </div>
+          <small id="statusCadastroGaveta">A nova gaveta será adicionada à coluna GAVETA do SharePoint, se houver permissão.</small>
+          <div id="listaGavetasConfiguracao" class="listaGavetasConfiguracao"></div>
         </div>
         <button class="principal" onclick="salvarConfiguracoesSistema()">Salvar configurações</button>
       </section>
@@ -6131,13 +6520,13 @@ function renderizarDocumentos(listaArquivos) {
       <section id="areaGavetas" class="areaGavetas" style="display:none">
         <div class="areaGavetasTopo">
           <h3>Gavetas dos documentos ativos</h3>
-          <button class="secundario" onclick="filtrarPorGaveta('')">Ver todos</button>
         </div>
         <div id="listaGavetasAtivos" class="listaGavetasAtivos"></div>
       </section>
 
       <div class="barraFiltros">
-        <button class="secundario" onclick="alternarFiltrosAvancados()">Filtros avançados</button>
+        <button id="btnFiltrosAvancados" class="secundario" onclick="alternarFiltrosAvancados()">Filtros avançados</button>
+        <span id="indicadorFiltrosAtivos" class="indicadorFiltrosAtivos" style="display:none"></span>
         <button class="secundario" onclick="aplicarFiltroRapido('limpar')">Limpar filtros</button>
       </div>
       <div id="filtrosAvancados" class="filtrosAvancados">
