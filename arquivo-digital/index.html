@@ -1117,6 +1117,7 @@
     function formatarAcaoHistorico(acao) {
       const texto = (acao || "").toString().trim();
       if (texto.toUpperCase() === "ARQUIVOU") return "FOI PARA LIXEIRA";
+      if (texto.toUpperCase() === "ALTEROU_GAVETA") return "ALTEROU GAVETA";
       return texto;
     }
 async function carregarHistoricoDocumento(documento) {
@@ -1715,6 +1716,9 @@ try {
       document.getElementById("motivoArquivar").value = "";
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("novaGavetaDocumento").value = "";
+      document.getElementById("motivoAlterarGaveta").value = "";
     };
 
     window.confirmarArquivar = async function () {
@@ -1880,6 +1884,75 @@ try {
       } catch (erro) {
         console.error(erro);
         mostrarMensagemPainel("Erro ao restaurar arquivo. Veja o console para detalhes.", "erro");
+      }
+    };
+
+    window.prepararAlterarGaveta = function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("boxAlterarGaveta").style.display = "block";
+      document.getElementById("novaGavetaDocumento").innerHTML = opcoesGavetaHtml(documentoSelecionado.gaveta || "");
+      document.getElementById("motivoAlterarGaveta").value = "";
+      mostrarMensagemPainel("Escolha a nova gaveta e informe o motivo.");
+    };
+
+    window.cancelarAlterarGaveta = function () {
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("novaGavetaDocumento").value = "";
+      document.getElementById("motivoAlterarGaveta").value = "";
+    };
+
+    window.confirmarAlterarGaveta = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      const novaGaveta = (document.getElementById("novaGavetaDocumento").value || "").trim();
+      const motivo = (document.getElementById("motivoAlterarGaveta").value || "").trim();
+      const gavetaAnterior = gavetaOuPadrao(documentoSelecionado.gaveta);
+
+      if (!novaGaveta) {
+        mostrarMensagemPainel("Escolha a nova gaveta.", "erro");
+        return;
+      }
+
+      if (!motivo) {
+        mostrarMensagemPainel("Informe o motivo da alteração de gaveta.", "erro");
+        return;
+      }
+
+      try {
+        mostrarMensagemPainel("Salvando gaveta...");
+
+        const token = await obterToken();
+        await atualizarGavetaItemSharePoint(documentoSelecionado.listItemId, novaGaveta, token);
+
+        documentoSelecionado.gaveta = novaGaveta;
+        const painelGaveta = document.getElementById("painelGaveta");
+        if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(novaGaveta);
+
+        await registrarHistorico(
+          documentoSelecionado,
+          "ALTEROU_GAVETA",
+          `Gaveta anterior: ${gavetaAnterior}. Nova gaveta: ${novaGaveta}. Motivo: ${motivo}`
+        );
+
+        document.getElementById("boxAlterarGaveta").style.display = "none";
+        document.getElementById("motivoAlterarGaveta").value = "";
+
+        await atualizarDadosMantendoPainel();
+        mostrarMensagemPainel("Gaveta atualizada e registrada no histórico.");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Erro ao alterar gaveta. Veja o console para detalhes.", "erro");
       }
     };
 
@@ -2136,6 +2209,9 @@ try {
       document.getElementById("motivoArquivar").value = "";
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("novaGavetaDocumento").value = "";
+      document.getElementById("motivoAlterarGaveta").value = "";
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
@@ -3040,6 +3116,12 @@ function renderizarDocumentos(listaArquivos) {
       color: #0f2f66;
     }
 
+    .btnAlterarGaveta {
+      margin: 8px 0 0 0;
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+
     .acoes {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -3097,7 +3179,8 @@ function renderizarDocumentos(listaArquivos) {
       margin-bottom: 8px;
     }
 
-    .formAcao input {
+    .formAcao input,
+    .formAcao select {
       width: 100%;
       box-sizing: border-box;
       border: 1px solid #cbd5e1;
@@ -3905,6 +3988,7 @@ function renderizarDocumentos(listaArquivos) {
       <div class="campoInfo">
         <strong>Localização física</strong>
         <span id="painelGaveta"></span>
+        <button class="secundario btnAlterarGaveta" onclick="prepararAlterarGaveta()">Alterar gaveta</button>
       </div>
 
       <div class="acoes">
@@ -3956,6 +4040,16 @@ function renderizarDocumentos(listaArquivos) {
         <div class="linhaBotoes">
           <button onclick="confirmarRestaurar()">Confirmar restauração</button>
           <button class="secundario" onclick="cancelarRestaurar()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="boxAlterarGaveta" class="formAcao">
+        <h3>Alterar gaveta</h3>
+        <select id="novaGavetaDocumento"></select>
+        <textarea id="motivoAlterarGaveta" placeholder="Informe o motivo da alteração de gaveta..."></textarea>
+        <div class="linhaBotoes">
+          <button onclick="confirmarAlterarGaveta()">Salvar gaveta</button>
+          <button class="secundario" onclick="cancelarAlterarGaveta()">Cancelar</button>
         </div>
       </div>
 

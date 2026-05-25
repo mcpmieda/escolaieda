@@ -1,0 +1,31 @@
+PASSO 206 - ALTERAR GAVETA NO PAINEL LATERAL
+
+Data: 2026-05-25
+
+Pedido recebido via open AQUI:
+
+Permitir alterar a gaveta fisica de um arquivo ja existente pelo painel lateral, salvando no SharePoint e registrando no historico.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Alteracoes realizadas:
+
+- Adicionado botao Alterar gaveta na secao Localizacao fisica do painel lateral.
+- Adicionado formulario de alteracao com seletor Gaveta 1 ate Gaveta 34.
+- Motivo da alteracao de gaveta e obrigatorio.
+- A alteracao salva a coluna GAVETA do item em DOCUMENTOS_ATIVOS.
+- O historico registra a acao ALTEROU_GAVETA.
+- A observacao do historico informa gaveta anterior, nova gaveta e motivo.
+- Apos salvar, o painel, a listagem e o historico sao atualizados.
+- A formatacao do historico mostra ALTEROU GAVETA para essa acao.
+
+Validacao:
+
+- JS module syntax OK.
+- git diff --check sem erros.
+
+Resultado:
+
+Arquivos existentes podem ter a gaveta alterada pelo painel lateral sem mexer em login, IDs, lixeira, renomear, substituir ou restaurar.
