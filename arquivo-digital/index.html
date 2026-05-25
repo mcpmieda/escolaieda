@@ -38,6 +38,8 @@
     let duplicidadesCarregando = false;
     let versoesSharePointCarregadas = [];
     let versoesSharePointExpandido = false;
+    let opcoesGavetaSharePoint = [];
+    let opcoesGavetaCarregadas = false;
     let limiteHistoricoGeralAtual = 0;
     let filtroGavetaAtual = "";
     let filtrosAvancados = {
@@ -144,8 +146,7 @@
         modoVisual: "confortavel",
         detalhesCards: "mais",
         analiseDuplicidadesAuto: "sim",
-        limiteRelatorios: 30,
-        gavetasCustomizadas: []
+        limiteRelatorios: 30
       };
     }
 
@@ -181,15 +182,21 @@
       return (valor || "").toString().trim() || "Gaveta nao informada";
     }
 
+    function opcoesGavetasPadrao() {
+      const opcoes = [];
+      for (let numero = 1; numero <= 34; numero++) {
+        opcoes.push(`Gaveta ${numero}`);
+      }
+      return opcoes;
+    }
+
     function obterOpcoesGavetas() {
       const mapa = new Map();
+      const fontePrincipal = opcoesGavetaCarregadas && opcoesGavetaSharePoint.length
+        ? opcoesGavetaSharePoint
+        : opcoesGavetasPadrao();
 
-      for (let numero = 1; numero <= 34; numero++) {
-        const valor = `Gaveta ${numero}`;
-        mapa.set(normalizarTexto(valor), valor);
-      }
-
-      (preferenciasSistema.gavetasCustomizadas || []).forEach(gaveta => {
+      fontePrincipal.forEach(gaveta => {
         const valor = normalizarNomeGaveta(gaveta);
         if (valor) mapa.set(normalizarTexto(valor), valor);
       });
@@ -824,6 +831,50 @@
       );
     }
 
+    async function carregarOpcoesGavetaSharePoint(tokenInformado = "") {
+      try {
+        const token = tokenInformado || await obterToken();
+        const coluna = await obterColunaGavetaSharePoint(token);
+
+        if (!coluna || !coluna.choice || !Array.isArray(coluna.choice.choices)) {
+          throw new Error("Coluna GAVETA Choice nao encontrada.");
+        }
+
+        opcoesGavetaSharePoint = coluna.choice.choices
+          .map(normalizarNomeGaveta)
+          .filter(Boolean)
+          .filter((valor, indice, lista) => lista.findIndex(item => normalizarTexto(item) === normalizarTexto(valor)) === indice);
+        opcoesGavetaCarregadas = true;
+        renderizarGavetasConfiguracao();
+        return opcoesGavetaSharePoint;
+      } catch (erro) {
+        console.warn("Nao foi possivel carregar opcoes da coluna GAVETA no SharePoint. Usando fallback Gaveta 1 a Gaveta 34.", erro);
+        opcoesGavetaSharePoint = [];
+        opcoesGavetaCarregadas = false;
+        renderizarGavetasConfiguracao();
+        return opcoesGavetasPadrao();
+      }
+    }
+
+    function atualizarInterfacesGaveta() {
+      renderizarGavetasConfiguracao();
+      renderizarGavetasAtivos();
+
+      const selectUpload = document.getElementById("gavetaUpload");
+      if (selectUpload) {
+        const valorAtual = selectUpload.value || "";
+        selectUpload.innerHTML = opcoesGavetaHtml(valorAtual);
+        if (valorAtual) selectUpload.value = valorAtual;
+      }
+
+      const selectPainel = document.getElementById("novaGavetaDocumento");
+      if (selectPainel) {
+        const valorAtual = selectPainel.value || documentoSelecionado?.gaveta || "";
+        selectPainel.innerHTML = opcoesGavetaHtml(valorAtual);
+        if (valorAtual) selectPainel.value = valorAtual;
+      }
+    }
+
     window.cadastrarNovaGaveta = async function () {
       const campo = document.getElementById("novaGavetaConfiguracao");
       const status = document.getElementById("statusCadastroGaveta");
@@ -874,22 +925,15 @@
           throw new Error(await resposta.text());
         }
 
-        preferenciasSistema.gavetasCustomizadas = escolhasNovas.filter(gaveta => !/^Gaveta\s+([1-9]|[12][0-9]|3[0-4])$/i.test(gaveta));
-        salvarPreferenciasSistema();
         if (campo) campo.value = "";
-        atualizarControlesPreferencias();
-        document.getElementById("gavetaUpload") && (document.getElementById("gavetaUpload").innerHTML = opcoesGavetaHtml());
-        if (documentoSelecionado) {
-          const seletorPainel = document.getElementById("novaGavetaDocumento");
-          if (seletorPainel) seletorPainel.innerHTML = opcoesGavetaHtml(documentoSelecionado.gaveta || "");
-        }
-        renderizarGavetasAtivos();
+        await carregarOpcoesGavetaSharePoint(token);
+        atualizarInterfacesGaveta();
         mostrarMensagem("Gaveta cadastrada.");
         if (status) status.textContent = "Gaveta cadastrada com sucesso.";
       } catch (erro) {
         console.error(erro);
-        if (status) status.textContent = "Não foi possível cadastrar a gaveta no SharePoint. Verifique as permissões.";
-        mostrarMensagem("Não foi possível cadastrar a gaveta no SharePoint. Verifique as permissões.", "erro");
+        if (status) status.textContent = "Não foi possível salvar a nova gaveta no SharePoint. Verifique as permissões.";
+        mostrarMensagem("Não foi possível salvar a nova gaveta no SharePoint. Verifique as permissões.", "erro");
       }
     };
 
@@ -3733,6 +3777,7 @@ function renderizarDocumentos(listaArquivos) {
           .filter(item => String(item.fields.FileDirRef || "") === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS`)
           .map(mapear);
 
+        atualizarInterfacesGaveta();
         aplicarListaAtual();
 
         atualizarCentralDuplicidadesSegundoPlano();
@@ -3765,6 +3810,7 @@ function renderizarDocumentos(listaArquivos) {
           <small>${usuario.username || ""}</small>
         `;
 
+        await carregarOpcoesGavetaSharePoint();
         await listarDocumentos();
         agendarTarefaSegundoPlano(carregarDadosDeApoio, 120);
       } else {
