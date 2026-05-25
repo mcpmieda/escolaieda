@@ -37,6 +37,15 @@
     let duplicidadesCarregando = false;
     let versoesSharePointCarregadas = [];
     let versoesSharePointExpandido = false;
+    let filtroGavetaAtual = "";
+    let filtrosAvancados = {
+      semGaveta: false,
+      comAnotacao: false,
+      comDuplicidade: false,
+      enviadosRecentemente: false,
+      alteradosRecentemente: false
+    };
+    let preferenciasSistema = carregarPreferenciasSistema();
 
     const msalConfig = {
       auth: {
@@ -119,9 +128,72 @@
       });
     }
 
+    function ordenarPorModificacao(lista, direcao = "desc") {
+      const ordenada = ordenarPorModificacaoMaisRecente(lista);
+      return direcao === "asc" ? ordenada.reverse() : ordenada;
+    }
+
+    function preferenciasPadraoSistema() {
+      return {
+        limiteRecentes: 20,
+        ordemRecentes: "desc",
+        ordemLixeira: "desc",
+        guiaInicial: "recentes",
+        modoVisual: "confortavel",
+        detalhesCards: "mais",
+        analiseDuplicidadesAuto: "sim",
+        limiteRelatorios: 30
+      };
+    }
+
+    function carregarPreferenciasSistema() {
+      const padrao = preferenciasPadraoSistema();
+      try {
+        const salvo = JSON.parse(localStorage.getItem("arquivoDigitalPreferencias") || "{}");
+        return { ...padrao, ...salvo };
+      } catch {
+        return padrao;
+      }
+    }
+
+    function salvarPreferenciasSistema() {
+      localStorage.setItem("arquivoDigitalPreferencias", JSON.stringify(preferenciasSistema));
+    }
+
+    function aplicarPreferenciasVisuais() {
+      document.body.classList.toggle("modoCompacto", preferenciasSistema.modoVisual === "compacto");
+      document.body.classList.toggle("detalhesReduzidos", preferenciasSistema.detalhesCards === "menos");
+    }
+
     function gavetaOuPadrao(valor) {
       const gaveta = (valor || "").toString().trim();
       return gaveta || "Gaveta nao informada";
+    }
+
+    function chaveGaveta(valor) {
+      return (valor || "").toString().trim() || "Gaveta nao informada";
+    }
+
+    function obterResumoGavetas() {
+      const mapa = new Map();
+      let semGaveta = 0;
+
+      documentosAtivos.forEach(doc => {
+        const gaveta = chaveGaveta(doc.gaveta);
+        if (gaveta === "Gaveta nao informada") semGaveta++;
+        mapa.set(gaveta, (mapa.get(gaveta) || 0) + 1);
+      });
+
+      const usadas = [...mapa.keys()].filter(gaveta => gaveta !== "Gaveta nao informada").length;
+      const maior = [...mapa.entries()]
+        .filter(([gaveta]) => gaveta !== "Gaveta nao informada")
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))[0];
+
+      return {
+        usadas,
+        semGaveta,
+        maiorGaveta: maior ? `${maior[0]} (${maior[1]})` : ""
+      };
     }
 
     function seloGavetaHtml(valor) {
@@ -548,6 +620,13 @@
     function atualizarDashboard() {
       document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
       document.getElementById("dashLixeira").textContent = documentosLixeira ? documentosLixeira.length : 0;
+      const resumoGavetas = obterResumoGavetas();
+      const dashGavetas = document.getElementById("dashGavetas");
+      const infoGavetas = document.getElementById("infoDashGavetas");
+      if (dashGavetas) dashGavetas.textContent = resumoGavetas.usadas;
+      if (infoGavetas) {
+        infoGavetas.textContent = `${resumoGavetas.semGaveta} sem gaveta. Maior: ${resumoGavetas.maiorGaveta || "nenhuma"}`;
+      }
       atualizarCardParesIgnorados();
     }
     async function carregarDadosDeApoio() {
@@ -626,12 +705,146 @@
         : "Digite o nome do aluno ou parte do nome...";
     }
 
+    function atualizarControlesPreferencias() {
+      const campos = {
+        configLimiteRecentes: preferenciasSistema.limiteRecentes,
+        configOrdemRecentes: preferenciasSistema.ordemRecentes,
+        configOrdemLixeira: preferenciasSistema.ordemLixeira,
+        configGuiaInicial: preferenciasSistema.guiaInicial,
+        configModoVisual: preferenciasSistema.modoVisual,
+        configDetalhesCards: preferenciasSistema.detalhesCards,
+        configDuplicidadesAuto: preferenciasSistema.analiseDuplicidadesAuto,
+        configLimiteRelatorios: preferenciasSistema.limiteRelatorios
+      };
+
+      Object.entries(campos).forEach(([id, valor]) => {
+        const campo = document.getElementById(id);
+        if (campo) campo.value = valor;
+      });
+    }
+
+    window.alternarCentralConfiguracoes = function () {
+      const central = document.getElementById("centralConfiguracoes");
+      if (!central) return;
+      central.classList.toggle("aberta");
+      atualizarControlesPreferencias();
+    };
+
+    window.salvarConfiguracoesSistema = function () {
+      preferenciasSistema = {
+        limiteRecentes: Number(document.getElementById("configLimiteRecentes")?.value || 20),
+        ordemRecentes: document.getElementById("configOrdemRecentes")?.value || "desc",
+        ordemLixeira: document.getElementById("configOrdemLixeira")?.value || "desc",
+        guiaInicial: document.getElementById("configGuiaInicial")?.value || "recentes",
+        modoVisual: document.getElementById("configModoVisual")?.value || "confortavel",
+        detalhesCards: document.getElementById("configDetalhesCards")?.value || "mais",
+        analiseDuplicidadesAuto: document.getElementById("configDuplicidadesAuto")?.value || "sim",
+        limiteRelatorios: Number(document.getElementById("configLimiteRelatorios")?.value || 30)
+      };
+
+      salvarPreferenciasSistema();
+      aplicarPreferenciasVisuais();
+      aplicarListaAtual();
+
+      if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
+        if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
+          atualizarCentralDuplicidadesSegundoPlano();
+        }
+      }
+
+      mostrarMensagem("Configuracoes salvas.");
+    };
+
+    window.abrirAreaGavetas = function () {
+      modoListaAtual = "ativos";
+      document.getElementById("campoBusca").value = "";
+      aplicarListaAtual();
+      document.getElementById("areaGavetas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    function renderizarGavetasAtivos() {
+      const area = document.getElementById("areaGavetas");
+      const lista = document.getElementById("listaGavetasAtivos");
+      if (!area || !lista) return;
+
+      area.style.display = modoListaAtual === "ativos" ? "block" : "none";
+
+      if (modoListaAtual !== "ativos") {
+        filtroGavetaAtual = "";
+        return;
+      }
+
+      const mapa = new Map();
+      documentosAtivos.forEach(doc => {
+        const gaveta = chaveGaveta(doc.gaveta);
+        mapa.set(gaveta, (mapa.get(gaveta) || 0) + 1);
+      });
+
+      const entradas = [...mapa.entries()].sort((a, b) => {
+        if (a[0] === "Gaveta nao informada") return -1;
+        if (b[0] === "Gaveta nao informada") return 1;
+        return a[0].localeCompare(b[0], "pt-BR", { numeric: true });
+      });
+
+      lista.innerHTML = `
+        <button class="gavetaCard ${!filtroGavetaAtual ? "ativo" : ""}" type="button" onclick="filtrarPorGaveta('')">
+          <span>Todas as gavetas</span>
+          <strong>${documentosAtivos.length}</strong>
+        </button>
+      ` + entradas.map(([gaveta, total]) => `
+        <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" onclick='filtrarPorGaveta(${JSON.stringify(gaveta)})'>
+          <span>${escaparHtml(gaveta)}</span>
+          <strong>${total}</strong>
+        </button>
+      `).join("");
+    }
+
+    window.filtrarPorGaveta = function (gaveta) {
+      filtroGavetaAtual = gaveta || "";
+      filtrosAvancados.semGaveta = false;
+      renderizarGavetasAtivos();
+      filtrarDocumentos();
+    };
+
+    window.alternarFiltrosAvancados = function () {
+      document.getElementById("filtrosAvancados")?.classList.toggle("aberto");
+    };
+
+    window.aplicarFiltroRapido = function (nomeFiltro) {
+      if (nomeFiltro === "limpar") {
+        filtroGavetaAtual = "";
+        filtrosAvancados = {
+          semGaveta: false,
+          comAnotacao: false,
+          comDuplicidade: false,
+          enviadosRecentemente: false,
+          alteradosRecentemente: false
+        };
+      } else {
+        filtrosAvancados[nomeFiltro] = !filtrosAvancados[nomeFiltro];
+        if (nomeFiltro === "semGaveta" && filtrosAvancados.semGaveta) {
+          filtroGavetaAtual = "";
+        }
+      }
+
+      atualizarBotoesFiltros();
+      renderizarGavetasAtivos();
+      filtrarDocumentos();
+    };
+
+    function atualizarBotoesFiltros() {
+      Object.entries(filtrosAvancados).forEach(([nome, ativo]) => {
+        document.querySelector(`[data-filtro="${nome}"]`)?.classList.toggle("ativo", ativo);
+      });
+    }
+
     function aplicarListaAtual() {
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
         : documentosAtivos;
 
       atualizarBotoesModoLista();
+      renderizarGavetasAtivos();
       filtrarDocumentos();
       atualizarDashboard();
     }
@@ -3073,9 +3286,11 @@ function renderizarDocumentos(listaArquivos) {
 
       const totalFiltrado = listaArquivos.length;
       const listaExibida = modoListaAtual === "recentes" && !termoBusca
-        ? ordenarPorModificacaoMaisRecente(listaArquivos).slice(0, 20)
+        ? ordenarPorModificacao(listaArquivos, preferenciasSistema.ordemRecentes).slice(0, preferenciasSistema.limiteRecentes)
         : modoListaAtual === "recentes"
-          ? ordenarPorModificacaoMaisRecente(listaArquivos)
+          ? ordenarPorModificacao(listaArquivos, preferenciasSistema.ordemRecentes)
+        : modoListaAtual === "na Lixeira"
+          ? ordenarPorModificacao(listaArquivos, preferenciasSistema.ordemLixeira)
         : listaArquivos;
 
       contador.textContent = modoListaAtual === "recentes" && !termoBusca
@@ -3138,13 +3353,71 @@ function renderizarDocumentos(listaArquivos) {
       return mapa;
     }
 
+    function obterIdsDuplicidadePendente() {
+      try {
+        return new Set(gerarParesDuplicidades().flatMap(par => [par.a.id, par.b.id]).filter(Boolean));
+      } catch {
+        return new Set();
+      }
+    }
+
+    function documentoTemAnotacao(doc) {
+      return anotacoesCarregadas.some(item => item.ARQUIVO_ID === doc.id && (item.ANOTACAO || "").trim());
+    }
+
+    function documentoEnviadoRecentemente(doc) {
+      const limite = Date.now() - (30 * 24 * 60 * 60 * 1000);
+      return historicoCarregado.some(item =>
+        item.ARQUIVO_ID === doc.id &&
+        normalizarTexto(item.ACAO || "") === "enviou" &&
+        (new Date(item.DATA_HORA).getTime() || 0) >= limite
+      );
+    }
+
+    function documentoAlteradoRecentemente(doc) {
+      const limite = Date.now() - (30 * 24 * 60 * 60 * 1000);
+      return (new Date(doc.modificado || 0).getTime() || 0) >= limite;
+    }
+
+    function aplicarFiltrosAvancados(lista) {
+      let resultado = lista;
+
+      if (modoListaAtual === "ativos" && filtroGavetaAtual) {
+        resultado = resultado.filter(doc => chaveGaveta(doc.gaveta) === filtroGavetaAtual);
+      }
+
+      if (filtrosAvancados.semGaveta) {
+        resultado = resultado.filter(doc => chaveGaveta(doc.gaveta) === "Gaveta nao informada");
+      }
+
+      if (filtrosAvancados.comAnotacao) {
+        resultado = resultado.filter(documentoTemAnotacao);
+      }
+
+      if (filtrosAvancados.comDuplicidade) {
+        const ids = obterIdsDuplicidadePendente();
+        resultado = resultado.filter(doc => ids.has(doc.id));
+      }
+
+      if (filtrosAvancados.enviadosRecentemente) {
+        resultado = resultado.filter(documentoEnviadoRecentemente);
+      }
+
+      if (filtrosAvancados.alteradosRecentemente) {
+        resultado = resultado.filter(documentoAlteradoRecentemente);
+      }
+
+      return resultado;
+    }
+
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
 
-      const filtrados = documentosCarregados.filter(doc =>
+      const filtradosBusca = documentosCarregados.filter(doc =>
         !termo || normalizarTexto(doc.nome).includes(termo)
       );
 
+      const filtrados = aplicarFiltrosAvancados(filtradosBusca);
       renderizarDocumentos(filtrados);
     }
 
@@ -3204,6 +3477,8 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     async function atualizarTela() {
+      aplicarPreferenciasVisuais();
+      atualizarControlesPreferencias();
       const contas = msalInstance.getAllAccounts();
       const usuario = contas[0];
 
@@ -3216,6 +3491,7 @@ function renderizarDocumentos(listaArquivos) {
       document.getElementById("areaSistema").style.display = usuario ? "block" : "none";
 
       if (usuario) {
+        modoListaAtual = preferenciasSistema.guiaInicial || "recentes";
         document.getElementById("usuario").innerHTML = `
           <strong>Nome:</strong> ${usuario.name || ""}<br>
           <strong>Conta:</strong> ${usuario.username || ""}
@@ -5036,6 +5312,179 @@ function renderizarDocumentos(listaArquivos) {
       margin-top: 4px;
     }
 
+    /* PACOTE2_GAVETAS_CONFIG_FILTROS */
+    .centralConfiguracoes {
+      display: none;
+      margin: 0 0 20px 0;
+      padding: 16px;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(15, 47, 102, .08);
+    }
+
+    .centralConfiguracoes.aberta {
+      display: block;
+    }
+
+    .centralConfiguracoesTopo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .centralConfiguracoesTopo h2,
+    .areaGavetasTopo h3 {
+      margin: 0;
+      color: #0f2f66;
+      font-size: 18px;
+    }
+
+    .gradeConfiguracoes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .gradeConfiguracoes label {
+      display: grid;
+      gap: 6px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .gradeConfiguracoes select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 9px;
+      background: #ffffff;
+    }
+
+    .configuracoesAviso {
+      display: grid;
+      gap: 4px;
+      margin: 10px 0 12px;
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .cardGavetas {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      color: #1f2937;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+    }
+
+    .cardGavetas:hover:not(:disabled) {
+      background: #eef3ff;
+      color: #0f2f66;
+      border-color: #bfdbfe;
+    }
+
+    .cardGavetas small {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .areaGavetas {
+      margin: 14px 0;
+      padding: 14px;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      background: #f8fbff;
+    }
+
+    .areaGavetasTopo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .listaGavetasAtivos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .gavetaCard {
+      display: grid;
+      gap: 5px;
+      text-align: left;
+      background: #ffffff;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: none;
+    }
+
+    .gavetaCard.ativo,
+    .gavetaCard:hover:not(:disabled) {
+      background: #eef3ff;
+      color: #0f2f66;
+      border-color: #bfdbfe;
+    }
+
+    .gavetaCard strong {
+      font-size: 20px;
+    }
+
+    .barraFiltros,
+    .filtrosAvancados {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .filtrosAvancados {
+      display: none;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .filtrosAvancados.aberto {
+      display: flex;
+    }
+
+    .filtrosAvancados button.ativo {
+      background: #0f2f66;
+      color: #ffffff;
+      border-color: #0f2f66;
+    }
+
+    body.modoCompacto .itemArquivo {
+      padding: 10px;
+    }
+
+    body.modoCompacto .cardDash {
+      padding: 12px;
+    }
+
+    body.detalhesReduzidos .itemArquivo > span:not(.seloGaveta):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
+      display: none;
+    }
+
     /* CSS_RESPONSIVIDADE_FASE4 */
     @media (max-width: 1100px) {
       .dashboard {
@@ -5071,6 +5520,8 @@ function renderizarDocumentos(listaArquivos) {
 
       .dashboardTopo,
       .centralUploadTopo,
+      .centralConfiguracoesTopo,
+      .areaGavetasTopo,
       .linhaAnotacao {
         display: grid;
         grid-template-columns: 1fr;
@@ -5109,6 +5560,8 @@ function renderizarDocumentos(listaArquivos) {
       .centralUploadAcoes,
       .confirmacaoFecharUploadAcoes,
       .linhaBotoes,
+      .barraFiltros,
+      .filtrosAvancados.aberto,
       .duplicidadeAcoes {
         display: grid;
         grid-template-columns: 1fr;
@@ -5119,6 +5572,8 @@ function renderizarDocumentos(listaArquivos) {
       .centralUploadAcoes button,
       .confirmacaoFecharUploadAcoes button,
       .linhaBotoes button,
+      .barraFiltros button,
+      .filtrosAvancados button,
       .linhaAnotacao button,
       .duplicidadeAcoes button,
       .centralDuplicidadesTopo button,
@@ -5221,12 +5676,80 @@ function renderizarDocumentos(listaArquivos) {
     <div id="usuario" class="info"></div>
     <div id="mensagemSistema" class="mensagem"></div>
 
-    <div id="areaSistema">
+      <div id="areaSistema">
             <div class="areaUploadNovo">
         <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
+        <button class="secundario" onclick="alternarCentralConfiguracoes()">Configurações</button>
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
         <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
       </div>
+
+      <section id="centralConfiguracoes" class="centralConfiguracoes" aria-label="Central de Configurações">
+        <div class="centralConfiguracoesTopo">
+          <h2>Central de Configurações</h2>
+          <button class="btnFechar" onclick="alternarCentralConfiguracoes()">X</button>
+        </div>
+        <div class="gradeConfiguracoes">
+          <label>Recentes exibidos
+            <select id="configLimiteRecentes">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+          <label>Ordenação Recentes
+            <select id="configOrdemRecentes">
+              <option value="desc">Mais recentes primeiro</option>
+              <option value="asc">Mais antigos primeiro</option>
+            </select>
+          </label>
+          <label>Ordenação Lixeira
+            <select id="configOrdemLixeira">
+              <option value="desc">Mais recentes primeiro</option>
+              <option value="asc">Mais antigos primeiro</option>
+            </select>
+          </label>
+          <label>Guia inicial
+            <select id="configGuiaInicial">
+              <option value="recentes">Recentes</option>
+              <option value="ativos">Ativos</option>
+              <option value="na Lixeira">Lixeira</option>
+            </select>
+          </label>
+          <label>Visual
+            <select id="configModoVisual">
+              <option value="confortavel">Confortável</option>
+              <option value="compacto">Compacto</option>
+            </select>
+          </label>
+          <label>Detalhes nos cards
+            <select id="configDetalhesCards">
+              <option value="mais">Mostrar mais detalhes</option>
+              <option value="menos">Mostrar menos detalhes</option>
+            </select>
+          </label>
+          <label>Análise de duplicidades ao abrir
+            <select id="configDuplicidadesAuto">
+              <option value="sim">Ativar</option>
+              <option value="nao">Desativar</option>
+            </select>
+          </label>
+          <label>Registros nos relatórios
+            <select id="configLimiteRelatorios">
+              <option value="30">30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+        <div class="configuracoesAviso">
+          <strong>Acesso de usuários</strong>
+          <span>Controle de acesso avançado deve ser feito por permissões Microsoft/SharePoint. Esta tela usa apenas preferências locais.</span>
+        </div>
+        <button class="principal" onclick="salvarConfiguracoesSistema()">Salvar configurações</button>
+      </section>
 
       <section id="centralUpload" class="centralUpload" aria-label="Central de Upload">
         <div class="centralUploadTopo">
@@ -5305,6 +5828,12 @@ function renderizarDocumentos(listaArquivos) {
           <strong id="dashLixeira">0</strong>
         </div>
 
+        <button class="cardDash cardGavetas" type="button" onclick="abrirAreaGavetas()">
+          <span>Gavetas</span>
+          <strong id="dashGavetas">0</strong>
+          <small id="infoDashGavetas">0 sem gaveta.</small>
+        </button>
+
         <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta">
           <div class="centralDuplicidadesTopo">
             <div>
@@ -5342,6 +5871,26 @@ function renderizarDocumentos(listaArquivos) {
         placeholder="Digite o nome do aluno ou parte do nome..."
         oninput="filtrarDocumentos()"
       >
+
+      <section id="areaGavetas" class="areaGavetas" style="display:none">
+        <div class="areaGavetasTopo">
+          <h3>Gavetas dos documentos ativos</h3>
+          <button class="secundario" onclick="filtrarPorGaveta('')">Ver todos</button>
+        </div>
+        <div id="listaGavetasAtivos" class="listaGavetasAtivos"></div>
+      </section>
+
+      <div class="barraFiltros">
+        <button class="secundario" onclick="alternarFiltrosAvancados()">Filtros avançados</button>
+        <button class="secundario" onclick="aplicarFiltroRapido('limpar')">Limpar filtros</button>
+      </div>
+      <div id="filtrosAvancados" class="filtrosAvancados">
+        <button class="secundario" data-filtro="semGaveta" onclick="aplicarFiltroRapido('semGaveta')">Sem gaveta</button>
+        <button class="secundario" data-filtro="comAnotacao" onclick="aplicarFiltroRapido('comAnotacao')">Com anotação</button>
+        <button class="secundario" data-filtro="comDuplicidade" onclick="aplicarFiltroRapido('comDuplicidade')">Com duplicidade</button>
+        <button class="secundario" data-filtro="enviadosRecentemente" onclick="aplicarFiltroRapido('enviadosRecentemente')">Enviados recentemente</button>
+        <button class="secundario" data-filtro="alteradosRecentemente" onclick="aplicarFiltroRapido('alteradosRecentemente')">Alterados recentemente</button>
+      </div>
 
       <div id="contadorResultados" class="contador">Carregando...</div>
 

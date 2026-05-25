@@ -1,0 +1,48 @@
+PASSO 230 - PACOTE 2 GAVETAS CONFIGURACOES E FILTROS
+
+Data: 2026-05-25
+
+Pedido:
+
+- Executar pacote 2 das melhorias finais.
+- Adicionar gavetas visuais, configuracoes locais, filtros e ordenacao.
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracoes:
+
+- Criado card Gavetas no dashboard.
+- Criada area visual de gavetas na guia Ativos usando metadado GAVETA.
+- Gaveta nao informada aparece como grupo visual.
+- Clique em gaveta filtra documentos ativos.
+- Criada Central de Configuracoes com localStorage.
+- Configuracoes incluem limite de Recentes, ordenacao, guia inicial, visual, detalhes dos cards, duplicidades ao abrir e limite de relatorios.
+- Limite fixo de 20 documentos recentes passou a usar configuracao local.
+- Ordenacao de Recentes e Lixeira passou a usar configuracao local.
+- Criados filtros avancados: sem gaveta, com anotacao, com duplicidade, enviados recentemente e alterados recentemente.
+- Criado aviso de acesso de usuarios indicando que seguranca real deve ser por Microsoft/SharePoint.
+
+Areas preservadas:
+
+- SharePoint/Graph.
+- Regras de upload.
+- Gaveta salva no SharePoint.
+- Mesclar.
+- Substituir.
+- Renomear.
+- Lixeira/restaurar.
+- Anotacoes.
+- Historico individual.
+- Calculo de duplicidades.
+
+Validacao:
+
+- JS module syntax OK.
+- JS OK com AsyncFunction.
+- git diff --check sem erros.
+
+Commit:
+
+- Adicionar gavetas configuracoes e filtros finais
