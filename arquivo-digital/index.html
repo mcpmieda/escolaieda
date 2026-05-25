@@ -31,7 +31,7 @@
     let timerSalvarAnotacao = null;
     let timerMensagemPainel = null;
     let anotacaoUltimoTextoSalvo = "";
-    let documentosSelecionadosMesclar = new Set();
+    let arquivoLocalMesclar = null;
     let mesclagemEmAndamento = false;
 
     const msalConfig = {
@@ -1122,6 +1122,7 @@
       if (texto.toUpperCase() === "ARQUIVOU") return "FOI PARA LIXEIRA";
       if (texto.toUpperCase() === "ALTEROU_GAVETA") return "ALTEROU GAVETA";
       if (texto.toUpperCase() === "MESCLADO") return "MESCLADO";
+      if (texto.toUpperCase() === "MESCLOU") return "MESCLOU";
       return texto;
     }
 async function carregarHistoricoDocumento(documento) {
@@ -1654,82 +1655,9 @@ try {
       }
     };
 
-    function obterChaveDocumentoMesclar(documento) {
-      return documento?.id || documento?.listItemId || documento?.nome || "";
-    }
-
-    function obterDocumentosSecundariosMesclar() {
-      return (documentosAtivos || [])
-        .filter(doc => doc && doc.status !== "ARQUIVADO")
-        .filter(doc => obterChaveDocumentoMesclar(doc) !== obterChaveDocumentoMesclar(documentoSelecionado));
-    }
-
-    function obterSelecionadosMesclar() {
-      const selecionados = documentosSelecionadosMesclar || new Set();
-      return obterDocumentosSecundariosMesclar()
-        .filter(doc => selecionados.has(obterChaveDocumentoMesclar(doc)));
-    }
-
-    function renderizarListaMesclar() {
-      const lista = document.getElementById("listaDocumentosMesclar");
-      const contador = document.getElementById("contadorMesclar");
-      const busca = normalizarTexto(document.getElementById("buscaMesclar")?.value || "");
-      if (!lista || !contador) return;
-
-      const todos = obterDocumentosSecundariosMesclar();
-      const filtrados = busca
-        ? todos.filter(doc => normalizarTexto(doc.nome).includes(busca))
-        : todos.slice(0, 60);
-
-      const selecionados = obterSelecionadosMesclar();
-      contador.textContent = `${selecionados.length} selecionado(s). Os arquivos secundários continuarão ativos.`;
-
-      if (!todos.length) {
-        lista.innerHTML = "<p>Nenhum outro PDF ativo disponível para mesclar.</p>";
-        return;
-      }
-
-      if (!filtrados.length) {
-        lista.innerHTML = "<p>Nenhum PDF encontrado nessa busca.</p>";
-        return;
-      }
-
-      lista.innerHTML = filtrados.map(doc => {
-        const chave = obterChaveDocumentoMesclar(doc);
-        const marcado = documentosSelecionadosMesclar.has(chave) ? " checked" : "";
-        const gaveta = doc.gaveta ? ` · ${escaparHtml(doc.gaveta)}` : "";
-        return `
-          <label class="opcaoMesclar">
-            <input type="checkbox" value="${escaparHtml(chave)}"${marcado} onchange="alternarDocumentoMesclar(this)">
-            <span>
-              <strong>${escaparHtml(doc.nome)}</strong>
-              <small>${escaparHtml(doc.modificado || "Sem data")}${gaveta}</small>
-            </span>
-          </label>
-        `;
-      }).join("");
-    }
-
-    window.alternarDocumentoMesclar = function (checkbox) {
-      const chave = checkbox?.value || "";
-      if (!chave) return;
-
-      if (checkbox.checked) {
-        documentosSelecionadosMesclar.add(chave);
-      } else {
-        documentosSelecionadosMesclar.delete(chave);
-      }
-
-      renderizarListaMesclar();
-    };
-
-    window.filtrarDocumentosMesclar = function () {
-      renderizarListaMesclar();
-    };
-
     window.prepararMesclar = function () {
       if (!documentoSelecionado) {
-        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        mostrarMensagemPainel("Selecione um arquivo antes de mesclar.", "erro");
         return;
       }
 
@@ -1744,11 +1672,13 @@ try {
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("boxAlterarGaveta").style.display = "none";
       document.getElementById("boxMesclar").style.display = "block";
-      document.getElementById("buscaMesclar").value = "";
       document.getElementById("motivoMesclar").value = "";
-      documentosSelecionadosMesclar = new Set();
-      renderizarListaMesclar();
-      mostrarMensagemPainel("Selecione os PDFs que entrarão no arquivo principal.");
+      arquivoLocalMesclar = null;
+      document.getElementById("arquivoLocalMesclar").value = "";
+      document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
+      document.getElementById("statusMesclar").textContent = "";
+      mostrarMensagemPainel("Escolha um PDF do computador para adicionar ao final do arquivo atual.");
+      document.getElementById("arquivoLocalMesclar").click();
     };
 
     window.cancelarMesclar = function () {
@@ -1757,13 +1687,52 @@ try {
         return;
       }
 
-      documentosSelecionadosMesclar = new Set();
+      arquivoLocalMesclar = null;
       document.getElementById("boxMesclar").style.display = "none";
-      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("arquivoLocalMesclar").value = "";
+      document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
       document.getElementById("motivoMesclar").value = "";
+      document.getElementById("statusMesclar").textContent = "";
     };
 
-    async function baixarPdfDocumentoParaMesclar(documento, token) {
+    window.selecionarArquivoLocalMesclar = function (input) {
+      const arquivo = input?.files && input.files[0];
+      arquivoLocalMesclar = null;
+
+      if (!arquivo) {
+        document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
+        return;
+      }
+
+      if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
+        input.value = "";
+        document.getElementById("arquivoSelecionadoMesclar").textContent = "Selecione somente arquivo PDF.";
+        mostrarMensagemPainel("Selecione somente arquivo PDF.", "erro");
+        return;
+      }
+
+      arquivoLocalMesclar = arquivo;
+      document.getElementById("arquivoSelecionadoMesclar").textContent = `${arquivo.name} (${Math.round(arquivo.size / 1024)} KB)`;
+      document.getElementById("statusMesclar").textContent = "";
+      mostrarMensagemPainel("Informe o motivo e confirme a mesclagem.");
+    };
+
+    window.escolherArquivoLocalMesclar = function () {
+      if (mesclagemEmAndamento) {
+        mostrarMensagemPainel("A mesclagem está em andamento. Aguarde terminar.", "erro");
+        return;
+      }
+
+      document.getElementById("arquivoLocalMesclar").click();
+    };
+
+    function atualizarStatusMesclar(texto) {
+      const status = document.getElementById("statusMesclar");
+      if (status) status.textContent = texto || "";
+      if (texto) mostrarMensagemPainel(texto);
+    }
+
+    async function baixarPdfAtualParaMesclar(documento, token) {
       const driveItem = await obterDriveItemDoDocumento(documento);
       const driveId = driveItem.parentReference?.driveId || documento.driveId;
       const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}/content`;
@@ -1781,16 +1750,21 @@ try {
       return resposta.arrayBuffer();
     }
 
-    async function criarPdfMesclado(documentos, token) {
+    async function criarPdfMescladoComArquivoLocal(documentoAtual, arquivoLocal, token) {
       const pdfFinal = await PDFDocument.create();
+      atualizarStatusMesclar("Lendo PDF atual...");
+      const bytesAtual = await baixarPdfAtualParaMesclar(documentoAtual, token);
+      const pdfAtual = await PDFDocument.load(bytesAtual, { ignoreEncryption: true });
+      const paginasAtuais = await pdfFinal.copyPages(pdfAtual, pdfAtual.getPageIndices());
+      paginasAtuais.forEach(pagina => pdfFinal.addPage(pagina));
 
-      for (const documento of documentos) {
-        const bytes = await baixarPdfDocumentoParaMesclar(documento, token);
-        const pdfOrigem = await PDFDocument.load(bytes, { ignoreEncryption: true });
-        const paginas = await pdfFinal.copyPages(pdfOrigem, pdfOrigem.getPageIndices());
-        paginas.forEach(pagina => pdfFinal.addPage(pagina));
-      }
+      atualizarStatusMesclar("Lendo PDF selecionado...");
+      const bytesLocal = await arquivoLocal.arrayBuffer();
+      const pdfLocal = await PDFDocument.load(bytesLocal, { ignoreEncryption: true });
+      const paginasLocais = await pdfFinal.copyPages(pdfLocal, pdfLocal.getPageIndices());
 
+      atualizarStatusMesclar("Mesclando páginas...");
+      paginasLocais.forEach(pagina => pdfFinal.addPage(pagina));
       return pdfFinal.save();
     }
 
@@ -1805,16 +1779,11 @@ try {
         return;
       }
 
-      const secundarios = obterSelecionadosMesclar();
+      const arquivo = arquivoLocalMesclar;
       const motivo = (document.getElementById("motivoMesclar").value || "").trim();
 
-      if (!secundarios.length) {
-        mostrarMensagemPainel("Selecione pelo menos um PDF para mesclar.", "erro");
-        return;
-      }
-
-      if (secundarios.length > 10) {
-        mostrarMensagemPainel("Nesta primeira versão, selecione no máximo 10 PDFs por mesclagem.", "erro");
+      if (!arquivo) {
+        mostrarMensagemPainel("Selecione um PDF do computador para mesclar.", "erro");
         return;
       }
 
@@ -1823,9 +1792,8 @@ try {
         return;
       }
 
-      const nomesSecundarios = secundarios.map(doc => `- ${doc.nome}`).join("\n");
       const confirmar = confirm(
-        `Mesclar PDFs no arquivo principal:\n\n${documentoSelecionado.nome}\n\nArquivos que serão adicionados:\n${nomesSecundarios}\n\nOs arquivos secundários continuarão ativos nesta versão.\n\nDeseja continuar?`
+        `Arquivo atual:\n${documentoSelecionado.nome}\n\nPDF que será adicionado:\n${arquivo.name}\n\nResultado:\nAs páginas do PDF escolhido serão adicionadas ao final do arquivo atual.\nO arquivo ${documentoSelecionado.nome} será atualizado no SharePoint, mantendo o mesmo nome.\n\nDeseja continuar?`
       );
 
       if (!confirmar) {
@@ -1836,16 +1804,16 @@ try {
         mesclagemEmAndamento = true;
         const botao = document.getElementById("btnConfirmarMesclar");
         if (botao) botao.disabled = true;
-        mostrarMensagemPainel("Mesclando PDFs. Aguarde...");
+        atualizarStatusMesclar("Lendo PDF atual...");
 
         const token = await obterToken();
         const principal = documentoSelecionado;
-        const documentosParaMesclar = [principal, ...secundarios];
-        const pdfMesclado = await criarPdfMesclado(documentosParaMesclar, token);
+        const pdfMesclado = await criarPdfMescladoComArquivoLocal(principal, arquivo, token);
         const driveItemPrincipal = await obterDriveItemDoDocumento(principal);
         const driveIdPrincipal = driveItemPrincipal.parentReference?.driveId || principal.driveId;
         const url = `https://graph.microsoft.com/v1.0/drives/${driveIdPrincipal}/items/${driveItemPrincipal.id}/content`;
 
+        atualizarStatusMesclar("Salvando arquivo no SharePoint...");
         const resposta = await fetch(url, {
           method: "PUT",
           headers: {
@@ -1859,19 +1827,22 @@ try {
           throw new Error(await resposta.text());
         }
 
+        atualizarStatusMesclar("Registrando histórico...");
         await registrarHistorico(
           principal,
-          "MESCLADO",
-          `Mesclado com ${secundarios.length} arquivo(s): ${secundarios.map(doc => doc.nome).join("; ")}. Motivo: ${motivo}. Arquivos secundarios permanecem ativos.`
+          "MESCLOU",
+          `PDF mesclado com arquivo local: ${arquivo.name}. Motivo: ${motivo}.`
         );
 
-        documentosSelecionadosMesclar = new Set();
+        arquivoLocalMesclar = null;
         document.getElementById("boxMesclar").style.display = "none";
-        document.getElementById("buscaMesclar").value = "";
+        document.getElementById("arquivoLocalMesclar").value = "";
+        document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
         document.getElementById("motivoMesclar").value = "";
+        atualizarStatusMesclar("Concluído.");
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagemPainel("PDF mesclado com sucesso. Confira o arquivo final antes de mover originais para a Lixeira.");
+        mostrarMensagemPainel("PDF mesclado com sucesso. O arquivo atual foi atualizado mantendo o mesmo nome.");
       } catch (erro) {
         console.error(erro);
         mostrarMensagemPainel("Erro ao mesclar PDFs. Veja o console para detalhes.", "erro");
@@ -2436,9 +2407,11 @@ try {
       document.getElementById("novaGavetaDocumento").value = "";
       document.getElementById("motivoAlterarGaveta").value = "";
       document.getElementById("boxMesclar").style.display = "none";
-      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("arquivoLocalMesclar").value = "";
+      document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
       document.getElementById("motivoMesclar").value = "";
-      documentosSelecionadosMesclar = new Set();
+      document.getElementById("statusMesclar").textContent = "";
+      arquivoLocalMesclar = null;
 
       carregarNomesParecidos(documento);
       await carregarHistoricoDocumento(documento);
@@ -2465,9 +2438,11 @@ try {
       document.getElementById("novaGavetaDocumento").value = "";
       document.getElementById("motivoAlterarGaveta").value = "";
       document.getElementById("boxMesclar").style.display = "none";
-      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("arquivoLocalMesclar").value = "";
+      document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
       document.getElementById("motivoMesclar").value = "";
-      documentosSelecionadosMesclar = new Set();
+      document.getElementById("statusMesclar").textContent = "";
+      arquivoLocalMesclar = null;
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
@@ -3655,63 +3630,24 @@ function renderizarDocumentos(listaArquivos) {
       background: #64748b;
     }
 
-    .contadorMesclar {
+    .arquivoSelecionadoMesclar,
+    .statusMesclar {
       margin: 0 0 8px;
       font-size: 12px;
       font-weight: 700;
       color: #334155;
     }
 
-    .listaDocumentosMesclar {
-      display: grid;
-      gap: 8px;
-      max-height: 240px;
-      overflow: auto;
-      margin: 0 0 10px;
-      padding: 8px;
+    .arquivoSelecionadoMesclar {
+      padding: 8px 10px;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       background: #ffffff;
-    }
-
-    .listaDocumentosMesclar p {
-      margin: 0;
-      color: #64748b;
-      font-size: 13px;
-    }
-
-    .opcaoMesclar {
-      display: grid;
-      grid-template-columns: 18px 1fr;
-      gap: 8px;
-      align-items: flex-start;
-      padding: 8px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .opcaoMesclar input {
-      width: 16px;
-      margin: 2px 0 0;
-    }
-
-    .opcaoMesclar strong,
-    .opcaoMesclar small {
-      display: block;
-    }
-
-    .opcaoMesclar strong {
-      color: #0f172a;
-      font-size: 13px;
-      line-height: 1.3;
       overflow-wrap: anywhere;
     }
 
-    .opcaoMesclar small {
-      margin: 3px 0 0;
-      color: #64748b;
-      font-size: 11px;
+    .statusMesclar {
+      color: #0f766e;
     }
 
     .anotacaoBox {
@@ -4719,14 +4655,13 @@ function renderizarDocumentos(listaArquivos) {
 
       <div id="boxMesclar" class="formAcao alertaAcao">
         <h3>Mesclar arquivos</h3>
-        <p>O arquivo aberto no painel será o principal. Os PDFs escolhidos serão adicionados a ele e continuarão ativos.</p>
-        <input id="buscaMesclar" type="search" placeholder="Buscar PDFs ativos para mesclar..." oninput="filtrarDocumentosMesclar()">
-        <div id="contadorMesclar" class="contadorMesclar">0 selecionado(s).</div>
-        <div id="listaDocumentosMesclar" class="listaDocumentosMesclar">
-          <p>Nenhum PDF carregado.</p>
-        </div>
+        <p>Escolha um PDF do computador. As páginas dele serão adicionadas ao final do arquivo atual.</p>
+        <input id="arquivoLocalMesclar" type="file" accept="application/pdf,.pdf" onchange="selecionarArquivoLocalMesclar(this)" style="display:none">
+        <button class="secundario" onclick="escolherArquivoLocalMesclar()">Escolher PDF do computador</button>
+        <div id="arquivoSelecionadoMesclar" class="arquivoSelecionadoMesclar">Nenhum PDF selecionado.</div>
         <textarea id="motivoMesclar" placeholder="Informe o motivo da mesclagem..."></textarea>
-        <small>Depois de mesclar, confira o PDF final antes de mover originais para a Lixeira.</small>
+        <small>O nome do arquivo atual será mantido e o SharePoint deverá preservar versões anteriores.</small>
+        <div id="statusMesclar" class="statusMesclar"></div>
         <div class="linhaBotoes">
           <button id="btnConfirmarMesclar" onclick="confirmarMesclar()">Confirmar mesclagem</button>
           <button class="secundario" onclick="cancelarMesclar()">Cancelar</button>
