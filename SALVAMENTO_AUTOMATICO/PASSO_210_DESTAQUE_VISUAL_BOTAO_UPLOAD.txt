@@ -1,0 +1,42 @@
+PASSO 210 - DESTAQUE VISUAL DO BOTAO ENVIAR UPLOAD
+
+Data: 2026-05-25
+
+Pedido recebido via open AQUI:
+
+Fazer apenas ajuste visual pequeno e seguro na Central de Upload.
+
+Diagnostico antes da alteracao:
+
+- Ultimo commit: ff5acaf Adicionar fechamento seguro e progresso na Central de Upload.
+- Git limpo.
+- Seletor do botao de envio encontrado: #btnConfirmarUploadCentral.
+- Seletor do X encontrado: #btnFecharCentralUpload com classe .btnFecharUpload.
+
+Arquivo alterado:
+
+- arquivo-digital/index.html
+
+Alteracoes realizadas somente em CSS:
+
+- Botao Enviar PDF(s) ficou vermelho forte (#dc2626), texto branco, negrito, borda arredondada e sombra leve.
+- Hover do botao Enviar PDF(s) escurece para #b91c1c.
+- Estado disabled do botao Enviar PDF(s) ficou visualmente bloqueado.
+- Botao X da Central de Upload ficou mais visivel, com fundo vermelho claro, texto vermelho escuro, borda e sombra leve.
+- Hover do X ficou mais contrastado.
+
+Nao alterado:
+
+- Nenhum HTML.
+- Nenhuma funcao.
+- Nenhum evento.
+- Nenhuma logica de upload, Graph, SharePoint, login, gaveta, motivo, progresso ou historico.
+
+Validacao:
+
+- JS module syntax OK.
+- git diff --check sem erros.
+
+Resultado:
+
+Central de Upload manteve o comportamento atual, com botao de envio mais destacado e X mais visivel.

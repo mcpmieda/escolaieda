@@ -3758,6 +3758,15 @@ function renderizarDocumentos(listaArquivos) {
       min-height: 38px;
       padding: 8px 12px;
       font-weight: 800;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.14);
+    }
+
+    .btnFecharUpload:hover {
+      background: #fecaca;
+      color: #7f1d1d;
     }
 
     .centralUploadAcoes {
@@ -3765,6 +3774,26 @@ function renderizarDocumentos(listaArquivos) {
       gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
+    }
+
+    #btnConfirmarUploadCentral {
+      background: #dc2626;
+      color: #ffffff;
+      border: 1px solid #b91c1c;
+      border-radius: 10px;
+      font-weight: 800;
+      box-shadow: 0 6px 14px rgba(220, 38, 38, 0.24);
+    }
+
+    #btnConfirmarUploadCentral:hover:not(:disabled) {
+      background: #b91c1c;
+      color: #ffffff;
+    }
+
+    #btnConfirmarUploadCentral:disabled {
+      opacity: 0.72;
+      cursor: not-allowed;
+      box-shadow: none;
     }
 
     @media (max-width: 860px) {
