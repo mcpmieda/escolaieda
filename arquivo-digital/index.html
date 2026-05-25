@@ -111,6 +111,16 @@
         return (a.nome || "").localeCompare(b.nome || "", "pt-BR");
       });
     }
+
+    function gavetaOuPadrao(valor) {
+      const gaveta = (valor || "").toString().trim();
+      return gaveta || "Gaveta nao informada";
+    }
+
+    function seloGavetaHtml(valor) {
+      return `<span class="seloGaveta">${escaparHtml(gavetaOuPadrao(valor))}</span>`;
+    }
+
     function formatarData(data) {
       if (!data) return "";
       try {
@@ -2086,6 +2096,8 @@ try {
       const painelCaminho = document.getElementById("painelCaminho");
       if (painelCaminho) painelCaminho.textContent = documento.caminho || "";
       document.getElementById("painelStatus").textContent = documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
+      const painelGaveta = document.getElementById("painelGaveta");
+      if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(documento.gaveta);
 
       const estaArquivado = documento.status === "ARQUIVADO";
       document.getElementById("btnRenomear").style.display = estaArquivado ? "none" : "inline-block";
@@ -2378,6 +2390,7 @@ function renderizarDocumentos(listaArquivos) {
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
             <strong>${item.nome}</strong>
+            ${seloGavetaHtml(item.gaveta)}
             <span>Clique para ver detalhes, histórico e ações</span>
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoHistorico(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${formatarData(item.modificado)}</span>` : ""}
@@ -2431,7 +2444,7 @@ function renderizarDocumentos(listaArquivos) {
       try {
         const token = await obterToken();
 
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType)&$top=999`;
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType,GAVETA)&$top=999`;
 
         const itens = await buscarTodosItens(url, token);
 
@@ -2456,7 +2469,8 @@ function renderizarDocumentos(listaArquivos) {
             driveItemId: "",
             driveId: "",
             link: "https://eduieda.sharepoint.com" + caminho,
-            modificado: item.fields?.Modified || item.lastModifiedDateTime || ""
+            modificado: item.fields?.Modified || item.lastModifiedDateTime || "",
+            gaveta: item.fields?.GAVETA || ""
           };
         };
 
@@ -2783,6 +2797,20 @@ function renderizarDocumentos(listaArquivos) {
       display: block;
       font-size: 13px;
       color: #64748b;
+    }
+
+    .seloGaveta {
+      display: inline-block !important;
+      width: fit-content;
+      margin: 2px 0 8px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e8f5ee;
+      color: #17623a !important;
+      border: 1px solid #b7e0c7;
+      font-size: 12px !important;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .linhaMovimentacaoArquivo {
@@ -3583,6 +3611,11 @@ function renderizarDocumentos(listaArquivos) {
       <div class="campoInfo">
         <strong>Status</strong>
         <span id="painelStatus"></span>
+      </div>
+
+      <div class="campoInfo">
+        <strong>Localização física</strong>
+        <span id="painelGaveta"></span>
       </div>
 
       <div class="acoes">
