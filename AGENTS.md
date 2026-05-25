@@ -2398,7 +2398,9 @@ Funcionalidades consideradas prontas na Fase 1:
 - Central de Duplicidades no dashboard/painel esquerdo;
 - dashboard ajustado.
 
-### 32.1. Fase 2
+### 32.1. Fase 2 - Mesclar Arquivos
+
+Data: 2026-05-25
 
 A funcao:
 
@@ -2406,25 +2408,73 @@ A funcao:
 Mesclar
 ```
 
-nao faz parte da Fase 1.
+foi implementada e testada no site publicado.
 
-O botao continua desativado de proposito.
+Comportamento correto aprovado:
 
-Mesclar Arquivos deve ser tratado como Fase 2, com diagnostico proprio antes de qualquer implementacao.
+- usuario abre um PDF no painel lateral;
+- clica em `Mesclar`;
+- sistema abre seletor de arquivo do computador;
+- usuario escolhe 1 PDF local;
+- motivo da mesclagem e obrigatorio;
+- sistema baixa o PDF atual do SharePoint;
+- sistema le o PDF local no navegador;
+- paginas do PDF atual ficam primeiro;
+- paginas do PDF local sao adicionadas ao final;
+- resultado substitui o conteudo do mesmo arquivo atual no SharePoint;
+- nome e caminho do arquivo atual sao mantidos;
+- historico registra `MESCLOU`;
+- versoes do SharePoint mostram a atualizacao quando aplicavel;
+- painel lateral continua no mesmo arquivo.
 
-Cuidados para a Fase 2:
+Decisoes importantes:
 
-- definir arquivo principal;
-- definir arquivos que entram na mesclagem;
-- exigir confirmacao e motivo;
-- preservar historico;
-- decidir o destino dos originais;
-- evitar mesclar pessoas diferentes;
-- avaliar biblioteca segura para manipular PDFs;
-- testar no site publicado antes de criar ponto seguro.
+- Mesclar nao escolhe outro documento ja existente no Arquivo Digital.
+- Mesclar nao cria arquivo novo separado.
+- Mesclar nao muda o nome do arquivo atual.
+- Mesclar nao apaga documentos automaticamente.
+- Mesclar nao mexe na Central de Upload.
+- Mesclar bloqueia documento na Lixeira com a mensagem para restaurar antes.
 
-Regra atual:
+Biblioteca usada no navegador:
 
 ```text
-Nao iniciar Mesclar antes de um diagnostico proprio da Fase 2.
+pdf-lib 1.17.1
+```
+
+Commits:
+
+```text
+6c2cf6b Registrar diagnostico inicial da fase 2
+acfd19f Implementar mesclar arquivos inicial
+9e1d97b Corrigir mesclagem com PDF local
+```
+
+Relatorios:
+
+```text
+diagnosticos\DIAGNOSTICO_FASE2_MESCLAR_ARQUIVOS_20260525.md
+diagnosticos\RELATORIO_IMPLEMENTACAO_MESCLAR_FASE2_20260525.md
+diagnosticos\RELATORIO_CORRECAO_MESCLAR_PDF_LOCAL_20260525.md
+```
+
+Registros:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_214_DIAGNOSTICO_FASE2_MESCLAR_ARQUIVOS.txt
+SALVAMENTO_AUTOMATICO\PASSO_215_IMPLEMENTAR_MESCLAR_FASE2_INICIAL.txt
+SALVAMENTO_AUTOMATICO\PASSO_216_CORRIGIR_MESCLAR_PDF_LOCAL.txt
+```
+
+Teste do usuario:
+
+```text
+DEU CERTO. FUNCIONOU.
+ESTÁ PERFEITO DO JEITO QUE ESTÁ.
+```
+
+Ponto seguro da Fase 2:
+
+```text
+ponto-seguro-mesclar-pdf-local-ok
 ```
