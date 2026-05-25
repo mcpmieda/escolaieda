@@ -1,0 +1,53 @@
+PASSO 221 - CONTRASTE HOVER CARDS DOCUMENTOS
+
+Data: 2026-05-25 14:46:24
+
+Pedido via OPEN AQUI:
+
+- Corrigir apenas a legibilidade visual do card de documento ao passar o mouse.
+- Nao alterar logica, JS, HTML ou areas sensiveis.
+
+Estado inicial:
+
+- Git limpo.
+- Commit anterior: 5e7719e Aprimorar visual profissional da interface.
+
+Seletores identificados:
+
+- .itemArquivo
+- .itemArquivo:hover
+- .itemArquivo strong
+- .itemArquivo span
+- .seloGaveta
+- .linhaMovimentacaoArquivo
+- .linhaDataArquivo
+
+Backup:
+
+- backups_locais\index_backup_antes_contraste_hover_cards_20260525.html
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracao:
+
+- Hover do card manteve fundo azul escuro.
+- Nome do arquivo no hover ficou branco.
+- Texto auxiliar no hover ficou azul claro.
+- Texto Atualizado ficou azul claro e legivel.
+- Faixa de ultima movimentacao ficou com fundo claro e texto azul escuro.
+- Tag da gaveta manteve fundo claro e texto verde/escuro.
+- Opacity sobrescrita para 1 nos elementos do hover.
+
+Validacao:
+
+- JS OK.
+- git diff --check sem erros.
+- Diff limitado ao CSS do hover dos cards.
+
+Proximo teste:
+
+- Abrir site com Ctrl + F5.
+- Passar mouse nos cards.
+- Confirmar legibilidade do nome, gaveta, movimentacao e data de atualizacao.

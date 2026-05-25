@@ -3456,9 +3456,39 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .itemArquivo:hover {
-      background: #ffffff;
-      border-color: #b7c7dd;
-      box-shadow: 0 8px 20px rgba(15, 47, 102, .08);
+      background: #0f2f66;
+      color: #ffffff;
+      border-color: #0f2f66;
+      box-shadow: 0 10px 24px rgba(15, 47, 102, .20);
+      opacity: 1;
+    }
+
+    .itemArquivo:hover strong {
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    .itemArquivo:hover span {
+      color: #dbeafe;
+      opacity: 1;
+    }
+
+    .itemArquivo:hover .linhaDataArquivo {
+      color: #bfdbfe !important;
+      opacity: 1;
+    }
+
+    .itemArquivo:hover .linhaMovimentacaoArquivo {
+      background: #eff6ff;
+      color: #0f2f66 !important;
+      opacity: 1;
+    }
+
+    .itemArquivo:hover .seloGaveta {
+      background: #e8f5ee;
+      color: #17623a !important;
+      border-color: #b7e0c7;
+      opacity: 1;
     }
 
     .itemArquivo strong {
