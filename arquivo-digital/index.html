@@ -2340,6 +2340,10 @@ try {
     }
 
     let arquivosCentralUpload = [];
+    let uploadEmAndamento = false;
+    let uploadConcluidoComSucesso = false;
+    let uploadTeveErro = false;
+    let statusArquivosUpload = [];
 
 window.abrirSeletorNovoDocumento = function () {
       abrirCentralUpload();
@@ -2350,11 +2354,92 @@ window.abrirSeletorNovoDocumento = function () {
       if (!central) return;
       central.classList.add("aberta");
       document.getElementById("gavetaUpload").innerHTML = opcoesGavetaHtml();
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
       renderizarListaCentralUpload();
     };
 
-    window.fecharCentralUpload = function () {
+    function centralUploadTemRascunho() {
+      const gaveta = (document.getElementById("gavetaUpload")?.value || "").trim();
+      const motivo = (document.getElementById("motivoUpload")?.value || "").trim();
+      return arquivosCentralUpload.length > 0 || !!gaveta || !!motivo;
+    }
+
+    function descartarCentralUpload() {
+      arquivosCentralUpload = [];
+      statusArquivosUpload = [];
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      document.getElementById("motivoUpload").value = "";
+      document.getElementById("gavetaUpload").value = "";
+      const btnConcluir = document.getElementById("btnConcluirUploadCentral");
+      if (btnConcluir) btnConcluir.style.display = "none";
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
+      renderizarListaCentralUpload();
       document.getElementById("centralUpload")?.classList.remove("aberta");
+    }
+
+    function ocultarConfirmacaoFecharUpload() {
+      const caixa = document.getElementById("confirmacaoFecharUpload");
+      if (caixa) caixa.style.display = "none";
+    }
+
+    function mostrarConfirmacaoFecharUpload() {
+      const caixa = document.getElementById("confirmacaoFecharUpload");
+      if (!caixa) {
+        return confirm("Você selecionou arquivos que ainda não foram enviados. Deseja sair mesmo assim?");
+      }
+
+      caixa.style.display = "flex";
+      return false;
+    }
+
+    function solicitarFechamentoCentralUpload() {
+      if (uploadEmAndamento) {
+        mostrarMensagem("O envio está em andamento. Aguarde terminar para evitar falhas.", "erro");
+        return false;
+      }
+
+      if (uploadTeveErro) {
+        const confirmarErro = confirm("Alguns arquivos falharam ou ficaram pendentes. Deseja fechar a Central de Upload mesmo assim?");
+        if (!confirmarErro) return false;
+        descartarCentralUpload();
+        return true;
+      }
+
+      if (uploadConcluidoComSucesso) {
+        descartarCentralUpload();
+        return true;
+      }
+
+      if (centralUploadTemRascunho()) {
+        return mostrarConfirmacaoFecharUpload();
+      }
+
+      descartarCentralUpload();
+      return true;
+    }
+
+    window.fecharCentralUpload = function () {
+      solicitarFechamentoCentralUpload();
+    };
+
+    window.continuarCentralUpload = function () {
+      ocultarConfirmacaoFecharUpload();
+    };
+
+    window.sairSemEnviarCentralUpload = function () {
+      ocultarConfirmacaoFecharUpload();
+      descartarCentralUpload();
+    };
+
+    window.concluirFecharCentralUpload = function () {
+      if (uploadEmAndamento) {
+        mostrarMensagem("O envio está em andamento. Aguarde terminar para evitar falhas.", "erro");
+        return;
+      }
+      descartarCentralUpload();
     };
 
     window.escolherArquivosCentralUpload = function () {
@@ -2363,17 +2448,40 @@ window.abrirSeletorNovoDocumento = function () {
 
     window.receberArquivosCentralUpload = function (input) {
       arquivosCentralUpload = Array.from(input?.files || []);
+      statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      ocultarConfirmacaoFecharUpload();
       input.value = "";
       abrirCentralUpload();
       renderizarListaCentralUpload();
     };
 
     window.limparCentralUpload = function () {
+      if (uploadEmAndamento) {
+        mostrarMensagem("O envio está em andamento. Aguarde terminar para evitar falhas.", "erro");
+        return;
+      }
+
+      if (!uploadConcluidoComSucesso && !uploadTeveErro && centralUploadTemRascunho()) {
+        const limpar = confirm("Você selecionou arquivos que ainda não foram enviados. Deseja limpar a seleção?");
+        if (!limpar) return;
+      }
+
       arquivosCentralUpload = [];
+      statusArquivosUpload = [];
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      ocultarConfirmacaoFecharUpload();
       document.getElementById("motivoUpload").value = "";
       document.getElementById("gavetaUpload").value = "";
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
       renderizarListaCentralUpload();
     };
+
+    function textoStatusUpload(status) {
+      return status || "Pendente";
+    }
 
     function renderizarListaCentralUpload() {
       const lista = document.getElementById("listaArquivosUpload");
@@ -2387,12 +2495,33 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      lista.innerHTML = arquivosCentralUpload.map(arquivo => `
-        <li>
+      lista.innerHTML = arquivosCentralUpload.map((arquivo, indice) => `
+        <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}">
           <strong>${escaparHtml(arquivo.name)}</strong>
           <span>${Math.round((arquivo.size || 0) / 1024)} KB</span>
+          <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
         </li>
       `).join("");
+    }
+
+    function atualizarStatusArquivoUpload(indice, status) {
+      statusArquivosUpload[indice] = status;
+      renderizarListaCentralUpload();
+    }
+
+    function atualizarProgressoUpload(percentual, etapa, detalhe, arquivoAtual) {
+      const barra = document.getElementById("barraProgressoUpload");
+      const porcentagem = document.getElementById("percentualUpload");
+      const etapaEl = document.getElementById("etapaUpload");
+      const detalheEl = document.getElementById("detalheUpload");
+      const arquivoEl = document.getElementById("arquivoAtualUpload");
+      const valor = Math.max(0, Math.min(100, Math.round(percentual || 0)));
+
+      if (barra) barra.style.width = `${valor}%`;
+      if (porcentagem) porcentagem.textContent = `${valor}%`;
+      if (etapaEl) etapaEl.textContent = etapa || "Aguardando";
+      if (detalheEl) detalheEl.textContent = detalhe || "";
+      if (arquivoEl) arquivoEl.textContent = arquivoAtual ? `Enviando: ${arquivoAtual}` : "";
     }
 
     async function obterListItemIdDoDriveItem(driveId, driveItemId, token) {
@@ -2452,11 +2581,12 @@ window.abrirSeletorNovoDocumento = function () {
       };
     }
 
-    async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados) {
+    async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, onEtapa = () => {}) {
       if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
         throw new Error(`Arquivo ignorado porque nao e PDF: ${arquivo.name}`);
       }
 
+      onEtapa("Preparando envio");
       const token = await obterToken();
       const driveId = await obterDriveDocumentosAtivos();
       const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
@@ -2464,6 +2594,7 @@ window.abrirSeletorNovoDocumento = function () {
       ocupados.add(normalizarTexto(nomeFinal));
       const nomeFoiAjustado = normalizarTexto(nomeFinal) !== normalizarTexto(nomeSolicitado);
 
+      onEtapa("Enviando arquivo");
       const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
       const respostaUpload = await fetch(urlUpload, {
         method: "PUT",
@@ -2480,6 +2611,7 @@ window.abrirSeletorNovoDocumento = function () {
 
       const driveItem = await respostaUpload.json();
       const listItemId = await obterListItemIdDoDriveItem(driveId, driveItem.id, token);
+      onEtapa("Salvando gaveta");
       await atualizarGavetaItemSharePoint(listItemId, gaveta, token);
       const documentoNovo = await carregarDocumentoPorListItemId(listItemId, token);
 
@@ -2487,6 +2619,7 @@ window.abrirSeletorNovoDocumento = function () {
         ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
         : `${motivo} Gaveta: ${gaveta}.`;
 
+      onEtapa("Registrando histórico");
       await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
 
       return { nomeSolicitado, nomeFinal, nomeFoiAjustado };
@@ -2500,6 +2633,16 @@ window.abrirSeletorNovoDocumento = function () {
     };
 
     window.confirmarUploadCentral = async function () {
+      if (uploadEmAndamento) {
+        mostrarMensagem("O envio já está em andamento. Aguarde terminar.", "erro");
+        return;
+      }
+
+      if (uploadConcluidoComSucesso || uploadTeveErro) {
+        mostrarMensagem("Este envio já foi processado. Clique em Concluir e fechar ou feche a Central antes de iniciar outro envio.", "erro");
+        return;
+      }
+
       const gaveta = (document.getElementById("gavetaUpload").value || "").trim();
       const motivo = (document.getElementById("motivoUpload").value || "").trim();
       const botao = document.getElementById("btnConfirmarUploadCentral");
@@ -2529,16 +2672,41 @@ window.abrirSeletorNovoDocumento = function () {
       }
 
       try {
+        uploadEmAndamento = true;
+        uploadConcluidoComSucesso = false;
+        uploadTeveErro = false;
         if (botao) botao.disabled = true;
+        document.getElementById("btnFecharCentralUpload")?.classList.add("desativado");
         mostrarMensagem("Enviando PDF(s) para o SharePoint...");
+        atualizarProgressoUpload(0, "Preparando envio", `Enviando 0 de ${arquivosCentralUpload.length} arquivos`, "");
 
         const ocupados = criarConjuntoNomesUploadOcupados();
         const resultados = [];
+        const erros = [];
+        const total = arquivosCentralUpload.length;
 
-        for (const arquivo of arquivosCentralUpload) {
-          resultados.push(await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados));
+        for (let indice = 0; indice < arquivosCentralUpload.length; indice++) {
+          const arquivo = arquivosCentralUpload[indice];
+          atualizarStatusArquivoUpload(indice, "Enviando");
+          const basePercentual = (indice / total) * 100;
+          atualizarProgressoUpload(basePercentual, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
+
+          try {
+            const resultado = await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, etapa => {
+              atualizarProgressoUpload(basePercentual, etapa, `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
+            });
+            resultados.push(resultado);
+            atualizarStatusArquivoUpload(indice, resultado.nomeFoiAjustado ? "Conflito" : "Enviado");
+          } catch (erroArquivo) {
+            console.error(erroArquivo);
+            erros.push({ arquivo: arquivo.name, erro: erroArquivo.message || String(erroArquivo) });
+            atualizarStatusArquivoUpload(indice, "Erro");
+          }
+
+          atualizarProgressoUpload(((indice + 1) / total) * 100, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
         }
 
+        atualizarProgressoUpload(100, "Atualizando lista", "Atualizando documentos e histórico.", "");
         await new Promise(resolve => setTimeout(resolve, 1200));
         await listarDocumentos();
         if (typeof carregarDadosDeApoio === "function") {
@@ -2549,18 +2717,24 @@ window.abrirSeletorNovoDocumento = function () {
         }
 
         const ajustados = resultados.filter(item => item.nomeFoiAjustado).length;
-        arquivosCentralUpload = [];
-        renderizarListaCentralUpload();
-        fecharCentralUpload();
+        uploadTeveErro = erros.length > 0;
+        uploadConcluidoComSucesso = erros.length === 0;
+        atualizarProgressoUpload(100, erros.length ? "Concluído com erro" : "Concluído", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.`, "");
+        const btnConcluir = document.getElementById("btnConcluirUploadCentral");
+        if (btnConcluir) btnConcluir.style.display = erros.length ? "none" : "inline-block";
 
-        mostrarMensagem(ajustados
-          ? `${resultados.length} PDF(s) enviado(s). ${ajustados} nome(s) foram ajustados para evitar substituicao.`
-          : `${resultados.length} PDF(s) enviado(s) com gaveta registrada.`);
+        const mensagemConflito = ajustados ? " Há conflitos para revisar na Central de Duplicidades." : "";
+
+        mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${mensagemConflito}`);
       } catch (erro) {
         console.error(erro);
+        uploadTeveErro = true;
+        atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
         mostrarMensagem("Erro ao enviar PDF(s): " + erro.message, "erro");
       } finally {
+        uploadEmAndamento = false;
         if (botao) botao.disabled = false;
+        document.getElementById("btnFecharCentralUpload")?.classList.remove("desativado");
       }
     };
 
@@ -2781,6 +2955,13 @@ function renderizarDocumentos(listaArquivos) {
 
     window.addEventListener("keydown", function (event) {
       if (event.key === "Escape") {
+        const centralUpload = document.getElementById("centralUpload");
+        if (centralUpload && centralUpload.classList.contains("aberta")) {
+          event.preventDefault();
+          fecharCentralUpload();
+          return;
+        }
+
         const painelCentral = document.getElementById("painelCentralDuplicidades");
         if (painelCentral && painelCentral.classList.contains("aberto")) {
           fecharPainelCentralDuplicidades();
@@ -2792,6 +2973,12 @@ function renderizarDocumentos(listaArquivos) {
           fecharPainel();
         }
       }
+    });
+
+    window.addEventListener("beforeunload", function (event) {
+      if (!uploadEmAndamento) return;
+      event.preventDefault();
+      event.returnValue = "";
     });
 
     // EVENTOS_ANOTACAO
@@ -3466,6 +3653,113 @@ function renderizarDocumentos(listaArquivos) {
       margin-top: 2px;
     }
 
+    .listaArquivosUpload small {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .statusUploadEnviando small {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .statusUploadEnviado small {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .statusUploadConflito small {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .statusUploadErro small {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .progressoUpload {
+      margin: 12px 0;
+      padding: 12px;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      background: white;
+    }
+
+    .progressoUploadTopo {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #0f2f66;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .trilhoProgressoUpload {
+      height: 12px;
+      margin: 8px 0;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .barraProgressoUpload {
+      width: 0%;
+      height: 100%;
+      background: #1d4ed8;
+      transition: width 0.2s ease;
+    }
+
+    .detalhesProgressoUpload {
+      display: grid;
+      gap: 3px;
+      color: #475569;
+      font-size: 12px;
+    }
+
+    .confirmacaoFecharUpload {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #fed7aa;
+      background: #fff7ed;
+      color: #7c2d12;
+    }
+
+    .confirmacaoFecharUpload strong,
+    .confirmacaoFecharUpload span {
+      display: block;
+    }
+
+    .confirmacaoFecharUpload span {
+      margin-top: 3px;
+      font-size: 12px;
+    }
+
+    .confirmacaoFecharUploadAcoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btnFecharUpload {
+      min-width: 42px;
+      min-height: 38px;
+      padding: 8px 12px;
+      font-weight: 800;
+    }
+
     .centralUploadAcoes {
       display: flex;
       gap: 8px;
@@ -3864,7 +4158,18 @@ function renderizarDocumentos(listaArquivos) {
             <h2>Central de Upload</h2>
             <p>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</p>
           </div>
-          <button class="btnFechar" onclick="fecharCentralUpload()">X</button>
+          <button id="btnFecharCentralUpload" class="btnFechar btnFecharUpload" onclick="fecharCentralUpload()">X</button>
+        </div>
+
+        <div id="confirmacaoFecharUpload" class="confirmacaoFecharUpload">
+          <div>
+            <strong>Você selecionou arquivos que ainda não foram enviados.</strong>
+            <span>Deseja sair mesmo assim?</span>
+          </div>
+          <div class="confirmacaoFecharUploadAcoes">
+            <button class="principal" onclick="continuarCentralUpload()">Continuar enviando</button>
+            <button class="secundario" onclick="sairSemEnviarCentralUpload()">Sair sem enviar</button>
+          </div>
         </div>
 
         <div class="centralUploadGrade">
@@ -3889,8 +4194,23 @@ function renderizarDocumentos(listaArquivos) {
           <li>Nenhum PDF selecionado.</li>
         </ul>
 
+        <div class="progressoUpload">
+          <div class="progressoUploadTopo">
+            <span id="etapaUpload">Aguardando arquivos</span>
+            <span id="percentualUpload">0%</span>
+          </div>
+          <div class="trilhoProgressoUpload">
+            <div id="barraProgressoUpload" class="barraProgressoUpload"></div>
+          </div>
+          <div class="detalhesProgressoUpload">
+            <span id="detalheUpload">Selecione os PDFs para enviar.</span>
+            <span id="arquivoAtualUpload"></span>
+          </div>
+        </div>
+
         <div class="centralUploadAcoes">
           <button id="btnConfirmarUploadCentral" class="principal" onclick="confirmarUploadCentral()">Enviar PDF(s)</button>
+          <button id="btnConcluirUploadCentral" class="principal" style="display:none" onclick="concluirFecharCentralUpload()">Concluir e fechar</button>
           <button class="secundario" onclick="limparCentralUpload()">Limpar seleção</button>
         </div>
       </section>
