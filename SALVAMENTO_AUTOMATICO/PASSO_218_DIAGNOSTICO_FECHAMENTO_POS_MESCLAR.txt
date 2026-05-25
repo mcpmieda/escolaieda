@@ -1,0 +1,41 @@
+PASSO 218 - DIAGNOSTICO DE FECHAMENTO POS MESCLAR
+
+Data: 2026-05-25 14:16:46
+
+Pedido do usuario:
+
+- Avancar para concluir o sistema apos encerrar Mesclar.
+
+Estado inicial:
+
+- Git limpo.
+- HEAD em 368fee6 Registrar ponto seguro de mesclar PDF local.
+- Tag atual: ponto-seguro-mesclar-pdf-local-ok.
+
+Diagnostico:
+
+- JS OK.
+- Sem blocos antigos proibidos.
+- Sem botao pendente com "Sera implementado depois".
+- Sem referencias antigas de modal upload/relatorio removido.
+- Sem texto quebrado conhecido apos polimento.
+
+Polimento feito:
+
+- Corrigida mensagem quebrada das versoes do SharePoint:
+  - antes: NÃ£o foi possÃ­vel carregar as versoes do SharePoint.
+  - depois: Nao foi possivel carregar as versoes do SharePoint.
+
+Backup:
+
+- backups_locais\index_backup_antes_polimento_fechamento_20260525.html
+
+Relatorio:
+
+- diagnosticos\DIAGNOSTICO_FECHAMENTO_POS_MESCLAR_20260525.md
+
+Proximo passo:
+
+- Commitar o polimento.
+- Rodar checklist final curto no site publicado.
+- Se aprovado, criar ponto seguro final do sistema.
