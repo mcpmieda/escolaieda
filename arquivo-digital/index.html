@@ -561,7 +561,7 @@
         mostrarMensagem("Dashboard atualizado.");
       } catch (erro) {
         console.error(erro);
-        mostrarMensagem("Erro ao atualizar dashboard.", "erro");
+        mostrarMensagem("Nao foi possivel atualizar o resumo agora.", "erro");
       }
     };
 
@@ -708,7 +708,7 @@
       const b = todos.find(doc => doc.id === idB);
 
       if (!a || !b) {
-        mostrarMensagem("Não foi possível localizar os dois arquivos.", "erro");
+        mostrarMensagem("Nao foi possivel localizar os dois arquivos.", "erro");
         return;
       }
 
@@ -753,7 +753,7 @@
         }
       } catch (erro) {
         console.error(erro);
-        mostrarMensagem("Erro ao marcar como pessoas diferentes.", "erro");
+        mostrarMensagem("Nao foi possivel salvar esta marcacao. Tente novamente.", "erro");
       }
     };
 
@@ -806,7 +806,7 @@
 
     window.desfazerPessoasDiferentesCentral = async function (itemId, chave) {
       if (!itemId || !chave) {
-        mostrarMensagem("Não foi possível identificar o par ignorado.", "erro");
+        mostrarMensagem("Nao foi possivel identificar este par.", "erro");
         return;
       }
 
@@ -828,7 +828,7 @@
         }
       } catch (erro) {
         console.error(erro);
-        mostrarMensagem("Erro ao desfazer marcação.", "erro");
+        mostrarMensagem("Nao foi possivel desfazer a marcacao. Tente novamente.", "erro");
       }
     };
 
@@ -862,7 +862,7 @@
       } catch (erro) {
         console.error(erro);
         carregouIgnoradosDuplicidade = false;
-        mostrarMensagem("Erro ao desfazer todas as marcações. Atualize a análise e confira os pares restantes.", "erro");
+        mostrarMensagem("Nao foi possivel desfazer todas as marcacoes. Atualize a analise e confira os pares restantes.", "erro");
 
         if (typeof atualizarCentralDuplicidades === "function") {
           await atualizarCentralDuplicidades();
@@ -979,7 +979,7 @@
         renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
         console.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
-        resumo.textContent = "Não foi possível atualizar a Central de Duplicidades agora.";
+        resumo.textContent = "Nao foi possivel atualizar a Central de Duplicidades agora.";
         return;
       }
 
@@ -1250,7 +1250,7 @@ async function carregarHistoricoDocumento(documento) {
 
       } catch (erro) {
         console.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
+        caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
       }
     }
     async function carregarAnotacaoDocumento(documento) {
@@ -1273,7 +1273,7 @@ async function carregarHistoricoDocumento(documento) {
 
       } catch (erro) {
         console.error(erro);
-        atualizarStatusAnotacao("Não foi possível carregar a anotação.");
+        atualizarStatusAnotacao("Nao foi possivel carregar a anotacao.");
       }
     }
 
@@ -1389,8 +1389,8 @@ async function carregarHistoricoDocumento(documento) {
         mostrarMensagemPainel("Anotação salva.");
       } catch (erro) {
         console.error(erro);
-        atualizarStatusAnotacao("Erro ao salvar anotação.");
-        mostrarMensagemPainel("Erro ao salvar anotação.", "erro");
+        atualizarStatusAnotacao("Nao foi possivel salvar a anotacao.");
+        mostrarMensagemPainel("Nao foi possivel salvar a anotacao. Tente novamente.", "erro");
       }
     };
 
@@ -1557,7 +1557,7 @@ try {
 
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao renomear arquivo. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Nao foi possivel renomear o arquivo. Tente novamente.", "erro");
       }
     };
 
@@ -1574,7 +1574,7 @@ try {
       document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "block";
       document.getElementById("arquivoSubstituto").value = "";
-      mostrarMensagemPainel("Escolha o PDF mais atual para substituir o conteúdo deste arquivo.");
+      mostrarMensagemPainel("Escolha o PDF que vai substituir o conteúdo atual deste documento.");
     };
 
     window.cancelarSubstituir = function () {
@@ -1608,7 +1608,7 @@ try {
       }
 
       const confirmar = confirm(
-        `Substituir o conteúdo de:\n\n${documentoSelecionado.nome}\n\npelo arquivo:\n${arquivo.name}\n\nO nome será mantido e o SharePoint deverá preservar versões anteriores. Deseja continuar?`
+        `Substituir o conteúdo de:\n\n${documentoSelecionado.nome}\n\npelo arquivo:\n${arquivo.name}\n\nO nome será mantido e as versões anteriores deverão continuar disponíveis. Deseja continuar?`
       );
 
       if (!confirmar) {
@@ -1647,11 +1647,11 @@ try {
         document.getElementById("arquivoSubstituto").value = "";
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagemPainel("Arquivo substituído com sucesso. O histórico foi atualizado.");
+        mostrarMensagemPainel("Arquivo substituido com sucesso. O historico foi atualizado.");
 
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao substituir arquivo. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Nao foi possivel substituir o arquivo. Tente novamente.", "erro");
       }
     };
 
@@ -1677,7 +1677,7 @@ try {
       document.getElementById("arquivoLocalMesclar").value = "";
       document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
       document.getElementById("statusMesclar").textContent = "";
-      mostrarMensagemPainel("Escolha um PDF do computador para adicionar ao final do arquivo atual.");
+      mostrarMensagemPainel("Escolha no computador o PDF que sera adicionado ao final deste arquivo.");
       document.getElementById("arquivoLocalMesclar").click();
     };
 
@@ -1706,15 +1706,15 @@ try {
 
       if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
         input.value = "";
-        document.getElementById("arquivoSelecionadoMesclar").textContent = "Selecione somente arquivo PDF.";
-        mostrarMensagemPainel("Selecione somente arquivo PDF.", "erro");
+        document.getElementById("arquivoSelecionadoMesclar").textContent = "Escolha um arquivo em PDF.";
+        mostrarMensagemPainel("Escolha um arquivo em PDF.", "erro");
         return;
       }
 
       arquivoLocalMesclar = arquivo;
       document.getElementById("arquivoSelecionadoMesclar").textContent = `${arquivo.name} (${Math.round(arquivo.size / 1024)} KB)`;
       document.getElementById("statusMesclar").textContent = "";
-      mostrarMensagemPainel("Informe o motivo e confirme a mesclagem.");
+      mostrarMensagemPainel("Informe o motivo e confirme para juntar os PDFs.");
     };
 
     window.escolherArquivoLocalMesclar = function () {
@@ -1752,18 +1752,18 @@ try {
 
     async function criarPdfMescladoComArquivoLocal(documentoAtual, arquivoLocal, token) {
       const pdfFinal = await PDFDocument.create();
-      atualizarStatusMesclar("Lendo PDF atual...");
+      atualizarStatusMesclar("Lendo o arquivo atual...");
       const bytesAtual = await baixarPdfAtualParaMesclar(documentoAtual, token);
       const pdfAtual = await PDFDocument.load(bytesAtual, { ignoreEncryption: true });
       const paginasAtuais = await pdfFinal.copyPages(pdfAtual, pdfAtual.getPageIndices());
       paginasAtuais.forEach(pagina => pdfFinal.addPage(pagina));
 
-      atualizarStatusMesclar("Lendo PDF selecionado...");
+      atualizarStatusMesclar("Lendo o PDF escolhido...");
       const bytesLocal = await arquivoLocal.arrayBuffer();
       const pdfLocal = await PDFDocument.load(bytesLocal, { ignoreEncryption: true });
       const paginasLocais = await pdfFinal.copyPages(pdfLocal, pdfLocal.getPageIndices());
 
-      atualizarStatusMesclar("Mesclando páginas...");
+      atualizarStatusMesclar("Juntando as paginas...");
       paginasLocais.forEach(pagina => pdfFinal.addPage(pagina));
       return pdfFinal.save();
     }
@@ -1783,17 +1783,17 @@ try {
       const motivo = (document.getElementById("motivoMesclar").value || "").trim();
 
       if (!arquivo) {
-        mostrarMensagemPainel("Selecione um PDF do computador para mesclar.", "erro");
+        mostrarMensagemPainel("Escolha um PDF do computador para continuar.", "erro");
         return;
       }
 
       if (!motivo) {
-        mostrarMensagemPainel("Informe o motivo da mesclagem.", "erro");
+        mostrarMensagemPainel("Informe o motivo para continuar.", "erro");
         return;
       }
 
       const confirmar = confirm(
-        `Arquivo atual:\n${documentoSelecionado.nome}\n\nPDF que será adicionado:\n${arquivo.name}\n\nResultado:\nAs páginas do PDF escolhido serão adicionadas ao final do arquivo atual.\nO arquivo ${documentoSelecionado.nome} será atualizado no SharePoint, mantendo o mesmo nome.\n\nDeseja continuar?`
+        `Arquivo atual:\n${documentoSelecionado.nome}\n\nPDF que será adicionado:\n${arquivo.name}\n\nResultado:\nAs páginas do PDF escolhido serão adicionadas ao final do arquivo atual.\nO arquivo ${documentoSelecionado.nome} continuará com o mesmo nome.\n\nDeseja continuar?`
       );
 
       if (!confirmar) {
@@ -1804,7 +1804,7 @@ try {
         mesclagemEmAndamento = true;
         const botao = document.getElementById("btnConfirmarMesclar");
         if (botao) botao.disabled = true;
-        atualizarStatusMesclar("Lendo PDF atual...");
+        atualizarStatusMesclar("Lendo o arquivo atual...");
 
         const token = await obterToken();
         const principal = documentoSelecionado;
@@ -1813,7 +1813,7 @@ try {
         const driveIdPrincipal = driveItemPrincipal.parentReference?.driveId || principal.driveId;
         const url = `https://graph.microsoft.com/v1.0/drives/${driveIdPrincipal}/items/${driveItemPrincipal.id}/content`;
 
-        atualizarStatusMesclar("Salvando arquivo no SharePoint...");
+        atualizarStatusMesclar("Salvando o arquivo atualizado...");
         const resposta = await fetch(url, {
           method: "PUT",
           headers: {
@@ -1827,7 +1827,7 @@ try {
           throw new Error(await resposta.text());
         }
 
-        atualizarStatusMesclar("Registrando histórico...");
+        atualizarStatusMesclar("Registrando no historico...");
         await registrarHistorico(
           principal,
           "MESCLOU",
@@ -1839,13 +1839,13 @@ try {
         document.getElementById("arquivoLocalMesclar").value = "";
         document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
         document.getElementById("motivoMesclar").value = "";
-        atualizarStatusMesclar("Concluído.");
+        atualizarStatusMesclar("Concluido.");
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagemPainel("PDF mesclado com sucesso. O arquivo atual foi atualizado mantendo o mesmo nome.");
+        mostrarMensagemPainel("Mesclagem concluida. O arquivo foi atualizado mantendo o mesmo nome.");
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao mesclar PDFs. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Nao foi possivel concluir a mesclagem. Tente novamente.", "erro");
       } finally {
         mesclagemEmAndamento = false;
         const botao = document.getElementById("btnConfirmarMesclar");
@@ -1920,7 +1920,7 @@ try {
       document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxArquivar").style.display = "block";
       document.getElementById("motivoArquivar").value = "";
-      mostrarMensagemPainel("Informe o motivo do arquivamento antes de confirmar.");
+      mostrarMensagemPainel("Informe o motivo antes de mover para a Lixeira.");
     };
 
     window.cancelarArquivar = function () {
@@ -1942,12 +1942,12 @@ try {
       const motivo = (document.getElementById("motivoArquivar").value || "").trim();
 
       if (!motivo) {
-        mostrarMensagemPainel("Informe um motivo para arquivar este arquivo.", "erro");
+        mostrarMensagemPainel("Informe o motivo para continuar.", "erro");
         return;
       }
 
       try {
-        mostrarMensagemPainel("Enviando para Lixeira...");
+        mostrarMensagemPainel("Movendo para a Lixeira...");
 
         const token = await obterToken();
         const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
@@ -1985,11 +1985,11 @@ try {
 
         fecharPainel();
         await atualizarDadosMantendoPainel();
-        mostrarMensagem("Documento enviado para a Lixeira com sucesso. Ele saiu da lista principal, mas não foi excluído.");
+        mostrarMensagem("Arquivo movido para a Lixeira. Ele nao foi excluido.");
 
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao arquivar arquivo. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Nao foi possivel mover o arquivo para a Lixeira. Tente novamente.", "erro");
       }
     };
 
@@ -2024,7 +2024,7 @@ try {
       document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxRestaurar").style.display = "block";
       document.getElementById("motivoRestaurar").value = "";
-      mostrarMensagemPainel("Informe o motivo para restaurar este arquivo para a lista principal.");
+      mostrarMensagemPainel("Informe o motivo antes de restaurar o arquivo.");
     };
 
     window.cancelarRestaurar = function () {
@@ -2041,7 +2041,7 @@ try {
       const motivo = (document.getElementById("motivoRestaurar").value || "").trim();
 
       if (!motivo) {
-        mostrarMensagemPainel("Informe um motivo para restaurar este arquivo.", "erro");
+        mostrarMensagemPainel("Informe o motivo para continuar.", "erro");
         return;
       }
 
@@ -2059,7 +2059,7 @@ try {
         );
 
         if (nomeDuplicadoAtivo) {
-          mostrarMensagemPainel("Já existe um arquivo ativo com esse mesmo nome. Renomeie o ativo ou o arquivo na Lixeira antes de restaurar.", "erro");
+          mostrarMensagemPainel("Ja existe um arquivo ativo com esse nome. Renomeie um dos arquivos antes de restaurar.", "erro");
           return;
         }
 
@@ -2093,11 +2093,11 @@ try {
 
         modoListaAtual = "ativos";
         await atualizarDadosMantendoPainel("na Lixeira");
-        mostrarMensagem("Arquivo restaurado com sucesso para Documentos ativos.");
+        mostrarMensagem("Arquivo restaurado para Documentos ativos.");
 
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao restaurar arquivo. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Nao foi possivel restaurar o arquivo. Tente novamente.", "erro");
       }
     };
 
@@ -2140,12 +2140,12 @@ try {
       }
 
       if (!motivo) {
-        mostrarMensagemPainel("Informe o motivo da alteração de gaveta.", "erro");
+        mostrarMensagemPainel("Informe o motivo para continuar.", "erro");
         return;
       }
 
       try {
-        mostrarMensagemPainel("Salvando gaveta...");
+        mostrarMensagemPainel("Salvando nova gaveta...");
 
         const token = await obterToken();
         await atualizarGavetaItemSharePoint(documentoSelecionado.listItemId, novaGaveta, token);
@@ -2164,10 +2164,10 @@ try {
         document.getElementById("motivoAlterarGaveta").value = "";
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagemPainel("Gaveta atualizada e registrada no histórico.");
+        mostrarMensagemPainel("Gaveta atualizada com sucesso.");
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Erro ao alterar gaveta. Veja o console para detalhes.", "erro");
+        mostrarMensagemPainel("Nao foi possivel alterar a gaveta. Tente novamente.", "erro");
       }
     };
 
@@ -2235,12 +2235,12 @@ try {
       const info = window.versaoDownloadDocumentoAtual;
 
       if (!info || !info.driveId || !info.driveItemId) {
-        mostrarMensagemPainel("Nao foi possivel identificar o arquivo para visualizar a versao.", "erro");
+        mostrarMensagemPainel("Nao foi possivel identificar o arquivo para abrir esta versao.", "erro");
         return;
       }
 
       if (!versionId) {
-        mostrarMensagemPainel("Versao invalida.", "erro");
+        mostrarMensagemPainel("Esta versao nao esta disponivel.", "erro");
         return;
       }
 
@@ -2284,7 +2284,7 @@ try {
         mostrarMensagemPainel("Versao aberta em nova aba.");
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Nao foi possivel visualizar esta versao.", "erro");
+        mostrarMensagemPainel("Nao foi possivel abrir esta versao. Tente novamente.", "erro");
       }
     };
 
@@ -2300,7 +2300,7 @@ try {
         return;
       }
 
-      caixa.innerHTML = "<p>Carregando versoes do SharePoint...</p>";
+      caixa.innerHTML = "<p>Carregando versoes do arquivo...</p>";
 
       try {
         const token = await obterToken();
@@ -2366,12 +2366,12 @@ try {
 
       } catch (erro) {
         console.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar as versoes do SharePoint.</p>";
+        caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar as versoes do arquivo.</p>";
       }
     }
     async function abrirDocumentoNoPainel(documento) {
       if (!documento) {
-        mostrarMensagem("Documento não encontrado.", "erro");
+        mostrarMensagem("Documento nao encontrado.", "erro");
         return;
       }
 
@@ -2464,12 +2464,12 @@ try {
           "Documento aberto pelo botão Abrir PDF no painel lateral."
         );
 
-        mostrarMensagemPainel("Acesso registrado no histórico.");
+        mostrarMensagemPainel("Acesso registrado no historico.");
         await carregarHistoricoDocumento(documentoSelecionado);
 
       } catch (erro) {
         console.error(erro);
-        mostrarMensagemPainel("Não foi possível registrar o histórico, mas o PDF será aberto.", "erro");
+        mostrarMensagemPainel("Nao foi possivel registrar no historico, mas o PDF sera aberto.", "erro");
       }
 
       if (aba) {
@@ -2850,7 +2850,7 @@ window.abrirSeletorNovoDocumento = function () {
         ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
         : `${motivo} Gaveta: ${gaveta}.`;
 
-      onEtapa("Registrando histórico");
+      onEtapa("Registrando no historico");
       await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
 
       return { nomeSolicitado, nomeFinal, nomeFoiAjustado };
@@ -2865,12 +2865,12 @@ window.abrirSeletorNovoDocumento = function () {
 
     window.confirmarUploadCentral = async function () {
       if (uploadEmAndamento) {
-        mostrarMensagem("O envio já está em andamento. Aguarde terminar.", "erro");
+        mostrarMensagem("O envio ja esta em andamento. Aguarde terminar.", "erro");
         return;
       }
 
       if (uploadConcluidoComSucesso || uploadTeveErro) {
-        mostrarMensagem("Este envio já foi processado. Clique em Concluir e fechar ou feche a Central antes de iniciar outro envio.", "erro");
+        mostrarMensagem("Este envio ja foi processado. Clique em Concluir e fechar antes de iniciar outro envio.", "erro");
         return;
       }
 
@@ -2879,17 +2879,17 @@ window.abrirSeletorNovoDocumento = function () {
       const botao = document.getElementById("btnConfirmarUploadCentral");
 
       if (!arquivosCentralUpload.length) {
-        mostrarMensagem("Selecione pelo menos um PDF.", "erro");
+        mostrarMensagem("Selecione pelo menos um arquivo PDF.", "erro");
         return;
       }
 
       if (!gaveta) {
-        mostrarMensagem("Informe a gaveta física.", "erro");
+        mostrarMensagem("Escolha uma gaveta antes de enviar.", "erro");
         return;
       }
 
       if (!motivo) {
-        mostrarMensagem("Informe o motivo do upload.", "erro");
+        mostrarMensagem("Informe o motivo para continuar.", "erro");
         return;
       }
 
@@ -2898,7 +2898,7 @@ window.abrirSeletorNovoDocumento = function () {
       );
 
       if (invalidos.length) {
-        mostrarMensagem("Remova arquivos que não são PDF antes de enviar.", "erro");
+        mostrarMensagem("Remova os arquivos que nao sao PDF antes de enviar.", "erro");
         return;
       }
 
@@ -2908,7 +2908,7 @@ window.abrirSeletorNovoDocumento = function () {
         uploadTeveErro = false;
         if (botao) botao.disabled = true;
         document.getElementById("btnFecharCentralUpload")?.classList.add("desativado");
-        mostrarMensagem("Enviando PDF(s) para o SharePoint...");
+        mostrarMensagem("Enviando PDF(s). Aguarde...");
         atualizarProgressoUpload(0, "Preparando envio", `Enviando 0 de ${arquivosCentralUpload.length} arquivos`, "");
 
         const ocupados = criarConjuntoNomesUploadOcupados();
@@ -2937,7 +2937,7 @@ window.abrirSeletorNovoDocumento = function () {
           atualizarProgressoUpload(((indice + 1) / total) * 100, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
         }
 
-        atualizarProgressoUpload(100, "Atualizando lista", "Atualizando documentos e histórico.", "");
+        atualizarProgressoUpload(100, "Atualizando lista", "Atualizando documentos e historico.", "");
         await new Promise(resolve => setTimeout(resolve, 1200));
         await listarDocumentos();
         if (typeof carregarDadosDeApoio === "function") {
@@ -2950,18 +2950,18 @@ window.abrirSeletorNovoDocumento = function () {
         const ajustados = resultados.filter(item => item.nomeFoiAjustado).length;
         uploadTeveErro = erros.length > 0;
         uploadConcluidoComSucesso = erros.length === 0;
-        atualizarProgressoUpload(100, erros.length ? "Concluído com erro" : "Concluído", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.`, "");
+        atualizarProgressoUpload(100, erros.length ? "Concluido com erro" : "Concluido", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.`, "");
         const btnConcluir = document.getElementById("btnConcluirUploadCentral");
         if (btnConcluir) btnConcluir.style.display = erros.length ? "none" : "inline-block";
 
-        const mensagemConflito = ajustados ? " Há conflitos para revisar na Central de Duplicidades." : "";
+        const mensagemConflito = ajustados ? " Revise nomes parecidos na Central de Duplicidades." : "";
 
         mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${mensagemConflito}`);
       } catch (erro) {
         console.error(erro);
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
-        mostrarMensagem("Erro ao enviar PDF(s): " + erro.message, "erro");
+        mostrarMensagem("Nao foi possivel enviar os PDF(s). Tente novamente.", "erro");
       } finally {
         uploadEmAndamento = false;
         if (botao) botao.disabled = false;
@@ -3106,7 +3106,7 @@ function renderizarDocumentos(listaArquivos) {
         }
 
       } catch (erro) {
-        lista.innerHTML = `<li class="erro">Erro ao carregar documentos: ${erro.message}</li>`;
+        lista.innerHTML = "<li class=\"erro\">Nao foi possivel carregar os documentos. Tente novamente.</li>";
         console.error(erro);
       }
     }
@@ -4788,7 +4788,7 @@ function renderizarDocumentos(listaArquivos) {
         <h3>Substituir arquivo</h3>
         <p>Escolha um PDF mais atual. O sistema manterá o mesmo nome do arquivo atual e substituirá apenas o conteúdo.</p>
         <input id="arquivoSubstituto" type="file" accept="application/pdf,.pdf">
-        <small>O SharePoint deverá manter versões anteriores pelo histórico de versões da biblioteca.</small>
+        <small>As versões anteriores deverão continuar disponíveis no histórico do arquivo.</small>
         <div class="linhaBotoes">
           <button onclick="confirmarSubstituir()">Confirmar substituição</button>
           <button class="secundario" onclick="cancelarSubstituir()">Cancelar</button>
@@ -4832,7 +4832,7 @@ function renderizarDocumentos(listaArquivos) {
         <button class="secundario" onclick="escolherArquivoLocalMesclar()">Escolher PDF do computador</button>
         <div id="arquivoSelecionadoMesclar" class="arquivoSelecionadoMesclar">Nenhum PDF selecionado.</div>
         <textarea id="motivoMesclar" placeholder="Informe o motivo da mesclagem..."></textarea>
-        <small>O nome do arquivo atual será mantido e o SharePoint deverá preservar versões anteriores.</small>
+        <small>O nome do arquivo atual será mantido e as versões anteriores deverão continuar disponíveis.</small>
         <div id="statusMesclar" class="statusMesclar"></div>
         <div class="linhaBotoes">
           <button id="btnConfirmarMesclar" onclick="confirmarMesclar()">Confirmar mesclagem</button>

@@ -1,0 +1,39 @@
+PASSO 223 - ACABAMENTO FASE 3 MENSAGENS USUARIO LEIGO
+
+Data: 2026-05-25 15:02:53
+
+Pedido:
+
+- Avancar para Fase 3 do acabamento.
+- Melhorar mensagens para usuario leigo.
+- Nao alterar logica.
+
+Backup:
+
+- backups_locais\index_backup_antes_mensagens_fase3_20260525.html
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracoes:
+
+- Mensagens de erro simplificadas.
+- Removido "Veja o console" das mensagens visiveis.
+- Substituir, Mesclar, Lixeira, restaurar, gaveta, anotacoes, versoes, upload e carregamento de documentos ganharam textos mais claros.
+- Detalhes tecnicos seguem no console.
+
+Validacao:
+
+- JS OK.
+- git diff --check sem erros.
+- Chamadas mostrarMensagem/mostrarMensagemPainel revisadas.
+
+Relatorio:
+
+- diagnosticos\RELATORIO_ACABAMENTO_FASE3_MENSAGENS_USUARIO_LEIGO_20260525.md
+
+Proximo passo:
+
+- Testar no site publicado.
+- Se aprovado, seguir para Fase 4: responsividade.
