@@ -7,6 +7,7 @@
 
   <script type="module">
     import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
+    import { PDFDocument } from "https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.esm.min.js";
 
     const CONFIG = {
       clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
@@ -30,6 +31,8 @@
     let timerSalvarAnotacao = null;
     let timerMensagemPainel = null;
     let anotacaoUltimoTextoSalvo = "";
+    let documentosSelecionadosMesclar = new Set();
+    let mesclagemEmAndamento = false;
 
     const msalConfig = {
       auth: {
@@ -1118,6 +1121,7 @@
       const texto = (acao || "").toString().trim();
       if (texto.toUpperCase() === "ARQUIVOU") return "FOI PARA LIXEIRA";
       if (texto.toUpperCase() === "ALTEROU_GAVETA") return "ALTEROU GAVETA";
+      if (texto.toUpperCase() === "MESCLADO") return "MESCLADO";
       return texto;
     }
 async function carregarHistoricoDocumento(documento) {
@@ -1434,6 +1438,9 @@ async function carregarHistoricoDocumento(documento) {
       const nomeSemPdf = documentoSelecionado.nome.replace(/\.pdf$/i, "");
       document.getElementById("boxSubstituir").style.display = "none";
       document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("novoNomeArquivo").value = nomeSemPdf;
       document.getElementById("boxRenomear").style.display = "block";
       mostrarMensagemPainel("Confira o novo nome antes de confirmar.");
@@ -1561,6 +1568,9 @@ try {
 
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "block";
       document.getElementById("arquivoSubstituto").value = "";
       mostrarMensagemPainel("Escolha o PDF mais atual para substituir o conteúdo deste arquivo.");
@@ -1644,6 +1654,234 @@ try {
       }
     };
 
+    function obterChaveDocumentoMesclar(documento) {
+      return documento?.id || documento?.listItemId || documento?.nome || "";
+    }
+
+    function obterDocumentosSecundariosMesclar() {
+      return (documentosAtivos || [])
+        .filter(doc => doc && doc.status !== "ARQUIVADO")
+        .filter(doc => obterChaveDocumentoMesclar(doc) !== obterChaveDocumentoMesclar(documentoSelecionado));
+    }
+
+    function obterSelecionadosMesclar() {
+      const selecionados = documentosSelecionadosMesclar || new Set();
+      return obterDocumentosSecundariosMesclar()
+        .filter(doc => selecionados.has(obterChaveDocumentoMesclar(doc)));
+    }
+
+    function renderizarListaMesclar() {
+      const lista = document.getElementById("listaDocumentosMesclar");
+      const contador = document.getElementById("contadorMesclar");
+      const busca = normalizarTexto(document.getElementById("buscaMesclar")?.value || "");
+      if (!lista || !contador) return;
+
+      const todos = obterDocumentosSecundariosMesclar();
+      const filtrados = busca
+        ? todos.filter(doc => normalizarTexto(doc.nome).includes(busca))
+        : todos.slice(0, 60);
+
+      const selecionados = obterSelecionadosMesclar();
+      contador.textContent = `${selecionados.length} selecionado(s). Os arquivos secundários continuarão ativos.`;
+
+      if (!todos.length) {
+        lista.innerHTML = "<p>Nenhum outro PDF ativo disponível para mesclar.</p>";
+        return;
+      }
+
+      if (!filtrados.length) {
+        lista.innerHTML = "<p>Nenhum PDF encontrado nessa busca.</p>";
+        return;
+      }
+
+      lista.innerHTML = filtrados.map(doc => {
+        const chave = obterChaveDocumentoMesclar(doc);
+        const marcado = documentosSelecionadosMesclar.has(chave) ? " checked" : "";
+        const gaveta = doc.gaveta ? ` · ${escaparHtml(doc.gaveta)}` : "";
+        return `
+          <label class="opcaoMesclar">
+            <input type="checkbox" value="${escaparHtml(chave)}"${marcado} onchange="alternarDocumentoMesclar(this)">
+            <span>
+              <strong>${escaparHtml(doc.nome)}</strong>
+              <small>${escaparHtml(doc.modificado || "Sem data")}${gaveta}</small>
+            </span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    window.alternarDocumentoMesclar = function (checkbox) {
+      const chave = checkbox?.value || "";
+      if (!chave) return;
+
+      if (checkbox.checked) {
+        documentosSelecionadosMesclar.add(chave);
+      } else {
+        documentosSelecionadosMesclar.delete(chave);
+      }
+
+      renderizarListaMesclar();
+    };
+
+    window.filtrarDocumentosMesclar = function () {
+      renderizarListaMesclar();
+    };
+
+    window.prepararMesclar = function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      if (documentoSelecionado.status === "ARQUIVADO") {
+        mostrarMensagemPainel("Restaure o documento antes de mesclar.", "erro");
+        return;
+      }
+
+      document.getElementById("boxRenomear").style.display = "none";
+      document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("boxMesclar").style.display = "block";
+      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("motivoMesclar").value = "";
+      documentosSelecionadosMesclar = new Set();
+      renderizarListaMesclar();
+      mostrarMensagemPainel("Selecione os PDFs que entrarão no arquivo principal.");
+    };
+
+    window.cancelarMesclar = function () {
+      if (mesclagemEmAndamento) {
+        mostrarMensagemPainel("A mesclagem está em andamento. Aguarde terminar.", "erro");
+        return;
+      }
+
+      documentosSelecionadosMesclar = new Set();
+      document.getElementById("boxMesclar").style.display = "none";
+      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("motivoMesclar").value = "";
+    };
+
+    async function baixarPdfDocumentoParaMesclar(documento, token) {
+      const driveItem = await obterDriveItemDoDocumento(documento);
+      const driveId = driveItem.parentReference?.driveId || documento.driveId;
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}/content`;
+
+      const resposta = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      return resposta.arrayBuffer();
+    }
+
+    async function criarPdfMesclado(documentos, token) {
+      const pdfFinal = await PDFDocument.create();
+
+      for (const documento of documentos) {
+        const bytes = await baixarPdfDocumentoParaMesclar(documento, token);
+        const pdfOrigem = await PDFDocument.load(bytes, { ignoreEncryption: true });
+        const paginas = await pdfFinal.copyPages(pdfOrigem, pdfOrigem.getPageIndices());
+        paginas.forEach(pagina => pdfFinal.addPage(pagina));
+      }
+
+      return pdfFinal.save();
+    }
+
+    window.confirmarMesclar = async function () {
+      if (!documentoSelecionado) {
+        mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
+        return;
+      }
+
+      if (mesclagemEmAndamento) {
+        mostrarMensagemPainel("A mesclagem já está em andamento.", "erro");
+        return;
+      }
+
+      const secundarios = obterSelecionadosMesclar();
+      const motivo = (document.getElementById("motivoMesclar").value || "").trim();
+
+      if (!secundarios.length) {
+        mostrarMensagemPainel("Selecione pelo menos um PDF para mesclar.", "erro");
+        return;
+      }
+
+      if (secundarios.length > 10) {
+        mostrarMensagemPainel("Nesta primeira versão, selecione no máximo 10 PDFs por mesclagem.", "erro");
+        return;
+      }
+
+      if (!motivo) {
+        mostrarMensagemPainel("Informe o motivo da mesclagem.", "erro");
+        return;
+      }
+
+      const nomesSecundarios = secundarios.map(doc => `- ${doc.nome}`).join("\n");
+      const confirmar = confirm(
+        `Mesclar PDFs no arquivo principal:\n\n${documentoSelecionado.nome}\n\nArquivos que serão adicionados:\n${nomesSecundarios}\n\nOs arquivos secundários continuarão ativos nesta versão.\n\nDeseja continuar?`
+      );
+
+      if (!confirmar) {
+        return;
+      }
+
+      try {
+        mesclagemEmAndamento = true;
+        const botao = document.getElementById("btnConfirmarMesclar");
+        if (botao) botao.disabled = true;
+        mostrarMensagemPainel("Mesclando PDFs. Aguarde...");
+
+        const token = await obterToken();
+        const principal = documentoSelecionado;
+        const documentosParaMesclar = [principal, ...secundarios];
+        const pdfMesclado = await criarPdfMesclado(documentosParaMesclar, token);
+        const driveItemPrincipal = await obterDriveItemDoDocumento(principal);
+        const driveIdPrincipal = driveItemPrincipal.parentReference?.driveId || principal.driveId;
+        const url = `https://graph.microsoft.com/v1.0/drives/${driveIdPrincipal}/items/${driveItemPrincipal.id}/content`;
+
+        const resposta = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/pdf"
+          },
+          body: new Blob([pdfMesclado], { type: "application/pdf" })
+        });
+
+        if (!resposta.ok) {
+          throw new Error(await resposta.text());
+        }
+
+        await registrarHistorico(
+          principal,
+          "MESCLADO",
+          `Mesclado com ${secundarios.length} arquivo(s): ${secundarios.map(doc => doc.nome).join("; ")}. Motivo: ${motivo}. Arquivos secundarios permanecem ativos.`
+        );
+
+        documentosSelecionadosMesclar = new Set();
+        document.getElementById("boxMesclar").style.display = "none";
+        document.getElementById("buscaMesclar").value = "";
+        document.getElementById("motivoMesclar").value = "";
+
+        await atualizarDadosMantendoPainel();
+        mostrarMensagemPainel("PDF mesclado com sucesso. Confira o arquivo final antes de mover originais para a Lixeira.");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagemPainel("Erro ao mesclar PDFs. Veja o console para detalhes.", "erro");
+      } finally {
+        mesclagemEmAndamento = false;
+        const botao = document.getElementById("btnConfirmarMesclar");
+        if (botao) botao.disabled = false;
+      }
+    };
+
     async function obterDriveDaBibliotecaAtivos() {
       const token = await obterToken();
       const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/drive?$select=id`;
@@ -1706,6 +1944,9 @@ try {
 
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "none";
+      document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxArquivar").style.display = "block";
       document.getElementById("motivoArquivar").value = "";
       mostrarMensagemPainel("Informe o motivo do arquivamento antes de confirmar.");
@@ -1808,6 +2049,8 @@ try {
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "none";
       document.getElementById("boxArquivar").style.display = "none";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxRestaurar").style.display = "block";
       document.getElementById("motivoRestaurar").value = "";
       mostrarMensagemPainel("Informe o motivo para restaurar este arquivo para a lista principal.");
@@ -1897,6 +2140,7 @@ try {
       document.getElementById("boxSubstituir").style.display = "none";
       document.getElementById("boxArquivar").style.display = "none";
       document.getElementById("boxRestaurar").style.display = "none";
+      document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxAlterarGaveta").style.display = "block";
       document.getElementById("novaGavetaDocumento").innerHTML = opcoesGavetaHtml(documentoSelecionado.gaveta || "");
       document.getElementById("motivoAlterarGaveta").value = "";
@@ -2177,6 +2421,7 @@ try {
       document.getElementById("btnSubstituir").style.display = estaArquivado ? "none" : "inline-block";
       document.getElementById("btnArquivar").style.display = estaArquivado ? "none" : "inline-block";
       document.getElementById("btnRestaurar").style.display = estaArquivado ? "inline-block" : "none";
+      document.getElementById("btnMesclar").style.display = estaArquivado ? "none" : "inline-block";
 
       document.getElementById("painelLateral").classList.add("aberto");
       document.getElementById("boxRenomear").style.display = "none";
@@ -2187,6 +2432,13 @@ try {
       document.getElementById("motivoArquivar").value = "";
       document.getElementById("boxRestaurar").style.display = "none";
       document.getElementById("motivoRestaurar").value = "";
+      document.getElementById("boxAlterarGaveta").style.display = "none";
+      document.getElementById("novaGavetaDocumento").value = "";
+      document.getElementById("motivoAlterarGaveta").value = "";
+      document.getElementById("boxMesclar").style.display = "none";
+      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("motivoMesclar").value = "";
+      documentosSelecionadosMesclar = new Set();
 
       carregarNomesParecidos(documento);
       await carregarHistoricoDocumento(documento);
@@ -2212,6 +2464,10 @@ try {
       document.getElementById("boxAlterarGaveta").style.display = "none";
       document.getElementById("novaGavetaDocumento").value = "";
       document.getElementById("motivoAlterarGaveta").value = "";
+      document.getElementById("boxMesclar").style.display = "none";
+      document.getElementById("buscaMesclar").value = "";
+      document.getElementById("motivoMesclar").value = "";
+      documentosSelecionadosMesclar = new Set();
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
       clearTimeout(timerSalvarAnotacao);
@@ -3399,6 +3655,65 @@ function renderizarDocumentos(listaArquivos) {
       background: #64748b;
     }
 
+    .contadorMesclar {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .listaDocumentosMesclar {
+      display: grid;
+      gap: 8px;
+      max-height: 240px;
+      overflow: auto;
+      margin: 0 0 10px;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    .listaDocumentosMesclar p {
+      margin: 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .opcaoMesclar {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .opcaoMesclar input {
+      width: 16px;
+      margin: 2px 0 0;
+    }
+
+    .opcaoMesclar strong,
+    .opcaoMesclar small {
+      display: block;
+    }
+
+    .opcaoMesclar strong {
+      color: #0f172a;
+      font-size: 13px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .opcaoMesclar small {
+      margin: 3px 0 0;
+      color: #64748b;
+      font-size: 11px;
+    }
+
     .anotacaoBox {
       margin: 16px 0;
     }
@@ -4346,7 +4661,7 @@ function renderizarDocumentos(listaArquivos) {
         <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
         <button id="btnArquivar" onclick="prepararArquivar()">Mover para Lixeira</button>
         <button id="btnRestaurar" onclick="prepararRestaurar()" style="display:none">Restaurar</button>
-        <button class="desativado" title="Será implementado depois">Mesclar</button>
+        <button id="btnMesclar" onclick="prepararMesclar()">Mesclar</button>
       </div>
 
       <div id="mensagemPainel" class="mensagemPainel"></div>
@@ -4399,6 +4714,22 @@ function renderizarDocumentos(listaArquivos) {
         <div class="linhaBotoes">
           <button onclick="confirmarAlterarGaveta()">Salvar gaveta</button>
           <button class="secundario" onclick="cancelarAlterarGaveta()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="boxMesclar" class="formAcao alertaAcao">
+        <h3>Mesclar arquivos</h3>
+        <p>O arquivo aberto no painel será o principal. Os PDFs escolhidos serão adicionados a ele e continuarão ativos.</p>
+        <input id="buscaMesclar" type="search" placeholder="Buscar PDFs ativos para mesclar..." oninput="filtrarDocumentosMesclar()">
+        <div id="contadorMesclar" class="contadorMesclar">0 selecionado(s).</div>
+        <div id="listaDocumentosMesclar" class="listaDocumentosMesclar">
+          <p>Nenhum PDF carregado.</p>
+        </div>
+        <textarea id="motivoMesclar" placeholder="Informe o motivo da mesclagem..."></textarea>
+        <small>Depois de mesclar, confira o PDF final antes de mover originais para a Lixeira.</small>
+        <div class="linhaBotoes">
+          <button id="btnConfirmarMesclar" onclick="confirmarMesclar()">Confirmar mesclagem</button>
+          <button class="secundario" onclick="cancelarMesclar()">Cancelar</button>
         </div>
       </div>
 
