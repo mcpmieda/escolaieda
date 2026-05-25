@@ -1,0 +1,48 @@
+PASSO 203 - CRIAR COLUNA GAVETA NO SHAREPOINT
+
+Data: 2026-05-25
+
+Pedido recebido via open AQUI:
+
+Implementar a base para Central de Upload com metadado de gaveta fisica.
+Antes de mexer no site, diagnosticar o SharePoint e criar/reutilizar a coluna corretamente.
+
+Diagnostico executado:
+
+- PnP.PowerShell 3.2.0 instalado.
+- Conexao feita com o site https://eduieda.sharepoint.com/sites/ARQUIVODIGITAL usando o Client ID do projeto.
+- Listas/bibliotecas confirmadas:
+  - DOCUMENTOS_ATIVOS: biblioteca, 313 itens.
+  - DOCUMENTOS_ARQUIVADOS: biblioteca, 0 itens.
+  - HISTORICO_ACESSOS: lista, 178 itens.
+  - ANOTACOES_ARQUIVOS: lista, 14 itens.
+  - ALERTAS_SISTEMA: lista, 15 itens.
+
+Resultado da busca por coluna existente:
+
+- Nao existia coluna visivel GAVETA, Gaveta, LOCALIZACAO, LOCALIZACAO_FISICA, LOCAL_FISICO ou GAVETA_FISICA.
+- Foi encontrado apenas campo tecnico oculto do SharePoint sem relacao com gaveta.
+
+Alteracao no SharePoint:
+
+- Criada a coluna GAVETA em DOCUMENTOS_ATIVOS.
+- Tipo: Choice.
+- InternalName confirmado: GAVETA.
+- Hidden: False.
+- Opcoes: Gaveta 1 ate Gaveta 34.
+
+Arquivos do site alterados:
+
+- Nenhum nesta etapa.
+
+Validacao:
+
+- Get-PnPField confirmou:
+  - Title: GAVETA
+  - InternalName: GAVETA
+  - TypeAsString: Choice
+  - Hidden: False
+
+Resultado:
+
+Base de metadado criada no SharePoint para a proxima etapa do site.
