@@ -22,7 +22,7 @@
     let documentosAtivos = [];
     let documentosLixeira = [];
     let documentosCarregados = [];
-    let modoListaAtual = "ativos";
+    let modoListaAtual = "recentes";
     let historicoCarregado = [];
     let anotacoesCarregadas = [];
     let documentoSelecionado = null;
@@ -347,7 +347,11 @@
       return false;
     }
     function buscarNomesParecidos(documento) {
-      const todos = [...documentosAtivos, ...documentosLixeira]
+      if (documento?.status === "ARQUIVADO") {
+        return [];
+      }
+
+      const todos = [...documentosAtivos]
         .filter(doc => doc && doc.id !== documento.id);
 
       return todos
@@ -499,15 +503,8 @@
     }
 
         function atualizarDashboard() {
-      const hoje = dataLocalISO();
-
-      const acessosHoje = historicoCarregado.filter(item =>
-        dataLocalISO(item.DATA_HORA) === hoje
-      );
-
       document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
-      document.getElementById("dashAcessos").textContent = historicoCarregado.length;
-      document.getElementById("dashAcessosHoje").textContent = acessosHoje.length;
+      document.getElementById("dashLixeira").textContent = documentosLixeira ? documentosLixeira.length : 0;
     }
     async function carregarDadosDeApoio() {
       const token = await obterToken();
@@ -556,21 +553,27 @@
     };
 
     function atualizarBotoesModoLista() {
+      const btnRecentes = document.getElementById("btnVerRecentes");
       const btnAtivos = document.getElementById("btnVerAtivos");
       const btnLixeira = document.getElementById("btnVerLixeira");
 
-      if (!btnAtivos || !btnLixeira) return;
+      if (!btnRecentes || !btnAtivos || !btnLixeira) return;
 
+      btnRecentes.classList.toggle("ativo", modoListaAtual === "recentes");
       btnAtivos.classList.toggle("ativo", modoListaAtual === "ativos");
       btnLixeira.classList.toggle("ativo", modoListaAtual === "na Lixeira");
 
-      document.getElementById("tituloListaDocumentos").textContent = modoListaAtual === "ativos"
-        ? "Documentos ativos"
-        : "Lixeira";
+      const titulo = modoListaAtual === "na Lixeira"
+        ? "Lixeira"
+        : modoListaAtual === "ativos"
+          ? "Documentos ativos"
+          : "Documentos recentes";
 
-      document.getElementById("campoBusca").placeholder = modoListaAtual === "ativos"
-        ? "Digite o nome do aluno ou parte do nome..."
-        : "Digite para pesquisar nos documentos na Lixeira...";
+      document.getElementById("tituloListaDocumentos").textContent = titulo;
+
+      document.getElementById("campoBusca").placeholder = modoListaAtual === "na Lixeira"
+        ? "Digite para pesquisar nos documentos na Lixeira..."
+        : "Digite o nome do aluno ou parte do nome...";
     }
 
     function aplicarListaAtual() {
@@ -582,6 +585,13 @@
       filtrarDocumentos();
       atualizarDashboard();
     }
+
+    window.mostrarDocumentosRecentes = function () {
+      modoListaAtual = "recentes";
+      document.getElementById("campoBusca").value = "";
+      fecharPainel();
+      aplicarListaAtual();
+    };
 
     window.mostrarDocumentosAtivos = function () {
       modoListaAtual = "ativos";
@@ -872,7 +882,7 @@
     }
 
         function gerarParesDuplicidades() {
-      const todos = [...documentosAtivos, ...documentosLixeira]
+      const todos = [...documentosAtivos]
         .filter(doc => doc && doc.nome && doc.id);
 
       const pares = [];
@@ -1747,7 +1757,8 @@ try {
         document.getElementById("boxArquivar").style.display = "none";
         document.getElementById("motivoArquivar").value = "";
 
-        await atualizarDadosMantendoPainel("na Lixeira");
+        fecharPainel();
+        await atualizarDadosMantendoPainel();
         mostrarMensagem("Documento enviado para a Lixeira com sucesso. Ele saiu da lista principal, mas não foi excluído.");
 
       } catch (erro) {
@@ -2335,14 +2346,17 @@ function renderizarDocumentos(listaArquivos) {
       const lista = document.getElementById("listaDocumentos");
       const contador = document.getElementById("contadorResultados");
       const movimentacoesRecentes = obterUltimasMovimentacoesPorArquivo(20);
+      const termoBusca = normalizarTexto(document.getElementById("campoBusca").value);
 
       const totalFiltrado = listaArquivos.length;
-      const listaExibida = modoListaAtual === "ativos"
+      const listaExibida = modoListaAtual === "recentes" && !termoBusca
         ? ordenarPorModificacaoMaisRecente(listaArquivos).slice(0, 20)
+        : modoListaAtual === "recentes"
+          ? ordenarPorModificacaoMaisRecente(listaArquivos)
         : listaArquivos;
 
-      contador.textContent = modoListaAtual === "ativos"
-        ? `${listaExibida.length} documento(s) ativo(s) recente(s) exibido(s)`
+      contador.textContent = modoListaAtual === "recentes" && !termoBusca
+        ? `${listaExibida.length} documento(s) recente(s) exibido(s)`
         : `${listaExibida.length} resultado(s) encontrado(s)`;
 
       if (!listaExibida.length) {
@@ -2356,7 +2370,7 @@ function renderizarDocumentos(listaArquivos) {
         const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
         const chaveId = item.id ? `id:${item.id}` : "";
         const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
-        const movimento = modoListaAtual === "ativos"
+        const movimento = modoListaAtual !== "na Lixeira"
           ? movimentacoesRecentes.get(chaveId) || movimentacoesRecentes.get(chaveNome)
           : null;
 
@@ -3495,16 +3509,6 @@ function renderizarDocumentos(listaArquivos) {
           <strong id="dashLixeira">0</strong>
         </div>
 
-        <div class="cardDash">
-          <span>Acessos registrados</span>
-          <strong id="dashAcessos">0</strong>
-        </div>
-
-        <div class="cardDash">
-          <span>Acessos hoje</span>
-          <strong id="dashAcessosHoje">0</strong>
-        </div>
-
         <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta">
           <div class="centralDuplicidadesTopo">
             <div>
@@ -3522,11 +3526,12 @@ function renderizarDocumentos(listaArquivos) {
 
 
       <div class="abasDocumentos">
-        <button id="btnVerAtivos" class="abaDocumento ativo" onclick="mostrarDocumentosAtivos()">Ativos</button>
+        <button id="btnVerRecentes" class="abaDocumento ativo" onclick="mostrarDocumentosRecentes()">Recentes</button>
+        <button id="btnVerAtivos" class="abaDocumento" onclick="mostrarDocumentosAtivos()">Ativos</button>
         <button id="btnVerLixeira" class="abaDocumento" onclick="mostrarDocumentosLixeira()">Lixeira</button>
       </div>
 
-      <h2 id="tituloListaDocumentos">Documentos ativos</h2>
+      <h2 id="tituloListaDocumentos">Documentos recentes</h2>
 
       <input
         id="campoBusca"
