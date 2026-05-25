@@ -618,27 +618,38 @@ visualizacaoRelatorioArquivo
 relatorioArquivoBox
 ```
 
-### 9.11. Upload direto
+### 9.11. Central de Upload
 
-Fluxo aprovado:
+Estado atual aprovado:
 
 ```text
-Enviar novo PDF → abrir seletor de arquivo diretamente
+Enviar novo PDF → abrir Central de Upload no proprio site
 ```
 
-Sem modal/caixinha antiga.
+A Central de Upload substituiu o antigo fluxo direto.
 
-Marcador preservado:
+Nao reintroduzir:
 
 ```text
 UPLOAD_DIRETO_LIMPO
+enviarNovoDocumentoDireto
+__enviarNovoDocumentoOriginalDireto
+modalUpload*
 ```
 
-O bloco `UPLOAD_DIRETO_LIMPO` não faz upload por conta própria; ele encaminha para:
+Comportamento atual:
 
-```text
-window.enviarNovoDocumento
-```
+- permite selecionar varios PDFs;
+- exige gaveta fisica;
+- exige motivo do upload;
+- lista os arquivos antes do envio;
+- envia somente ao clicar em `Enviar PDF(s)`;
+- preserva a regra segura de nome livre;
+- salva o metadado `GAVETA` no SharePoint;
+- registra historico `ENVIOU` com motivo e gaveta;
+- mostra progresso por arquivo/etapa;
+- protege o fechamento durante envio;
+- evita clique duplo e reenvio acidental.
 
 ---
 
@@ -1991,3 +2002,335 @@ Busca por nome preservada.
 Lixeira preservada.
 Central de Duplicidades no dashboard com painel esquerdo preservada.
 ```
+
+---
+
+## 30. Atualizacao recente - guias, gaveta fisica e Central de Upload
+
+Data: 2026-05-25
+
+Esta secao registra os passos posteriores ao ponto seguro dos ativos recentes.
+
+### 30.1. Guias Recentes, Ativos e Lixeira
+
+Foi criada a guia:
+
+```text
+Recentes
+```
+
+Estado atual:
+
+- as guias sao `Recentes`, `Ativos` e `Lixeira`;
+- `Recentes` mostra os 20 documentos ativos mais recentes quando nao ha busca;
+- busca em `Recentes` e `Ativos` pesquisa todos os documentos ativos, sem limite de 20;
+- busca em `Lixeira` pesquisa somente documentos da Lixeira;
+- mover documento para Lixeira nao troca automaticamente para a guia Lixeira;
+- Dashboard nao mostra mais `Acessos registrados` nem `Acessos hoje`;
+- Central de Duplicidades ignora documentos da Lixeira.
+
+Commits relevantes:
+
+```text
+cabfc72 Ajustar guias recentes lixeira e dashboard
+c2666ea Registrar ponto seguro das guias recentes
+```
+
+Ponto seguro:
+
+```text
+ponto-seguro-guias-recentes-lixeira-dashboard-ok
+```
+
+Registros:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_201_GUIAS_RECENTES_LIXEIRA_DASHBOARD.txt
+SALVAMENTO_AUTOMATICO\PASSO_202_PONTO_SEGURO_GUIAS_RECENTES_LIXEIRA_DASHBOARD.txt
+```
+
+### 30.2. Coluna GAVETA no SharePoint
+
+Foi criada/reutilizada a coluna:
+
+```text
+Title: GAVETA
+InternalName: GAVETA
+Tipo: Choice
+Lista/biblioteca: DOCUMENTOS_ATIVOS
+```
+
+Opcoes atuais:
+
+```text
+Gaveta 1 ate Gaveta 34
+```
+
+Regras:
+
+- nao criar coluna duplicada de gaveta;
+- usar sempre o InternalName `GAVETA`;
+- a coluna fica na biblioteca `DOCUMENTOS_ATIVOS`;
+- Lixeira interna usa a pasta `_ARQUIVADOS`, mas o item continua na mesma biblioteca e preserva metadados.
+
+Commit:
+
+```text
+94f7414 Registrar coluna gaveta no SharePoint
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_203_CRIAR_COLUNA_GAVETA_SHAREPOINT.txt
+```
+
+### 30.3. Exibicao de gaveta no site
+
+O site passou a carregar `GAVETA` na consulta de documentos:
+
+```text
+fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType,GAVETA)
+```
+
+Estado atual:
+
+- a gaveta aparece como selo na listagem;
+- aparece em `Recentes`, `Ativos` e `Lixeira`;
+- aparece no painel lateral em `Localizacao fisica`;
+- quando o arquivo nao tem gaveta, mostra `Gaveta nao informada`.
+
+Commit:
+
+```text
+29b9479 Exibir gaveta dos documentos
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_204_EXIBIR_GAVETA_SITE.txt
+```
+
+### 30.4. Central de Upload com gaveta e motivo
+
+A Central de Upload substituiu o antigo upload direto.
+
+IDs e funcoes importantes:
+
+```text
+centralUpload
+abrirCentralUpload
+fecharCentralUpload
+confirmarUploadCentral
+listaArquivosUpload
+gavetaUpload
+motivoUpload
+btnConfirmarUploadCentral
+btnFecharCentralUpload
+```
+
+Comportamento atual:
+
+- `Enviar novo PDF` abre a Central de Upload;
+- permite selecionar varios PDFs;
+- nao envia automaticamente ao selecionar arquivos;
+- exige gaveta;
+- exige motivo;
+- lista arquivos para conferencia;
+- preserva a regra de nome livre, gerando `NOME (2).pdf`, etc.;
+- salva o campo `GAVETA` no SharePoint apos cada upload;
+- registra historico `ENVIOU` com motivo e gaveta;
+- atualiza documentos, dashboard/dados de apoio e Central de Duplicidades apos upload.
+
+Nao reintroduzir:
+
+```text
+UPLOAD_DIRETO_LIMPO
+enviarNovoDocumentoDireto
+__enviarNovoDocumentoOriginalDireto
+modalUpload*
+```
+
+Commit:
+
+```text
+3c7272e Adicionar central de upload com gaveta
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_205_CENTRAL_UPLOAD_GAVETA.txt
+```
+
+### 30.5. Alterar gaveta no painel lateral
+
+Foi adicionada no painel lateral a acao:
+
+```text
+Alterar gaveta
+```
+
+Comportamento:
+
+- permite escolher `Gaveta 1` ate `Gaveta 34`;
+- motivo e obrigatorio;
+- atualiza a coluna `GAVETA` no SharePoint;
+- registra historico `ALTEROU_GAVETA`;
+- observacao registra gaveta anterior, nova gaveta e motivo;
+- atualiza painel, listagem e historico.
+
+Commit:
+
+```text
+395bf41 Permitir alterar gaveta no painel
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_206_ALTERAR_GAVETA_PAINEL.txt
+```
+
+### 30.6. Validacao e ponto seguro da gaveta/upload
+
+Validacao local feita:
+
+```text
+JS module syntax OK.
+git diff --check sem erros.
+PnP confirmou GAVETA como Choice, Hidden False.
+```
+
+O usuario testou no site publicado e aprovou.
+
+Ponto seguro:
+
+```text
+ponto-seguro-gaveta-central-upload-ok
+```
+
+Commits:
+
+```text
+e683ed2 Registrar validacao final da gaveta
+af3b488 Registrar ponto seguro da central de upload
+```
+
+Registros:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_207_VALIDACAO_FINAL_GAVETA_UPLOAD.txt
+SALVAMENTO_AUTOMATICO\PASSO_208_PONTO_SEGURO_GAVETA_CENTRAL_UPLOAD.txt
+```
+
+---
+
+## 31. Atualizacao recente - seguranca e visual da Central de Upload
+
+Data: 2026-05-25
+
+### 31.1. Fechamento seguro e progresso
+
+A Central de Upload ganhou protecoes para usuario leigo.
+
+Comportamento atual:
+
+- X fecha normalmente quando nao ha rascunho;
+- se houver arquivos/gaveta/motivo sem envio, pede confirmacao;
+- confirmacao mostra `Continuar enviando` e `Sair sem enviar`;
+- durante upload, X, Esc, limpar selecao e saida da pagina ficam protegidos;
+- `beforeunload` avisa se tentar sair durante upload;
+- `Enviar PDF(s)` fica desativado durante upload;
+- evita clique duplo e reenvio do mesmo lote;
+- mostra barra de progresso por arquivo/etapa;
+- mostra percentual, etapa, contagem e arquivo atual;
+- mostra status por arquivo: `Pendente`, `Enviando`, `Enviado`, `Conflito`, `Erro`;
+- em sucesso, exibe `Concluir e fechar`;
+- em erro, mantem a lista visivel e pede confirmacao para fechar.
+
+Commit:
+
+```text
+ff5acaf Adicionar fechamento seguro e progresso na Central de Upload
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_209_FECHAMENTO_SEGURO_PROGRESSO_UPLOAD.txt
+```
+
+### 31.2. Destaque visual do botao de envio
+
+Ajuste apenas visual em CSS:
+
+- botao `Enviar PDF(s)` ficou vermelho forte;
+- texto branco;
+- fonte em negrito;
+- borda arredondada;
+- sombra leve;
+- hover vermelho mais escuro;
+- X da Central ficou mais visivel.
+
+Commit:
+
+```text
+edc24dd Melhorar destaque visual do botão enviar upload
+```
+
+Ponto seguro:
+
+```text
+ponto-seguro-upload-visual-botao-vermelho-ok
+```
+
+Commit de registro:
+
+```text
+16b72ae Registrar ponto seguro visual do upload
+```
+
+Registros:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_210_DESTAQUE_VISUAL_BOTAO_UPLOAD.txt
+SALVAMENTO_AUTOMATICO\PASSO_211_PONTO_SEGURO_UPLOAD_VISUAL_BOTAO_VERMELHO.txt
+```
+
+### 31.3. Estado atual em linguagem simples
+
+Estado aprovado mais recente:
+
+```text
+Site funcionando.
+Guias: Recentes, Ativos e Lixeira.
+Central de Duplicidades no dashboard e painel esquerdo.
+Central ignora documentos da Lixeira.
+Documentos carregam com gaveta fisica.
+Central de Upload envia varios PDFs com gaveta e motivo.
+Upload preserva regra segura de nome livre.
+Historico registra ENVIOU com motivo/gaveta.
+Painel lateral permite alterar gaveta.
+Historico registra ALTEROU_GAVETA.
+Central de Upload tem fechamento seguro e barra de progresso.
+Botao Enviar PDF(s) esta em vermelho e destacado.
+```
+
+Ponto seguro mais atual:
+
+```text
+ponto-seguro-upload-visual-botao-vermelho-ok
+```
+
+### 31.4. Recomendacao para fechamento do projeto
+
+Antes de considerar entrega final:
+
+1. Rodar checklist completo no site publicado.
+2. Corrigir apenas falhas reais encontradas no checklist.
+3. Atualizar AGENTS com qualquer ajuste adicional.
+4. Criar ponto seguro final de entrega.
+
+Nao iniciar funcionalidades grandes novas antes do ponto seguro final.
