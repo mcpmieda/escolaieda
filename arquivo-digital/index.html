@@ -4579,6 +4579,174 @@ function renderizarDocumentos(listaArquivos) {
     .itemVersao small {
       color: #64748b;
     }
+
+    /* CSS_RESPONSIVIDADE_FASE4 */
+    @media (max-width: 1100px) {
+      .dashboard {
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
+      }
+
+      .cardDash.largo,
+      .dashboard .centralDuplicidades {
+        grid-column: span 3;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      h1 {
+        font-size: 23px;
+        line-height: 1.2;
+      }
+
+      .subtituloSistema,
+      .areaUploadNovo small,
+      .centralUploadTopo p {
+        font-size: 13px;
+      }
+
+      .dashboardTopo,
+      .centralUploadTopo,
+      .linhaAnotacao {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .cardDash,
+      .cardDash.largo,
+      .dashboard .centralDuplicidades {
+        grid-column: auto;
+        min-width: 0;
+      }
+
+      .abasDocumentos {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .abaDocumento {
+        width: 100%;
+        padding: 10px 8px;
+        text-align: center;
+      }
+
+      .busca {
+        font-size: 15px;
+        padding: 12px;
+      }
+
+      .areaUploadNovo,
+      .centralUploadAcoes,
+      .confirmacaoFecharUploadAcoes,
+      .linhaBotoes,
+      .duplicidadeAcoes {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .areaUploadNovo button,
+      .centralUploadAcoes button,
+      .confirmacaoFecharUploadAcoes button,
+      .linhaBotoes button,
+      .linhaAnotacao button,
+      .duplicidadeAcoes button,
+      .centralDuplicidadesTopo button,
+      .duplicidadeArquivo button,
+      .btnVersaoSharePoint {
+        width: 100%;
+      }
+
+      .itemArquivo {
+        padding: 13px;
+      }
+
+      .itemArquivo strong,
+      .itemArquivo span,
+      .seloGaveta,
+      .linhaMovimentacaoArquivo,
+      .linhaDataArquivo {
+        overflow-wrap: anywhere;
+      }
+
+      .painelLateral {
+        width: min(100vw, 470px);
+        right: -100vw;
+      }
+
+      .painelCentralDuplicidades {
+        left: -100vw;
+        right: auto;
+      }
+
+      .painelTopo,
+      .painelConteudo {
+        padding: 14px;
+      }
+
+      .painelTopo h2 {
+        font-size: 17px;
+        overflow-wrap: anywhere;
+      }
+
+      .acoes {
+        grid-template-columns: 1fr;
+      }
+
+      .formAcao,
+      .anotacaoBox,
+      .itemHistorico,
+      .itemVersao,
+      .duplicidadeCard {
+        overflow-wrap: anywhere;
+      }
+
+      .centralUpload {
+        padding: 14px;
+      }
+
+      .listaArquivosUpload li {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 8px;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      .abasDocumentos {
+        grid-template-columns: 1fr;
+      }
+
+      button,
+      .abaDocumento {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .painelLateral {
+        width: 100vw;
+      }
+    }
   </style>
 
 </head>
