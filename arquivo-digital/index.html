@@ -33,6 +33,10 @@
     let anotacaoUltimoTextoSalvo = "";
     let arquivoLocalMesclar = null;
     let mesclagemEmAndamento = false;
+    let dadosApoioCarregando = false;
+    let duplicidadesCarregando = false;
+    let versoesSharePointCarregadas = [];
+    let versoesSharePointExpandido = false;
 
     const msalConfig = {
       auth: {
@@ -515,43 +519,76 @@
       return div.innerHTML;
     }
 
-        function atualizarDashboard() {
+    function agendarTarefaSegundoPlano(tarefa, atraso = 80) {
+      const executar = () => {
+        try {
+          const resultado = tarefa();
+          if (resultado && typeof resultado.catch === "function") {
+            resultado.catch(erro => console.warn("Tarefa em segundo plano falhou.", erro));
+          }
+        } catch (erro) {
+          console.warn("Tarefa em segundo plano falhou.", erro);
+        }
+      };
+
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(executar, { timeout: 2500 });
+        return;
+      }
+
+      setTimeout(executar, atraso);
+    }
+
+    function atualizarCardParesIgnorados() {
+      const total = paresDuplicidadesIgnoradosDetalhes.length || paresDuplicidadesIgnorados.size || 0;
+      const elemento = document.getElementById("dashParesIgnorados");
+      if (elemento) elemento.textContent = total;
+    }
+
+    function atualizarDashboard() {
       document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
       document.getElementById("dashLixeira").textContent = documentosLixeira ? documentosLixeira.length : 0;
+      atualizarCardParesIgnorados();
     }
     async function carregarDadosDeApoio() {
-      const token = await obterToken();
+      if (dadosApoioCarregando) return;
+      dadosApoioCarregando = true;
+      try {
+        const token = await obterToken();
 
-      const urlHistorico = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
+        const urlHistorico = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
 
-      const itensHistorico = await buscarTodosItens(urlHistorico, token);
+        const itensHistorico = await buscarTodosItens(urlHistorico, token);
 
-      historicoCarregado = itensHistorico.map(item => ({
-        ID: item.id,
-        ARQUIVO: item.fields?.Title || "",
-        USUARIO_EMAIL: item.fields?.USUARIO_EMAIL || "",
-        ACAO: item.fields?.ACAO || "",
-        USUARIO_NOME: item.fields?.USUARIO_NOME || "",
-        DATA_HORA: item.fields?.DATA_HORA || "",
-        ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
-        OBSERVACAO: item.fields?.OBSERVACAO || ""
-      }));
+        historicoCarregado = itensHistorico.map(item => ({
+          ID: item.id,
+          ARQUIVO: item.fields?.Title || "",
+          USUARIO_EMAIL: item.fields?.USUARIO_EMAIL || "",
+          ACAO: item.fields?.ACAO || "",
+          USUARIO_NOME: item.fields?.USUARIO_NOME || "",
+          DATA_HORA: item.fields?.DATA_HORA || "",
+          ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
+          OBSERVACAO: item.fields?.OBSERVACAO || ""
+        }));
 
-      const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
+        const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
 
-      const itensAnotacoes = await buscarTodosItens(urlAnotacoes, token);
+        const itensAnotacoes = await buscarTodosItens(urlAnotacoes, token);
 
-      anotacoesCarregadas = itensAnotacoes.map(item => ({
-        ID: item.id,
-        ARQUIVO: item.fields?.Title || "",
-        ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
-        ANOTACAO: item.fields?.ANOTACAO || "",
-        ATUALIZADO_POR: item.fields?.ATUALIZADO_POR || "",
-        DATA_ATUALIZACAO: item.fields?.DATA_ATUALIZACAO || ""
-      }));
+        anotacoesCarregadas = itensAnotacoes.map(item => ({
+          ID: item.id,
+          ARQUIVO: item.fields?.Title || "",
+          ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
+          ANOTACAO: item.fields?.ANOTACAO || "",
+          ATUALIZADO_POR: item.fields?.ATUALIZADO_POR || "",
+          DATA_ATUALIZACAO: item.fields?.DATA_ATUALIZACAO || ""
+        }));
 
-      atualizarDashboard();
-      filtrarDocumentos();
+        atualizarDashboard();
+        filtrarDocumentos();
+      } finally {
+        dadosApoioCarregando = false;
+      }
     }
 
     window.recarregarDashboard = async function () {
@@ -759,6 +796,7 @@
 
     function renderizarParesIgnoradosDuplicidade() {
       const caixa = document.getElementById("listaParesIgnoradosDuplicidade");
+      atualizarCardParesIgnorados();
       if (!caixa) return;
 
       if (!paresDuplicidadesIgnoradosDetalhes.length) {
@@ -823,9 +861,7 @@
 
         mostrarMensagem("Marcação desfeita. A Central foi atualizada.");
 
-        if (typeof atualizarCentralDuplicidades === "function") {
-          await atualizarCentralDuplicidades();
-        }
+        atualizarCentralDuplicidadesSegundoPlano();
       } catch (erro) {
         console.error(erro);
         mostrarMensagem("Nao foi possivel desfazer a marcacao. Tente novamente.", "erro");
@@ -954,6 +990,19 @@
       }
     }
 
+    function atualizarCentralDuplicidadesSegundoPlano() {
+      const resumo = document.getElementById("resumoCentralDuplicidades");
+      if (resumo) {
+        resumo.textContent = "Analisando duplicidades em segundo plano...";
+      }
+
+      agendarTarefaSegundoPlano(async () => {
+        if (typeof atualizarCentralDuplicidades === "function") {
+          await atualizarCentralDuplicidades();
+        }
+      }, 150);
+    }
+
     window.alternarCentralDuplicidades = function () {
       centralDuplicidadesAberta = true;
       aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
@@ -966,6 +1015,18 @@
       document.getElementById("painelCentralDuplicidades")?.classList.remove("aberto");
     };
 
+    window.abrirParesIgnoradosDashboard = function () {
+      centralDuplicidadesAberta = true;
+      aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
+      document.getElementById("painelCentralDuplicidades")?.classList.add("aberto");
+
+      const detalhes = document.querySelector(".paresIgnoradosDuplicidade");
+      if (detalhes) {
+        detalhes.open = true;
+        setTimeout(() => detalhes.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      }
+    };
+
     window.atualizarCentralDuplicidades = async function () {
       const caixa = document.getElementById("listaCentralDuplicidades");
       const resumo = document.getElementById("resumoCentralDuplicidades");
@@ -974,12 +1035,17 @@
         return;
       }
 
+      if (duplicidadesCarregando) return;
+      duplicidadesCarregando = true;
+      resumo.textContent = "Analisando duplicidades em segundo plano...";
+
       try {
         await carregarParesDuplicidadeIgnorados();
         renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
         console.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
         resumo.textContent = "Nao foi possivel atualizar a Central de Duplicidades agora.";
+        duplicidadesCarregando = false;
         return;
       }
 
@@ -994,6 +1060,7 @@
 
       if (!pares.length) {
         caixa.innerHTML = "";
+        duplicidadesCarregando = false;
         return;
       }
 
@@ -1032,6 +1099,7 @@
           </div>
         `;
       }).join("");
+      duplicidadesCarregando = false;
     };
 
     window.abrirArquivoDaCentral = async function (id, status) {
@@ -2288,12 +2356,66 @@ try {
       }
     };
 
+    function renderizarVersoesSharePoint() {
+      const caixa = document.getElementById("versoesSharePoint");
+      if (!caixa) return;
+
+      const versoes = versoesSharePointCarregadas || [];
+      if (!versoes.length) {
+        caixa.innerHTML = "<p>Nenhuma versao encontrada.</p>";
+        return;
+      }
+
+      const visiveis = versoesSharePointExpandido ? versoes : versoes.slice(0, 2);
+
+      caixa.innerHTML = visiveis.map((versao, indice) => {
+        const indiceReal = versoes.indexOf(versao);
+        const data = formatarData(versao.lastModifiedDateTime);
+        const usuario = versao.lastModifiedBy?.user?.displayName || versao.lastModifiedBy?.user?.email || "";
+        const tamanho = versao.size ? `${Math.round(versao.size / 1024)} KB` : "";
+        const numero = versao.id || `${indiceReal + 1}`;
+        const ehAtual = indiceReal === 0;
+
+        const botao = ehAtual
+          ? `<button class="secundario btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versao atual</button>`
+          : `<button class="secundario btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versao</button>`;
+
+        return `
+          <div class="itemVersao">
+            <strong>${ehAtual ? "Versao atual" : "Versao anterior"} ${escaparHtml(numero)}</strong>
+            <span>${data}</span>
+            <small>${escaparHtml(usuario)} ${tamanho ? " - " + escaparHtml(tamanho) : ""}</small>
+            <div class="acoesVersaoSharePoint">
+              ${botao}
+            </div>
+          </div>
+        `;
+      }).join("") + (versoes.length > 2 ? `
+        <button class="secundario btnAlternarVersoes" type="button" onclick="alternarTodasVersoesSharePoint()">
+          ${versoesSharePointExpandido ? "Recolher" : "Ver todas"}
+        </button>
+      ` : "");
+
+      caixa.querySelectorAll(".btnVersaoSharePoint[data-version-id]").forEach(botao => {
+        botao.addEventListener("click", () => {
+          visualizarVersaoSharePoint(botao.dataset.versionId);
+        });
+      });
+    }
+
+    window.alternarTodasVersoesSharePoint = function () {
+      versoesSharePointExpandido = !versoesSharePointExpandido;
+      renderizarVersoesSharePoint();
+    };
+
     async function carregarVersoesSharePointDocumento(documento) {
       const caixa = document.getElementById("versoesSharePoint");
 
       if (!caixa) return;
 
       window.versaoDownloadDocumentoAtual = null;
+      versoesSharePointCarregadas = [];
+      versoesSharePointExpandido = false;
 
       if (!documento || !documento.listItemId) {
         caixa.innerHTML = "<p>Selecione um arquivo para carregar as versoes.</p>";
@@ -2335,34 +2457,8 @@ try {
           return;
         }
 
-        caixa.innerHTML = versoes.map((versao, indice) => {
-          const data = formatarData(versao.lastModifiedDateTime);
-          const usuario = versao.lastModifiedBy?.user?.displayName || versao.lastModifiedBy?.user?.email || "";
-          const tamanho = versao.size ? `${Math.round(versao.size / 1024)} KB` : "";
-          const numero = versao.id || `${indice + 1}`;
-          const ehAtual = indice === 0;
-
-          const botao = ehAtual
-            ? `<button class="secundario btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versao atual</button>`
-            : `<button class="secundario btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versao</button>`;
-
-          return `
-            <div class="itemVersao">
-              <strong>${ehAtual ? "Versao atual" : "Versao anterior"} ${escaparHtml(numero)}</strong>
-              <span>${data}</span>
-              <small>${escaparHtml(usuario)} ${tamanho ? " - " + escaparHtml(tamanho) : ""}</small>
-              <div class="acoesVersaoSharePoint">
-                ${botao}
-              </div>
-            </div>
-          `;
-        }).join("");
-
-        caixa.querySelectorAll(".btnVersaoSharePoint[data-version-id]").forEach(botao => {
-          botao.addEventListener("click", () => {
-            visualizarVersaoSharePoint(botao.dataset.versionId);
-          });
-        });
+        versoesSharePointCarregadas = versoes;
+        renderizarVersoesSharePoint();
 
       } catch (erro) {
         console.error(erro);
@@ -3099,11 +3195,7 @@ function renderizarDocumentos(listaArquivos) {
 
         aplicarListaAtual();
 
-        if (typeof atualizarCentralDuplicidades === "function") {
-          atualizarCentralDuplicidades().catch(erro => {
-            console.warn("Nao foi possivel atualizar a Central de Duplicidades automaticamente.", erro);
-          });
-        }
+        atualizarCentralDuplicidadesSegundoPlano();
 
       } catch (erro) {
         lista.innerHTML = "<li class=\"erro\">Nao foi possivel carregar os documentos. Tente novamente.</li>";
@@ -3130,7 +3222,7 @@ function renderizarDocumentos(listaArquivos) {
         `;
 
         await listarDocumentos();
-        await carregarDadosDeApoio();
+        agendarTarefaSegundoPlano(carregarDadosDeApoio, 120);
       } else {
         document.getElementById("usuario").innerHTML = "";
       }
@@ -4882,6 +4974,68 @@ function renderizarDocumentos(listaArquivos) {
       background: #ffffff;
     }
 
+    /* PACOTE1_DESEMPENHO_USABILIDADE */
+    .cardParesIgnorados {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      color: #1f2937;
+      border: 1px solid #e5e7eb;
+      box-shadow: none;
+      cursor: pointer;
+    }
+
+    .cardParesIgnorados:hover:not(:disabled) {
+      background: #eef3ff;
+      color: #0f2f66;
+      border-color: #bfdbfe;
+      box-shadow: 0 5px 14px rgba(15, 47, 102, .10);
+    }
+
+    .cardParesIgnorados small {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .itemArquivo:hover {
+      background: #eaf1fb;
+      color: #172033;
+      border-color: #bfdbfe;
+      box-shadow: 0 8px 18px rgba(15, 47, 102, .12);
+    }
+
+    .itemArquivo:hover strong {
+      color: #0f2f66;
+    }
+
+    .itemArquivo:hover span {
+      color: #475569;
+    }
+
+    .itemArquivo:hover .linhaDataArquivo {
+      color: #475569 !important;
+    }
+
+    .itemArquivo:hover .linhaMovimentacaoArquivo {
+      background: #ffffff;
+      color: #0f2f66 !important;
+    }
+
+    .painelLateral,
+    .painelConteudo,
+    .painelCentralDuplicidades {
+      overscroll-behavior: contain;
+    }
+
+    .btnAlternarVersoes {
+      width: 100%;
+      margin-top: 4px;
+    }
+
     /* CSS_RESPONSIVIDADE_FASE4 */
     @media (max-width: 1100px) {
       .dashboard {
@@ -5163,6 +5317,12 @@ function renderizarDocumentos(listaArquivos) {
           </div>
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
         </div>
+
+        <button id="cardParesIgnorados" class="cardDash cardParesIgnorados" type="button" onclick="abrirParesIgnoradosDashboard()">
+          <span>Pessoas diferentes</span>
+          <strong id="dashParesIgnorados">0</strong>
+          <small>Pares marcados para não aparecer como duplicidade</small>
+        </button>
 
       </div>
 

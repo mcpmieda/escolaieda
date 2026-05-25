@@ -1,0 +1,47 @@
+PASSO 229 - PACOTE 1 DESEMPENHO E USABILIDADE GERAL
+
+Data: 2026-05-25
+
+Pedido:
+
+- Executar pacote 1 das melhorias finais.
+- Melhorar carregamento inicial, Central de Duplicidades, hover, rolagem do painel e exibicao de versoes.
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracoes:
+
+- Dados de apoio passaram a carregar em segundo plano no carregamento inicial.
+- Central de Duplicidades passou a exibir mensagem de analise em segundo plano.
+- Atualizacao automatica da Central de Duplicidades deixou de bloquear a tela principal.
+- Criado card no dashboard para pares marcados como pessoas diferentes.
+- Card abre o painel da Central diretamente na area de pares ignorados.
+- Hover dos documentos ficou mais suave e legivel.
+- Painel lateral recebeu overscroll-behavior para reduzir vazamento de rolagem.
+- Versoes do SharePoint mostram inicialmente 2 versoes e botao Ver todas/Recolher.
+
+Areas preservadas:
+
+- Login Microsoft/MSAL.
+- CONFIG e IDs.
+- SharePoint/Graph.
+- Regras de upload.
+- Mesclar.
+- Substituir.
+- Renomear.
+- Lixeira/restaurar.
+- Anotacoes.
+- Historico individual.
+- Calculo de duplicidades.
+
+Validacao:
+
+- JS module syntax OK.
+- JS OK com AsyncFunction.
+- git diff --check sem erros.
+
+Commit:
+
+- Melhorar desempenho e usabilidade geral
