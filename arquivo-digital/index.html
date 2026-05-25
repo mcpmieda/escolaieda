@@ -4580,6 +4580,97 @@ function renderizarDocumentos(listaArquivos) {
       color: #64748b;
     }
 
+    /* CSS_ACABAMENTO_FASE5_PAINEL */
+    .painelConteudo {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .campoInfo {
+      margin-bottom: 10px;
+      background: #ffffff;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, .03);
+    }
+
+    .campoInfo span {
+      color: #1f2937;
+      line-height: 1.35;
+    }
+
+    .acoes {
+      position: relative;
+      padding: 34px 12px 12px;
+      background: #eef3ff;
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+    }
+
+    .acoes::before {
+      content: "Acoes do arquivo";
+      position: absolute;
+      top: 11px;
+      left: 12px;
+      color: #0f2f66;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .formAcao,
+    .anotacaoBox,
+    .nomesParecidosBox,
+    #versoesSharePoint,
+    #historicoArquivo {
+      padding: 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, .03);
+    }
+
+    .formAcao {
+      border-left: 4px solid #0f2f66;
+    }
+
+    .formAcao.alertaAcao {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      border-left-color: #b45309;
+    }
+
+    .painelConteudo > h3,
+    .anotacaoBox h3,
+    .nomesParecidosBox h3,
+    .formAcao h3 {
+      margin: 18px 0 8px;
+      color: #0f2f66;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .formAcao h3,
+    .anotacaoBox h3,
+    .nomesParecidosBox h3 {
+      margin-top: 0;
+    }
+
+    .itemHistorico,
+    .itemVersao,
+    .nomeParecido {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    .motivoHistorico {
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+    }
+
+    .linhaAnotacao {
+      padding-top: 8px;
+      align-items: center;
+    }
+
     /* CSS_RESPONSIVIDADE_FASE4 */
     @media (max-width: 1100px) {
       .dashboard {
