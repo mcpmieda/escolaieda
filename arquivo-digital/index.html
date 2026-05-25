@@ -3233,48 +3233,77 @@ function renderizarDocumentos(listaArquivos) {
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f3f5f9;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #edf2f7;
       margin: 0;
-      padding: 40px;
-      color: #1f2937;
+      padding: 32px;
+      color: #172033;
     }
 
     .card {
-      max-width: 1100px;
+      max-width: 1180px;
       margin: auto;
       background: white;
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      border: 1px solid #dbe3ef;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 18px 42px rgba(15, 47, 102, .10);
     }
 
     h1 {
-      margin-top: 0;
+      margin: 0 0 6px;
       color: #0f2f66;
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .subtituloSistema {
+      max-width: 720px;
+      margin: 0 0 18px;
+      color: #5b677a;
+      line-height: 1.45;
+    }
+
+    .barraLogin {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 12px 0;
     }
 
     button {
       border: 0;
-      border-radius: 10px;
-      padding: 12px 18px;
+      border-radius: 9px;
+      padding: 11px 16px;
       cursor: pointer;
       font-weight: bold;
       background: #0f2f66;
       color: white;
-      margin-right: 8px;
+      margin: 0 8px 8px 0;
+      transition: background .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #123d82;
+      box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(1px);
     }
 
     #btnSair {
-      background: #666;
+      background: #64748b;
       display: none;
     }
 
     .info {
       margin-top: 20px;
       padding: 15px;
-      background: #eef3ff;
-      border-radius: 12px;
+      background: #eef4ff;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
     }
 
     #areaSistema {
@@ -3287,12 +3316,15 @@ function renderizarDocumentos(listaArquivos) {
       justify-content: space-between;
       gap: 12px;
       align-items: center;
-      margin-bottom: 12px;
+      margin: 26px 0 12px;
+      padding-top: 18px;
+      border-top: 1px solid #e5eaf2;
     }
 
     .dashboardTopo h2 {
       margin: 0;
       color: #0f2f66;
+      font-size: 20px;
     }
 
     .btnAtualizar {
@@ -3306,22 +3338,24 @@ function renderizarDocumentos(listaArquivos) {
       display: grid;
       grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 12px;
-      margin: 16px 0 18px 0;
+      margin: 14px 0 20px 0;
     }
 
     .cardDash {
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 14px;
-      min-height: 84px;
+      background: #f9fbfd;
+      border: 1px solid #dde6f2;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 82px;
     }
 
     .cardDash span {
       display: block;
       font-size: 12px;
-      color: #64748b;
+      color: #5b677a;
       margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .02em;
     }
 
     .cardDash strong {
@@ -3344,7 +3378,7 @@ function renderizarDocumentos(listaArquivos) {
     .abasDocumentos {
       display: flex;
       gap: 8px;
-      margin: 18px 0 10px 0;
+      margin: 20px 0 12px 0;
       flex-wrap: wrap;
     }
 
@@ -3354,11 +3388,13 @@ function renderizarDocumentos(listaArquivos) {
       padding: 9px 14px;
       margin: 0;
       font-size: 13px;
+      border: 1px solid #cbd5e1;
     }
 
     .abaDocumento.ativo {
       background: #0f2f66;
       color: white;
+      border-color: #0f2f66;
     }
 
     .busca {
@@ -3366,9 +3402,10 @@ function renderizarDocumentos(listaArquivos) {
       box-sizing: border-box;
       padding: 14px;
       border: 1px solid #cbd5e1;
-      border-radius: 12px;
+      border-radius: 10px;
       font-size: 16px;
       margin: 10px 0 8px 0;
+      background: #ffffff;
     }
 
     .contador {
@@ -3383,6 +3420,7 @@ function renderizarDocumentos(listaArquivos) {
       padding: 12px;
       background: #ecfdf5;
       color: #065f46;
+      border: 1px solid #bbf7d0;
       border-radius: 10px;
       font-weight: bold;
     }
@@ -3390,6 +3428,7 @@ function renderizarDocumentos(listaArquivos) {
     .erroBox {
       background: #fff0f0;
       color: #b00020;
+      border-color: #fecaca;
     }
 
     ul {
@@ -3410,9 +3449,16 @@ function renderizarDocumentos(listaArquivos) {
       background: #f8fafc;
       color: #1f2937;
       border: 1px solid #e5e7eb;
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 14px;
       font-weight: normal;
+      transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+
+    .itemArquivo:hover {
+      background: #ffffff;
+      border-color: #b7c7dd;
+      box-shadow: 0 8px 20px rgba(15, 47, 102, .08);
     }
 
     .itemArquivo strong {
@@ -3775,6 +3821,14 @@ function renderizarDocumentos(listaArquivos) {
     @media (max-width: 820px) {
       body {
         padding: 16px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 25px;
       }
 
       .dashboard {
@@ -4415,12 +4469,14 @@ function renderizarDocumentos(listaArquivos) {
 <body>
   <div class="card">
     <h1>Arquivo Digital</h1>
-    <p>Área inicial de teste do sistema de documentos escolares.</p>
+    <p class="subtituloSistema">Gestão de documentos escolares com busca, histórico, gaveta física, lixeira, versões e envio seguro de PDFs.</p>
 
     <p id="status">Verificando login...</p>
 
-    <button id="btnEntrar" onclick="entrar()">Entrar com Microsoft</button>
-    <button id="btnSair" onclick="sair()">Sair</button>
+    <div class="barraLogin">
+      <button id="btnEntrar" onclick="entrar()">Entrar com Microsoft</button>
+      <button id="btnSair" onclick="sair()">Sair</button>
+    </div>
 
     <div id="usuario" class="info"></div>
     <div id="mensagemSistema" class="mensagem"></div>
@@ -4429,7 +4485,7 @@ function renderizarDocumentos(listaArquivos) {
             <div class="areaUploadNovo">
         <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
-        <small>Envie apenas cópias/testes enquanto estivermos configurando o sistema.</small>
+        <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
       </div>
 
       <section id="centralUpload" class="centralUpload" aria-label="Central de Upload">
@@ -4495,7 +4551,7 @@ function renderizarDocumentos(listaArquivos) {
         </div>
       </section>
 <div class="dashboardTopo">
-        <h2>Dashboard inicial</h2>
+        <h2>Resumo do arquivo digital</h2>
       </div>
 
       <div class="dashboard">
