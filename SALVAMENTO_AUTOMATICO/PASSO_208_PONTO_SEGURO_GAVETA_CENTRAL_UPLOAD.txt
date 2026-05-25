@@ -1,0 +1,32 @@
+PASSO 208 - PONTO SEGURO GAVETA E CENTRAL DE UPLOAD
+
+Data: 2026-05-25
+
+Pedido do usuario:
+
+Criar ponto de restauracao depois que a implementacao da gaveta fisica e da Central de Upload foi testada no site publicado e aprovada.
+
+Estado marcado:
+
+- Coluna GAVETA criada em DOCUMENTOS_ATIVOS no SharePoint.
+- Site carrega e exibe gaveta nas listas e no painel lateral.
+- Central de Upload funcionando com multiplos PDFs.
+- Gaveta obrigatoria no upload.
+- Motivo obrigatorio no upload.
+- Historico ENVIOU registra motivo e gaveta.
+- Painel lateral permite alterar gaveta.
+- Historico ALTEROU_GAVETA registra gaveta anterior, nova gaveta e motivo.
+- Bloco antigo UPLOAD_DIRETO_LIMPO removido.
+- Usuario testou no site publicado e informou que ficou bom.
+
+Commit apontado pela tag:
+
+- e683ed2 Registrar validacao final da gaveta
+
+Tag criada e enviada:
+
+- ponto-seguro-gaveta-central-upload-ok
+
+Resultado:
+
+Ponto seguro criado no GitHub.
