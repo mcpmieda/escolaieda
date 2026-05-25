@@ -3293,8 +3293,47 @@ function renderizarDocumentos(listaArquivos) {
       transform: translateY(1px);
     }
 
+    button:disabled {
+      opacity: .68;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button.principal,
+    .btnNovoDocumento,
+    .btnSalvar,
+    #btnEntrar,
+    #btnConfirmarUploadCentral,
+    #btnConcluirUploadCentral {
+      background: #0f2f66;
+      color: #ffffff;
+      border: 1px solid #0f2f66;
+    }
+
+    button.principal:hover:not(:disabled),
+    .btnNovoDocumento:hover:not(:disabled),
+    .btnSalvar:hover:not(:disabled),
+    #btnEntrar:hover:not(:disabled),
+    #btnConfirmarUploadCentral:hover:not(:disabled),
+    #btnConcluirUploadCentral:hover:not(:disabled) {
+      background: #123d82;
+      color: #ffffff;
+    }
+
+    button.secundario,
     #btnSair {
-      background: #64748b;
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    button.secundario:hover:not(:disabled),
+    #btnSair:hover:not(:disabled) {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    #btnSair {
       display: none;
     }
 
@@ -3328,7 +3367,9 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .btnAtualizar {
-      background: #475569;
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
       padding: 9px 12px;
       font-size: 13px;
       margin: 0;
@@ -3582,7 +3623,9 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .btnFechar {
-      background: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.16);
+      color: #ffffff;
+      border: 1px solid rgba(255,255,255,.24);
       padding: 7px 10px;
       border-radius: 8px;
       margin: 0;
@@ -3632,6 +3675,46 @@ function renderizarDocumentos(listaArquivos) {
     .acoes .principal {
       grid-column: span 2;
       background: #0f2f66;
+    }
+
+    #btnSubstituir,
+    #btnArquivar,
+    #btnMesclar,
+    #btnConfirmarMesclar,
+    .alertaAcao .linhaBotoes button:first-child {
+      background: #b45309;
+      color: #ffffff;
+      border: 1px solid #92400e;
+    }
+
+    #btnArquivar,
+    #btnConfirmarUploadCentral {
+      background: #dc2626;
+      border-color: #b91c1c;
+    }
+
+    #btnSubstituir:hover:not(:disabled),
+    #btnMesclar:hover:not(:disabled),
+    #btnConfirmarMesclar:hover:not(:disabled),
+    .alertaAcao .linhaBotoes button:first-child:hover:not(:disabled) {
+      background: #92400e;
+      color: #ffffff;
+    }
+
+    #btnArquivar:hover:not(:disabled),
+    #btnConfirmarUploadCentral:hover:not(:disabled) {
+      background: #b91c1c;
+      color: #ffffff;
+    }
+
+    #btnRestaurar {
+      background: #047857;
+      color: #ffffff;
+      border: 1px solid #065f46;
+    }
+
+    #btnRestaurar:hover:not(:disabled) {
+      background: #065f46;
     }
 
     .acoes .desativado {
@@ -3703,7 +3786,9 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .linhaBotoes .secundario {
-      background: #64748b;
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
     }
 
     .arquivoSelecionadoMesclar,
@@ -3761,7 +3846,7 @@ function renderizarDocumentos(listaArquivos) {
       padding: 8px 10px;
       font-size: 12px;
       margin: 0;
-      background: #475569;
+      background: #0f2f66;
     }
 
 
@@ -4338,8 +4423,9 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .btnPessoasDiferentes {
-      background: #475569 !important;
-      color: white;
+      background: #f8fafc !important;
+      color: #334155 !important;
+      border: 1px solid #cbd5e1 !important;
       padding: 8px 10px !important;
       font-size: 12px !important;
       margin: 0 !important;

@@ -1,0 +1,41 @@
+PASSO 222 - ACABAMENTO FASE 2 PADRONIZAR BOTOES
+
+Data: 2026-05-25 14:54:03
+
+Pedido:
+
+- Avancar para Fase 2 do acabamento.
+- Padronizar visualmente botoes e acoes.
+- Nao alterar logica nem eventos.
+
+Backup:
+
+- backups_locais\index_backup_antes_padronizar_botoes_fase2_20260525.html
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracoes:
+
+- Padrao azul para botoes principais.
+- Padrao claro/cinza para botoes secundarios.
+- Vermelho para Lixeira/upload sensivel.
+- Laranja para substituir/mesclar/confirmacoes sensiveis.
+- Verde para restaurar.
+- Fechar, desabilitado e Sao pessoas diferentes com contraste padronizado.
+
+Validacao:
+
+- JS OK.
+- git diff --check sem erros.
+- Diff limitado a CSS.
+
+Relatorio:
+
+- diagnosticos\RELATORIO_ACABAMENTO_FASE2_PADRONIZAR_BOTOES_20260525.md
+
+Proximo passo:
+
+- Testar no site publicado.
+- Se aprovado, seguir para Fase 3: mensagens para usuarios leigos.
