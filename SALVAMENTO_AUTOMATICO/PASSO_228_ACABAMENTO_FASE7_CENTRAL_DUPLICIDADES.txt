@@ -1,0 +1,66 @@
+PASSO 228 - ACABAMENTO FASE 7 CENTRAL DE DUPLICIDADES
+
+Data: 2026-05-25
+
+Pedido:
+
+- Avancar para Fase 7: polimento da Central de Duplicidades.
+
+Estado inicial:
+
+- Git limpo.
+- HEAD antes da alteracao: a93b8dc Melhorar visual da Central de Upload.
+
+Backup:
+
+- Nao criado, seguindo o fluxo recente solicitado pelo usuario para estas fases.
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracoes:
+
+- Adicionado bloco CSS_ACABAMENTO_FASE7_DUPLICIDADES.
+- Card da Central no dashboard ficou mais polido.
+- Estados discreto e com alerta ganharam sombra leve.
+- Painel esquerdo da Central ganhou fundo mais consistente.
+- Cards de pares suspeitos ficaram mais legiveis.
+- Pontuacao ganhou selo visual.
+- Blocos dos arquivos comparados ficaram mais separados.
+- Area de pares marcados como pessoas diferentes ficou mais organizada.
+- Estados vazios ficaram visualmente alinhados.
+
+Areas nao alteradas:
+
+- JavaScript.
+- HTML estrutural.
+- Eventos onclick.
+- Calculo de duplicidades.
+- Pontuacao.
+- Regras de exibicao.
+- Pares ignorados.
+- Desfazer.
+- Desfazer todos.
+- Abrir no painel.
+- Central no dashboard.
+- Painel lateral esquerdo.
+
+Validacao:
+
+- JS module syntax OK.
+- JS OK com AsyncFunction.
+- git diff --check sem erros.
+
+Relatorio:
+
+- diagnosticos\RELATORIO_ACABAMENTO_FASE7_CENTRAL_DUPLICIDADES_20260525.md
+
+Commit sugerido:
+
+- Melhorar visual da Central de Duplicidades
+
+Proximo passo:
+
+- Enviar para o GitHub.
+- Usuario testar no site publicado com Ctrl + F5.

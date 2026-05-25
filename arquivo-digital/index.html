@@ -4785,6 +4785,103 @@ function renderizarDocumentos(listaArquivos) {
       padding-top: 4px;
     }
 
+    /* CSS_ACABAMENTO_FASE7_DUPLICIDADES */
+    .dashboard .centralDuplicidades {
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(154, 52, 18, .08);
+    }
+
+    .centralDuplicidades.comAlerta {
+      box-shadow: 0 6px 18px rgba(154, 52, 18, .12);
+    }
+
+    .centralDuplicidades.discreta {
+      box-shadow: 0 2px 8px rgba(15, 23, 42, .05);
+    }
+
+    .resumoCentralDuplicidades {
+      line-height: 1.35;
+    }
+
+    .painelCentralDuplicidades .painelConteudo {
+      background: #fffaf5;
+    }
+
+    .listaCentralDuplicidades {
+      align-content: start;
+    }
+
+    .cardDuplicidade {
+      border-color: #fed7aa;
+      box-shadow: 0 3px 12px rgba(154, 52, 18, .08);
+    }
+
+    .duplicidadeTopo {
+      padding-bottom: 8px;
+      border-bottom: 1px solid #ffedd5;
+    }
+
+    .duplicidadeTopo span {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ffedd5;
+      color: #7c2d12;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .duplicidadeArquivo {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, .03);
+    }
+
+    .duplicidadeArquivo .tagAtivo,
+    .duplicidadeArquivo .tagArquivado {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .duplicidadeArquivo button {
+      width: 100%;
+    }
+
+    .duplicidadeAcoes {
+      padding-top: 2px;
+    }
+
+    .cardDuplicidade > small {
+      display: block;
+      color: #64748b;
+      line-height: 1.35;
+    }
+
+    .paresIgnoradosDuplicidade {
+      margin-top: 16px;
+      padding: 12px;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      background: #ffffff;
+    }
+
+    .paresIgnoradosDuplicidade summary {
+      color: #0f2f66;
+    }
+
+    .duplicidadeIgnoradaTopo {
+      background: #fff7ed;
+    }
+
+    .duplicidadeIgnorada,
+    .duplicidadeIgnoradaVazia,
+    .duplicidadeVazia {
+      background: #ffffff;
+    }
+
     /* CSS_RESPONSIVIDADE_FASE4 */
     @media (max-width: 1100px) {
       .dashboard {
