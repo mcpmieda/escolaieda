@@ -2221,14 +2221,16 @@ try {
       };
     }
 
-    function gerarNomeLivreUploadPdf(nomeSolicitado) {
-      const partes = separarNomePdf(nomeSolicitado);
-      const ocupados = new Set(
+    function criarConjuntoNomesUploadOcupados() {
+      return new Set(
         (documentosAtivos || [])
           .filter(doc => doc && doc.nome)
           .map(doc => normalizarTexto(doc.nome))
       );
+    }
 
+    function gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, ocupados) {
+      const partes = separarNomePdf(nomeSolicitado);
       let candidato = `${partes.base}${partes.extensao}`;
 
       if (!ocupados.has(normalizarTexto(candidato))) {
@@ -2246,111 +2248,243 @@ try {
       const sufixo = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
       return `${partes.base} (${sufixo})${partes.extensao}`;
     }
-window.abrirSeletorNovoDocumento = function () {
-      const input = document.getElementById("inputNovoDocumento");
-      if (input) {
-        input.click();
+
+    function gerarNomeLivreUploadPdf(nomeSolicitado) {
+      return gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, criarConjuntoNomesUploadOcupados());
+    }
+
+    function opcoesGavetaHtml(valorAtual = "") {
+      const opcoes = ['<option value="">Selecione a gaveta</option>'];
+      for (let numero = 1; numero <= 34; numero++) {
+        const valor = `Gaveta ${numero}`;
+        const selecionado = valor === valorAtual ? " selected" : "";
+        opcoes.push(`<option value="${valor}"${selecionado}>${valor}</option>`);
       }
+      return opcoes.join("");
+    }
+
+    let arquivosCentralUpload = [];
+
+window.abrirSeletorNovoDocumento = function () {
+      abrirCentralUpload();
     };
 
-    window.enviarNovoDocumento = async function (input) {
-      const arquivo = input?.files?.[0];
+    window.abrirCentralUpload = function () {
+      const central = document.getElementById("centralUpload");
+      if (!central) return;
+      central.classList.add("aberta");
+      document.getElementById("gavetaUpload").innerHTML = opcoesGavetaHtml();
+      renderizarListaCentralUpload();
+    };
 
-      if (!arquivo) {
-        return;
-      }
+    window.fecharCentralUpload = function () {
+      document.getElementById("centralUpload")?.classList.remove("aberta");
+    };
 
+    window.escolherArquivosCentralUpload = function () {
+      document.getElementById("inputNovoDocumento")?.click();
+    };
+
+    window.receberArquivosCentralUpload = function (input) {
+      arquivosCentralUpload = Array.from(input?.files || []);
       input.value = "";
+      abrirCentralUpload();
+      renderizarListaCentralUpload();
+    };
 
-      if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
-        mostrarMensagem("Selecione apenas arquivos PDF.", "erro");
+    window.limparCentralUpload = function () {
+      arquivosCentralUpload = [];
+      document.getElementById("motivoUpload").value = "";
+      document.getElementById("gavetaUpload").value = "";
+      renderizarListaCentralUpload();
+    };
+
+    function renderizarListaCentralUpload() {
+      const lista = document.getElementById("listaArquivosUpload");
+      const contador = document.getElementById("contadorArquivosUpload");
+      if (!lista || !contador) return;
+
+      contador.textContent = `${arquivosCentralUpload.length} arquivo(s) selecionado(s)`;
+
+      if (!arquivosCentralUpload.length) {
+        lista.innerHTML = "<li>Nenhum PDF selecionado.</li>";
         return;
       }
 
+      lista.innerHTML = arquivosCentralUpload.map(arquivo => `
+        <li>
+          <strong>${escaparHtml(arquivo.name)}</strong>
+          <span>${Math.round((arquivo.size || 0) / 1024)} KB</span>
+        </li>
+      `).join("");
+    }
+
+    async function obterListItemIdDoDriveItem(driveId, driveItemId, token) {
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItemId}/listItem?$select=id`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const dados = await resposta.json();
+      return dados.id;
+    }
+
+    async function atualizarGavetaItemSharePoint(listItemId, gaveta, token) {
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${listItemId}/fields`;
+      const resposta = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ GAVETA: gaveta })
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+    }
+
+    async function carregarDocumentoPorListItemId(listItemId, token) {
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${listItemId}?$expand=fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType,GAVETA)`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const item = await resposta.json();
+      const campos = item.fields || {};
+      return {
+        nome: campos.FileLeafRef || "",
+        caminho: campos.FileRef || "",
+        fileDirRef: campos.FileDirRef || "",
+        status: campos.FileDirRef === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS` ? "ARQUIVADO" : "ATIVO",
+        id: campos.UniqueId || "",
+        listItemId: item.id,
+        driveItemId: "",
+        driveId: "",
+        link: campos.FileRef ? "https://eduieda.sharepoint.com" + campos.FileRef : "",
+        modificado: campos.Modified || "",
+        gaveta: campos.GAVETA || ""
+      };
+    }
+
+    async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados) {
+      if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
+        throw new Error(`Arquivo ignorado porque nao e PDF: ${arquivo.name}`);
+      }
+
+      const token = await obterToken();
+      const driveId = await obterDriveDocumentosAtivos();
       const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
-      const nomeFinal = gerarNomeLivreUploadPdf(nomeSolicitado);
+      const nomeFinal = gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, ocupados);
+      ocupados.add(normalizarTexto(nomeFinal));
       const nomeFoiAjustado = normalizarTexto(nomeFinal) !== normalizarTexto(nomeSolicitado);
 
-      let aviso = `Enviar o arquivo abaixo para DOCUMENTOS_ATIVOS?\n\n${nomeFinal}`;
+      const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
+      const respostaUpload = await fetch(urlUpload, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/pdf"
+        },
+        body: arquivo
+      });
 
-      if (nomeFoiAjustado) {
-        aviso = `Ja existe um arquivo ativo com o nome:\n\n${nomeSolicitado}\n\nPara evitar substituicao acidental, o novo PDF sera enviado automaticamente como:\n\n${nomeFinal}\n\nDepois confira a Central de Duplicidades.`;
+      if (!respostaUpload.ok) {
+        throw new Error(await respostaUpload.text());
       }
 
-      if (!confirm(aviso)) {
+      const driveItem = await respostaUpload.json();
+      const listItemId = await obterListItemIdDoDriveItem(driveId, driveItem.id, token);
+      await atualizarGavetaItemSharePoint(listItemId, gaveta, token);
+      const documentoNovo = await carregarDocumentoPorListItemId(listItemId, token);
+
+      const observacaoEnvio = nomeFoiAjustado
+        ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
+        : `${motivo} Gaveta: ${gaveta}.`;
+
+      await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
+
+      return { nomeSolicitado, nomeFinal, nomeFoiAjustado };
+    }
+
+    window.enviarNovoDocumento = async function (input) {
+      arquivosCentralUpload = Array.from(input?.files || []);
+      input.value = "";
+      abrirCentralUpload();
+      renderizarListaCentralUpload();
+    };
+
+    window.confirmarUploadCentral = async function () {
+      const gaveta = (document.getElementById("gavetaUpload").value || "").trim();
+      const motivo = (document.getElementById("motivoUpload").value || "").trim();
+      const botao = document.getElementById("btnConfirmarUploadCentral");
+
+      if (!arquivosCentralUpload.length) {
+        mostrarMensagem("Selecione pelo menos um PDF.", "erro");
         return;
       }
-const motivo = prompt("Informe o motivo do envio/cadastro:", "Novo documento enviado ao Arquivo Digital.");
 
-      if (motivo === null) {
+      if (!gaveta) {
+        mostrarMensagem("Informe a gaveta física.", "erro");
+        return;
+      }
+
+      if (!motivo) {
+        mostrarMensagem("Informe o motivo do upload.", "erro");
+        return;
+      }
+
+      const invalidos = arquivosCentralUpload.filter(arquivo =>
+        arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")
+      );
+
+      if (invalidos.length) {
+        mostrarMensagem("Remova arquivos que não são PDF antes de enviar.", "erro");
         return;
       }
 
       try {
-        mostrarMensagem("Enviando PDF para o SharePoint...");
+        if (botao) botao.disabled = true;
+        mostrarMensagem("Enviando PDF(s) para o SharePoint...");
 
-        const token = await obterToken();
-        const driveId = await obterDriveDocumentosAtivos();
+        const ocupados = criarConjuntoNomesUploadOcupados();
+        const resultados = [];
 
-        const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
-
-        const respostaUpload = await fetch(urlUpload, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/pdf"
-          },
-          body: arquivo
-        });
-
-        if (!respostaUpload.ok) {
-          throw new Error(await respostaUpload.text());
+        for (const arquivo of arquivosCentralUpload) {
+          resultados.push(await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados));
         }
 
-        await respostaUpload.json();
-
-        // Pequena pausa para o SharePoint atualizar a biblioteca antes de reler
         await new Promise(resolve => setTimeout(resolve, 1200));
-
         await listarDocumentos();
         if (typeof carregarDadosDeApoio === "function") {
           await carregarDadosDeApoio();
         }
-        if (typeof atualizarDashboard === "function") {
-          atualizarDashboard();
+        if (typeof atualizarCentralDuplicidades === "function") {
+          await atualizarCentralDuplicidades();
         }
 
-        const documentoNovo = documentosCarregados.find(doc =>
-          normalizarTexto(doc.nome) === normalizarTexto(nomeFinal)
-        ) || {
-          nome: nomeFinal,
-          id: "",
-          caminho: `/sites/ARQUIVODIGITAL/DOCUMENTOS_ATIVOS/${nomeFinal}`,
-          link: ""
-        };
+        const ajustados = resultados.filter(item => item.nomeFoiAjustado).length;
+        arquivosCentralUpload = [];
+        renderizarListaCentralUpload();
+        fecharCentralUpload();
 
-        const observacaoEnvio = nomeFoiAjustado
-          ? `${motivo.trim() || "Novo documento enviado ao Arquivo Digital."} Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituiÃ§Ã£o acidental.`
-          : (motivo.trim() || "Novo documento enviado ao Arquivo Digital.");
-
-        await registrarHistorico(
-          documentoNovo,
-          "ENVIOU",
-          observacaoEnvio
-        );
-if (typeof carregarDadosDeApoio === "function") {
-          await carregarDadosDeApoio();
-        }
-        if (typeof atualizarDashboard === "function") {
-          atualizarDashboard();
-        }
-
-        mostrarMensagem(nomeFoiAjustado
-          ? `Novo PDF enviado como ${nomeFinal}. O nome foi ajustado automaticamente para evitar substituicao. Confira a Central de Duplicidades.`
-          : "Novo PDF enviado e registrado com sucesso.");
-} catch (erro) {
+        mostrarMensagem(ajustados
+          ? `${resultados.length} PDF(s) enviado(s). ${ajustados} nome(s) foram ajustados para evitar substituicao.`
+          : `${resultados.length} PDF(s) enviado(s) com gaveta registrada.`);
+      } catch (erro) {
         console.error(erro);
-        mostrarMensagem("Erro ao enviar o PDF: " + erro.message, "erro");
+        mostrarMensagem("Erro ao enviar PDF(s): " + erro.message, "erro");
+      } finally {
+        if (botao) botao.disabled = false;
       }
     };
 
@@ -3153,6 +3287,124 @@ function renderizarDocumentos(listaArquivos) {
       margin: 0;
     }
 
+    .centralUpload {
+      display: none;
+      margin: 0 0 20px 0;
+      padding: 16px;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      background: #f8fbff;
+    }
+
+    .centralUpload.aberta {
+      display: block;
+    }
+
+    .centralUploadTopo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .centralUploadTopo h2 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
+      color: #0f2f66;
+    }
+
+    .centralUploadTopo p {
+      margin: 0;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .centralUploadGrade {
+      display: grid;
+      grid-template-columns: 1fr 180px minmax(240px, 1.2fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .campoUpload {
+      display: grid;
+      gap: 7px;
+      align-content: start;
+    }
+
+    .campoUpload strong {
+      color: #0f2f66;
+      font-size: 13px;
+    }
+
+    .campoUpload select,
+    .campoUpload textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 9px;
+      font-size: 13px;
+      background: white;
+    }
+
+    .campoUpload textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .listaArquivosUpload {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+      padding: 0;
+    }
+
+    .listaArquivosUpload li {
+      margin: 0;
+      padding: 8px;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      background: white;
+      list-style: none;
+    }
+
+    .listaArquivosUpload strong,
+    .listaArquivosUpload span {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+    }
+
+    .listaArquivosUpload span {
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .centralUploadAcoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 860px) {
+      .centralUploadGrade {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .acoesVersaoSharePoint {
+      margin-top: 8px;
+    }
+
+    .btnVersaoSharePoint {
+      margin-top: 4px;
+      font-size: 12px;
+    }
+
 
     .btnAtualizar {
       display: none !important;
@@ -3519,9 +3771,46 @@ function renderizarDocumentos(listaArquivos) {
     <div id="areaSistema">
             <div class="areaUploadNovo">
         <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
-        <input id="inputNovoDocumento" type="file" accept="application/pdf" style="display:none" onchange="enviarNovoDocumento(this)">
+        <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
         <small>Envie apenas cópias/testes enquanto estivermos configurando o sistema.</small>
       </div>
+
+      <section id="centralUpload" class="centralUpload" aria-label="Central de Upload">
+        <div class="centralUploadTopo">
+          <div>
+            <h2>Central de Upload</h2>
+            <p>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</p>
+          </div>
+          <button class="btnFechar" onclick="fecharCentralUpload()">X</button>
+        </div>
+
+        <div class="centralUploadGrade">
+          <div class="campoUpload">
+            <strong>Arquivos PDF</strong>
+            <button class="secundario" onclick="escolherArquivosCentralUpload()">Selecionar PDFs</button>
+            <small id="contadorArquivosUpload">0 arquivo(s) selecionado(s)</small>
+          </div>
+
+          <div class="campoUpload">
+            <strong>Gaveta física</strong>
+            <select id="gavetaUpload"></select>
+          </div>
+
+          <div class="campoUpload campoUploadMotivo">
+            <strong>Motivo do upload</strong>
+            <textarea id="motivoUpload" placeholder="Informe o motivo para registrar no histórico"></textarea>
+          </div>
+        </div>
+
+        <ul id="listaArquivosUpload" class="listaArquivosUpload">
+          <li>Nenhum PDF selecionado.</li>
+        </ul>
+
+        <div class="centralUploadAcoes">
+          <button id="btnConfirmarUploadCentral" class="principal" onclick="confirmarUploadCentral()">Enviar PDF(s)</button>
+          <button class="secundario" onclick="limparCentralUpload()">Limpar seleção</button>
+        </div>
+      </section>
 <div class="dashboardTopo">
         <h2>Dashboard inicial</h2>
       </div>
@@ -3697,123 +3986,6 @@ function renderizarDocumentos(listaArquivos) {
     </div>
   </aside>
 
-<!-- UPLOAD_DIRETO_LIMPO_INICIO -->
-<style>
-  .areaUploadNovo {
-    margin: 20px 0 14px 0;
-    padding: 16px;
-    border: 1px dashed #cbd5e1;
-    border-radius: 14px;
-    background: #f8fafc;
-  }
-
-  .areaUploadNovo .btnNovoDocumento {
-    margin-right: 10px;
-  }
-
-  .areaUploadNovo small {
-    color: #64748b;
-  }
-
-    .acoesVersaoSharePoint {
-      margin-top: 8px;
-    }
-
-    .btnVersaoSharePoint {
-      margin-top: 4px;
-      font-size: 12px;
-    }</style>
-
-<script>
-(function () {
-  "use strict";
-
-  function obterInputUploadDireto() {
-    let input = document.getElementById("inputNovoDocumento");
-
-    if (!input) {
-      input = document.createElement("input");
-      input.id = "inputNovoDocumento";
-      input.type = "file";
-      input.accept = "application/pdf";
-      input.style.display = "none";
-      document.body.appendChild(input);
-    }
-
-    return input;
-  }
-
-  function abrirUploadDireto() {
-    const input = obterInputUploadDireto();
-    input.value = "";
-    input.click();
-  }
-
-  function instalarUploadDireto() {
-    const input = obterInputUploadDireto();
-
-    if (typeof window.enviarNovoDocumento === "function" && !window.__enviarNovoDocumentoOriginalDireto) {
-      window.__enviarNovoDocumentoOriginalDireto = window.enviarNovoDocumento;
-    }
-
-    if (input && !input.dataset.uploadDiretoLimpo) {
-      input.dataset.uploadDiretoLimpo = "sim";
-      input.addEventListener("change", async function () {
-        if (!this.files || !this.files.length) return;
-
-        if (typeof window.__enviarNovoDocumentoOriginalDireto === "function") {
-          await window.__enviarNovoDocumentoOriginalDireto(this);
-        } else if (typeof window.enviarNovoDocumento === "function" && window.enviarNovoDocumento !== enviarNovoDocumentoDireto) {
-          await window.enviarNovoDocumento(this);
-        }
-      });
-    }
-
-    window.abrirSeletorNovoDocumento = abrirUploadDireto;
-  }
-
-  function enviarNovoDocumentoDireto(input) {
-    if (typeof window.__enviarNovoDocumentoOriginalDireto === "function") {
-      return window.__enviarNovoDocumentoOriginalDireto(input);
-    }
-
-    if (typeof window.enviarNovoDocumento === "function" && window.enviarNovoDocumento !== enviarNovoDocumentoDireto) {
-      return window.enviarNovoDocumento(input);
-    }
-  }
-
-  window.enviarNovoDocumentoDireto = enviarNovoDocumentoDireto;
-
-  document.addEventListener("click", function (event) {
-    const botao = event.target && event.target.closest ? event.target.closest("button") : null;
-    if (!botao) return;
-
-    const texto = (botao.textContent || "").toLowerCase();
-    const onclick = (botao.getAttribute("onclick") || "").toLowerCase();
-
-    const pareceUpload =
-      botao.classList.contains("btnNovoDocumento") ||
-      texto.includes("enviar novo pdf") ||
-      onclick.includes("abrirseletornovodocumento");
-
-    if (!pareceUpload) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    abrirUploadDireto();
-  }, true);
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", instalarUploadDireto);
-  } else {
-    instalarUploadDireto();
-  }
-
-  setTimeout(instalarUploadDireto, 300);
-  setTimeout(instalarUploadDireto, 1000);
-})();
-</script>
-<!-- UPLOAD_DIRETO_LIMPO_FIM -->
 </body>
 </html>
 
