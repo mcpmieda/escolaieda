@@ -37,6 +37,7 @@
     let duplicidadesCarregando = false;
     let versoesSharePointCarregadas = [];
     let versoesSharePointExpandido = false;
+    let limiteHistoricoGeralAtual = 0;
     let filtroGavetaAtual = "";
     let filtrosAvancados = {
       semGaveta: false,
@@ -665,6 +666,12 @@
 
         atualizarDashboard();
         filtrarDocumentos();
+        if (document.getElementById("centralHistoricoGeral")?.classList.contains("aberta")) {
+          renderizarHistoricoGeral();
+        }
+        if (document.getElementById("centralRelatorios")?.classList.contains("aberta")) {
+          renderizarRelatoriosAdministrativos();
+        }
       } finally {
         dadosApoioCarregando = false;
       }
@@ -834,9 +841,123 @@
 
     function atualizarBotoesFiltros() {
       Object.entries(filtrosAvancados).forEach(([nome, ativo]) => {
-        document.querySelector(`[data-filtro="${nome}"]`)?.classList.toggle("ativo", ativo);
+      document.querySelector(`[data-filtro="${nome}"]`)?.classList.toggle("ativo", ativo);
       });
     }
+
+    window.abrirHistoricoGeral = function () {
+      const secao = document.getElementById("centralHistoricoGeral");
+      if (!secao) return;
+      secao.classList.toggle("aberta");
+      if (secao.classList.contains("aberta")) {
+        limiteHistoricoGeralAtual = preferenciasSistema.limiteRelatorios || 30;
+        renderizarHistoricoGeral();
+        secao.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    };
+
+    window.verMaisHistoricoGeral = function () {
+      limiteHistoricoGeralAtual += preferenciasSistema.limiteRelatorios || 30;
+      renderizarHistoricoGeral();
+    };
+
+    function renderizarHistoricoGeral() {
+      const caixa = document.getElementById("listaHistoricoGeral");
+      if (!caixa) return;
+
+      if (!historicoCarregado.length) {
+        caixa.innerHTML = "<p>Histórico geral ainda não carregado. Aguarde alguns segundos e tente novamente.</p>";
+        return;
+      }
+
+      const ordenados = [...historicoCarregado]
+        .filter(item => item && item.DATA_HORA)
+        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA));
+
+      const limite = limiteHistoricoGeralAtual || preferenciasSistema.limiteRelatorios || 30;
+      const exibidos = ordenados.slice(0, limite);
+
+      caixa.innerHTML = exibidos.map(item => `
+        <div class="itemHistoricoGeral">
+          <strong>${escaparHtml(formatarAcaoHistorico(item.ACAO || "MOVIMENTOU"))}</strong>
+          <span>${escaparHtml(formatarData(item.DATA_HORA))}</span>
+          <span>${escaparHtml(item.ARQUIVO || "Arquivo nao informado")}</span>
+          <small>${escaparHtml(item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuario nao informado")}</small>
+          ${item.OBSERVACAO ? `<div>${escaparHtml(limparMotivoHistoricoSeguro(item.OBSERVACAO))}</div>` : ""}
+        </div>
+      `).join("") + (ordenados.length > exibidos.length ? `
+        <button class="secundario" onclick="verMaisHistoricoGeral()">Ver mais</button>
+      ` : "");
+    }
+
+    window.abrirRelatoriosAdministrativos = function () {
+      const secao = document.getElementById("centralRelatorios");
+      if (!secao) return;
+      secao.classList.toggle("aberta");
+      if (secao.classList.contains("aberta")) {
+        renderizarRelatoriosAdministrativos();
+        secao.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    };
+
+    function renderizarRelatoriosAdministrativos() {
+      const caixa = document.getElementById("listaRelatorios");
+      if (!caixa) return;
+
+      const porGaveta = new Map();
+      documentosAtivos.forEach(doc => {
+        const gaveta = chaveGaveta(doc.gaveta);
+        porGaveta.set(gaveta, (porGaveta.get(gaveta) || 0) + 1);
+      });
+
+      const idsDuplicidade = obterIdsDuplicidadePendente();
+      const recentesEnviados = documentosAtivos.filter(documentoEnviadoRecentemente).length;
+      const recentesAlterados = documentosAtivos.filter(documentoAlteradoRecentemente).length;
+      const usuarios = new Map();
+      historicoCarregado.forEach(item => {
+        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuario nao informado";
+        usuarios.set(usuario, (usuarios.get(usuario) || 0) + 1);
+      });
+
+      const linhasGaveta = [...porGaveta.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))
+        .map(([gaveta, total]) => `<li>${escaparHtml(gaveta)}: ${total}</li>`)
+        .join("");
+
+      const linhasUsuarios = [...usuarios.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([usuario, total]) => `<li>${escaparHtml(usuario)}: ${total}</li>`)
+        .join("");
+
+      caixa.innerHTML = `
+        <div class="relatorioCard"><strong>Documentos por gaveta</strong><ul>${linhasGaveta || "<li>Sem dados carregados.</li>"}</ul></div>
+        <div class="relatorioCard"><strong>Documentos sem gaveta</strong><span>${documentosAtivos.filter(doc => chaveGaveta(doc.gaveta) === "Gaveta nao informada").length}</span></div>
+        <div class="relatorioCard"><strong>Arquivos na Lixeira</strong><span>${documentosLixeira.length}</span></div>
+        <div class="relatorioCard"><strong>Duplicidades pendentes</strong><span>${idsDuplicidade.size}</span></div>
+        <div class="relatorioCard"><strong>Pessoas diferentes</strong><span>${paresDuplicidadesIgnoradosDetalhes.length || paresDuplicidadesIgnorados.size}</span></div>
+        <div class="relatorioCard"><strong>Arquivos com anotações</strong><span>${anotacoesCarregadas.filter(item => (item.ANOTACAO || "").trim()).length}</span></div>
+        <div class="relatorioCard"><strong>Enviados recentemente</strong><span>${recentesEnviados}</span></div>
+        <div class="relatorioCard"><strong>Alterados recentemente</strong><span>${recentesAlterados}</span></div>
+        <div class="relatorioCard"><strong>Histórico por usuário</strong><ul>${linhasUsuarios || "<li>Histórico ainda não carregado.</li>"}</ul></div>
+        <div class="relatorioCard relatorioAcesso"><strong>Acesso de usuários</strong><span>Segurança real deve ser mantida por permissões Microsoft Entra ID e SharePoint. Qualquer lista de e-mails no site seria apenas camada auxiliar visual.</span></div>
+      `;
+    }
+
+    window.copiarRelatorioAdministrativo = async function () {
+      const texto = document.getElementById("listaRelatorios")?.innerText || "";
+      if (!texto.trim()) {
+        mostrarMensagem("Abra os relatórios antes de copiar.", "erro");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(texto);
+        mostrarMensagem("Relatório copiado.");
+      } catch {
+        mostrarMensagem("Nao foi possivel copiar o relatorio automaticamente.", "erro");
+      }
+    };
 
     function aplicarListaAtual() {
       documentosCarregados = modoListaAtual === "na Lixeira"
@@ -5485,6 +5606,105 @@ function renderizarDocumentos(listaArquivos) {
       display: none;
     }
 
+    /* PACOTE3_HISTORICO_RELATORIOS_ACESSO */
+    .cardHistoricoGeral,
+    .cardRelatorios {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      color: #1f2937;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+    }
+
+    .cardHistoricoGeral:hover:not(:disabled),
+    .cardRelatorios:hover:not(:disabled) {
+      background: #eef3ff;
+      color: #0f2f66;
+      border-color: #bfdbfe;
+    }
+
+    .cardHistoricoGeral small,
+    .cardRelatorios small {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .centralAdministrativa {
+      display: none;
+      margin: 16px 0;
+      padding: 16px;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(15, 47, 102, .08);
+    }
+
+    .centralAdministrativa.aberta {
+      display: block;
+    }
+
+    .centralAdministrativaTopo {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .centralAdministrativaTopo h2 {
+      margin: 0;
+      color: #0f2f66;
+      font-size: 18px;
+    }
+
+    .listaHistoricoGeral,
+    .listaRelatorios {
+      display: grid;
+      gap: 10px;
+    }
+
+    .itemHistoricoGeral,
+    .relatorioCard {
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .itemHistoricoGeral strong,
+    .relatorioCard strong {
+      display: block;
+      color: #0f2f66;
+      margin-bottom: 4px;
+    }
+
+    .itemHistoricoGeral span,
+    .itemHistoricoGeral small,
+    .relatorioCard span {
+      display: block;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .relatorioCard ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+
+    .relatorioAcesso {
+      border-color: #fed7aa;
+      background: #fff7ed;
+    }
+
     /* CSS_RESPONSIVIDADE_FASE4 */
     @media (max-width: 1100px) {
       .dashboard {
@@ -5521,6 +5741,7 @@ function renderizarDocumentos(listaArquivos) {
       .dashboardTopo,
       .centralUploadTopo,
       .centralConfiguracoesTopo,
+      .centralAdministrativaTopo,
       .areaGavetasTopo,
       .linhaAnotacao {
         display: grid;
@@ -5853,7 +6074,42 @@ function renderizarDocumentos(listaArquivos) {
           <small>Pares marcados para não aparecer como duplicidade</small>
         </button>
 
+        <button class="cardDash cardHistoricoGeral" type="button" onclick="abrirHistoricoGeral()">
+          <span>Histórico geral</span>
+          <strong>Ver</strong>
+          <small>Movimentações recentes do sistema</small>
+        </button>
+
+        <button class="cardDash cardRelatorios" type="button" onclick="abrirRelatoriosAdministrativos()">
+          <span>Relatórios</span>
+          <strong>Ver</strong>
+          <small>Resumo administrativo dos dados carregados</small>
+        </button>
+
       </div>
+
+      <section id="centralHistoricoGeral" class="centralAdministrativa" aria-label="Histórico Geral">
+        <div class="centralAdministrativaTopo">
+          <h2>Histórico geral</h2>
+          <button class="btnFechar" onclick="abrirHistoricoGeral()">X</button>
+        </div>
+        <div id="listaHistoricoGeral" class="listaHistoricoGeral">
+          <p>Abra a central para carregar o histórico geral.</p>
+        </div>
+      </section>
+
+      <section id="centralRelatorios" class="centralAdministrativa" aria-label="Relatórios Administrativos">
+        <div class="centralAdministrativaTopo">
+          <h2>Relatórios administrativos</h2>
+          <div class="linhaBotoes">
+            <button class="secundario" onclick="copiarRelatorioAdministrativo()">Copiar relatório</button>
+            <button class="btnFechar" onclick="abrirRelatoriosAdministrativos()">X</button>
+          </div>
+        </div>
+        <div id="listaRelatorios" class="listaRelatorios">
+          <p>Abra a central para gerar os relatórios com os dados carregados.</p>
+        </div>
+      </section>
 
 
       <div class="abasDocumentos">
