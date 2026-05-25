@@ -2334,3 +2334,97 @@ Antes de considerar entrega final:
 4. Criar ponto seguro final de entrega.
 
 Nao iniciar funcionalidades grandes novas antes do ponto seguro final.
+
+---
+
+## 32. Entrega final da Fase 1
+
+Data: 2026-05-25
+
+O usuario rodou o checklist completo no site publicado e informou:
+
+```text
+FIZ O CHECKLIST E TUDO FUNCIONOU.
+```
+
+Estado:
+
+```text
+Fase 1 encerrada e aprovada.
+```
+
+Ponto seguro final da Fase 1:
+
+```text
+ponto-seguro-entrega-final-arquivo-digital-fase1-ok
+```
+
+Commit marcado pela tag:
+
+```text
+4ac8776 Atualizar AGENTS e registrar diagnostico completo
+```
+
+Relatorio final:
+
+```text
+diagnosticos\RELATORIO_ENTREGA_FINAL_FASE1_20260525.md
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_213_ENTREGA_FINAL_FASE1.txt
+```
+
+Funcionalidades consideradas prontas na Fase 1:
+
+- login Microsoft;
+- guias `Recentes`, `Ativos` e `Lixeira`;
+- busca nas guias;
+- painel lateral;
+- abrir PDF;
+- anotacoes;
+- historico;
+- upload de um ou varios PDFs pela Central de Upload;
+- gaveta fisica;
+- alteracao de gaveta no painel;
+- fechamento seguro e progresso da Central de Upload;
+- regra segura de nome livre no upload;
+- renomear;
+- substituir;
+- Lixeira/restaurar;
+- versoes SharePoint;
+- Central de Duplicidades no dashboard/painel esquerdo;
+- dashboard ajustado.
+
+### 32.1. Fase 2
+
+A funcao:
+
+```text
+Mesclar
+```
+
+nao faz parte da Fase 1.
+
+O botao continua desativado de proposito.
+
+Mesclar Arquivos deve ser tratado como Fase 2, com diagnostico proprio antes de qualquer implementacao.
+
+Cuidados para a Fase 2:
+
+- definir arquivo principal;
+- definir arquivos que entram na mesclagem;
+- exigir confirmacao e motivo;
+- preservar historico;
+- decidir o destino dos originais;
+- evitar mesclar pessoas diferentes;
+- avaliar biblioteca segura para manipular PDFs;
+- testar no site publicado antes de criar ponto seguro.
+
+Regra atual:
+
+```text
+Nao iniciar Mesclar antes de um diagnostico proprio da Fase 2.
+```
