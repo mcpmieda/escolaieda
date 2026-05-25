@@ -1,0 +1,66 @@
+PASSO 227 - ACABAMENTO FASE 6 CENTRAL DE UPLOAD
+
+Data: 2026-05-25
+
+Pedido:
+
+- Usuario aprovou a Fase 5.
+- Avancar para Fase 6: polimento da Central de Upload.
+- Ainda sem criar backups.
+
+Estado inicial:
+
+- Git limpo.
+- HEAD antes da alteracao: 20f6e57 Melhorar organizacao visual do painel lateral.
+
+Backup:
+
+- Nao criado por pedido do usuario.
+
+Arquivo alterado:
+
+- arquivo-digital\index.html
+
+Alteracoes:
+
+- Adicionado bloco CSS_ACABAMENTO_FASE6_UPLOAD.
+- Central de Upload recebeu acabamento visual mais consistente.
+- Campos de arquivos, gaveta e motivo ficaram em blocos mais claros.
+- Lista de PDFs selecionados ficou mais legivel.
+- Estados de envio ganharam cores de apoio.
+- Area de progresso ficou mais destacada.
+- Confirmacao de saida ficou mais profissional.
+- Botoes finais mantiveram comportamento atual.
+
+Areas nao alteradas:
+
+- JavaScript.
+- HTML estrutural.
+- Eventos onclick.
+- Regras de upload.
+- Regra de nome livre.
+- Gaveta.
+- Motivo.
+- Historico.
+- SharePoint/Graph.
+- Protecoes contra fechamento.
+- Logica da barra de progresso.
+
+Validacao:
+
+- JS module syntax OK.
+- JS OK com AsyncFunction.
+- git diff --check sem erros.
+
+Relatorio:
+
+- diagnosticos\RELATORIO_ACABAMENTO_FASE6_CENTRAL_UPLOAD_20260525.md
+
+Commit sugerido:
+
+- Melhorar visual da Central de Upload
+
+Proximo passo:
+
+- Enviar para o GitHub.
+- Usuario testar no site publicado com Ctrl + F5.
