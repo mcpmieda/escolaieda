@@ -2478,3 +2478,144 @@ Ponto seguro da Fase 2:
 ```text
 ponto-seguro-mesclar-pdf-local-ok
 ```
+
+---
+
+## 33. Acabamento profissional do sistema
+
+Data: 2026-05-25
+
+Foi iniciada uma fase final de acabamento profissional do Arquivo Digital Escolar, depois da Fase 1 e da funcao Mesclar aprovada.
+
+### 33.1. Diagnostico de acabamento
+
+Foi feito diagnostico visual e tecnico antes das alteracoes.
+
+Relatorio:
+
+```text
+diagnosticos\DIAGNOSTICO_ACABAMENTO_VISUAL_FILTROS_RELATORIOS_20260525.md
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_219_DIAGNOSTICO_ACABAMENTO_VISUAL_FILTROS_RELATORIOS.txt
+```
+
+Commit:
+
+```text
+c55ad8a Registrar diagnostico de acabamento
+```
+
+### 33.2. Fase 1 - Visual profissional base
+
+Foi aplicada lapidacao visual inicial:
+
+- cabecalho mais profissional;
+- texto de teste removido;
+- dashboard renomeado para `Resumo do arquivo digital`;
+- container, cards, guias, busca, mensagens e itens de documento com acabamento visual melhor;
+- ajuste de hover dos cards para manter contraste legivel.
+
+Commits:
+
+```text
+5e7719e Aprimorar visual profissional da interface
+13be215 Melhorar contraste dos cards no hover
+```
+
+Registros:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_220_ACABAMENTO_FASE1_VISUAL_PROFISSIONAL.txt
+SALVAMENTO_AUTOMATICO\PASSO_221_CONTRASTE_HOVER_CARDS_DOCUMENTOS.txt
+```
+
+Estado:
+
+```text
+Fase 1 visual aprovada pelo usuario.
+```
+
+### 33.3. Fase 2 - Padronizacao de botoes
+
+Foi feita padronizacao visual de botoes e acoes:
+
+- botoes principais em azul institucional;
+- botoes secundarios em visual claro/neutro;
+- acoes sensiveis em laranja/vermelho;
+- restaurar em verde;
+- fechar/desabilitado com contraste melhor;
+- `Sao pessoas diferentes` ficou neutro.
+
+Commit:
+
+```text
+478c2d7 Padronizar botoes e acoes do sistema
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_222_ACABAMENTO_FASE2_PADRONIZAR_BOTOES.txt
+```
+
+Estado:
+
+```text
+FASE 2 APROVADA.
+```
+
+### 33.4. Fase 3 - Mensagens para usuario leigo
+
+Foram melhoradas mensagens visiveis para usuario leigo:
+
+- erros simplificados;
+- mensagens de tela sem `Veja o console`;
+- termos tecnicos removidos das confirmacoes principais;
+- detalhes tecnicos mantidos no console;
+- textos de Substituir, Mesclar, Lixeira, Restaurar, Gaveta, Anotacoes, Versoes, Upload e carregamento de documentos ajustados.
+
+Commit:
+
+```text
+a41cf11 Melhorar mensagens para usuarios leigos
+```
+
+Registro:
+
+```text
+SALVAMENTO_AUTOMATICO\PASSO_223_ACABAMENTO_FASE3_MENSAGENS_USUARIO_LEIGO.txt
+```
+
+Estado:
+
+```text
+Fase 3 concluida. Ainda nao foi criado ponto seguro final desta fase de acabamento.
+```
+
+### 33.5. Fechamento do dia
+
+Data/hora:
+
+```text
+2026-05-25 15:17:01
+```
+
+Estado atual:
+
+```text
+Git limpo antes do fechamento.
+HEAD antes do registro: a41cf11 Melhorar mensagens para usuarios leigos.
+Proxima etapa: Fase 4 - Responsividade.
+```
+
+Instrucao para continuar amanha:
+
+```text
+Retomar pelo PASSO_224_FECHAMENTO_DIA_CONTINUAR_FASE4_RESPONSIVIDADE.txt.
+Nao reabrir Mesclar, botoes ou mensagens salvo se aparecer falha real.
+Iniciar Fase 4 com diagnostico curto, backup do index.html, alteracoes apenas de CSS/responsividade, validacao JS, git diff --check, relatorio, salvamento automatico e commit.
+```

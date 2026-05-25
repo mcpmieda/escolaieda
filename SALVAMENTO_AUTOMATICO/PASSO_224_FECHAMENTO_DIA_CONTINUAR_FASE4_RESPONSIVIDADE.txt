@@ -1,0 +1,91 @@
+PASSO 224 - FECHAMENTO DO DIA E CONTINUAR AMANHA NA FASE 4
+
+Data: 2026-05-25 15:17:01
+
+Pedido do usuario:
+
+- Encerrar por hoje.
+- Fazer ponto salvo.
+- Atualizar AGENTS.
+- Criar salvamento automatico com instrucoes para continuar amanha na Fase 4.
+
+Estado atual antes do fechamento:
+
+- Git limpo.
+- HEAD: a41cf11 Melhorar mensagens para usuarios leigos.
+- Fase 1 visual concluida.
+- Ajuste de contraste dos cards concluido.
+- Fase 2 botoes aprovada pelo usuario.
+- Fase 3 mensagens concluida.
+- Mesclar esta aprovado e encerrado no ponto seguro ponto-seguro-mesclar-pdf-local-ok.
+
+O que foi feito neste fechamento:
+
+- AGENTS.md atualizado com a secao 33 Acabamento profissional do sistema.
+- Este salvamento automatico foi criado.
+
+Proxima etapa:
+
+- Fase 4 - Responsividade.
+
+Instrucoes para continuar amanha:
+
+1. Ler AGENTS.md.
+2. Ler os ultimos salvamentos automaticos, especialmente:
+   - PASSO_219_DIAGNOSTICO_ACABAMENTO_VISUAL_FILTROS_RELATORIOS.txt
+   - PASSO_220_ACABAMENTO_FASE1_VISUAL_PROFISSIONAL.txt
+   - PASSO_221_CONTRASTE_HOVER_CARDS_DOCUMENTOS.txt
+   - PASSO_222_ACABAMENTO_FASE2_PADRONIZAR_BOTOES.txt
+   - PASSO_223_ACABAMENTO_FASE3_MENSAGENS_USUARIO_LEIGO.txt
+   - PASSO_224_FECHAMENTO_DIA_CONTINUAR_FASE4_RESPONSIVIDADE.txt
+3. Rodar:
+   - git status --short
+   - git log -1 --oneline --decorate
+4. Criar backup de:
+   - arquivo-digital\index.html
+   em:
+   - backups_locais\
+5. Executar Fase 4 apenas com CSS/responsividade.
+6. Nao alterar:
+   - login Microsoft;
+   - MSAL;
+   - CONFIG;
+   - SharePoint/Graph;
+   - upload;
+   - gaveta;
+   - historico;
+   - Mesclar;
+   - Substituir;
+   - Lixeira/restaurar;
+   - duplicidades;
+   - IDs;
+   - eventos onclick;
+   - funcoes JavaScript.
+7. Focar responsividade em:
+   - dashboard;
+   - guias;
+   - lista de documentos;
+   - painel lateral;
+   - Central de Upload;
+   - Central de Duplicidades;
+   - botoes;
+   - campos de texto;
+   - historico;
+   - versoes;
+   - gaveta;
+   - anotacoes.
+8. Validar:
+   - JS OK;
+   - git diff --check;
+   - diff limitado a CSS quando possivel.
+9. Criar relatorio em:
+   - diagnosticos\RELATORIO_ACABAMENTO_FASE4_RESPONSIVIDADE_20260526.md
+10. Criar salvamento automatico:
+   - SALVAMENTO_AUTOMATICO\PASSO_225_ACABAMENTO_FASE4_RESPONSIVIDADE.txt
+11. Commit sugerido:
+   - Melhorar responsividade do Arquivo Digital
+
+Observacao:
+
+- Nao criar ponto seguro final do acabamento ainda.
+- Criar ponto seguro final somente depois de concluir as fases restantes e o usuario aprovar o checklist final no site publicado.
