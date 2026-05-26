@@ -40,6 +40,7 @@
     let versoesSharePointExpandido = false;
     let opcoesGavetaSharePoint = [];
     let opcoesGavetaCarregadas = false;
+    let erroOpcoesGavetaSharePoint = "";
     let acessoArquivoDigitalPermitido = false;
     let limiteHistoricoGeralAtual = 0;
     let filtroGavetaAtual = "";
@@ -210,16 +211,6 @@
       });
     }
 
-    function numeroGavetaPadrao(nome) {
-      const match = normalizarNomeGaveta(nome).match(/^gaveta\s*(\d+)$/i);
-      return match ? Number(match[1]) : 0;
-    }
-
-    function ehGavetaPadrao(nome) {
-      const numero = numeroGavetaPadrao(nome);
-      return numero >= 1 && numero <= 34;
-    }
-
     function documentosDaGaveta(nome) {
       const chave = chaveComparacaoGaveta(nome);
       return [...documentosAtivos, ...documentosLixeira].filter(doc => chaveComparacaoGaveta(doc.gaveta) === chave);
@@ -254,19 +245,20 @@
 
     function obterOpcoesGavetas() {
       const mapa = new Map();
-      const fontePrincipal = opcoesGavetaCarregadas && opcoesGavetaSharePoint.length
-        ? opcoesGavetaSharePoint
-        : opcoesGavetasPadrao();
+      const usandoSharePoint = opcoesGavetaCarregadas;
+      const fontePrincipal = usandoSharePoint ? opcoesGavetaSharePoint : opcoesGavetasPadrao();
 
       fontePrincipal.forEach(gaveta => {
-        const valor = normalizarNomeGaveta(gaveta);
+        const valor = normalizarNomeGavetaAdministrativa(gaveta);
         if (valor) mapa.set(normalizarTexto(valor), valor);
       });
 
-      [...documentosAtivos, ...documentosLixeira].forEach(doc => {
-        const valor = normalizarNomeGaveta(doc.gaveta);
-        if (valor) mapa.set(normalizarTexto(valor), valor);
-      });
+      if (!usandoSharePoint) {
+        [...documentosAtivos, ...documentosLixeira].forEach(doc => {
+          const valor = normalizarNomeGaveta(doc.gaveta);
+          if (valor) mapa.set(normalizarTexto(valor), valor);
+        });
+      }
 
       return [...mapa.values()].sort((a, b) => {
         const aNao = a === "Gaveta nao informada";
@@ -275,6 +267,14 @@
         if (bNao) return 1;
         return a.localeCompare(b, "pt-BR", { numeric: true });
       });
+    }
+
+    function gavetasSharePointDisponiveis() {
+      return opcoesGavetaCarregadas;
+    }
+
+    function mensagemGavetasSharePointIndisponiveis() {
+      return "As gavetas reais do SharePoint não foram carregadas. Edição indisponível.";
     }
 
     function obterResumoGavetas() {
@@ -932,28 +932,44 @@
 
     function renderizarGavetasConfiguracao() {
       const lista = document.getElementById("listaGavetasConfiguracao");
+      const status = document.getElementById("statusCadastroGaveta");
       if (!lista) return;
+
+      const gavetasDisponiveis = gavetasSharePointDisponiveis();
+      const avisoFallback = !gavetasDisponiveis
+        ? `<div class="avisoGavetasFallback">${mensagemGavetasSharePointIndisponiveis()}</div>`
+        : "";
+
+      if (status && !gavetasDisponiveis) {
+        status.textContent = erroOpcoesGavetaSharePoint || mensagemGavetasSharePointIndisponiveis();
+      }
+
+      const campoNovaGaveta = document.getElementById("novaGavetaConfiguracao");
+      const botaoCadastrarGaveta = document.querySelector(".linhaCadastroGaveta button");
+      if (campoNovaGaveta) campoNovaGaveta.disabled = !gavetasDisponiveis;
+      if (botaoCadastrarGaveta) botaoCadastrarGaveta.disabled = !gavetasDisponiveis;
 
       lista.innerHTML = obterOpcoesGavetas()
         .filter(gaveta => gaveta !== "Gaveta nao informada")
         .map(gaveta => {
           const total = documentosDaGaveta(gaveta).length;
-          const padrao = ehGavetaPadrao(gaveta);
           const gavetaParam = encodeURIComponent(gaveta);
           return `
             <div class="itemGavetaConfiguracao">
               <div>
                 <strong>${escaparHtml(gaveta)}</strong>
-                <small>${total} documento(s)${padrao ? " · Padrão" : ""}</small>
+                <small>${total} documento(s) · Cadastrada</small>
               </div>
               <div class="acoesGavetaConfiguracao">
-                <button class="secundario" type="button" ${padrao ? "disabled" : ""} onclick="editarGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Editar</button>
-                <button class="perigo" type="button" ${padrao ? "disabled" : ""} onclick="excluirGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Excluir</button>
+                <button class="secundario" type="button" ${gavetasDisponiveis ? "" : "disabled"} onclick="editarGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Editar</button>
+                <button class="perigo" type="button" ${gavetasDisponiveis ? "" : "disabled"} onclick="excluirGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Excluir</button>
               </div>
             </div>
           `;
         })
         .join("");
+
+      lista.innerHTML = avisoFallback + lista.innerHTML;
     }
 
     async function obterColunaGavetaSharePoint(token) {
@@ -1012,16 +1028,18 @@
         }
 
         opcoesGavetaSharePoint = coluna.choice.choices
-          .map(normalizarNomeGaveta)
+          .map(normalizarNomeGavetaAdministrativa)
           .filter(Boolean)
           .filter((valor, indice, lista) => lista.findIndex(item => normalizarTexto(item) === normalizarTexto(valor)) === indice);
         opcoesGavetaCarregadas = true;
+        erroOpcoesGavetaSharePoint = "";
         renderizarGavetasConfiguracao();
         return opcoesGavetaSharePoint;
       } catch (erro) {
         console.warn("Nao foi possivel carregar opcoes da coluna GAVETA no SharePoint. Usando fallback Gaveta 1 a Gaveta 34.", erro);
         opcoesGavetaSharePoint = [];
         opcoesGavetaCarregadas = false;
+        erroOpcoesGavetaSharePoint = mensagemGavetasSharePointIndisponiveis();
         renderizarGavetasConfiguracao();
         return opcoesGavetasPadrao();
       }
@@ -1050,6 +1068,12 @@
       const campo = document.getElementById("novaGavetaConfiguracao");
       const status = document.getElementById("statusCadastroGaveta");
       let novaGaveta = "";
+
+      if (!gavetasSharePointDisponiveis()) {
+        if (status) status.textContent = mensagemGavetasSharePointIndisponiveis();
+        mostrarMensagem(mensagemGavetasSharePointIndisponiveis(), "erro");
+        return;
+      }
 
       try {
         novaGaveta = normalizarNomeGavetaAdministrativa(campo?.value || "");
@@ -1115,8 +1139,9 @@
     window.editarGavetaConfiguracao = async function (gavetaAtual) {
       const status = document.getElementById("statusCadastroGaveta");
 
-      if (ehGavetaPadrao(gavetaAtual)) {
-        if (status) status.textContent = "Esta é uma gaveta padrão do sistema. Para evitar erro de organização, ela não pode ser renomeada nesta etapa.";
+      if (!gavetasSharePointDisponiveis()) {
+        if (status) status.textContent = mensagemGavetasSharePointIndisponiveis();
+        mostrarMensagem(mensagemGavetasSharePointIndisponiveis(), "erro");
         return;
       }
 
@@ -1145,9 +1170,10 @@
       }
 
       const confirmar = confirm(
-        `Renomear a gaveta não apaga documentos.\n\n` +
-        `Os documentos que estão em '${gavetaAtual}' passarão a aparecer como '${novaGaveta}'.\n\n` +
-        `Documentos afetados: ${documentosAfetados.length}\n\nDeseja continuar?`
+        `A gaveta '${gavetaAtual}' será renomeada para '${novaGaveta}'.\n\n` +
+        `Os documentos vinculados serão atualizados.\n` +
+        `Documentos afetados: ${documentosAfetados.length}\n\n` +
+        `Nenhum PDF será apagado.\n\nDeseja continuar?`
       );
 
       if (!confirmar) return;
@@ -1199,8 +1225,9 @@
     window.excluirGavetaConfiguracao = async function (gavetaAtual) {
       const status = document.getElementById("statusCadastroGaveta");
 
-      if (ehGavetaPadrao(gavetaAtual)) {
-        if (status) status.textContent = "Esta é uma gaveta padrão do sistema. Para evitar erro de organização, ela não pode ser excluída nesta etapa.";
+      if (!gavetasSharePointDisponiveis()) {
+        if (status) status.textContent = mensagemGavetasSharePointIndisponiveis();
+        mostrarMensagem(mensagemGavetasSharePointIndisponiveis(), "erro");
         return;
       }
 
@@ -6412,6 +6439,17 @@ function renderizarDocumentos(listaArquivos) {
       border-radius: 10px;
       padding: 10px;
       font-size: 14px;
+    }
+
+    .avisoGavetasFallback {
+      grid-column: 1 / -1;
+      padding: 8px 10px;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      background: #fffbeb;
+      color: #92400e;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .listaGavetasConfiguracao {
