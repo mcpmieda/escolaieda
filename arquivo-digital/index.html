@@ -898,10 +898,16 @@
 
       salvarPreferenciasSistema();
       aplicarPreferenciasVisuais();
+      limparCacheDuplicidades();
       aplicarListaAtual();
 
       if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
         atualizarCentralDuplicidadesSegundoPlano();
+      } else {
+        totalParesCentralDuplicidades = 0;
+        aplicarEstadoVisualCentralDuplicidades(0);
+        const resumo = document.getElementById("resumoCentralDuplicidades");
+        if (resumo) resumo.textContent = "Analise automatica desativada. Abra a Central para analisar.";
       }
 
       if (mostrarAviso) {
@@ -1540,10 +1546,27 @@
     let paresDuplicidadesIgnoradosDetalhes = [];
     let carregouIgnoradosDuplicidade = false;
     let centralDuplicidadesAberta = false;
+    let centralDuplicidadesAnalisada = false;
+    let tarefaCentralDuplicidadesAgendada = false;
     let totalParesCentralDuplicidades = 0;
+    let cacheParesDuplicidades = { assinatura: "", pares: [] };
+    const LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA = 120;
+    const LIMITE_GRUPO_DUPLICIDADE = 80;
+    const LIMITE_GRUPO_DUPLICIDADE_EXATA = 120;
+    const LIMITE_PARES_CANDIDATOS_DUPLICIDADE = 12000;
+    const termosComunsDuplicidade = new Set([
+      "aluno", "aluna", "arquivo", "arquivos", "digital", "documento", "documentos",
+      "escola", "escolar", "historico", "matricula", "declaracao", "comprovante",
+      "certidao", "ficha", "relatorio", "prova", "atividade", "boletim"
+    ]);
 
     function chaveIgnorarDuplicidade(idA, idB) {
       return [idA, idB].sort().join("|");
+    }
+
+    function limparCacheDuplicidades() {
+      cacheParesDuplicidades = { assinatura: "", pares: [] };
+      centralDuplicidadesAnalisada = false;
     }
 
     async function carregarParesDuplicidadeIgnorados() {
@@ -1661,6 +1684,7 @@
         }
 
         paresDuplicidadesIgnorados.add(chave);
+        limparCacheDuplicidades();
         mostrarMensagem("Par marcado como pessoas diferentes.");
 
         if (typeof atualizarCentralDuplicidades === "function") {
@@ -1736,6 +1760,7 @@
         paresDuplicidadesIgnoradosDetalhes = paresDuplicidadesIgnoradosDetalhes
           .filter(item => item.chave !== chave);
         carregouIgnoradosDuplicidade = false;
+        limparCacheDuplicidades();
 
         mostrarMensagem("Marcação desfeita. A Central foi atualizada.");
 
@@ -1767,6 +1792,7 @@
         paresDuplicidadesIgnorados.clear();
         paresDuplicidadesIgnoradosDetalhes = [];
         carregouIgnoradosDuplicidade = false;
+        limparCacheDuplicidades();
 
         mostrarMensagem("Todas as marcações foram desfeitas. A Central foi atualizada.");
 
@@ -1808,44 +1834,159 @@
       return div.innerHTML;
     }
 
-        function gerarParesDuplicidades() {
-      const todos = [...documentosAtivos]
-        .filter(doc => doc && doc.nome && doc.id);
+    function assinaturaDuplicidades(todos) {
+      const docs = todos
+        .map(doc => `${doc.id}:${doc.nome}:${doc.status || ""}:${doc.modificado || ""}`)
+        .sort()
+        .join("||");
+      const ignorados = [...paresDuplicidadesIgnorados].sort().join("|");
+      return `${docs}::${ignorados}`;
+    }
 
-      const pares = [];
-      const vistos = new Set();
+    function prepararDocumentoDuplicidade(doc, indice) {
+      const normal = nomeNormalSemPdf(doc.nome);
+      const compacto = normal.replace(/[^a-z0-9]+/g, "");
+      const palavras = obterPalavrasNome(doc.nome);
+      const palavrasChave = palavras
+        .filter(palavra =>
+          palavra &&
+          palavra.length >= 3 &&
+          !termosComunsDuplicidade.has(palavra) &&
+          !/^\d+$/.test(palavra)
+        );
 
-      todos.forEach(a => {
-        const candidatos = buscarNomesParecidos(a);
+      return {
+        doc,
+        indice,
+        normal,
+        compacto,
+        palavras,
+        palavrasChave: [...new Set(palavrasChave)]
+      };
+    }
 
-        candidatos.forEach(item => {
-          const b = item.doc;
+    function adicionarGrupoDuplicidade(mapa, chave, item) {
+      if (!chave) return;
+      if (!mapa.has(chave)) mapa.set(chave, []);
+      mapa.get(chave).push(item);
+    }
 
-          if (!b || !b.id || a.id === b.id) return;
+    function adicionarParCandidatoDuplicidade(mapa, a, b) {
+      if (!a || !b || a.doc.id === b.doc.id) return;
+      const chave = chaveIgnorarDuplicidade(a.doc.id, b.doc.id);
+      if (paresDuplicidadesIgnorados.has(chave) || mapa.has(chave)) return;
+      mapa.set(chave, [a.doc, b.doc]);
+    }
 
-          const chave = [a.id, b.id].sort().join("|");
-          if (vistos.has(chave)) return;
-          if (paresDuplicidadesIgnorados.has(chave)) return;
+    function avaliarParDuplicidade(a, b) {
+      if (!a || !b || !a.id || !b.id || a.id === b.id) return null;
 
-          vistos.add(chave);
+      const chave = chaveIgnorarDuplicidade(a.id, b.id);
+      if (paresDuplicidadesIgnorados.has(chave)) return null;
 
-          const nomeA = normalizarTexto(a.nome).replace(/\.pdf$/i, "").trim();
-          const nomeB = normalizarTexto(b.nome).replace(/\.pdf$/i, "").trim();
-          const mesmoNome = nomeA === nomeB;
-          const pontos = item.pontos || pontuacaoDuplicidadeCentral(a.nome, b.nome);
+      const pontos = pontuacaoDuplicidadeCentral(a.nome, b.nome);
+      if (!deveExibirNomeParecido(a.nome, b.nome, pontos)) return null;
 
-          pares.push({
-            a,
-            b,
-            pontos: mesmoNome ? pontos + 10 : pontos,
-            mesmoNome
-          });
-        });
-      });
+      const nomeA = nomeNormalSemPdf(a.nome);
+      const nomeB = nomeNormalSemPdf(b.nome);
+      const mesmoNome = nomeA === nomeB;
 
+      return {
+        a,
+        b,
+        pontos: mesmoNome ? pontos + 10 : pontos,
+        mesmoNome
+      };
+    }
+
+    function ordenarParesDuplicidades(pares) {
       return pares
         .sort((x, y) => y.pontos - x.pontos || x.a.nome.localeCompare(y.a.nome))
         .slice(0, 50);
+    }
+
+    function gerarParesDuplicidadesExaustivo(todos) {
+      const pares = [];
+
+      for (let i = 0; i < todos.length; i++) {
+        for (let j = i + 1; j < todos.length; j++) {
+          const par = avaliarParDuplicidade(todos[i], todos[j]);
+          if (par) pares.push(par);
+        }
+      }
+
+      return ordenarParesDuplicidades(pares);
+    }
+
+    function gerarParesDuplicidadesIndexado(todos) {
+      const preparados = todos.map(prepararDocumentoDuplicidade);
+      const grupos = new Map();
+      const candidatos = new Map();
+
+      preparados.forEach(item => {
+        if (item.compacto) {
+          adicionarGrupoDuplicidade(grupos, `compacto:${item.compacto}`, item);
+        }
+
+        item.palavrasChave.forEach(palavra => {
+          adicionarGrupoDuplicidade(grupos, `palavra:${palavra}`, item);
+
+          if (palavra.length >= 5) {
+            adicionarGrupoDuplicidade(grupos, `prefixo:${palavra.slice(0, 4)}`, item);
+          }
+        });
+
+        if (item.palavrasChave.length >= 2) {
+          adicionarGrupoDuplicidade(grupos, `dupla:${item.palavrasChave[0]}|${item.palavrasChave[1]}`, item);
+        }
+      });
+
+      for (const [chaveGrupo, grupoOriginal] of grupos.entries()) {
+        const limiteGrupo = chaveGrupo.startsWith("compacto:")
+          ? LIMITE_GRUPO_DUPLICIDADE_EXATA
+          : LIMITE_GRUPO_DUPLICIDADE;
+        const grupo = grupoOriginal.slice(0, limiteGrupo);
+
+        if (grupo.length < 2 || (!chaveGrupo.startsWith("compacto:") && grupoOriginal.length > limiteGrupo)) {
+          continue;
+        }
+
+        for (let i = 0; i < grupo.length; i++) {
+          for (let j = i + 1; j < grupo.length; j++) {
+            adicionarParCandidatoDuplicidade(candidatos, grupo[i], grupo[j]);
+            if (candidatos.size >= LIMITE_PARES_CANDIDATOS_DUPLICIDADE) break;
+          }
+          if (candidatos.size >= LIMITE_PARES_CANDIDATOS_DUPLICIDADE) break;
+        }
+
+        if (candidatos.size >= LIMITE_PARES_CANDIDATOS_DUPLICIDADE) break;
+      }
+
+      const pares = [];
+      candidatos.forEach(([a, b]) => {
+        const par = avaliarParDuplicidade(a, b);
+        if (par) pares.push(par);
+      });
+
+      return ordenarParesDuplicidades(pares);
+    }
+
+    function gerarParesDuplicidades() {
+      const todos = [...documentosAtivos]
+        .filter(doc => doc && doc.nome && doc.id);
+      const assinatura = assinaturaDuplicidades(todos);
+
+      if (cacheParesDuplicidades.assinatura === assinatura) {
+        return cacheParesDuplicidades.pares;
+      }
+
+      const pares = todos.length <= LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA
+        ? gerarParesDuplicidadesExaustivo(todos)
+        : gerarParesDuplicidadesIndexado(todos);
+
+      cacheParesDuplicidades = { assinatura, pares };
+      centralDuplicidadesAnalisada = true;
+      return pares;
     }
 
     function aplicarEstadoVisualCentralDuplicidades(quantidadePares) {
@@ -1869,14 +2010,23 @@
     }
 
     function atualizarCentralDuplicidadesSegundoPlano() {
+      if (duplicidadesCarregando || tarefaCentralDuplicidadesAgendada) {
+        return;
+      }
+
       const resumo = document.getElementById("resumoCentralDuplicidades");
       if (resumo) {
         resumo.textContent = "Analisando duplicidades em segundo plano...";
       }
 
+      tarefaCentralDuplicidadesAgendada = true;
       agendarTarefaSegundoPlano(async () => {
-        if (typeof atualizarCentralDuplicidades === "function") {
-          await atualizarCentralDuplicidades();
+        try {
+          if (typeof atualizarCentralDuplicidades === "function") {
+            await atualizarCentralDuplicidades();
+          }
+        } finally {
+          tarefaCentralDuplicidadesAgendada = false;
         }
       }, 150);
     }
@@ -1885,6 +2035,10 @@
       centralDuplicidadesAberta = true;
       aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
       document.getElementById("painelCentralDuplicidades")?.classList.add("aberto");
+
+      if (!centralDuplicidadesAnalisada && !duplicidadesCarregando) {
+        atualizarCentralDuplicidadesSegundoPlano();
+      }
     };
 
     window.fecharPainelCentralDuplicidades = function () {
@@ -4155,9 +4309,17 @@ function renderizarDocumentos(listaArquivos) {
           .map(mapear);
 
         atualizarInterfacesGaveta();
+        limparCacheDuplicidades();
         aplicarListaAtual();
 
-        atualizarCentralDuplicidadesSegundoPlano();
+        if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
+          atualizarCentralDuplicidadesSegundoPlano();
+        } else {
+          totalParesCentralDuplicidades = 0;
+          aplicarEstadoVisualCentralDuplicidades(0);
+          const resumo = document.getElementById("resumoCentralDuplicidades");
+          if (resumo) resumo.textContent = "Analise automatica desativada. Abra a Central para analisar.";
+        }
 
       } catch (erro) {
         lista.innerHTML = "<li class=\"erro\">Nao foi possivel carregar os documentos. Tente novamente.</li>";
