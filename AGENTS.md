@@ -2619,3 +2619,231 @@ Retomar pelo PASSO_224_FECHAMENTO_DIA_CONTINUAR_FASE4_RESPONSIVIDADE.txt.
 Nao reabrir Mesclar, botoes ou mensagens salvo se aparecer falha real.
 Iniciar Fase 4 com diagnostico curto, backup do index.html, alteracoes apenas de CSS/responsividade, validacao JS, git diff --check, relatorio, salvamento automatico e commit.
 ```
+
+---
+
+## 34. Fechamento final recente - melhorias finais, repaginacao e gavetas persistentes
+
+Data: 2026-05-25
+
+Esta secao registra o estado final mais recente depois das fases de acabamento profissional e das melhorias finais solicitadas via `AQUI.txt`.
+
+### 34.1. Fases de acabamento concluidas
+
+Depois da Fase 3 registrada acima, foram concluidas:
+
+- Fase 4 - Responsividade;
+- Fase 5 - Painel lateral;
+- Fase 6 - Central de Upload;
+- Fase 7 - Central de Duplicidades.
+
+Commits relevantes:
+
+```text
+7fdf1ac Melhorar responsividade do Arquivo Digital
+20f6e57 Melhorar organizacao visual do painel lateral
+a93b8dc Melhorar visual da Central de Upload
+9dde10a Melhorar visual da Central de Duplicidades
+```
+
+Ponto seguro criado:
+
+```text
+ponto-seguro-acabamento-fase7-duplicidades-ok
+```
+
+### 34.2. Melhorias finais do sistema
+
+Foram executados 3 pacotes grandes:
+
+1. Desempenho e usabilidade geral.
+2. Gavetas, configuracoes e filtros finais.
+3. Historico geral, relatorios e diagnostico de acesso.
+
+Commits:
+
+```text
+0e45fb2 Melhorar desempenho e usabilidade geral
+c4db7dd Adicionar gavetas configuracoes e filtros finais
+a0f2698 Adicionar historico geral relatorios e diagnostico de acesso
+```
+
+Ponto seguro criado:
+
+```text
+ponto-seguro-melhorias-finais-sistema-ok
+```
+
+Estado aprovado:
+
+- carregamento inicial melhorado com tarefas em segundo plano;
+- Central de Duplicidades sem bloquear a tela principal;
+- card de pessoas diferentes no dashboard;
+- versoes SharePoint com duas recentes e botao Ver todas/Recolher;
+- gavetas visuais na guia Ativos;
+- Central de Configuracoes com preferencias locais;
+- filtros avancados;
+- Historico geral;
+- Relatorios administrativos simples;
+- aviso de que seguranca real deve ser via Microsoft/SharePoint, sem criar bloqueio falso em JavaScript.
+
+### 34.3. Repaginacao compacta e imagens
+
+Foi feita repaginacao visual compacta:
+
+- cabecalho administrativo com logo;
+- capa discreta no fundo do cabecalho;
+- botao Configuracoes no topo direito;
+- botao Sair no topo direito;
+- usuario conectado mais discreto;
+- modo compacto mais denso;
+- hover dos cards corrigido;
+- guia Ativos sem botao `Todas as gavetas`;
+- filtros avancados com indicador visual.
+
+Arquivos de imagem adicionados:
+
+```text
+imagens\arquivo-digital-logo.png
+imagens\arquivo-digital-capa.jpg
+```
+
+Commit:
+
+```text
+e37298d Repaginar interface compacta e gavetas configuraveis
+```
+
+Relatorio:
+
+```text
+diagnosticos\RELATORIO_REPAGINACAO_COMPACTA_GAVETAS_CONFIG_20260525.md
+```
+
+### 34.4. Correcao pontual - gavetas persistentes no SharePoint
+
+Problema observado:
+
+```text
+Gaveta 35 aparecia ao cadastrar, mas sumia ao atualizar a pagina.
+Central de Upload continuava mostrando apenas ate Gaveta 34.
+```
+
+Diagnostico:
+
+- `obterOpcoesGavetas()` ainda partia de lista fixa `Gaveta 1` ate `Gaveta 34`;
+- novas gavetas podiam ficar em `localStorage`;
+- PnP.PowerShell estava instalado, mas sem sessao conectada para confirmar a coluna via terminal;
+- a correcao foi feita no proprio site usando Microsoft Graph com token do usuario conectado.
+
+Estado corrigido:
+
+- fonte principal das gavetas passou a ser a coluna Choice `GAVETA` da biblioteca `DOCUMENTOS_ATIVOS`;
+- ao carregar o sistema, o site busca as opcoes reais da coluna via Graph;
+- se a busca falhar, usa fallback `Gaveta 1` ate `Gaveta 34` e registra aviso no console;
+- cadastro de nova gaveta tenta salvar na coluna Choice do SharePoint;
+- se nao houver permissao, mostra erro claro e nao finge que salvou localmente;
+- depois de cadastrar, recarrega as opcoes reais do SharePoint;
+- Central de Upload, Alterar gaveta no painel, Central de Configuracoes e gavetas da guia Ativos usam a lista dinamica.
+
+Commit:
+
+```text
+7d8b695 Corrigir cadastro persistente de gavetas no SharePoint
+```
+
+Backup:
+
+```text
+backups_locais\index_antes_corrigir_gavetas_sharepoint_20260525.html
+```
+
+Relatorio:
+
+```text
+diagnosticos\RELATORIO_CORRIGIR_GAVETAS_SHAREPOINT_20260525.md
+```
+
+### 34.5. Correcao final - editar e excluir gavetas com seguranca
+
+Data: 2026-05-26
+
+Depois do diagnostico via PnP/SharePoint, foi corrigida a opcao criada sem espaco:
+
+```text
+Gaveta35
+```
+
+Estado corrigido no SharePoint:
+
+- a opcao `Gaveta35` foi padronizada para `Gaveta 35`;
+- o documento `COMPROVANTE_PICPAY_PIX_06052026101519.pdf` passou a usar `Gaveta 35`;
+- `Gaveta35` nao aparece mais nas opcoes reais da coluna Choice `GAVETA`;
+- `Gaveta 35` aparece nas opcoes reais da coluna;
+- nenhum PDF foi apagado;
+- nenhum PDF foi movido;
+- nenhuma pasta foi criada ou excluida.
+
+Tambem foi ampliada a Central de Configuracoes para administracao segura de gavetas:
+
+- criada normalizacao de nomes de gaveta;
+- exemplos como `gaveta35`, `Gaveta35`, `gaveta 35`, `GAVETA 35` e `gaveta   35` passam a virar `Gaveta 35`;
+- criados botoes `Editar` e `Excluir` para gavetas criadas depois da 34;
+- `Gaveta 1` ate `Gaveta 34` ficam protegidas/bloqueadas para editar/excluir;
+- a lista de gavetas mostra quantidade de documentos vinculados;
+- editar gaveta atualiza documentos primeiro e a coluna Choice depois;
+- excluir gaveta nao apaga PDF;
+- excluir gaveta reclassifica documentos para gaveta vazia, exibida na interface como `Gaveta nao informada`;
+- excluir gaveta atualiza documentos primeiro e remove a opcao da coluna Choice depois;
+- historico `ALTEROU_GAVETA` e tentado quando aplicavel.
+
+Commit:
+
+```text
+79cff40 Adicionar edicao e exclusao segura de gavetas
+```
+
+Relatorio:
+
+```text
+diagnosticos\RELATORIO_EDITAR_EXCLUIR_GAVETAS_SHAREPOINT_20260526.md
+```
+
+Backup:
+
+```text
+backups_locais\index_antes_editar_excluir_gavetas_20260526.html
+```
+
+Validacoes realizadas:
+
+- PnP confirmou `Gaveta 35` na coluna Choice;
+- PnP confirmou ausencia de `Gaveta35`;
+- PnP confirmou 1 documento usando `Gaveta 35`;
+- JS module syntax OK;
+- `git diff --check` sem erros.
+
+### 34.6. Estado final para fechar o dia
+
+Estado atual antes do ponto de restauracao final:
+
+```text
+HEAD: 79cff40 Adicionar edicao e exclusao segura de gavetas
+Git limpo.
+Site enviado ao GitHub.
+Proxima acao: criar tag final de restauracao.
+```
+
+Tag final planejada/criada:
+
+```text
+ponto-restauracao-final-arquivo-digital-20260526
+```
+
+Se retomar em outro chat:
+
+1. Ler este `AGENTS.md`.
+2. Conferir `git status --short`.
+3. Conferir `git log -1 --oneline --decorate`.
+4. Testar no site publicado com Ctrl + F5.
+5. Validar especialmente cadastro, edicao e exclusao segura de gavetas no SharePoint, Central de Upload e Alterar gaveta no painel.

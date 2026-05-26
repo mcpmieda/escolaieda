@@ -1,0 +1,71 @@
+PASSO 232 - FECHAMENTO FINAL E PONTO DE RESTAURACAO
+
+Data: 2026-05-25
+
+Pedido:
+
+- Criar tag final ponto de restauracao.
+- Atualizar AGENTS.
+- Fechar por hoje.
+
+Estado inicial:
+
+- Git limpo.
+- HEAD: 7d8b695 Corrigir cadastro persistente de gavetas no SharePoint.
+- origin/main atualizado.
+
+Resumo do estado final:
+
+- Acabamento visual concluido ate Fase 7.
+- Melhorias finais executadas em 3 pacotes.
+- Repaginacao compacta concluida.
+- Logo e capa adicionadas.
+- Cadastro de gavetas corrigido para usar coluna Choice GAVETA do SharePoint como fonte principal.
+- Se a leitura da coluna GAVETA falhar, fallback Gaveta 1 ate Gaveta 34 com aviso no console.
+- Se cadastro de gaveta falhar por permissao, sistema mostra erro claro e nao salva apenas localmente.
+- Gaveta35 foi padronizada para Gaveta 35 no SharePoint.
+- Documento COMPROVANTE_PICPAY_PIX_06052026101519.pdf passou a usar Gaveta 35.
+- Foi criada normalizacao de nomes de gaveta.
+- Foram criados botoes Editar e Excluir para gavetas apos a 34.
+- Gaveta 1 ate Gaveta 34 ficam protegidas/bloqueadas para editar/excluir.
+- Excluir gaveta nao apaga PDF.
+- Excluir gaveta reclassifica documentos para Gaveta nao informada.
+- Edicao/exclusao atualiza documentos primeiro e coluna Choice depois.
+- Historico ALTEROU_GAVETA e tentado quando aplicavel.
+
+Commits finais relevantes:
+
+- 7fdf1ac Melhorar responsividade do Arquivo Digital
+- 20f6e57 Melhorar organizacao visual do painel lateral
+- a93b8dc Melhorar visual da Central de Upload
+- 9dde10a Melhorar visual da Central de Duplicidades
+- 0e45fb2 Melhorar desempenho e usabilidade geral
+- c4db7dd Adicionar gavetas configuracoes e filtros finais
+- a0f2698 Adicionar historico geral relatorios e diagnostico de acesso
+- e37298d Repaginar interface compacta e gavetas configuraveis
+- 7d8b695 Corrigir cadastro persistente de gavetas no SharePoint
+- 79cff40 Adicionar edicao e exclusao segura de gavetas
+
+Relatorios finais:
+
+- diagnosticos/RELATORIO_EDITAR_EXCLUIR_GAVETAS_SHAREPOINT_20260526.md
+
+Tags recentes:
+
+- ponto-seguro-acabamento-fase7-duplicidades-ok
+- ponto-seguro-melhorias-finais-sistema-ok
+
+Tag final a criar:
+
+- ponto-restauracao-final-arquivo-digital-20260526
+
+Proximo teste recomendado:
+
+- Abrir site publicado com Ctrl + F5.
+- Testar login.
+- Testar cadastro de nova gaveta.
+- Confirmar se a gaveta aparece na Central de Upload apos atualizar pagina.
+- Confirmar se aparece no painel em Alterar gaveta.
+- Confirmar que upload com nova gaveta salva o metadado.
+- Testar editar gaveta criada apos a 34.
+- Testar excluir gaveta criada apos a 34, confirmando que nenhum PDF e apagado.
