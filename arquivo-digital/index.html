@@ -7097,6 +7097,36 @@ function renderizarDocumentos(listaArquivos) {
         font-size: 14px;
       }
     }
+
+    /* HOVER_SUAVE_ITEMARQUIVO_20260526 */
+    button.itemArquivo:hover:not(:disabled) {
+      background: #f8fbff;
+      color: #172033;
+      border-color: #c7d8ee;
+      box-shadow: 0 3px 10px rgba(15, 47, 102, .07);
+      transform: none;
+    }
+
+    button.itemArquivo:hover:not(:disabled) strong {
+      color: #102a56;
+    }
+
+    button.itemArquivo:hover:not(:disabled) span,
+    button.itemArquivo:hover:not(:disabled) .linhaDataArquivo {
+      color: #526174 !important;
+    }
+
+    button.itemArquivo:hover:not(:disabled) .linhaMovimentacaoArquivo {
+      background: #ffffff;
+      color: #183b70 !important;
+      border: 1px solid #d7e3f4;
+    }
+
+    button.itemArquivo:hover:not(:disabled) .seloGaveta {
+      background: #effaf4;
+      color: #166534 !important;
+      border-color: #ccebd8;
+    }
   </style>
 
 </head>
