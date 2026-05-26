@@ -4368,6 +4368,7 @@ function renderizarDocumentos(listaArquivos) {
     window.addEventListener("click", function (event) {
       const painel = document.getElementById("painelLateral");
       const painelCentral = document.getElementById("painelCentralDuplicidades");
+      const painelDashboard = document.getElementById("painelDashboard");
 
       if (
         painelCentral &&
@@ -4379,6 +4380,18 @@ function renderizarDocumentos(listaArquivos) {
         return;
       }
 
+      if (
+        painelDashboard &&
+        painelDashboard.classList.contains("aberto") &&
+        !painelDashboard.contains(event.target) &&
+        !event.target.closest(".cardDash") &&
+        !event.target.closest("#painelCentralDuplicidades") &&
+        !event.target.closest("#centralDuplicidades") &&
+        !event.target.closest(".itemArquivo")
+      ) {
+        window.fecharPainelDashboard();
+      }
+
       if (!painel || !painel.classList.contains("aberto")) {
         return;
       }
@@ -4388,10 +4401,6 @@ function renderizarDocumentos(listaArquivos) {
       }
 
       if (event.target.closest("#painelCentralDuplicidades")) {
-        return;
-      }
-
-      if (event.target.closest("#painelDashboard")) {
         return;
       }
 
@@ -4407,7 +4416,6 @@ function renderizarDocumentos(listaArquivos) {
         return;
       }
 
-      window.fecharPainelDashboard();
       fecharPainel();
     });
 
@@ -7544,6 +7552,25 @@ function renderizarDocumentos(listaArquivos) {
       .dashboard > .centralDuplicidades {
         min-height: 68px;
       }
+    }
+
+    /* FASE3_PAINEIS_DASHBOARD_20260527 */
+    .painelCentralDuplicidades {
+      transition: left .18s ease, box-shadow .18s ease;
+    }
+
+    .painelDashboard {
+      transition: right .18s ease, box-shadow .18s ease;
+    }
+
+    .cardParesIgnorados,
+    .cardParesIgnorados:hover:not(:disabled) {
+      cursor: default;
+      background: #f8fafc;
+      color: #1f2937;
+      border-color: #e5e7eb;
+      box-shadow: none;
+      transform: none;
     }
   </style>
 
