@@ -40,6 +40,7 @@
     let versoesSharePointExpandido = false;
     let opcoesGavetaSharePoint = [];
     let opcoesGavetaCarregadas = false;
+    let acessoArquivoDigitalPermitido = false;
     let limiteHistoricoGeralAtual = 0;
     let filtroGavetaAtual = "";
     let filtrosAvancados = {
@@ -643,6 +644,67 @@
 
       return todos;
     }
+
+    function respostaIndicaAcessoNegado(resposta, texto = "") {
+      const conteudo = normalizarTexto(texto);
+      return resposta.status === 401 ||
+        resposta.status === 403 ||
+        conteudo.includes("accessdenied") ||
+        conteudo.includes("access denied") ||
+        conteudo.includes("unauthorized") ||
+        conteudo.includes("forbidden") ||
+        conteudo.includes("nao autorizado") ||
+        conteudo.includes("não autorizado");
+    }
+
+    async function verificarPermissaoArquivoDigital(token) {
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$top=1`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (resposta.ok) {
+        return true;
+      }
+
+      const texto = await resposta.text();
+      if (respostaIndicaAcessoNegado(resposta, texto)) {
+        return false;
+      }
+
+      throw new Error(texto || `Falha ao verificar permissao no SharePoint. HTTP ${resposta.status}`);
+    }
+
+    function mostrarTelaAcessoRestrito(mensagemExtra = "") {
+      acessoArquivoDigitalPermitido = false;
+      documentosAtivos = [];
+      documentosLixeira = [];
+      documentosCarregados = [];
+
+      const areaSistema = document.getElementById("areaSistema");
+      const telaRestrita = document.getElementById("telaAcessoRestrito");
+      const statusRestrito = document.getElementById("statusAcessoRestrito");
+
+      if (areaSistema) areaSistema.style.display = "none";
+      if (telaRestrita) telaRestrita.style.display = "grid";
+      if (statusRestrito) statusRestrito.textContent = mensagemExtra || "";
+
+      document.getElementById("status").textContent = "Acesso restrito";
+      document.getElementById("btnAbrirConfiguracoesTopo").style.display = "none";
+      fecharPainel();
+    }
+
+    function ocultarTelaAcessoRestrito() {
+      const telaRestrita = document.getElementById("telaAcessoRestrito");
+      const statusRestrito = document.getElementById("statusAcessoRestrito");
+      if (telaRestrita) telaRestrita.style.display = "none";
+      if (statusRestrito) statusRestrito.textContent = "";
+    }
+
+    window.tentarNovamenteAcessoArquivoDigital = async function () {
+      document.getElementById("status").textContent = "Verificando acesso...";
+      await atualizarTela();
+    };
 
     function mostrarMensagem(texto, tipo = "info") {
       const msg = document.getElementById("mensagemSistema");
@@ -4055,8 +4117,8 @@ function renderizarDocumentos(listaArquivos) {
 
       document.getElementById("btnEntrar").style.display = usuario ? "none" : "inline-block";
       document.getElementById("btnSair").style.display = usuario ? "inline-block" : "none";
-      document.getElementById("btnAbrirConfiguracoesTopo").style.display = usuario ? "inline-block" : "none";
-      document.getElementById("areaSistema").style.display = usuario ? "block" : "none";
+      document.getElementById("btnAbrirConfiguracoesTopo").style.display = "none";
+      document.getElementById("areaSistema").style.display = "none";
 
       if (usuario) {
         modoListaAtual = preferenciasSistema.guiaInicial || "recentes";
@@ -4065,10 +4127,33 @@ function renderizarDocumentos(listaArquivos) {
           <small>${usuario.username || ""}</small>
         `;
 
-        await carregarOpcoesGavetaSharePoint();
-        await listarDocumentos();
-        agendarTarefaSegundoPlano(carregarDadosDeApoio, 120);
+        document.getElementById("status").textContent = "Verificando acesso...";
+
+        try {
+          const token = await obterToken();
+          const temAcesso = await verificarPermissaoArquivoDigital(token);
+
+          if (!temAcesso) {
+            mostrarTelaAcessoRestrito();
+            return;
+          }
+
+          acessoArquivoDigitalPermitido = true;
+          ocultarTelaAcessoRestrito();
+          document.getElementById("status").textContent = "Usuário conectado";
+          document.getElementById("btnAbrirConfiguracoesTopo").style.display = "inline-block";
+          document.getElementById("areaSistema").style.display = "block";
+
+          await carregarOpcoesGavetaSharePoint(token);
+          await listarDocumentos();
+          agendarTarefaSegundoPlano(carregarDadosDeApoio, 120);
+        } catch (erro) {
+          console.error(erro);
+          mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");
+        }
       } else {
+        acessoArquivoDigitalPermitido = false;
+        ocultarTelaAcessoRestrito();
         document.getElementById("usuario").innerHTML = "";
       }
     }
@@ -4265,6 +4350,43 @@ function renderizarDocumentos(listaArquivos) {
 
     #usuario.info small {
       color: #64748b;
+    }
+
+    .telaAcessoRestrito {
+      display: none;
+      gap: 14px;
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid #fecaca;
+      border-radius: 14px;
+      background: #fff7f7;
+      color: #7f1d1d;
+    }
+
+    .telaAcessoRestrito h2 {
+      margin: 0;
+      color: #991b1b;
+      font-size: 22px;
+    }
+
+    .telaAcessoRestrito p {
+      margin: 0;
+      color: #7f1d1d;
+      line-height: 1.45;
+    }
+
+    .acoesAcessoRestrito {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .statusAcessoRestrito {
+      min-height: 18px;
+      color: #991b1b;
+      font-size: 13px;
+      font-weight: 700;
     }
 
     h1 {
@@ -6632,7 +6754,18 @@ function renderizarDocumentos(listaArquivos) {
     <div id="usuario" class="info"></div>
     <div id="mensagemSistema" class="mensagem"></div>
 
-      <div id="areaSistema">
+      <section id="telaAcessoRestrito" class="telaAcessoRestrito" aria-label="Acesso restrito">
+        <h2>Acesso restrito à Secretaria.</h2>
+        <p>Este ambiente é exclusivo para o grupo GRUPO DA SECRETARIA - ARQUIVO DIGITAL.</p>
+        <p>Se você precisa acessar, solicite autorização à gestão escolar.</p>
+        <div class="acoesAcessoRestrito">
+          <button type="button" onclick="sair()">Sair</button>
+          <button type="button" class="secundario" onclick="tentarNovamenteAcessoArquivoDigital()">Tentar novamente</button>
+        </div>
+        <small id="statusAcessoRestrito" class="statusAcessoRestrito"></small>
+      </section>
+
+      <div id="areaSistema" style="display:none">
             <div class="areaUploadNovo">
         <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
