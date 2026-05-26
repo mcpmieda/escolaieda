@@ -2847,3 +2847,7 @@ Se retomar em outro chat:
 3. Conferir `git log -1 --oneline --decorate`.
 4. Testar no site publicado com Ctrl + F5.
 5. Validar especialmente cadastro, edicao e exclusao segura de gavetas no SharePoint, Central de Upload e Alterar gaveta no painel.
+
+### 34.7. Nota de encerramento parcial de UX
+
+Em 26/05/2026 foi feita uma etapa parcial de ajustes de UX da pagina principal. Funcionou em partes e ainda precisa de revisao antes de virar ponto seguro.
