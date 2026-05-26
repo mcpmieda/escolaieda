@@ -178,6 +178,58 @@
       return (valor || "").toString().replace(/\s+/g, " ").trim();
     }
 
+    function chaveComparacaoGaveta(valor) {
+      return normalizarTexto(valor).replace(/\s+/g, "");
+    }
+
+    function normalizarNomeGavetaAdministrativa(valor) {
+      let nome = normalizarNomeGaveta(valor);
+
+      if (!nome) {
+        throw new Error("Digite o nome da gaveta.");
+      }
+
+      if (nome.length > 40) {
+        throw new Error("Use um nome de gaveta com ate 40 caracteres.");
+      }
+
+      if (/[\\/:*?"<>|{}[\]`$;]/.test(nome)) {
+        throw new Error("O nome da gaveta tem caracteres que nao podem ser usados.");
+      }
+
+      const gavetaNumerada = nome.match(/^gaveta\s*(\d+)$/i);
+      if (gavetaNumerada) {
+        return `Gaveta ${Number(gavetaNumerada[1])}`;
+      }
+
+      nome = nome.replace(/^gaveta\b/i, "Gaveta");
+      return nome;
+    }
+
+    function gavetaJaExiste(nome, ignorarNome = "") {
+      const chaveNova = chaveComparacaoGaveta(nome);
+      const chaveIgnorar = chaveComparacaoGaveta(ignorarNome);
+      return obterOpcoesGavetas().some(gaveta => {
+        const chaveAtual = chaveComparacaoGaveta(gaveta);
+        return chaveAtual === chaveNova && chaveAtual !== chaveIgnorar;
+      });
+    }
+
+    function numeroGavetaPadrao(nome) {
+      const match = normalizarNomeGaveta(nome).match(/^gaveta\s*(\d+)$/i);
+      return match ? Number(match[1]) : 0;
+    }
+
+    function ehGavetaPadrao(nome) {
+      const numero = numeroGavetaPadrao(nome);
+      return numero >= 1 && numero <= 34;
+    }
+
+    function documentosDaGaveta(nome) {
+      const chave = chaveComparacaoGaveta(nome);
+      return [...documentosAtivos, ...documentosLixeira].filter(doc => chaveComparacaoGaveta(doc.gaveta) === chave);
+    }
+
     function chaveGaveta(valor) {
       return (valor || "").toString().trim() || "Gaveta nao informada";
     }
@@ -808,7 +860,23 @@
 
       lista.innerHTML = obterOpcoesGavetas()
         .filter(gaveta => gaveta !== "Gaveta nao informada")
-        .map(gaveta => `<span>${escaparHtml(gaveta)}</span>`)
+        .map(gaveta => {
+          const total = documentosDaGaveta(gaveta).length;
+          const padrao = ehGavetaPadrao(gaveta);
+          const gavetaParam = encodeURIComponent(gaveta);
+          return `
+            <div class="itemGavetaConfiguracao">
+              <div>
+                <strong>${escaparHtml(gaveta)}</strong>
+                <small>${total} documento(s)${padrao ? " · Padrão" : ""}</small>
+              </div>
+              <div class="acoesGavetaConfiguracao">
+                <button class="secundario" type="button" ${padrao ? "disabled" : ""} onclick="editarGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Editar</button>
+                <button class="perigo" type="button" ${padrao ? "disabled" : ""} onclick="excluirGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Excluir</button>
+              </div>
+            </div>
+          `;
+        })
         .join("");
     }
 
@@ -829,6 +897,33 @@
         coluna.name === "Gaveta" ||
         coluna.displayName === "Gaveta"
       );
+    }
+
+    async function atualizarOpcoesColunaGavetaSharePoint(token, escolhasNovas) {
+      const coluna = await obterColunaGavetaSharePoint(token);
+
+      if (!coluna || !coluna.id || !coluna.choice) {
+        throw new Error("Coluna GAVETA Choice nao encontrada.");
+      }
+
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/columns/${coluna.id}`;
+      const resposta = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          choice: {
+            ...coluna.choice,
+            choices: escolhasNovas
+          }
+        })
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
     }
 
     async function carregarOpcoesGavetaSharePoint(tokenInformado = "") {
@@ -878,15 +973,16 @@
     window.cadastrarNovaGaveta = async function () {
       const campo = document.getElementById("novaGavetaConfiguracao");
       const status = document.getElementById("statusCadastroGaveta");
-      const novaGaveta = normalizarNomeGaveta(campo?.value || "");
+      let novaGaveta = "";
 
-      if (!novaGaveta) {
-        if (status) status.textContent = "Digite o nome da nova gaveta.";
+      try {
+        novaGaveta = normalizarNomeGavetaAdministrativa(campo?.value || "");
+      } catch (erro) {
+        if (status) status.textContent = erro.message;
         return;
       }
 
-      const jaExiste = obterOpcoesGavetas().some(gaveta => normalizarTexto(gaveta) === normalizarTexto(novaGaveta));
-      if (jaExiste) {
+      if (gavetaJaExiste(novaGaveta)) {
         if (status) status.textContent = "Essa gaveta ja existe.";
         return;
       }
@@ -904,26 +1000,9 @@
         const escolhasAtuais = coluna.choice.choices || [];
         const escolhasNovas = [...escolhasAtuais, novaGaveta]
           .filter(Boolean)
-          .filter((valor, indice, lista) => lista.findIndex(item => normalizarTexto(item) === normalizarTexto(valor)) === indice);
+          .filter((valor, indice, lista) => lista.findIndex(item => chaveComparacaoGaveta(item) === chaveComparacaoGaveta(valor)) === indice);
 
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/columns/${coluna.id}`;
-        const resposta = await fetch(url, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            choice: {
-              ...coluna.choice,
-              choices: escolhasNovas
-            }
-          })
-        });
-
-        if (!resposta.ok) {
-          throw new Error(await resposta.text());
-        }
+        await atualizarOpcoesColunaGavetaSharePoint(token, escolhasNovas);
 
         if (campo) campo.value = "";
         await carregarOpcoesGavetaSharePoint(token);
@@ -934,6 +1013,182 @@
         console.error(erro);
         if (status) status.textContent = "Não foi possível salvar a nova gaveta no SharePoint. Verifique as permissões.";
         mostrarMensagem("Não foi possível salvar a nova gaveta no SharePoint. Verifique as permissões.", "erro");
+      }
+    };
+
+    async function registrarHistoricoGavetasEmLote(documentos, gavetaAnterior, novaGaveta, motivo) {
+      for (const documento of documentos) {
+        try {
+          await registrarHistorico(documento, "ALTEROU_GAVETA", motivo(gavetaAnterior, novaGaveta));
+        } catch (erro) {
+          console.warn("Nao foi possivel registrar historico da alteracao de gaveta.", documento?.nome, erro);
+        }
+      }
+    }
+
+    async function atualizarDocumentosDaGaveta(documentos, novaGaveta, token) {
+      for (const documento of documentos) {
+        if (!documento.listItemId) {
+          throw new Error(`Documento sem identificador de lista: ${documento.nome || "sem nome"}`);
+        }
+
+        await atualizarGavetaItemSharePoint(documento.listItemId, novaGaveta, token);
+      }
+    }
+
+    window.editarGavetaConfiguracao = async function (gavetaAtual) {
+      const status = document.getElementById("statusCadastroGaveta");
+
+      if (ehGavetaPadrao(gavetaAtual)) {
+        if (status) status.textContent = "Esta é uma gaveta padrão do sistema. Para evitar erro de organização, ela não pode ser renomeada nesta etapa.";
+        return;
+      }
+
+      const documentosAfetados = documentosDaGaveta(gavetaAtual);
+      const novoNomeDigitado = prompt(`Nome atual: ${gavetaAtual}\nDocumentos usando esta gaveta: ${documentosAfetados.length}\n\nDigite o novo nome da gaveta:`, gavetaAtual);
+      if (novoNomeDigitado === null) return;
+
+      let novaGaveta = "";
+      try {
+        novaGaveta = normalizarNomeGavetaAdministrativa(novoNomeDigitado);
+      } catch (erro) {
+        if (status) status.textContent = erro.message;
+        mostrarMensagem(erro.message, "erro");
+        return;
+      }
+
+      if (chaveComparacaoGaveta(novaGaveta) === chaveComparacaoGaveta(gavetaAtual)) {
+        if (status) status.textContent = "O novo nome é igual ao nome atual.";
+        return;
+      }
+
+      if (gavetaJaExiste(novaGaveta, gavetaAtual)) {
+        if (status) status.textContent = "Já existe uma gaveta com esse nome.";
+        mostrarMensagem("Já existe uma gaveta com esse nome.", "erro");
+        return;
+      }
+
+      const confirmar = confirm(
+        `Renomear a gaveta não apaga documentos.\n\n` +
+        `Os documentos que estão em '${gavetaAtual}' passarão a aparecer como '${novaGaveta}'.\n\n` +
+        `Documentos afetados: ${documentosAfetados.length}\n\nDeseja continuar?`
+      );
+
+      if (!confirmar) return;
+
+      if (status) status.textContent = "Renomeando gaveta no SharePoint...";
+
+      try {
+        const token = await obterToken();
+        const coluna = await obterColunaGavetaSharePoint(token);
+
+        if (!coluna || !coluna.choice || !Array.isArray(coluna.choice.choices)) {
+          throw new Error("Coluna GAVETA Choice nao encontrada.");
+        }
+
+        const escolhasAtuais = coluna.choice.choices || [];
+        const existeAtual = escolhasAtuais.some(opcao => chaveComparacaoGaveta(opcao) === chaveComparacaoGaveta(gavetaAtual));
+
+        if (!existeAtual) {
+          throw new Error("A gaveta atual não foi encontrada nas opções reais do SharePoint.");
+        }
+
+        await atualizarDocumentosDaGaveta(documentosAfetados, novaGaveta, token);
+
+        const escolhasNovas = escolhasAtuais
+          .map(opcao => chaveComparacaoGaveta(opcao) === chaveComparacaoGaveta(gavetaAtual) ? novaGaveta : opcao)
+          .filter((valor, indice, lista) => lista.findIndex(item => chaveComparacaoGaveta(item) === chaveComparacaoGaveta(valor)) === indice);
+
+        await atualizarOpcoesColunaGavetaSharePoint(token, escolhasNovas);
+
+        await registrarHistoricoGavetasEmLote(
+          documentosAfetados,
+          gavetaAtual,
+          novaGaveta,
+          (anterior, nova) => `Gaveta renomeada na configuração do sistema. Gaveta anterior: ${anterior}. Nova gaveta: ${nova}.`
+        );
+
+        await carregarOpcoesGavetaSharePoint(token);
+        await atualizarDadosMantendoPainel();
+        atualizarInterfacesGaveta();
+        if (status) status.textContent = "Gaveta renomeada com sucesso.";
+        mostrarMensagem("Gaveta renomeada com sucesso.");
+      } catch (erro) {
+        console.error(erro);
+        if (status) status.textContent = "Não foi possível renomear a gaveta. Nenhuma etapa seguinte foi forçada.";
+        mostrarMensagem("Não foi possível renomear a gaveta. Veja o console para detalhes técnicos.", "erro");
+      }
+    };
+
+    window.excluirGavetaConfiguracao = async function (gavetaAtual) {
+      const status = document.getElementById("statusCadastroGaveta");
+
+      if (ehGavetaPadrao(gavetaAtual)) {
+        if (status) status.textContent = "Esta é uma gaveta padrão do sistema. Para evitar erro de organização, ela não pode ser excluída nesta etapa.";
+        return;
+      }
+
+      const documentosAfetados = documentosDaGaveta(gavetaAtual);
+      const primeiros = documentosAfetados.slice(0, 5).map(doc => `- ${doc.nome}`).join("\n");
+      const detalhe = primeiros ? `\n\nPrimeiros documentos afetados:\n${primeiros}` : "";
+      const digitado = prompt(
+        `A gaveta '${gavetaAtual}' será removida da lista de gavetas.\n` +
+        `Nenhum PDF será apagado.\n` +
+        `${documentosAfetados.length} documento(s) serão marcados como 'Gaveta não informada'.${detalhe}\n\n` +
+        `Para confirmar, digite o nome da gaveta:`
+      );
+
+      if (digitado === null) return;
+
+      if (chaveComparacaoGaveta(digitado) !== chaveComparacaoGaveta(gavetaAtual)) {
+        if (status) status.textContent = "Exclusão cancelada: o nome digitado não confere.";
+        return;
+      }
+
+      const confirmar = confirm(`Confirmar exclusão da gaveta '${gavetaAtual}'?\n\nNenhum PDF será apagado.`);
+      if (!confirmar) return;
+
+      if (status) status.textContent = "Excluindo gaveta no SharePoint...";
+
+      try {
+        const token = await obterToken();
+        const coluna = await obterColunaGavetaSharePoint(token);
+
+        if (!coluna || !coluna.choice || !Array.isArray(coluna.choice.choices)) {
+          throw new Error("Coluna GAVETA Choice nao encontrada.");
+        }
+
+        const escolhasAtuais = coluna.choice.choices || [];
+        const existeAtual = escolhasAtuais.some(opcao => chaveComparacaoGaveta(opcao) === chaveComparacaoGaveta(gavetaAtual));
+
+        if (!existeAtual) {
+          throw new Error("A gaveta atual não foi encontrada nas opções reais do SharePoint.");
+        }
+
+        await atualizarDocumentosDaGaveta(documentosAfetados, "", token);
+
+        const escolhasNovas = escolhasAtuais
+          .filter(opcao => chaveComparacaoGaveta(opcao) !== chaveComparacaoGaveta(gavetaAtual))
+          .filter(Boolean);
+
+        await atualizarOpcoesColunaGavetaSharePoint(token, escolhasNovas);
+
+        await registrarHistoricoGavetasEmLote(
+          documentosAfetados,
+          gavetaAtual,
+          "Gaveta nao informada",
+          anterior => `Gaveta removida por exclusão da gaveta '${anterior}'. Gaveta anterior: ${anterior}. Nova gaveta: Gaveta não informada.`
+        );
+
+        await carregarOpcoesGavetaSharePoint(token);
+        await atualizarDadosMantendoPainel();
+        atualizarInterfacesGaveta();
+        if (status) status.textContent = "Gaveta excluída com sucesso.";
+        mostrarMensagem("Gaveta excluída com sucesso.");
+      } catch (erro) {
+        console.error(erro);
+        if (status) status.textContent = "Não foi possível excluir a gaveta. Se documentos foram reclassificados, tente novamente para remover a opção.";
+        mostrarMensagem("Não foi possível excluir a gaveta. Veja o console para detalhes técnicos.", "erro");
       }
     };
 
@@ -5802,12 +6057,23 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .listaGavetasConfiguracao {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
     }
 
-    .listaGavetasConfiguracao span,
+    .itemGavetaConfiguracao {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    .itemGavetaConfiguracao strong,
     .indicadorFiltrosAtivos {
       display: inline-flex;
       align-items: center;
@@ -5818,6 +6084,44 @@ function renderizarDocumentos(listaArquivos) {
       color: #0f2f66;
       font-size: 12px;
       font-weight: 700;
+    }
+
+    .itemGavetaConfiguracao small {
+      display: block;
+      margin-top: 4px;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .acoesGavetaConfiguracao {
+      display: inline-flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .acoesGavetaConfiguracao button {
+      min-width: auto;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .acoesGavetaConfiguracao button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    button.perigo {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #b91c1c;
+    }
+
+    button.perigo:hover:not(:disabled) {
+      background: #b91c1c;
+      color: #ffffff;
     }
 
     .cardGavetas {
