@@ -3838,6 +3838,24 @@ window.abrirSeletorNovoDocumento = function () {
       return status || "Pendente";
     }
 
+    function analisarNomesSelecionadosUpload() {
+      const ocupados = criarConjuntoNomesUploadOcupados();
+      const vistosNaSelecao = new Set();
+
+      return arquivosCentralUpload.map(arquivo => {
+        const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
+        const chave = normalizarTexto(nomeSolicitado);
+        const repetidoExistente = ocupados.has(chave);
+        const repetidoNaSelecao = vistosNaSelecao.has(chave);
+        vistosNaSelecao.add(chave);
+
+        return {
+          nomeSolicitado,
+          nomeRepetido: repetidoExistente || repetidoNaSelecao
+        };
+      });
+    }
+
     function renderizarListaCentralUpload() {
       const lista = document.getElementById("listaArquivosUpload");
       const contador = document.getElementById("contadorArquivosUpload");
@@ -3850,11 +3868,10 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      const ocupados = criarConjuntoNomesUploadOcupados();
+      const analiseNomes = analisarNomesSelecionadosUpload();
 
       lista.innerHTML = arquivosCentralUpload.map((arquivo, indice) => {
-        const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
-        const nomeRepetido = ocupados.has(normalizarTexto(nomeSolicitado));
+        const nomeRepetido = analiseNomes[indice]?.nomeRepetido;
         return `
         <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}${nomeRepetido ? " uploadNomeRepetido" : ""}">
           <strong>${escaparHtml(arquivo.name)}</strong>
