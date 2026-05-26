@@ -2851,3 +2851,17 @@ Se retomar em outro chat:
 ### 34.7. Nota de encerramento parcial de UX
 
 Em 26/05/2026 foi feita uma etapa parcial de ajustes de UX da pagina principal. Funcionou em partes e ainda precisa de revisao antes de virar ponto seguro.
+
+### 34.8. Gavetas com SharePoint como fonte oficial
+
+Em 27/05/2026, a administracao de gavetas passou a usar SharePoint/PnP como fonte oficial. A coluna `GAVETA` em `DOCUMENTOS_ATIVOS` foi confirmada como `Choice`, e as opcoes reais foram padronizadas para `Gaveta 1` ate `Gaveta 36`.
+
+`localStorage` nao e fonte definitiva de gavetas. O fallback `Gaveta 1` ate `Gaveta 34` existe apenas para emergencia quando o SharePoint nao carrega, e nesse modo cadastro, edicao e exclusao ficam bloqueados.
+
+`Gaveta 1` ate `Gaveta 34` nao sao mais intocaveis quando carregadas do SharePoint. Todas as gavetas reais carregadas da coluna `GAVETA` podem ser cadastradas, editadas e excluidas, com documentos reclassificados corretamente e sem apagar ou mover PDFs.
+
+Commit:
+
+```text
+1f38f24 Refatorar gavetas com SharePoint como fonte oficial
+```

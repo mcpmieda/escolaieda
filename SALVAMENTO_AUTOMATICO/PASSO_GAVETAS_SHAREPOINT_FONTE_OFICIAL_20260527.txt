@@ -1,0 +1,25 @@
+PASSO - GAVETAS COM SHAREPOINT COMO FONTE OFICIAL - 2026-05-27
+
+Resumo:
+
+- SharePoint/PnP passou a ser a fonte oficial das gavetas.
+- A coluna GAVETA em DOCUMENTOS_ATIVOS foi confirmada como Choice.
+- As opcoes reais foram padronizadas para Gaveta 1 ate Gaveta 36.
+- localStorage nao e fonte definitiva de gavetas.
+- O fallback Gaveta 1 ate Gaveta 34 e apenas emergencia quando o SharePoint nao carrega.
+- Em fallback, cadastro, edicao e exclusao de gavetas ficam bloqueados.
+- Gavetas 1 a 34 nao sao mais intocaveis quando carregadas do SharePoint.
+- Todas as gavetas reais carregadas do SharePoint podem ser cadastradas, editadas e excluidas.
+- Nenhum PDF deve ser apagado, movido ou ter pasta fisica criada por administracao de gaveta.
+
+Commit principal:
+
+- 1f38f24 Refatorar gavetas com SharePoint como fonte oficial
+
+Relatorio:
+
+- diagnosticos\RELATORIO_GAVETAS_SHAREPOINT_FONTE_OFICIAL_20260527.md
+
+Proximo ponto seguro solicitado:
+
+- ponto-seguro-gavetas-sharepoint-fonte-oficial-ok
