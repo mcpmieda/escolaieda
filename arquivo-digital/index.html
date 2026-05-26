@@ -43,13 +43,7 @@
     let acessoArquivoDigitalPermitido = false;
     let limiteHistoricoGeralAtual = 0;
     let filtroGavetaAtual = "";
-    let filtrosAvancados = {
-      semGaveta: false,
-      comAnotacao: false,
-      comDuplicidade: false,
-      enviadosRecentemente: false,
-      alteradosRecentemente: false
-    };
+    let filtrosAvancados = filtrosAvancadosPadrao();
     let preferenciasSistema = carregarPreferenciasSistema();
 
     const msalConfig = {
@@ -233,6 +227,21 @@
 
     function chaveGaveta(valor) {
       return (valor || "").toString().trim() || "Gaveta nao informada";
+    }
+
+    function filtrosAvancadosPadrao() {
+      return {
+        semGaveta: false,
+        comAnotacao: false,
+        comDuplicidade: false,
+        enviadosRecentemente: false,
+        alteradosRecentemente: false
+      };
+    }
+
+    function limparFiltrosAvancadosOcultos() {
+      filtrosAvancados = filtrosAvancadosPadrao();
+      document.getElementById("filtrosAvancados")?.classList.remove("aberto");
     }
 
     function opcoesGavetasPadrao() {
@@ -1297,7 +1306,7 @@
 
     window.selecionarGavetaDoPainel = function (gaveta) {
       filtroGavetaAtual = gaveta || "";
-      filtrosAvancados.semGaveta = false;
+      limparFiltrosAvancadosOcultos();
       modoListaAtual = "ativos";
       window.fecharPainelDashboard();
       aplicarListaAtual();
@@ -1337,32 +1346,19 @@
 
     window.filtrarPorGaveta = function (gaveta) {
       filtroGavetaAtual = filtroGavetaAtual === gaveta ? "" : (gaveta || "");
-      filtrosAvancados.semGaveta = false;
+      limparFiltrosAvancadosOcultos();
       renderizarGavetasAtivos();
       filtrarDocumentos();
     };
 
     window.alternarFiltrosAvancados = function () {
-      document.getElementById("filtrosAvancados")?.classList.toggle("aberto");
+      limparFiltrosAvancadosOcultos();
       atualizarBotoesFiltros();
     };
 
     window.aplicarFiltroRapido = function (nomeFiltro) {
-      if (nomeFiltro === "limpar") {
-        filtroGavetaAtual = "";
-        filtrosAvancados = {
-          semGaveta: false,
-          comAnotacao: false,
-          comDuplicidade: false,
-          enviadosRecentemente: false,
-          alteradosRecentemente: false
-        };
-      } else {
-        filtrosAvancados[nomeFiltro] = !filtrosAvancados[nomeFiltro];
-        if (nomeFiltro === "semGaveta" && filtrosAvancados.semGaveta) {
-          filtroGavetaAtual = "";
-        }
-      }
+      filtroGavetaAtual = "";
+      limparFiltrosAvancadosOcultos();
 
       atualizarBotoesFiltros();
       renderizarGavetasAtivos();
@@ -1370,15 +1366,14 @@
     };
 
     function atualizarBotoesFiltros() {
-      const totalAtivos = Object.values(filtrosAvancados).filter(Boolean).length + (filtroGavetaAtual ? 1 : 0);
-      const painelAberto = document.getElementById("filtrosAvancados")?.classList.contains("aberto");
+      limparFiltrosAvancadosOcultos();
       const botaoFiltros = document.getElementById("btnFiltrosAvancados");
       const indicador = document.getElementById("indicadorFiltrosAtivos");
 
-      if (botaoFiltros) botaoFiltros.classList.toggle("ativo", !!painelAberto || totalAtivos > 0);
+      if (botaoFiltros) botaoFiltros.classList.remove("ativo");
       if (indicador) {
-        indicador.textContent = totalAtivos ? `Filtros ativos: ${totalAtivos}` : "";
-        indicador.style.display = totalAtivos ? "inline-flex" : "none";
+        indicador.textContent = "";
+        indicador.style.display = "none";
       }
 
       Object.entries(filtrosAvancados).forEach(([nome, ativo]) => {
@@ -4220,34 +4215,13 @@ function renderizarDocumentos(listaArquivos) {
         resultado = resultado.filter(doc => chaveGaveta(doc.gaveta) === filtroGavetaAtual);
       }
 
-      if (filtrosAvancados.semGaveta) {
-        resultado = resultado.filter(doc => chaveGaveta(doc.gaveta) === "Gaveta nao informada");
-      }
-
-      if (filtrosAvancados.comAnotacao) {
-        resultado = resultado.filter(documentoTemAnotacao);
-      }
-
-      if (filtrosAvancados.comDuplicidade) {
-        const ids = obterIdsDuplicidadePendente();
-        resultado = resultado.filter(doc => ids.has(doc.id));
-      }
-
-      if (filtrosAvancados.enviadosRecentemente) {
-        resultado = resultado.filter(documentoEnviadoRecentemente);
-      }
-
-      if (filtrosAvancados.alteradosRecentemente) {
-        resultado = resultado.filter(documentoAlteradoRecentemente);
-      }
-
       return resultado;
     }
 
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
 
-      if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual && !Object.values(filtrosAvancados).some(Boolean)) {
+      if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual) {
         document.getElementById("contadorResultados").textContent = `${documentosAtivos.length} documento(s) ativo(s) disponivel(is)`;
         document.getElementById("listaDocumentos").innerHTML = "<li class=\"mensagemListaVazia\">Selecione uma gaveta para listar os documentos ou use a busca acima.</li>";
         atualizarBotoesFiltros();
@@ -7820,19 +7794,6 @@ function renderizarDocumentos(listaArquivos) {
         </div>
         <div id="listaGavetasAtivos" class="listaGavetasAtivos"></div>
       </section>
-
-      <div class="barraFiltros">
-        <button id="btnFiltrosAvancados" class="secundario" onclick="alternarFiltrosAvancados()">Filtros avançados</button>
-        <span id="indicadorFiltrosAtivos" class="indicadorFiltrosAtivos" style="display:none"></span>
-        <button class="secundario" onclick="aplicarFiltroRapido('limpar')">Limpar filtros</button>
-      </div>
-      <div id="filtrosAvancados" class="filtrosAvancados">
-        <button class="secundario" data-filtro="semGaveta" onclick="aplicarFiltroRapido('semGaveta')">Sem gaveta</button>
-        <button class="secundario" data-filtro="comAnotacao" onclick="aplicarFiltroRapido('comAnotacao')">Com anotação</button>
-        <button class="secundario" data-filtro="comDuplicidade" onclick="aplicarFiltroRapido('comDuplicidade')">Com duplicidade</button>
-        <button class="secundario" data-filtro="enviadosRecentemente" onclick="aplicarFiltroRapido('enviadosRecentemente')">Enviados recentemente</button>
-        <button class="secundario" data-filtro="alteradosRecentemente" onclick="aplicarFiltroRapido('alteradosRecentemente')">Alterados recentemente</button>
-      </div>
 
       <div id="contadorResultados" class="contador">Carregando...</div>
 
