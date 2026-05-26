@@ -850,13 +850,7 @@
       btnAtivos.classList.toggle("ativo", modoListaAtual === "ativos");
       btnLixeira.classList.toggle("ativo", modoListaAtual === "na Lixeira");
 
-      const titulo = modoListaAtual === "na Lixeira"
-        ? "Lixeira"
-        : modoListaAtual === "ativos"
-          ? "Documentos ativos"
-          : "Documentos recentes";
-
-      document.getElementById("tituloListaDocumentos").textContent = titulo;
+      document.getElementById("tituloListaDocumentos").textContent = "Pesquise um Documento";
 
       document.getElementById("campoBusca").placeholder = modoListaAtual === "na Lixeira"
         ? "Digite para pesquisar nos documentos na Lixeira..."
@@ -890,7 +884,7 @@
       atualizarControlesPreferencias();
     };
 
-    window.salvarConfiguracoesSistema = function () {
+    window.salvarConfiguracoesSistema = function (mostrarAviso = true) {
       preferenciasSistema = {
         limiteRecentes: Number(document.getElementById("configLimiteRecentes")?.value || 20),
         ordemRecentes: document.getElementById("configOrdemRecentes")?.value || "desc",
@@ -910,8 +904,16 @@
         atualizarCentralDuplicidadesSegundoPlano();
       }
 
-      mostrarMensagem("Configuracoes salvas.");
+      if (mostrarAviso) {
+        mostrarMensagem("Configuracoes salvas.");
+      }
     };
+
+    document.addEventListener("change", (evento) => {
+      if (evento.target && evento.target.closest("#centralConfiguracoes") && evento.target.matches("select")) {
+        window.salvarConfiguracoesSistema(false);
+      }
+    });
 
     function renderizarGavetasConfiguracao() {
       const lista = document.getElementById("listaGavetasConfiguracao");
@@ -3699,13 +3701,20 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      lista.innerHTML = arquivosCentralUpload.map((arquivo, indice) => `
-        <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}">
+      const ocupados = criarConjuntoNomesUploadOcupados();
+
+      lista.innerHTML = arquivosCentralUpload.map((arquivo, indice) => {
+        const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
+        const nomeRepetido = ocupados.has(normalizarTexto(nomeSolicitado));
+        return `
+        <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}${nomeRepetido ? " uploadNomeRepetido" : ""}">
           <strong>${escaparHtml(arquivo.name)}</strong>
           <span>${Math.round((arquivo.size || 0) / 1024)} KB</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
+          ${nomeRepetido ? "<small class=\"avisoNomeRepetido\">Nome já existe — será enviado com nome livre</small>" : ""}
         </li>
-      `).join("");
+      `;
+      }).join("");
     }
 
     function atualizarStatusArquivoUpload(indice, status) {
@@ -3930,6 +3939,13 @@ window.abrirSeletorNovoDocumento = function () {
         const mensagemConflito = ajustados ? " Revise nomes parecidos na Central de Duplicidades." : "";
 
         mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${mensagemConflito}`);
+        if (!erros.length) {
+          setTimeout(() => {
+            if (uploadConcluidoComSucesso && !uploadEmAndamento) {
+              descartarCentralUpload();
+            }
+          }, 900);
+        }
       } catch (erro) {
         console.error(erro);
         uploadTeveErro = true;
@@ -6926,7 +6942,7 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     .areaGavetas {
-      display: none !important;
+      margin-top: 8px;
     }
 
     .painelDashboard .painelConteudo {
@@ -7143,6 +7159,130 @@ function renderizarDocumentos(listaArquivos) {
       box-shadow: 0 3px 10px rgba(15, 47, 102, .07);
       transform: none;
     }
+
+    /* UX_FINAL_CURTO_20260526 */
+    .dashboard {
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      align-items: stretch;
+      margin-bottom: 8px;
+    }
+
+    .cardDash,
+    .dashboard .centralDuplicidades {
+      min-height: 58px;
+      padding: 9px 11px;
+      display: grid;
+      align-content: center;
+    }
+
+    .cardDash strong {
+      font-size: 21px;
+    }
+
+    .cardParesIgnorados {
+      cursor: default;
+    }
+
+    .cardParesIgnorados:hover:not(:disabled) {
+      background: #f8fafc;
+      color: #1f2937;
+      border-color: #e5e7eb;
+      box-shadow: none;
+    }
+
+    .navegacaoDocumentosTopo {
+      margin-top: 6px;
+    }
+
+    .areaGavetas {
+      padding: 9px;
+      border-radius: 12px;
+    }
+
+    .areaGavetasTopo {
+      margin-bottom: 6px;
+    }
+
+    .listaGavetasAtivos {
+      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+      gap: 6px;
+    }
+
+    .gavetaCard {
+      padding: 8px 9px;
+      border-radius: 10px;
+    }
+
+    .gavetaCard strong {
+      font-size: 17px;
+    }
+
+    .itemHistoricoGeral {
+      padding: 8px 9px;
+      margin-bottom: 6px;
+      gap: 3px;
+    }
+
+    .itemHistoricoGeral strong,
+    .itemHistoricoGeral span,
+    .itemHistoricoGeral small,
+    .itemHistoricoGeral div {
+      font-size: 12px;
+    }
+
+    .painelLateral {
+      transition: right .18s ease, box-shadow .18s ease;
+    }
+
+    .painelLateral.aberto {
+      box-shadow: -18px 0 36px rgba(15, 23, 42, .18);
+    }
+
+    .centralConfiguracoesTopo {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #ffffff;
+      padding-bottom: 8px;
+    }
+
+    .centralConfiguracoes .btnFechar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 999px;
+    }
+
+    .uploadNomeRepetido {
+      border-color: #fde68a !important;
+      background: #fffdf5 !important;
+    }
+
+    .avisoNomeRepetido {
+      display: inline-flex !important;
+      width: fit-content;
+      margin-top: 4px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #fffbeb;
+      color: #92400e !important;
+      border: 1px solid #fde68a;
+      font-size: 11px !important;
+      font-weight: 700;
+    }
+
+    body.modoCompacto .dashboard {
+      grid-template-columns: repeat(5, minmax(110px, 1fr));
+    }
+
+    body.modoCompacto .cardDash,
+    body.modoCompacto .dashboard .centralDuplicidades {
+      min-height: 48px;
+      padding: 7px 8px;
+    }
   </style>
 
 </head>
@@ -7254,7 +7394,6 @@ function renderizarDocumentos(listaArquivos) {
           <small id="statusCadastroGaveta">A nova gaveta será adicionada à coluna GAVETA do SharePoint, se houver permissão.</small>
           <div id="listaGavetasConfiguracao" class="listaGavetasConfiguracao"></div>
         </div>
-        <button class="principal" onclick="salvarConfiguracoesSistema()">Salvar configurações</button>
       </section>
 
       <section id="centralUpload" class="centralUpload" aria-label="Central de Upload">
@@ -7320,31 +7459,13 @@ function renderizarDocumentos(listaArquivos) {
         </div>
       </section>
 
-      <div class="navegacaoDocumentosTopo">
-        <div class="abasDocumentos">
-          <button id="btnVerRecentes" class="abaDocumento ativo" onclick="mostrarDocumentosRecentes()">Recentes</button>
-          <button id="btnVerAtivos" class="abaDocumento" onclick="mostrarDocumentosAtivos()">Ativos</button>
-          <button id="btnVerLixeira" class="abaDocumento" onclick="mostrarDocumentosLixeira()">Lixeira</button>
-        </div>
-
-        <div class="buscaLinha">
-          <h2 id="tituloListaDocumentos">Documentos recentes</h2>
-          <input
-            id="campoBusca"
-            class="busca"
-            type="text"
-            placeholder="Digite o nome do aluno ou parte do nome..."
-            oninput="filtrarDocumentos()"
-          >
-        </div>
-      </div>
 <div class="dashboardTopo">
         <h2>Resumo do arquivo digital</h2>
       </div>
 
       <div class="dashboard">
         <div class="cardDash">
-          <span>Documentos ativos</span>
+          <span>Documentos Arquivados</span>
           <strong id="dashDocumentos">0</strong>
         </div>
 
@@ -7372,11 +7493,11 @@ function renderizarDocumentos(listaArquivos) {
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
         </div>
 
-        <button id="cardParesIgnorados" class="cardDash cardParesIgnorados" type="button" onclick="abrirParesIgnoradosDashboard()">
+        <div id="cardParesIgnorados" class="cardDash cardParesIgnorados">
           <span>Pessoas diferentes</span>
           <strong id="dashParesIgnorados">0</strong>
           <small>Pares marcados para não aparecer como duplicidade</small>
-        </button>
+        </div>
 
         <button class="cardDash cardHistoricoGeral" type="button" onclick="abrirHistoricoGeral()">
           <span>Histórico geral</span>
@@ -7384,6 +7505,25 @@ function renderizarDocumentos(listaArquivos) {
           <small>Movimentações recentes do sistema</small>
         </button>
 
+      </div>
+
+      <div class="navegacaoDocumentosTopo">
+        <div class="abasDocumentos">
+          <button id="btnVerRecentes" class="abaDocumento ativo" onclick="mostrarDocumentosRecentes()">Recentes</button>
+          <button id="btnVerAtivos" class="abaDocumento" onclick="mostrarDocumentosAtivos()">Gavetas</button>
+          <button id="btnVerLixeira" class="abaDocumento" onclick="mostrarDocumentosLixeira()">Lixeira</button>
+        </div>
+
+        <div class="buscaLinha">
+          <h2 id="tituloListaDocumentos">Pesquise um Documento</h2>
+          <input
+            id="campoBusca"
+            class="busca"
+            type="text"
+            placeholder="Digite o nome do aluno ou parte do nome..."
+            oninput="filtrarDocumentos()"
+          >
+        </div>
       </div>
 
       <section id="areaGavetas" class="areaGavetas" style="display:none">
