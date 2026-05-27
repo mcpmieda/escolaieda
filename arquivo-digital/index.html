@@ -1418,7 +1418,6 @@
       limiteHistoricoGeralAtual += preferenciasSistema.limiteRelatorios || 30;
       renderizarHistoricoGeral();
     };
-
     function renderizarHistoricoGeral() {
       const caixa = document.getElementById("listaHistoricoGeral");
       if (!caixa) return;
@@ -1435,19 +1434,33 @@
       const limite = limiteHistoricoGeralAtual || preferenciasSistema.limiteRelatorios || 30;
       const exibidos = ordenados.slice(0, limite);
 
-      caixa.innerHTML = exibidos.map(item => `
-        <div class="itemHistoricoGeral">
-          <strong>${escaparHtml(formatarAcaoHistorico(item.ACAO || "MOVIMENTOU"))}</strong>
-          <span>${escaparHtml(formatarData(item.DATA_HORA))}</span>
-          <span>${escaparHtml(item.ARQUIVO || "Arquivo nao informado")}</span>
-          <small>${escaparHtml(item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuario nao informado")}</small>
-          ${item.OBSERVACAO ? `<div>${escaparHtml(limparMotivoHistoricoSeguro(item.OBSERVACAO))}</div>` : ""}
-        </div>
-      `).join("") + (ordenados.length > exibidos.length ? `
-        <button class="secundario" onclick="verMaisHistoricoGeral()">Ver mais</button>
-      ` : "");
-    }
+      const itensHtml = exibidos.map(item => {
+        const acao = item.ACAO || "MOVIMENTOU";
+        const data = formatarData(item.DATA_HORA);
+        const arquivo = item.ARQUIVO || "Arquivo nao informado";
+        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuario nao informado";
+        const observacao = item.OBSERVACAO || "";
+        const detalhesHtml = montarHistoricoFormatado(acao, observacao, escaparHtml);
 
+        return `
+          <div class="itemHistoricoGeral historicoGeralCompacto">
+            <div class="cabecalhoHistoricoGeralCard">
+              <strong class="acaoHistoricoGeralCard">${escaparHtml(formatarAcaoHistorico(acao))}</strong>
+              <span class="dataHistoricoGeralCard">${escaparHtml(data)}</span>
+            </div>
+            <div class="arquivoHistoricoGeralCard">${escaparHtml(arquivo)}</div>
+            <div class="usuarioHistoricoGeralCard">${escaparHtml(usuario)}</div>
+            ${detalhesHtml}
+          </div>
+        `;
+      }).join("");
+
+      const botaoMais = ordenados.length > exibidos.length ? `
+        <button class="secundario" onclick="verMaisHistoricoGeral()">Ver mais</button>
+      ` : "";
+
+      caixa.innerHTML = itensHtml + botaoMais;
+    }
     function abrirPainelDashboard(titulo, conteudoHtml) {
       const painel = document.getElementById("painelDashboard");
       const tituloEl = document.getElementById("painelDashboardTitulo");
@@ -8203,6 +8216,117 @@ function renderizarDocumentos(listaArquivos) {
         text-align: left;
       }
     }
+
+    /* Histórico geral compacto em detalhes + motivo */
+    .itemHistoricoGeral.historicoGeralCompacto {
+      display: block;
+      margin-bottom: 7px;
+      padding: 8px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: none;
+    }
+
+    .cabecalhoHistoricoGeralCard {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .acaoHistoricoGeralCard {
+      color: #0f172a;
+      font-size: 0.78rem;
+      line-height: 1.18;
+      letter-spacing: 0.01em;
+    }
+
+    .dataHistoricoGeralCard {
+      flex: 0 0 auto;
+      color: #64748b;
+      font-size: 0.63rem;
+      line-height: 1.15;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .arquivoHistoricoGeralCard {
+      margin-top: 2px;
+      color: #1f2937;
+      font-size: 0.71rem;
+      font-weight: 700;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .usuarioHistoricoGeralCard {
+      margin-top: 2px;
+      color: #64748b;
+      font-size: 0.66rem;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .historicoGeralCompacto .blocoHistoricoCard {
+      margin-top: 5px;
+      padding: 5px 6px;
+      border-radius: 8px;
+      background: rgba(248, 250, 252, 0.7);
+    }
+
+    .historicoGeralCompacto .tituloBlocoHistorico {
+      margin-bottom: 3px;
+      font-size: 0.56rem;
+      letter-spacing: 0.04em;
+    }
+
+    .historicoGeralCompacto .listaDetalhesHistorico {
+      gap: 2px;
+    }
+
+    .historicoGeralCompacto .listaDetalhesHistorico li {
+      gap: 6px;
+      padding-bottom: 2px;
+    }
+
+    .historicoGeralCompacto .rotuloDetalheHistorico {
+      font-size: 0.64rem;
+      line-height: 1.18;
+    }
+
+    .historicoGeralCompacto .valorDetalheHistorico {
+      font-size: 0.66rem;
+      line-height: 1.18;
+    }
+
+    .historicoGeralCompacto .motivoHistoricoCard p {
+      font-size: 0.66rem;
+      line-height: 1.25;
+    }
+
+    @media (max-width: 640px) {
+      .cabecalhoHistoricoGeralCard {
+        display: grid;
+        gap: 1px;
+      }
+
+      .dataHistoricoGeralCard {
+        text-align: left;
+        white-space: normal;
+      }
+
+      .historicoGeralCompacto .listaDetalhesHistorico li {
+        display: grid;
+        gap: 1px;
+      }
+
+      .historicoGeralCompacto .valorDetalheHistorico {
+        text-align: left;
+      }
+    }
+    /* Fim histórico geral compacto */
 </style>
 
 </head>
@@ -8617,6 +8741,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
