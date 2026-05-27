@@ -8884,10 +8884,244 @@ body.modoCompacto {
       transform: translateY(1px);
     }
 /* FIM_HOVER_BOTOES_UPLOAD_CONFIGURACOES_20260527 */
+
+
+/* INICIO_LAYOUT_MODERNO_1A_CABECALHO_UPLOAD_20260527 */
+    body.visualModernoFase1A {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, .14), transparent 34%),
+        linear-gradient(180deg, #eef4fb 0%, #f8fafc 52%, #eef2f7 100%);
+    }
+
+    body.visualModernoFase1A .card {
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, .35);
+      box-shadow: 0 24px 70px rgba(15, 23, 42, .12);
+      overflow: hidden;
+    }
+
+    body.visualModernoFase1A .cabecalhoSistema {
+      position: relative;
+      align-items: center;
+      margin: -18px -18px 14px;
+      padding: 18px 20px;
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(15, 47, 102, .98) 0%, rgba(29, 78, 216, .88) 54%, rgba(14, 116, 144, .78) 100%),
+        url("assets/imagens/arquivo-digital-capa.jpg") center/cover;
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .20);
+    }
+
+    body.visualModernoFase1A .cabecalhoSistema::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -120px auto;
+      width: 320px;
+      height: 320px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .10);
+      pointer-events: none;
+    }
+
+    body.visualModernoFase1A .cabecalhoMarca {
+      position: relative;
+      z-index: 1;
+      gap: 12px;
+      align-items: center;
+    }
+
+    body.visualModernoFase1A .logoSistema {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .96);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, .20);
+    }
+
+    body.visualModernoFase1A .cabecalhoSistema h1 {
+      font-size: clamp(24px, 3vw, 34px);
+      letter-spacing: -.03em;
+      margin: 0 0 2px;
+      color: #ffffff;
+    }
+
+    body.visualModernoFase1A .cabecalhoSistema .subtituloSistema {
+      color: rgba(219, 234, 254, .96);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+
+    body.visualModernoFase1A .cabecalhoAcoes {
+      position: relative;
+      z-index: 1;
+      min-width: 300px;
+      gap: 7px;
+      align-items: center;
+    }
+
+    body.visualModernoFase1A .cabecalhoAcoes #status {
+      color: rgba(239, 246, 255, .92);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: none;
+    }
+
+    body.visualModernoFase1A .btnCabecalhoAcao,
+    body.visualModernoFase1A #btnAbrirConfiguracoesTopo.btnCabecalhoAcao {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 34px;
+      margin: 0;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .28);
+      background: rgba(255, 255, 255, .14);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      box-shadow: none;
+      backdrop-filter: blur(12px);
+      white-space: nowrap;
+    }
+
+    body.visualModernoFase1A .btnCabecalhoAcao .iconeBotao,
+    body.visualModernoFase1A #btnAbrirConfiguracoesTopo.btnCabecalhoAcao .iconeBotao {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      filter: brightness(0) invert(1);
+    }
+
+    body.visualModernoFase1A .btnCabecalhoAcao .iconeEntrar {
+      filter: none;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    body.visualModernoFase1A .btnCabecalhoAcao:hover:not(:disabled),
+    body.visualModernoFase1A #btnAbrirConfiguracoesTopo.btnCabecalhoAcao:hover:not(:disabled) {
+      background: rgba(255, 255, 255, .24);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, .52);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
+    }
+
+    body.visualModernoFase1A .btnCabecalhoSair {
+      background: rgba(248, 113, 113, .18);
+      border-color: rgba(254, 202, 202, .38);
+    }
+
+    body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
+      display: grid;
+      grid-template-columns: auto minmax(220px, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 14px;
+      padding: 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(191, 219, 254, .9);
+      background:
+        linear-gradient(135deg, rgba(239, 246, 255, .98), rgba(255, 255, 255, .96)),
+        radial-gradient(circle at top right, rgba(59, 130, 246, .14), transparent 36%);
+      box-shadow: 0 12px 34px rgba(15, 47, 102, .08);
+    }
+
+    body.visualModernoFase1A .areaUploadIcone {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: #0f2f66;
+      color: #ffffff;
+      box-shadow: 0 12px 28px rgba(15, 47, 102, .22);
+    }
+
+    body.visualModernoFase1A .areaUploadIcone img {
+      width: 24px;
+      height: 24px;
+      filter: brightness(0) invert(1);
+    }
+
+    body.visualModernoFase1A .areaUploadTexto {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    body.visualModernoFase1A .areaUploadTexto strong {
+      color: #0f2f66;
+      font-size: 15px;
+      letter-spacing: -.01em;
+    }
+
+    body.visualModernoFase1A .areaUploadTexto small {
+      color: #64748b;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    body.visualModernoFase1A .btnNovoDocumentoHero {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0;
+      min-height: 40px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
+      color: #ffffff;
+      border: 1px solid rgba(29, 78, 216, .25);
+      box-shadow: 0 12px 26px rgba(29, 78, 216, .22);
+      white-space: nowrap;
+    }
+
+    body.visualModernoFase1A .btnNovoDocumentoHero .iconeBotao {
+      width: 17px;
+      height: 17px;
+      filter: brightness(0) invert(1);
+    }
+
+    body.visualModernoFase1A .btnNovoDocumentoHero:hover:not(:disabled) {
+      background: linear-gradient(135deg, #123d82, #2563eb);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(29, 78, 216, .28);
+    }
+
+    @media (max-width: 760px) {
+      body.visualModernoFase1A .cabecalhoSistema {
+        margin: -10px -10px 12px;
+        padding: 14px;
+        border-radius: 0 0 20px 20px;
+      }
+
+      body.visualModernoFase1A .cabecalhoAcoes {
+        min-width: 0;
+        grid-template-columns: 1fr;
+      }
+
+      body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
+        grid-template-columns: auto 1fr;
+      }
+
+      body.visualModernoFase1A .btnNovoDocumentoHero {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+    }
+/* FIM_LAYOUT_MODERNO_1A_CABECALHO_UPLOAD_20260527 */
 </style>
 
 </head>
-<body>
+<body class="visualModernoFase1A">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -8899,9 +9133,9 @@ body.modoCompacto {
       </div>
       <div class="cabecalhoAcoes">
         <p id="status">Verificando login...</p>
-        <button id="btnEntrar" onclick="entrar()">Entrar com Microsoft</button>
-        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo" onclick="alternarCentralConfiguracoes()">Configurações</button>
-        <button id="btnSair" onclick="sair()">Sair</button>
+        <button id="btnEntrar" class="btnCabecalhoAcao btnCabecalhoEntrar" onclick="entrar()"><span class="iconeBotao iconeEntrar" aria-hidden="true">↗</span><span>Entrar com Microsoft</span></button>
+        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo btnCabecalhoAcao" onclick="alternarCentralConfiguracoes()"><img class="iconeBotao" src="assets/icones/configuracoes.svg" alt="" aria-hidden="true"><span>Configurações</span></button>
+        <button id="btnSair" class="btnCabecalhoAcao btnCabecalhoSair" onclick="sair()"><img class="iconeBotao" src="assets/icones/sair.svg" alt="" aria-hidden="true"><span>Sair</span></button>
       </div>
     </header>
 
@@ -8920,10 +9154,19 @@ body.modoCompacto {
       </section>
 
       <div id="areaSistema" style="display:none">
-            <div class="areaUploadNovo">
-        <button class="btnNovoDocumento" onclick="abrirSeletorNovoDocumento()">Enviar novo PDF</button>
+            <div class="areaUploadNovo areaUploadHero">
+        <div class="areaUploadIcone" aria-hidden="true">
+          <img src="assets/icones/nuvem-upload.svg" alt="">
+        </div>
+        <div class="areaUploadTexto">
+          <strong>Adicionar documentos ao arquivo</strong>
+          <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
+        </div>
+        <button class="btnNovoDocumento btnNovoDocumentoHero" onclick="abrirSeletorNovoDocumento()">
+          <img class="iconeBotao" src="assets/icones/upload.svg" alt="" aria-hidden="true">
+          <span>Enviar novo PDF</span>
+        </button>
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
-        <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
       </div>
 
       <section id="centralConfiguracoes" class="centralConfiguracoes" aria-label="Central de Configurações">
@@ -9293,6 +9536,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
