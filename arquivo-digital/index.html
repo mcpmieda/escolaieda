@@ -1293,12 +1293,16 @@ atualizarCardParesIgnorados();
         return a[0].localeCompare(b[0], "pt-BR", { numeric: true });
       });
 
-      lista.innerHTML = entradas.map(([gaveta, total]) => `
-        <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" onclick='filtrarPorGaveta(${JSON.stringify(gaveta)})'>
-          <span>${escaparHtml(gaveta)}</span>
-          <strong>${total}</strong>
-        </button>
-      `).join("");
+      lista.innerHTML = entradas.map(([gaveta, total]) => {
+        const rotuloGaveta = gaveta === "Gaveta nao informada" ? "Sem gaveta" : gaveta;
+
+        return `
+          <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" title="${escaparHtml(gaveta)}" aria-label="${escaparHtml(gaveta)}" onclick='filtrarPorGaveta(${JSON.stringify(gaveta)})'>
+            <span>${escaparHtml(rotuloGaveta)}</span>
+            <strong>${total}</strong>
+          </button>
+        `;
+      }).join("");
     }
 
     window.filtrarPorGaveta = function (gaveta) {
@@ -5125,13 +5129,13 @@ function renderizarDocumentos(listaArquivos) {
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -9645,36 +9649,42 @@ body.modoCompacto {
     }
 
     body.visualModernoGavetas .listaGavetasAtivos {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 5px;
     }
 
-    body.visualModernoGavetas .gavetaCard {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
-      min-height: 42px;
-      padding: 7px 10px;
-      border-radius: 12px;
+      justify-content: space-between;
+      gap: 6px;
+      width: 132px;
+      min-height: 36px;
+      margin: 0 !important;
+      padding: 6px 8px !important;
+      border-radius: 11px;
       border: 1px solid rgba(203, 213, 225, .92);
       background: rgba(255, 255, 255, .98);
       color: #334155 !important;
       text-align: left;
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .90),
-        0 4px 12px rgba(15, 23, 42, .032);
-      transition: background .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
-    }
-
-    body.visualModernoGavetas .gavetaCard,
-    body.visualModernoGavetas .gavetaCard * {
+        0 3px 10px rgba(15, 23, 42, .028);
+      transform: none !important;
+      transition: none !important;
       text-decoration: none;
     }
 
-    body.visualModernoGavetas .gavetaCard span {
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard * {
+      text-decoration: none;
+    }
+
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard span {
       min-width: 0;
+      flex: 1 1 auto;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -9685,11 +9695,12 @@ body.modoCompacto {
       letter-spacing: -.01em;
     }
 
-    body.visualModernoGavetas .gavetaCard strong {
-      min-width: 28px;
-      padding: 3px 8px;
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard strong {
+      flex: 0 0 auto;
+      min-width: 26px;
+      padding: 3px 7px;
       border-radius: 999px;
-      background: rgba(219, 234, 254, .90);
+      background: rgba(219, 234, 254, .92);
       color: #0f2f66 !important;
       font-size: 12px;
       font-weight: 950;
@@ -9698,48 +9709,59 @@ body.modoCompacto {
       box-shadow: inset 0 0 0 1px rgba(147, 197, 253, .45);
     }
 
-    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) {
-      background: linear-gradient(135deg, #ffffff, #eff6ff);
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:hover:not(:disabled),
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:focus-visible:not(:disabled) {
+      background: #f8fafc !important;
       color: #0f2f66 !important;
-      border-color: rgba(37, 99, 235, .38);
+      border-color: rgba(37, 99, 235, .44) !important;
       box-shadow:
-        0 8px 18px rgba(15, 47, 102, .09),
-        inset 0 1px 0 rgba(255, 255, 255, .92);
-      transform: translateY(-1px);
+        0 6px 14px rgba(15, 47, 102, .08),
+        inset 0 1px 0 rgba(255, 255, 255, .94) !important;
+      transform: none !important;
+      outline: none;
     }
 
-    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) span,
-    body.visualModernoGavetas .gavetaCard:focus-visible span {
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:hover:not(:disabled) span,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:focus-visible:not(:disabled) span {
       color: #0f2f66 !important;
     }
 
-    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) strong,
-    body.visualModernoGavetas .gavetaCard:focus-visible strong {
-      background: #dbeafe;
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:hover:not(:disabled) strong,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:focus-visible:not(:disabled) strong {
+      background: #dbeafe !important;
       color: #0f2f66 !important;
-      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .55);
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .58) !important;
     }
 
-    body.visualModernoGavetas .gavetaCard.ativo,
-    body.visualModernoGavetas .gavetaCard.ativo:hover:not(:disabled) {
-      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:hover:not(:disabled),
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:focus-visible:not(:disabled) {
+      background: linear-gradient(135deg, #0f2f66, #1d4ed8) !important;
       color: #ffffff !important;
-      border-color: rgba(29, 78, 216, .54);
-      box-shadow: 0 9px 20px rgba(29, 78, 216, .22);
-      transform: none;
+      border-color: rgba(29, 78, 216, .54) !important;
+      box-shadow: 0 7px 16px rgba(29, 78, 216, .18) !important;
+      transform: none !important;
     }
 
-    body.visualModernoGavetas .gavetaCard.ativo span,
-    body.visualModernoGavetas .gavetaCard.ativo:hover:not(:disabled) span {
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo span,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:hover:not(:disabled) span,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:focus-visible:not(:disabled) span {
       color: #ffffff !important;
       font-size: 12px;
     }
 
-    body.visualModernoGavetas .gavetaCard.ativo strong,
-    body.visualModernoGavetas .gavetaCard.ativo:hover:not(:disabled) strong {
-      background: rgba(255, 255, 255, .18);
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo strong,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:hover:not(:disabled) strong,
+    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:focus-visible:not(:disabled) strong {
+      background: rgba(255, 255, 255, .18) !important;
       color: #ffffff !important;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .28);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .28) !important;
+    }
+
+    @media (min-width: 1500px) {
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
+        width: 138px;
+      }
     }
 
     @media (max-width: 760px) {
@@ -9755,19 +9777,19 @@ body.modoCompacto {
       }
 
       body.visualModernoGavetas .listaGavetasAtivos {
-        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
         gap: 5px;
       }
 
-      body.visualModernoGavetas .gavetaCard {
-        min-height: 40px;
-        padding: 7px 9px;
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
+        width: 126px;
+        min-height: 36px;
+        padding: 6px 8px !important;
       }
     }
 
     @media (max-width: 420px) {
-      body.visualModernoGavetas .listaGavetasAtivos {
-        grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
+        width: calc(50% - 3px);
       }
     }
 /* FIM_LAYOUT_1D_GAVETAS_HOVER_20260527 */
@@ -10190,6 +10212,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
