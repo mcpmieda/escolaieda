@@ -3057,3 +3057,117 @@ Próximos passos recomendados:
 4. Criar commit de organização.
 5. Depois iniciar filtro de datas do Histórico Geral.
 
+<!-- INICIO_CONSOLIDACAO_SALVAMENTO_AUTOMATICO_20260527 -->
+
+## 36. Consolidacao recente — SALVAMENTO_AUTOMATICO, Historico Geral e CSS
+
+Data desta consolidacao: 2026-05-27 13:35:41
+
+Esta secao consolida o conteudo da pasta SALVAMENTO_AUTOMATICO e registra as decisoes tecnicas recentes para evitar que os mesmos problemas retornem.
+
+### 36.1. SALVAMENTO_AUTOMATICO
+
+- Foram encontrados e consolidados 50 arquivo(s) TXT da pasta SALVAMENTO_AUTOMATICO.
+- Os TXT antigos devem servir como historico local, mas nao precisam continuar versionados no Git.
+- Depois desta consolidacao, a pasta deve ficar limpa para novas acoes.
+- Os arquivos antigos foram copiados para backups_locais antes da limpeza.
+- A pasta SALVAMENTO_AUTOMATICO deve ficar no .gitignore para evitar muitos arquivos de log no repositorio.
+
+Indice consolidado dos passos antigos:
+
+- PASSO_ENCERRAMENTO_UX_PARCIAL_20260526.txt — PASSO ENCERRAMENTO UX PARCIAL - 2026-05-26 — 2026-05-26
+- PASSO_GAVETAS_SHAREPOINT_FONTE_OFICIAL_20260527.txt — PASSO - GAVETAS COM SHAREPOINT COMO FONTE OFICIAL - 2026-05-27
+- PASSO_185_CRIAR_SALVAMENTO_AUTOMATICO.txt — PASSO 185 - CRIAR SALVAMENTO AUTOMATICO — 2026-05-24
+- PASSO_186_OTIMIZAR_FILTRO_DUPLICIDADE.txt — PASSO 186 - OTIMIZAR FILTRO COM DUPLICIDADE — 2026-05-24
+- PASSO_187_CRIAR_ATALHO_CONTINUAR_PROJETO.txt — PASSO 187 - CRIAR ATALHO PARA CONTINUAR PROJETO — 2026-05-24
+- PASSO_188_REMOVER_FILTRO_DUPLICIDADE.txt — PASSO 188 - REMOVER FILTRO COM DUPLICIDADE — 2026-05-24
+- PASSO_189_DIAGNOSTICO_CURTO_INDEX_SAUDAVEL.txt — PASSO 189 - DIAGNOSTICO CURTO DO INDEX — 2026-05-24
+- PASSO_190_PONTO_SEGURO_FILTROS_DOCUMENTOS.txt — PASSO 190 - PONTO SEGURO FILTROS DOCUMENTOS — 2026-05-24
+- PASSO_191_CENTRAL_NO_DASHBOARD_REMOVER_FILTROS.txt — PASSO 191 - CENTRAL NO DASHBOARD E REMOCAO DOS FILTROS — 2026-05-24
+- PASSO_192_PAINEL_LATERAL_CENTRAL_DUPLICIDADES.txt — PASSO 192 - PAINEL LATERAL DA CENTRAL DE DUPLICIDADES — 2026-05-24
+- PASSO_193_CORRIGIR_PAINEL_CENTRAL_VISIVEL.txt — PASSO 193 - CORRIGIR PAINEL DA CENTRAL SEMPRE VISIVEL — 2026-05-24
+- PASSO_194_PAINEL_CENTRAL_ESQUERDA.txt — PASSO 194 - PAINEL DA CENTRAL NO LADO ESQUERDO — 2026-05-24
+- PASSO_195_PONTO_SEGURO_CENTRAL_DASHBOARD_PAINEL_ESQUERDA.txt — PASSO 195 - PONTO SEGURO CENTRAL DASHBOARD PAINEL ESQUERDA — 2026-05-24
+- PASSO_196_ATUALIZAR_AGENTS_PASSOS_RECENTES.txt — PASSO 196 - ATUALIZAR AGENTS COM PASSOS RECENTES — 2026-05-24
+- PASSO_197_MOVIMENTACOES_NOS_DOCUMENTOS_ATIVOS.txt — PASSO 197 - MOVIMENTACOES NOS DOCUMENTOS ATIVOS — 2026-05-24
+- PASSO_198_ATIVOS_APENAS_20_RECENTES.txt — PASSO 198 - ATIVOS APENAS 20 RECENTES — 2026-05-24
+- PASSO_199_ATUALIZAR_AGENTS_MOVIMENTACOES_ATIVOS.txt — PASSO 199 - ATUALIZAR AGENTS COM MOVIMENTACOES E ATIVOS RECENTES — 2026-05-24
+- PASSO_200_PONTO_SEGURO_ATIVOS_20_RECENTES.txt — PASSO 200 - PONTO SEGURO ATIVOS 20 RECENTES — 2026-05-24
+- PASSO_201_GUIAS_RECENTES_LIXEIRA_DASHBOARD.txt — PASSO 201 - guias recentes, ativos, lixeira e dashboard — 2026-05-25
+- PASSO_202_PONTO_SEGURO_GUIAS_RECENTES_LIXEIRA_DASHBOARD.txt — PASSO 202 - PONTO SEGURO GUIAS RECENTES LIXEIRA DASHBOARD — 2026-05-25
+- PASSO_203_CRIAR_COLUNA_GAVETA_SHAREPOINT.txt — PASSO 203 - CRIAR COLUNA GAVETA NO SHAREPOINT — 2026-05-25
+- PASSO_204_EXIBIR_GAVETA_SITE.txt — PASSO 204 - EXIBIR GAVETA NO SITE — 2026-05-25
+- PASSO_205_CENTRAL_UPLOAD_GAVETA.txt — PASSO 205 - CENTRAL DE UPLOAD COM GAVETA — 2026-05-25
+- PASSO_206_ALTERAR_GAVETA_PAINEL.txt — PASSO 206 - ALTERAR GAVETA NO PAINEL LATERAL — 2026-05-25
+- PASSO_207_VALIDACAO_FINAL_GAVETA_UPLOAD.txt — PASSO 207 - VALIDACAO FINAL GAVETA E CENTRAL DE UPLOAD — 2026-05-25
+- PASSO_208_PONTO_SEGURO_GAVETA_CENTRAL_UPLOAD.txt — PASSO 208 - PONTO SEGURO GAVETA E CENTRAL DE UPLOAD — 2026-05-25
+- PASSO_209_FECHAMENTO_SEGURO_PROGRESSO_UPLOAD.txt — PASSO 209 - FECHAMENTO SEGURO E PROGRESSO NA CENTRAL DE UPLOAD — 2026-05-25
+- PASSO_210_DESTAQUE_VISUAL_BOTAO_UPLOAD.txt — PASSO 210 - DESTAQUE VISUAL DO BOTAO ENVIAR UPLOAD — 2026-05-25
+- PASSO_211_PONTO_SEGURO_UPLOAD_VISUAL_BOTAO_VERMELHO.txt — PASSO 211 - PONTO SEGURO VISUAL BOTAO UPLOAD VERMELHO — 2026-05-25
+- PASSO_212_ATUALIZAR_AGENTS_DIAGNOSTICO_COMPLETO.txt — PASSO 212 - ATUALIZAR AGENTS E DIAGNOSTICO COMPLETO — 2026-05-25
+- PASSO_213_ENTREGA_FINAL_FASE1.txt — PASSO 213 - ENTREGA FINAL FASE 1 — 2026-05-25
+- PASSO_214_DIAGNOSTICO_FASE2_MESCLAR_ARQUIVOS.txt — PASSO 214 - DIAGNOSTICO FASE 2 MESCLAR ARQUIVOS — 2026-05-25 13:13:24
+- PASSO_215_IMPLEMENTAR_MESCLAR_FASE2_INICIAL.txt — PASSO 215 - IMPLEMENTAR MESCLAR FASE 2 INICIAL — 2026-05-25 13:29:07
+- PASSO_216_CORRIGIR_MESCLAR_PDF_LOCAL.txt — PASSO 216 - CORRIGIR MESCLAR COM PDF LOCAL — 2026-05-25 14:00:21
+- PASSO_217_PONTO_SEGURO_MESCLAR_PDF_LOCAL.txt — PASSO 217 - PONTO SEGURO MESCLAR PDF LOCAL — 2026-05-25 14:10:20
+- PASSO_218_DIAGNOSTICO_FECHAMENTO_POS_MESCLAR.txt — PASSO 218 - DIAGNOSTICO DE FECHAMENTO POS MESCLAR — 2026-05-25 14:16:46
+- PASSO_219_DIAGNOSTICO_ACABAMENTO_VISUAL_FILTROS_RELATORIOS.txt — PASSO 219 - DIAGNOSTICO ACABAMENTO VISUAL FILTROS RELATORIOS — 2026-05-25 14:25:43
+- PASSO_220_ACABAMENTO_FASE1_VISUAL_PROFISSIONAL.txt — PASSO 220 - ACABAMENTO FASE 1 VISUAL PROFISSIONAL — 2026-05-25 14:31:41
+- PASSO_221_CONTRASTE_HOVER_CARDS_DOCUMENTOS.txt — PASSO 221 - CONTRASTE HOVER CARDS DOCUMENTOS — 2026-05-25 14:46:24
+- PASSO_222_ACABAMENTO_FASE2_PADRONIZAR_BOTOES.txt — PASSO 222 - ACABAMENTO FASE 2 PADRONIZAR BOTOES — 2026-05-25 14:54:03
+- PASSO_223_ACABAMENTO_FASE3_MENSAGENS_USUARIO_LEIGO.txt — PASSO 223 - ACABAMENTO FASE 3 MENSAGENS USUARIO LEIGO — 2026-05-25 15:02:53
+- PASSO_224_FECHAMENTO_DIA_CONTINUAR_FASE4_RESPONSIVIDADE.txt — PASSO 224 - FECHAMENTO DO DIA E CONTINUAR AMANHA NA FASE 4 — 2026-05-25 15:17:01
+- PASSO_225_ACABAMENTO_FASE4_RESPONSIVIDADE.txt — PASSO 225 - ACABAMENTO FASE 4 RESPONSIVIDADE — 2026-05-26
+- PASSO_226_ACABAMENTO_FASE5_PAINEL_LATERAL.txt — PASSO 226 - ACABAMENTO FASE 5 PAINEL LATERAL — 2026-05-25
+- PASSO_227_ACABAMENTO_FASE6_CENTRAL_UPLOAD.txt — PASSO 227 - ACABAMENTO FASE 6 CENTRAL DE UPLOAD — 2026-05-25
+- PASSO_228_ACABAMENTO_FASE7_CENTRAL_DUPLICIDADES.txt — PASSO 228 - ACABAMENTO FASE 7 CENTRAL DE DUPLICIDADES — 2026-05-25
+- PASSO_229_PACOTE1_DESEMPENHO_USABILIDADE.txt — PASSO 229 - PACOTE 1 DESEMPENHO E USABILIDADE GERAL — 2026-05-25
+- PASSO_230_PACOTE2_GAVETAS_CONFIGURACOES_FILTROS.txt — PASSO 230 - PACOTE 2 GAVETAS CONFIGURACOES E FILTROS — 2026-05-25
+- PASSO_231_PACOTE3_HISTORICO_RELATORIOS_ACESSO.txt — PASSO 231 - PACOTE 3 HISTORICO GERAL RELATORIOS E ACESSO — 2026-05-25
+- PASSO_232_FECHAMENTO_FINAL_RESTAURACAO_20260525.txt — PASSO 232 - FECHAMENTO FINAL E PONTO DE RESTAURACAO — 2026-05-25
+
+### 36.2. Historico Geral — estado atual aprovado
+
+- O Historico Geral possui filtro por datas/período no topo do painel.
+- O filtro deve ser compacto e respeitado pelo botao Ver mais.
+- O painel nao deve fechar ao clicar em Ver mais.
+- O Historico Geral possui busca textual compacta.
+- A busca deve procurar por arquivo, usuario, acao, data, motivo/observacao e dados uteis da movimentacao.
+- O Historico Geral possui setas de ordenacao para mais recentes primeiro e mais antigos primeiro.
+- O titulo do card do Historico Geral deve ser o nome do arquivo, com a acao logo abaixo.
+- O layout deve ser compacto, sem caixas muito altas e sem bloco de motivo quando nao houver motivo real.
+
+### 36.3. CSS e hover — regras obrigatorias
+
+- Nao criar botao novo dependendo apenas de button:hover global.
+- Todo botao novo deve ter classe propria.
+- Todo hover novo deve ser escopado pelo container da area.
+- Componentes novos do Historico Geral devem usar escopo do container .filtroHistoricoGeral quando forem controles do filtro/busca/ordenacao.
+- Evitar recriar regras genericas como .itemArquivo:hover.
+- O hover oficial dos cards de arquivo e button.itemArquivo:hover:not(:disabled).
+- Hovers antigos genericos de .itemArquivo:hover foram removidos.
+- Restos parciais como .itemArquivo:hover span, tambem foram removidos.
+- A regra global antiga de hover de botoes foi limitada para nao atingir componentes que ja tem visual proprio.
+
+### 36.4. Diagnosticos
+
+- Evitar diagnostico geral pesado em todo o index.html, pois pode demorar demais.
+- Preferir diagnosticos focados por area.
+- Diagnosticos recomendados daqui para frente: Historico Geral, cards de arquivo, Dashboard, Central de Upload, Central de Duplicidades e regras !important.
+- Todo script de alteracao deve criar backup, gerar relatorio em diagnosticos e abortar se o arquivo alvo ja tiver alteracao pendente.
+
+### 36.5. Pontos seguros/commits recentes conhecidos
+
+- c708c95 — Limitar hover global de botoes.
+- 74a696 — Consolidar hover dos cards de arquivo.
+- 421a358 — Limpar restos antigos do hover dos cards.
+
+### 36.6. Regra para proximas acoes
+
+- A pasta SALVAMENTO_AUTOMATICO pode continuar existindo localmente para registros curtos.
+- Esses registros devem ser periodicamente consolidados no AGENTS.md.
+- Depois de consolidar, limpar a pasta e recomecar com novos passos.
+- Nao usar SALVAMENTO_AUTOMATICO como fonte definitiva por muito tempo; a fonte consolidada deve ser o AGENTS.md.
+
+<!-- FIM_CONSOLIDACAO_SALVAMENTO_AUTOMATICO_20260527 -->
+
