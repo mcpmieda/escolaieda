@@ -9382,6 +9382,52 @@ body.modoCompacto {
       box-shadow: 0 9px 18px rgba(234, 88, 12, .22);
     }
 /* FIM_LAYOUT_MODERNO_1B_DESTAQUE_CARDS_REAIS_20260527 */
+
+
+/* INICIO_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
+    @media (min-width: 1500px) {
+      body.visualModernoFase1A .card {
+        width: min(96vw, 1760px);
+        max-width: 1760px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardTopo {
+        width: 100%;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      body.visualModernoResumoDestaque .cardDash:has(#dashDocumentos),
+      body.visualModernoResumoDestaque .cardDash:has(#dashLixeira),
+      body.visualModernoResumoDestaque .cardDash:has(#dashPessoas),
+      body.visualModernoResumoDestaque #cardParesIgnorados,
+      body.visualModernoResumoDestaque #centralDuplicidades,
+      body.visualModernoResumoDestaque .centralDuplicidades,
+      body.visualModernoResumoDestaque .cardHistoricoGeral {
+        width: auto;
+        min-width: 0;
+      }
+    }
+
+    @media (min-width: 1800px) {
+      body.visualModernoFase1A .card {
+        width: min(97vw, 1840px);
+        max-width: 1840px;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      body.visualModernoResumoDestaque .dashboardTopo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      body.visualModernoResumoDestaque .dashboardTopo {
+        grid-template-columns: 1fr;
+      }
+    }
+/* FIM_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
 </style>
 
 </head>
@@ -9800,6 +9846,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
