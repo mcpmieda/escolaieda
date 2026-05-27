@@ -9428,10 +9428,154 @@ body.modoCompacto {
       }
     }
 /* FIM_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
+
+
+/* INICIO_LAYOUT_MODERNO_1C_PESQUISA_ABAS_20260527 */
+    body.visualModernoBuscaAbas .busca {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(220px, 1fr);
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      padding: 18px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(191, 219, 254, .78);
+      background:
+        linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .96)),
+        radial-gradient(circle at top right, rgba(59, 130, 246, .10), transparent 34%);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, .045);
+    }
+
+    body.visualModernoBuscaAbas .busca h2 {
+      grid-column: 1 / -1;
+      justify-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 8px;
+      color: #0f2f66;
+      font-size: 21px;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+    }
+
+    body.visualModernoBuscaAbas .busca h2::before {
+      content: "";
+      width: 8px;
+      height: 24px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #1d4ed8, #0f766e);
+      box-shadow: 0 6px 18px rgba(29, 78, 216, .20);
+    }
+
+    body.visualModernoBuscaAbas .abasDocumentos {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      min-width: max-content;
+    }
+
+    body.visualModernoBuscaAbas .abaDocumento {
+      min-height: 38px;
+      margin: 0;
+      padding: 9px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(203, 213, 225, .95);
+      background: rgba(241, 245, 249, .94);
+      color: #0f172a;
+      font-weight: 850;
+      font-size: 13px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82);
+      transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    body.visualModernoBuscaAbas .abaDocumento:hover:not(:disabled) {
+      background: #e2e8f0;
+      color: #0f2f66;
+      border-color: rgba(148, 163, 184, .95);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .08);
+    }
+
+    body.visualModernoBuscaAbas .abaDocumento.ativo,
+    body.visualModernoBuscaAbas .abaDocumento[aria-selected="true"] {
+      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
+      color: #ffffff;
+      border-color: rgba(29, 78, 216, .42);
+      box-shadow: 0 10px 22px rgba(29, 78, 216, .20);
+    }
+
+    body.visualModernoBuscaAbas #btnVerAtivos.abaDocumento:not(.ativo) {
+      background: rgba(239, 246, 255, .96);
+      border-color: rgba(147, 197, 253, .75);
+    }
+
+    body.visualModernoBuscaAbas #btnVerLixeira.abaDocumento:not(.ativo) {
+      background: rgba(248, 250, 252, .96);
+    }
+
+    body.visualModernoBuscaAbas .busca input,
+    body.visualModernoBuscaAbas #campoBusca {
+      width: 100%;
+      min-height: 44px;
+      margin: 0;
+      padding: 11px 15px;
+      border-radius: 13px;
+      border: 1px solid rgba(203, 213, 225, .96);
+      background: rgba(255, 255, 255, .96);
+      color: #0f172a;
+      font-size: 14px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .90),
+        0 6px 18px rgba(15, 23, 42, .035);
+      outline: none;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    body.visualModernoBuscaAbas .busca input:focus,
+    body.visualModernoBuscaAbas #campoBusca:focus {
+      background: #ffffff;
+      border-color: rgba(37, 99, 235, .68);
+      box-shadow:
+        0 0 0 4px rgba(59, 130, 246, .12),
+        0 8px 22px rgba(15, 23, 42, .055);
+    }
+
+    body.visualModernoBuscaAbas .busca input::placeholder,
+    body.visualModernoBuscaAbas #campoBusca::placeholder {
+      color: #64748b;
+    }
+
+    @media (max-width: 760px) {
+      body.visualModernoBuscaAbas .busca {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      body.visualModernoBuscaAbas .busca h2 {
+        justify-self: start;
+      }
+
+      body.visualModernoBuscaAbas .abasDocumentos {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      body.visualModernoBuscaAbas .abaDocumento {
+        width: 100%;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+    }
+/* FIM_LAYOUT_MODERNO_1C_PESQUISA_ABAS_20260527 */
 </style>
 
 </head>
-<body class="visualModernoFase1A visualModernoResumoDestaque">
+<body class="visualModernoFase1A visualModernoResumoDestaque visualModernoBuscaAbas">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -9846,6 +9990,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
