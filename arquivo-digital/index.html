@@ -2898,7 +2898,7 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
         try {
           await registrarHistorico(documentoSelecionado, "ANOTACAO", textoHistorico);
           anotacaoUltimoTextoSalvo = texto;
-          await carregarHistoricoDocumento(documentoSelecionado);
+
         } catch (erroHistoricoAnotacao) {
           console.warn("Anotação salva, mas não foi possível registrar no histórico.", erroHistoricoAnotacao);
           anotacaoUltimoTextoSalvo = texto;
@@ -10243,6 +10243,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
