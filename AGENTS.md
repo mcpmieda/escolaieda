@@ -3293,3 +3293,121 @@ e nas configurações/fluxos já existentes.
 
 <!-- FIM_REGISTRO_REMOCAO_CARD_GAVETAS_DASHBOARD_20260527 -->
 
+<!-- INICIO_PONTO_SEGURO_CORRECOES_PROFUNDAS_INDEX_20260527 -->
+
+## 37. Ponto seguro — correções profundas do index.html aprovadas em 27/05/2026
+
+### 37.1. Contexto
+
+Após a fase de redesign gradual do Arquivo Digital Escolar, foi solicitado um diagnóstico profundo do arquivo-digital/index.html, com foco em encontrar problemas estruturais, de desempenho, segurança de renderização e manutenção.
+
+O diagnóstico apontou problemas reais, mas não encontrou erro de sintaxe que impedisse o carregamento geral do JavaScript. As correções foram feitas em pequenos passos, publicadas e testadas no site real.
+
+Status final informado pelo usuário: **teste realizado e tudo OK**.
+
+### 37.2. Commits envolvidos
+
+Últimos commits relevantes do ponto seguro:
+
+- b4f20a6 — Abrir PDF imediatamente e registrar acesso em segundo plano.
+- 97c6caf — Corrigir estrutura de formatarData e limpar observação histórico.
+- 513cc9b — Escapar nomes de arquivos nos cards.
+- 94916c9 — Otimizar histórico do documento usando cache.
+- 8a16741 — Remover recarregamento duplo do histórico da anotação.
+
+Também permanecem válidos os commits visuais imediatamente anteriores:
+
+- 591fb26 — Ajustar largura das gavetas e abas no celular.
+- f5d5b41 — Corrigir hover imediato e nomes das gavetas.
+- cab0a8e — Ajustar gavetas compactas e hover legível.
+- 5ac1df7 — Aplicar layout moderno nas gavetas e corrigir hover.
+- b990da5 — Aplicar layout moderno somente no campo de busca.
+
+### 37.3. Correções aplicadas
+
+Foram corrigidos os seguintes pontos:
+
+1. **Estrutura de funções**
+   - formatarData(data) foi fechada corretamente.
+   - limparObservacaoHistorico(texto) ficou separada como função própria.
+   - O problema não quebrava necessariamente o JavaScript, mas era estruturalmente perigoso.
+
+2. **Escape de nomes em HTML**
+   - Nomes de arquivos em cards passaram a usar escaparHtml.
+   - Nomes em “nomes parecidos” também passaram a usar escaparHtml.
+   - Isso evita quebra visual e reduz risco de HTML indesejado vindo de nomes do SharePoint.
+   - Regra preservada: não usar item.nome diretamente dentro de innerHTML; usar escaparHtml(item.nome).
+
+3. **Histórico do documento usando cache**
+   - carregarHistoricoDocumento(documento) deixou de buscar novamente histórico/anotações inteiros no SharePoint a cada abertura de documento.
+   - A função passou a usar historicoCarregado e anotacoesCarregadas.
+   - Se os dados de apoio ainda estiverem carregando, o painel mostra aviso e atualiza em segundo plano.
+
+4. **Salvar anotação sem recarregamento duplo**
+   - Foi removida uma chamada duplicada de carregarHistoricoDocumento(documentoSelecionado).
+   - O registro ANOTACAO continua sendo salvo.
+   - O histórico continua atualizando visualmente depois do salvamento.
+
+5. **Abertura de PDF otimizada**
+   - abrirPdfSelecionado passou a abrir o PDF imediatamente.
+   - O registro VISUALIZOU continua sendo feito em segundo plano.
+   - Isso evita travar a abertura do PDF aguardando o SharePoint/histórico.
+
+6. **Gavetas e abas responsivas**
+   - Hover das gavetas foi corrigido.
+   - .gavetaCard foi excluído da regra global de hover dos botões.
+   - As abas Recentes / Gavetas / Lixeira voltaram a ficar em linha no celular.
+   - Cards das gavetas foram ajustados para ficarem mais largos e legíveis.
+
+### 37.4. Diagnóstico de fechamento aprovado
+
+Foi executado o diagnóstico de fechamento DIAGNOSTICO_FECHAMENTO_CORRECOES_PROFUNDAS_V1.
+
+Resultado consolidado:
+
+- Git local limpo.
+- Branch main sincronizada com origin/main.
+- GitHub Pages com execuções recentes concluídas com sucesso.
+- formatarData e limparObservacaoHistorico encontrados corretamente.
+- Nomes escapados nos cards.
+- Histórico usando cache.
+- Abertura de PDF imediata presente.
+- .gavetaCard excluído do hover global.
+- Abas em 3 colunas no celular presentes.
+- Restos do 1C amplo antigo ausentes.
+- fetch(urlHistorico) e fetch(urlAnotacoes) ausentes dentro de carregarHistoricoDocumento.
+- git diff --check sem erro.
+- Validação JS com Node concluída.
+
+### 37.5. Regras importantes daqui para frente
+
+- Não reintroduzir busca completa de histórico/anotações dentro de carregarHistoricoDocumento.
+- Não voltar a inserir nomes de arquivos em innerHTML sem escaparHtml.
+- Não remover o fluxo de abertura imediata do PDF sem motivo forte.
+- Não mexer nas regras de hover global sem verificar componentes com visual próprio.
+- Manter .gavetaCard fora da regra global de button:hover.
+- Antes de grandes alterações, preferir diagnóstico + pacote pequeno + commit + push + teste real.
+- Em mudanças visuais, evitar “design em cima de design”; substituir blocos marcados ou consolidar conscientemente.
+- Continuar usando SALVAMENTO_AUTOMATICO apenas como registro local temporário; a fonte consolidada deve ser o AGENTS.md.
+
+### 37.6. Próximos passos recomendados
+
+Após este ponto seguro, a ordem recomendada é:
+
+1. Criar tag de segurança no Git:
+   - ponto-seguro-correcao-profunda-index-ok
+2. Seguir para a próxima fase somente após confirmar que:
+   - upload funciona;
+   - abertura de PDF funciona;
+   - histórico aparece;
+   - anotação salva;
+   - gavetas filtram corretamente;
+   - lixeira/restauração continuam funcionando.
+3. Próximas melhorias técnicas:
+   - revisar abrirDocumentoNoPainel para abrir o painel primeiro e carregar detalhes em segundo plano;
+   - estudar um fetchGraph central com retry/backoff para Graph/SharePoint;
+   - iniciar consolidação CSS controlada por blocos;
+   - manter cada alteração pequena e reversível.
+
+<!-- FIM_PONTO_SEGURO_CORRECOES_PROFUNDAS_INDEX_20260527 -->
+
