@@ -1443,12 +1443,12 @@
         const detalhesHtml = montarHistoricoFormatado(acao, observacao, escaparHtml);
 
         return `
-          <div class="itemHistoricoGeral historicoGeralCompacto">
-            <div class="cabecalhoHistoricoGeralCard">
-              <strong class="acaoHistoricoGeralCard">${escaparHtml(formatarAcaoHistorico(acao))}</strong>
+          <div class="itemHistoricoGeral historicoGeralCompacto historicoGeralSuperCompacto">
+            <strong class="arquivoHistoricoGeralTitulo">${escaparHtml(arquivo)}</strong>
+            <div class="linhaAcaoHistoricoGeral">
+              <span class="acaoHistoricoGeralChip">${escaparHtml(formatarAcaoHistorico(acao))}</span>
               <span class="dataHistoricoGeralCard">${escaparHtml(data)}</span>
             </div>
-            <div class="arquivoHistoricoGeralCard">${escaparHtml(arquivo)}</div>
             <div class="usuarioHistoricoGeralCard">${escaparHtml(usuario)}</div>
             ${detalhesHtml}
           </div>
@@ -8216,98 +8216,136 @@ function renderizarDocumentos(listaArquivos) {
         text-align: left;
       }
     }
-
-    /* Histórico geral compacto em detalhes + motivo */
-    .itemHistoricoGeral.historicoGeralCompacto {
+    /* Histórico geral super compacto */
+    .itemHistoricoGeral.historicoGeralSuperCompacto {
       display: block;
-      margin-bottom: 7px;
-      padding: 8px 9px;
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.24);
-      background: rgba(255, 255, 255, 0.92);
+      margin-bottom: 5px;
+      padding: 6px 8px;
+      border-radius: 9px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(255, 255, 255, 0.94);
       box-shadow: none;
     }
 
-    .cabecalhoHistoricoGeralCard {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
-
-    .acaoHistoricoGeralCard {
+    .arquivoHistoricoGeralTitulo {
+      display: block;
+      margin: 0 0 2px;
       color: #0f172a;
       font-size: 0.78rem;
-      line-height: 1.18;
-      letter-spacing: 0.01em;
+      line-height: 1.16;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .linhaAcaoHistoricoGeral {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .acaoHistoricoGeralChip {
+      color: #1e3a8a;
+      font-size: 0.63rem;
+      line-height: 1.1;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
     }
 
     .dataHistoricoGeralCard {
       flex: 0 0 auto;
       color: #64748b;
-      font-size: 0.63rem;
-      line-height: 1.15;
+      font-size: 0.61rem;
+      line-height: 1.1;
       white-space: nowrap;
       text-align: right;
-    }
-
-    .arquivoHistoricoGeralCard {
-      margin-top: 2px;
-      color: #1f2937;
-      font-size: 0.71rem;
-      font-weight: 700;
-      line-height: 1.25;
-      word-break: break-word;
     }
 
     .usuarioHistoricoGeralCard {
       margin-top: 2px;
       color: #64748b;
-      font-size: 0.66rem;
-      line-height: 1.2;
+      font-size: 0.62rem;
+      line-height: 1.14;
       word-break: break-word;
     }
 
-    .historicoGeralCompacto .blocoHistoricoCard {
-      margin-top: 5px;
-      padding: 5px 6px;
-      border-radius: 8px;
-      background: rgba(248, 250, 252, 0.7);
+    .historicoGeralSuperCompacto .blocoHistoricoCard {
+      margin-top: 4px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
     }
 
-    .historicoGeralCompacto .tituloBlocoHistorico {
-      margin-bottom: 3px;
-      font-size: 0.56rem;
+    .historicoGeralSuperCompacto .tituloBlocoHistorico {
+      margin: 0 0 2px;
+      font-size: 0.55rem;
+      line-height: 1.05;
       letter-spacing: 0.04em;
+      color: #64748b;
     }
 
-    .historicoGeralCompacto .listaDetalhesHistorico {
-      gap: 2px;
+    .historicoGeralSuperCompacto .listaDetalhesHistorico {
+      gap: 0;
     }
 
-    .historicoGeralCompacto .listaDetalhesHistorico li {
-      gap: 6px;
-      padding-bottom: 2px;
+    .historicoGeralSuperCompacto .listaDetalhesHistorico li {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: 5px;
+      padding: 0;
+      border-bottom: 0;
+      min-height: 0;
     }
 
-    .historicoGeralCompacto .rotuloDetalheHistorico {
+    .historicoGeralSuperCompacto .rotuloDetalheHistorico {
+      flex: 0 0 auto;
+      color: #64748b;
+      font-size: 0.62rem;
+      line-height: 1.16;
+    }
+
+    .historicoGeralSuperCompacto .rotuloDetalheHistorico::after {
+      content: ":";
+    }
+
+    .historicoGeralSuperCompacto .valorDetalheHistorico {
+      color: #0f172a;
+      font-size: 0.64rem;
+      line-height: 1.16;
+      text-align: left;
+      word-break: break-word;
+    }
+
+    .historicoGeralSuperCompacto .motivoHistoricoCard {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .historicoGeralSuperCompacto .motivoHistoricoCard .tituloBlocoHistorico {
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    .historicoGeralSuperCompacto .motivoHistoricoCard .tituloBlocoHistorico::after {
+      content: ":";
+    }
+
+    .historicoGeralSuperCompacto .motivoHistoricoCard p {
+      margin: 0;
+      color: #1f2937;
       font-size: 0.64rem;
       line-height: 1.18;
-    }
-
-    .historicoGeralCompacto .valorDetalheHistorico {
-      font-size: 0.66rem;
-      line-height: 1.18;
-    }
-
-    .historicoGeralCompacto .motivoHistoricoCard p {
-      font-size: 0.66rem;
-      line-height: 1.25;
+      white-space: normal;
+      word-break: break-word;
     }
 
     @media (max-width: 640px) {
-      .cabecalhoHistoricoGeralCard {
+      .linhaAcaoHistoricoGeral {
         display: grid;
         gap: 1px;
       }
@@ -8317,16 +8355,17 @@ function renderizarDocumentos(listaArquivos) {
         white-space: normal;
       }
 
-      .historicoGeralCompacto .listaDetalhesHistorico li {
+      .historicoGeralSuperCompacto .listaDetalhesHistorico li {
+        display: grid;
+        gap: 0;
+      }
+
+      .historicoGeralSuperCompacto .motivoHistoricoCard {
         display: grid;
         gap: 1px;
       }
-
-      .historicoGeralCompacto .valorDetalheHistorico {
-        text-align: left;
-      }
     }
-    /* Fim histórico geral compacto */
+    /* Fim histórico geral super compacto */
 </style>
 
 </head>
@@ -8741,6 +8780,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
