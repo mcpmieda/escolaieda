@@ -8955,6 +8955,72 @@ function renderizarDocumentos(listaArquivos) {
     }
     /* Fim ajuste de hover do filtro do Histórico Geral */
 
+
+    /* Correção final de hover dos controles do Histórico Geral */
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral,
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral,
+    .filtroHistoricoGeral button.botaoAplicarFiltroHistorico {
+      transform: none;
+    }
+
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral:not(.ativo):hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral:not(.ativo):focus-visible:not(:disabled) {
+      color: #0f2f66;
+      background: #eef4ff;
+      border-color: rgba(15, 47, 102, 0.32);
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.10);
+      transform: none;
+      outline: none;
+    }
+
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral.ativo,
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral.ativo:hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral.ativo:focus-visible:not(:disabled),
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral.ativo:active:not(:disabled) {
+      color: #ffffff;
+      background: #0f2f66;
+      border-color: #0f2f66;
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.18);
+      transform: none;
+      outline: none;
+    }
+
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral.ativo:hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoOrdemHistoricoGeral.ativo:focus-visible:not(:disabled) {
+      background: #123a7a;
+      border-color: #123a7a;
+    }
+
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral:not(.ativo):hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral:not(.ativo):focus-visible:not(:disabled),
+    .filtroHistoricoGeral button.botaoAplicarFiltroHistorico:hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoAplicarFiltroHistorico:focus-visible:not(:disabled) {
+      color: #0f2f66;
+      background: #eef4ff;
+      border-color: rgba(15, 47, 102, 0.32);
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.10);
+      transform: none;
+      outline: none;
+    }
+
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral.ativo,
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral.ativo:hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral.ativo:focus-visible:not(:disabled),
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral.ativo:active:not(:disabled) {
+      color: #ffffff;
+      background: #0f2f66;
+      border-color: #0f2f66;
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.18);
+      transform: none;
+      outline: none;
+    }
+
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral.ativo:hover:not(:disabled),
+    .filtroHistoricoGeral button.botaoFiltroHistoricoGeral.ativo:focus-visible:not(:disabled) {
+      background: #123a7a;
+      border-color: #123a7a;
+    }
+    /* Fim correção final de hover dos controles do Histórico Geral */
 </style>
 
 </head>
@@ -9369,6 +9435,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
