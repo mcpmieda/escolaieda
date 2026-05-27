@@ -1418,6 +1418,10 @@
         window.termoBuscaHistoricoGeralAtual = "";
       }
 
+      if (window.ordemHistoricoGeralAtual !== "asc" && window.ordemHistoricoGeralAtual !== "desc") {
+        window.ordemHistoricoGeralAtual = "desc";
+      }
+
       abrirPainelDashboard("Histórico geral", `
         <div class="filtroHistoricoGeral" onclick="event.stopPropagation()">
           <div class="topoFiltroHistoricoGeral">
@@ -1441,6 +1445,10 @@
 
           <div class="linhaBuscaHistoricoGeral">
             <input id="buscaHistoricoGeral" class="buscaHistoricoGeral" type="search" placeholder="Buscar por arquivo, usuário, ação, gaveta ou motivo..." autocomplete="off" onclick="event.stopPropagation()" oninput="atualizarBuscaHistoricoGeral(event)">
+            <div class="botoesOrdemHistoricoGeral" title="Ordenar histórico">
+              <button class="botaoOrdemHistoricoGeral ativo" type="button" data-ordem-historico="desc" onclick="alterarOrdemHistoricoGeral('desc', event)" title="Mais recentes primeiro">↓</button>
+              <button class="botaoOrdemHistoricoGeral" type="button" data-ordem-historico="asc" onclick="alterarOrdemHistoricoGeral('asc', event)" title="Mais antigos primeiro">↑</button>
+            </div>
           </div>
         </div>
 
@@ -1484,6 +1492,10 @@ window.verMaisHistoricoGeral = function (event) {
       return (window.termoBuscaHistoricoGeralAtual || "").toString().trim();
     }
 
+    function obterOrdemHistoricoGeralAtual() {
+      return window.ordemHistoricoGeralAtual === "asc" ? "asc" : "desc";
+    }
+
     function normalizarBuscaHistoricoGeral(valor) {
       return normalizarTexto((valor || "").toString());
     }
@@ -1513,6 +1525,15 @@ window.verMaisHistoricoGeral = function (event) {
       return new Date(partes[0], partes[1] - 1, partes[2], 23, 59, 59, 999);
     }
 
+    function compararHistoricoGeralPorData(a, b) {
+      const dataA = new Date(a?.DATA_HORA || 0).getTime() || 0;
+      const dataB = new Date(b?.DATA_HORA || 0).getTime() || 0;
+
+      return obterOrdemHistoricoGeralAtual() === "asc"
+        ? dataA - dataB
+        : dataB - dataA;
+    }
+
     function definirFiltroHistoricoGeral(tipo, inicio = "", fim = "") {
       window.filtroHistoricoGeralAtual = { tipo, inicio, fim };
       limiteHistoricoGeralAtual = preferenciasSistema.limiteRelatorios || 30;
@@ -1522,9 +1543,14 @@ window.verMaisHistoricoGeral = function (event) {
 
     function sincronizarCamposFiltroHistoricoGeral() {
       const filtro = obterFiltroHistoricoGeralAtual();
+      const ordem = obterOrdemHistoricoGeralAtual();
 
       document.querySelectorAll("[data-filtro-historico]").forEach(botao => {
         botao.classList.toggle("ativo", botao.dataset.filtroHistorico === filtro.tipo);
+      });
+
+      document.querySelectorAll("[data-ordem-historico]").forEach(botao => {
+        botao.classList.toggle("ativo", botao.dataset.ordemHistorico === ordem);
       });
 
       const boxPersonalizado = document.getElementById("camposFiltroHistoricoPersonalizado");
@@ -1582,7 +1608,9 @@ window.verMaisHistoricoGeral = function (event) {
     function montarResumoFiltroHistoricoGeral(totalFiltrado, totalGeral, totalAposData) {
       const filtro = obterFiltroHistoricoGeralAtual();
       const termo = obterTermoBuscaHistoricoGeral();
+      const ordem = obterOrdemHistoricoGeralAtual();
       const totalBase = typeof totalAposData === "number" ? totalAposData : totalFiltrado;
+      const textoOrdem = ordem === "asc" ? "mais antigos primeiro" : "mais recentes primeiro";
 
       let resumoPeriodo = "";
 
@@ -1604,10 +1632,10 @@ window.verMaisHistoricoGeral = function (event) {
       }
 
       if (termo) {
-        return `${resumoPeriodo} Busca: ${totalFiltrado} resultado(s).`;
+        return `${resumoPeriodo} Busca: ${totalFiltrado} resultado(s), ${textoOrdem}.`;
       }
 
-      return resumoPeriodo;
+      return `${resumoPeriodo} Ordem: ${textoOrdem}.`;
     }
 
     window.filtrarHistoricoGeralPeriodo = function (tipo, event) {
@@ -1681,6 +1709,18 @@ window.verMaisHistoricoGeral = function (event) {
       renderizarHistoricoGeral();
     };
 
+    window.alterarOrdemHistoricoGeral = function (ordem, event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      window.ordemHistoricoGeralAtual = ordem === "asc" ? "asc" : "desc";
+      limiteHistoricoGeralAtual = preferenciasSistema.limiteRelatorios || 30;
+      sincronizarCamposFiltroHistoricoGeral();
+      renderizarHistoricoGeral();
+    };
+
     function renderizarHistoricoGeral() {
       const caixa = document.getElementById("listaHistoricoGeral");
       if (!caixa) return;
@@ -1694,7 +1734,7 @@ window.verMaisHistoricoGeral = function (event) {
 
       const ordenados = [...historicoCarregado]
         .filter(item => item && item.DATA_HORA)
-        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA));
+        .sort(compararHistoricoGeralPorData);
 
       const filtradosPorData = ordenados.filter(itemDentroFiltroHistoricoGeral);
       const filtrados = filtradosPorData.filter(itemDentroBuscaHistoricoGeral);
@@ -8806,6 +8846,70 @@ function renderizarDocumentos(listaArquivos) {
       background: #ffffff;
     }
     /* Fim busca textual do Histórico Geral */
+    /* Ordenação do Histórico Geral */
+    .linhaBuscaHistoricoGeral {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .botoesOrdemHistoricoGeral {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .botaoOrdemHistoricoGeral {
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 9px;
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 900;
+      line-height: 1;
+      display: inline-grid;
+      place-items: center;
+      transition: 0.15s ease;
+    }
+
+    .botaoOrdemHistoricoGeral:hover,
+    .botaoOrdemHistoricoGeral:focus-visible {
+      color: #0f2f66;
+      background: #eef4ff;
+      border-color: rgba(15, 47, 102, 0.32);
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.10);
+      outline: none;
+    }
+
+    .botaoOrdemHistoricoGeral.ativo {
+      color: #ffffff;
+      background: #0f2f66;
+      border-color: #0f2f66;
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.18);
+    }
+
+    .botaoOrdemHistoricoGeral.ativo:hover,
+    .botaoOrdemHistoricoGeral.ativo:focus-visible {
+      color: #ffffff;
+      background: #123a7a;
+      border-color: #123a7a;
+    }
+
+    @media (max-width: 640px) {
+      .linhaBuscaHistoricoGeral {
+        grid-template-columns: 1fr;
+      }
+
+      .botoesOrdemHistoricoGeral {
+        justify-content: flex-start;
+      }
+    }
+    /* Fim ordenação do Histórico Geral */
+
 
     /* Ajuste de hover do filtro do Histórico Geral */
     .filtroHistoricoGeral .botaoFiltroHistoricoGeral {
@@ -9265,6 +9369,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
