@@ -35,6 +35,7 @@
     let arquivoLocalMesclar = null;
     let mesclagemEmAndamento = false;
     let dadosApoioCarregando = false;
+    let dadosApoioCarregados = false;
     let duplicidadesCarregando = false;
     let versoesSharePointCarregadas = [];
     let versoesSharePointExpandido = false;
@@ -800,6 +801,7 @@ atualizarCardParesIgnorados();
           DATA_ATUALIZACAO: item.fields?.DATA_ATUALIZACAO || ""
         }));
 
+        dadosApoioCarregados = true;
         atualizarDashboard();
         filtrarDocumentos();
         if (document.getElementById("painelDashboard")?.classList.contains("aberto") && document.getElementById("listaHistoricoGeral")) {
@@ -2658,8 +2660,10 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
       if (texto.toUpperCase() === "MESCLOU") return "MESCLOU";
       return texto;
     }
-async function carregarHistoricoDocumento(documento) {
+    async function carregarHistoricoDocumento(documento) {
       const caixa = document.getElementById("historicoArquivo");
+      if (!caixa) return;
+
       caixa.innerHTML = "<p>Carregando histórico...</p>";
 
       const esc = (valor) => (valor || "")
@@ -2672,33 +2676,18 @@ async function carregarHistoricoDocumento(documento) {
 
       const chaveTexto = (valor) => normalizarTexto(valor || "").replace(/\s+/g, " ").trim();
 
-      try {
-        const token = await obterToken();
-
-        const urlHistorico = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
-
-        const respHistorico = await fetch(urlHistorico, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!respHistorico.ok) {
-          throw new Error(await respHistorico.text());
-        }
-
-        const dadosHistorico = await respHistorico.json();
+      const renderizarHistoricoDoCache = () => {
         const anotacoesJaMostradas = new Set();
 
-        const entradasHistorico = (dadosHistorico.value || [])
-          .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id)
+        const entradasHistorico = (historicoCarregado || [])
+          .filter(item => item && item.ARQUIVO_ID === documento.id)
           .map(item => ({
             tipo: "historico",
-            acao: item.fields.ACAO || "",
-            data: item.fields.DATA_HORA || "",
-            usuario: item.fields.USUARIO_NOME || "",
-            email: item.fields.USUARIO_EMAIL || "",
-            observacao: item.fields.OBSERVACAO || ""
+            acao: item.ACAO || "",
+            data: item.DATA_HORA || "",
+            usuario: item.USUARIO_NOME || "",
+            email: item.USUARIO_EMAIL || "",
+            observacao: item.OBSERVACAO || ""
           }))
           .filter(item => {
             if (item.acao !== "ANOTACAO") return true;
@@ -2714,36 +2703,20 @@ async function carregarHistoricoDocumento(documento) {
             return true;
           });
 
-        let entradasAnotacao = [];
-
-        if (CONFIG.anotacoesArquivosListId) {
-          const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
-
-          const respAnotacoes = await fetch(urlAnotacoes, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-
-          if (respAnotacoes.ok) {
-            const dadosAnotacoes = await respAnotacoes.json();
-
-            entradasAnotacao = (dadosAnotacoes.value || [])
-              .filter(item => item.fields && item.fields.ARQUIVO_ID === documento.id && (item.fields.ANOTACAO || "").trim())
-              .filter(item => {
-                const chave = chaveTexto(item.fields.ANOTACAO || "");
-                return chave && !anotacoesJaMostradas.has(chave);
-              })
-              .map(item => ({
-                tipo: "anotacaoAtual",
-                acao: "ANOTAÇÃO ATUAL",
-                data: item.fields.DATA_ATUALIZACAO || "",
-                usuario: item.fields.ATUALIZADO_POR || "",
-                email: "",
-                observacao: item.fields.ANOTACAO || ""
-              }));
-          }
-        }
+        const entradasAnotacao = (anotacoesCarregadas || [])
+          .filter(item => item && item.ARQUIVO_ID === documento.id && (item.ANOTACAO || "").trim())
+          .filter(item => {
+            const chave = chaveTexto(item.ANOTACAO || "");
+            return chave && !anotacoesJaMostradas.has(chave);
+          })
+          .map(item => ({
+            tipo: "anotacaoAtual",
+            acao: "ANOTAÇÃO ATUAL",
+            data: item.DATA_ATUALIZACAO || "",
+            usuario: item.ATUALIZADO_POR || "",
+            email: "",
+            observacao: item.ANOTACAO || ""
+          }));
 
         const entradas = [...entradasHistorico, ...entradasAnotacao]
           .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
@@ -2785,7 +2758,37 @@ async function carregarHistoricoDocumento(documento) {
             </div>
           `;
         }).join("");
+      };
 
+      if (!dadosApoioCarregados) {
+        caixa.innerHTML = "<p>Histórico carregando em segundo plano...</p>";
+
+        agendarTarefaSegundoPlano(async () => {
+          try {
+            if (dadosApoioCarregando) {
+              for (let tentativa = 0; tentativa < 30 && dadosApoioCarregando; tentativa++) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+              }
+            } else {
+              await carregarDadosDeApoio();
+            }
+
+            if (documentoSelecionado && documentoSelecionado.id === documento.id) {
+              carregarHistoricoDocumento(documento);
+            }
+          } catch (erro) {
+            console.error(erro);
+            if (documentoSelecionado && documentoSelecionado.id === documento.id) {
+              caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
+            }
+          }
+        }, 120);
+
+        return;
+      }
+
+      try {
+        renderizarHistoricoDoCache();
       } catch (erro) {
         console.error(erro);
         caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
@@ -10240,6 +10243,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
