@@ -9433,7 +9433,6 @@ body.modoCompacto {
     }
 /* FIM_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
 
-
 /* INICIO_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
     body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
       display: inline-flex;
@@ -9457,6 +9456,7 @@ body.modoCompacto {
       font-size: 13px;
       font-weight: 850;
       line-height: 1.1;
+      white-space: nowrap;
       box-shadow: none;
       transition: background .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
     }
@@ -9502,19 +9502,30 @@ body.modoCompacto {
 
       body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
         width: 100%;
-        padding-left: 8px;
-        padding-right: 8px;
+        min-width: 0;
+        padding-left: 7px;
+        padding-right: 7px;
         text-align: center;
+        font-size: 12px;
       }
     }
 
     @media (max-width: 420px) {
       body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+        gap: 4px;
+      }
+
+      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
+        min-height: 34px;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 12px;
       }
     }
 /* FIM_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
-
 
 /* INICIO_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
     body.visualModernoCampoBusca .navegacaoDocumentosTopo {
@@ -9659,11 +9670,11 @@ body.modoCompacto {
       display: inline-flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      width: 132px;
+      gap: 7px;
+      width: 154px;
       min-height: 36px;
       margin: 0 !important;
-      padding: 6px 8px !important;
+      padding: 6px 9px !important;
       border-radius: 11px;
       border: 1px solid rgba(203, 213, 225, .92);
       background: rgba(255, 255, 255, .98);
@@ -9697,8 +9708,8 @@ body.modoCompacto {
 
     body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard strong {
       flex: 0 0 auto;
-      min-width: 26px;
-      padding: 3px 7px;
+      min-width: 30px;
+      padding: 3px 8px;
       border-radius: 999px;
       background: rgba(219, 234, 254, .92);
       color: #0f2f66 !important;
@@ -9760,7 +9771,7 @@ body.modoCompacto {
 
     @media (min-width: 1500px) {
       body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
-        width: 138px;
+        width: 162px;
       }
     }
 
@@ -9781,7 +9792,7 @@ body.modoCompacto {
       }
 
       body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
-        width: 126px;
+        width: 148px;
         min-height: 36px;
         padding: 6px 8px !important;
       }
@@ -10212,6 +10223,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
