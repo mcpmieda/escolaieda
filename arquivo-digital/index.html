@@ -8720,6 +8720,50 @@ function renderizarDocumentos(listaArquivos) {
       }
     }
     /* Fim filtro de datas do Histórico Geral */
+    /* Ajuste de hover do filtro do Histórico Geral */
+    .filtroHistoricoGeral .botaoFiltroHistoricoGeral {
+      color: #334155;
+      background: #ffffff;
+    }
+
+    .filtroHistoricoGeral .botaoFiltroHistoricoGeral:hover,
+    .filtroHistoricoGeral .botaoFiltroHistoricoGeral:focus-visible {
+      color: #0f2f66;
+      background: #eef4ff;
+      border-color: rgba(15, 47, 102, 0.32);
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.10);
+      transform: none;
+      outline: none;
+    }
+
+    .filtroHistoricoGeral .botaoFiltroHistoricoGeral.ativo {
+      color: #ffffff;
+      background: #0f2f66;
+      border-color: #0f2f66;
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.18);
+    }
+
+    .filtroHistoricoGeral .botaoFiltroHistoricoGeral.ativo:hover,
+    .filtroHistoricoGeral .botaoFiltroHistoricoGeral.ativo:focus-visible {
+      color: #ffffff;
+      background: #123a7a;
+      border-color: #123a7a;
+      box-shadow: 0 1px 5px rgba(15, 47, 102, 0.22);
+      transform: none;
+      outline: none;
+    }
+
+    .filtroHistoricoGeral .botaoAplicarFiltroHistorico:hover,
+    .filtroHistoricoGeral .botaoAplicarFiltroHistorico:focus-visible {
+      color: #0f2f66;
+      background: #eef4ff;
+      border-color: rgba(15, 47, 102, 0.32);
+      box-shadow: 0 1px 4px rgba(15, 47, 102, 0.10);
+      transform: none;
+      outline: none;
+    }
+    /* Fim ajuste de hover do filtro do Histórico Geral */
+
 </style>
 
 </head>
@@ -9134,6 +9178,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
