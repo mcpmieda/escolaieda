@@ -4015,35 +4015,52 @@ try {
       anotacaoUltimoTextoSalvo = "";
     };
 
+/* INICIO_ABRIR_PDF_IMEDIATO_HISTORICO_BG_20260527 */
     window.abrirPdfSelecionado = async function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
         return;
       }
 
+      const documentoAberto = { ...documentoSelecionado };
+      const linkPdf = documentoAberto.link || "";
+
+      if (!linkPdf) {
+        mostrarMensagemPainel("Nao foi possivel localizar o link deste PDF.", "erro");
+        return;
+      }
+
       const aba = window.open("", "_blank");
 
-      try {
-        await registrarHistorico(
-          documentoSelecionado,
-          "VISUALIZOU",
-          "Documento aberto pelo botão Abrir PDF no painel lateral."
-        );
-
-        mostrarMensagemPainel("Acesso registrado no historico.");
-        await carregarHistoricoDocumento(documentoSelecionado);
-
-      } catch (erro) {
-        console.error(erro);
-        mostrarMensagemPainel("Nao foi possivel registrar no historico, mas o PDF sera aberto.", "erro");
-      }
-
       if (aba) {
-        aba.location.href = documentoSelecionado.link;
+        aba.location.href = linkPdf;
       } else {
-        window.location.href = documentoSelecionado.link;
+        window.location.href = linkPdf;
       }
+
+      mostrarMensagemPainel("PDF aberto. Registrando acesso no historico...");
+
+      setTimeout(async () => {
+        try {
+          await registrarHistorico(
+            documentoAberto,
+            "VISUALIZOU",
+            "Documento aberto pelo botão Abrir PDF no painel lateral."
+          );
+
+          if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
+            mostrarMensagemPainel("Acesso registrado no historico.");
+          }
+        } catch (erro) {
+          console.error(erro);
+
+          if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
+            mostrarMensagemPainel("PDF aberto, mas nao foi possivel registrar no historico agora.", "erro");
+          }
+        }
+      }, 0);
     };
+/* FIM_ABRIR_PDF_IMEDIATO_HISTORICO_BG_20260527 */
 
         let driveDocumentosAtivosId = null;
 
@@ -10223,6 +10240,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
