@@ -9428,10 +9428,92 @@ body.modoCompacto {
       }
     }
 /* FIM_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
+
+
+/* INICIO_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0;
+      padding: 3px;
+      border-radius: 14px;
+      background: rgba(226, 232, 240, .72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+    }
+
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
+      min-height: 36px;
+      margin: 0;
+      padding: 8px 14px;
+      border-radius: 11px;
+      border: 1px solid rgba(203, 213, 225, .92);
+      background: rgba(248, 250, 252, .96);
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.1;
+      box-shadow: none;
+      transition: background .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento:hover:not(:disabled) {
+      background: #ffffff;
+      color: #0f2f66;
+      border-color: rgba(37, 99, 235, .30);
+      box-shadow: 0 8px 18px rgba(15, 47, 102, .09);
+      transform: translateY(-1px);
+    }
+
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento.ativo,
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento.ativo:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
+      color: #ffffff;
+      border-color: rgba(29, 78, 216, .52);
+      box-shadow: 0 9px 20px rgba(29, 78, 216, .22);
+      transform: none;
+    }
+
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo #btnVerAtivos:not(.ativo) {
+      background: rgba(239, 246, 255, .98);
+      border-color: rgba(147, 197, 253, .70);
+    }
+
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo #btnVerAtivos:not(.ativo):hover:not(:disabled) {
+      background: #ffffff;
+      border-color: rgba(37, 99, 235, .34);
+    }
+
+    body.visualModernoAbasDoc .navegacaoDocumentosTopo #btnVerLixeira:not(.ativo) {
+      background: rgba(248, 250, 252, .98);
+    }
+
+    @media (max-width: 760px) {
+      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+        gap: 5px;
+      }
+
+      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
+        width: 100%;
+        padding-left: 8px;
+        padding-right: 8px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
+        grid-template-columns: 1fr;
+      }
+    }
+/* FIM_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
 </style>
 
 </head>
-<body class="visualModernoFase1A visualModernoResumoDestaque">
+<body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -9846,6 +9928,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
