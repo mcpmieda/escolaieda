@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -2238,6 +2238,151 @@
       return limpo.trim();
     }
 
+    function limparTextoHistoricoCard(valor) {
+      return (valor || "")
+        .toString()
+        .replace(/\s+/g, " ")
+        .replace(/\s*\.\s*$/g, "")
+        .trim();
+    }
+
+    function extrairCampoHistoricoCard(texto, regex) {
+      const encontrado = regex.exec(texto || "");
+      return encontrado ? limparTextoHistoricoCard(encontrado[1]) : "";
+    }
+
+    function adicionarDetalheHistoricoCard(lista, rotulo, valor) {
+      const limpo = limparTextoHistoricoCard(valor);
+      if (limpo) {
+        lista.push({ rotulo, valor: limpo });
+      }
+    }
+
+    function montarBlocoDetalhesHistoricoCard(detalhes, esc) {
+      if (!detalhes.length) return "";
+
+      return `
+        <div class="blocoHistoricoCard detalhesHistoricoCard">
+          <span class="tituloBlocoHistorico">Detalhes da ação</span>
+          <ul class="listaDetalhesHistorico">
+            ${detalhes.map(item => `
+              <li>
+                <span class="rotuloDetalheHistorico">${esc(item.rotulo)}</span>
+                <strong class="valorDetalheHistorico">${esc(item.valor)}</strong>
+              </li>
+            `).join("")}
+          </ul>
+        </div>
+      `;
+    }
+
+    function montarBlocoMotivoHistoricoCard(motivo, esc) {
+      const motivoLimpo = limparTextoHistoricoCard(motivo);
+
+      return `
+        <div class="blocoHistoricoCard motivoHistoricoCard ${motivoLimpo ? "" : "vazio"}">
+          <span class="tituloBlocoHistorico">Motivo informado</span>
+          <p>${motivoLimpo ? esc(motivoLimpo) : "Não informado"}</p>
+        </div>
+      `;
+    }
+
+    function montarHistoricoFormatado(acao, observacao, esc) {
+      const acaoNormalizada = (acao || "").toString().trim().toUpperCase();
+      const textoOriginal = (observacao || "").toString().trim();
+      const textoLimpo = limparMotivoHistoricoSeguro(textoOriginal);
+      const detalhes = [];
+      let motivo = "";
+
+      if (acaoNormalizada === "ALTEROU_GAVETA") {
+        const antesDaGaveta = limparTextoHistoricoCard((textoOriginal.split(/Gaveta anterior:/i)[0] || "").trim());
+        if (antesDaGaveta && !/^Motivo:?$/i.test(antesDaGaveta)) {
+          adicionarDetalheHistoricoCard(detalhes, "Operação", antesDaGaveta);
+        }
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Gaveta anterior",
+          extrairCampoHistoricoCard(textoOriginal, /Gaveta anterior:\s*(.*?)(?:\.\s*Nova gaveta:|$)/i)
+        );
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Nova gaveta",
+          extrairCampoHistoricoCard(textoOriginal, /Nova gaveta:\s*(.*?)(?:\.\s*Motivo:|$)/i)
+        );
+
+        motivo = extrairCampoHistoricoCard(textoOriginal, /Motivo:\s*(.*)$/i);
+      } else if (acaoNormalizada === "ENVIOU") {
+        const indiceGaveta = textoOriginal.search(/\bGaveta\s*:/i);
+        if (indiceGaveta > 0) {
+          motivo = limparTextoHistoricoCard(textoOriginal.slice(0, indiceGaveta));
+        } else {
+          motivo = textoLimpo;
+        }
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Gaveta",
+          extrairCampoHistoricoCard(textoOriginal, /Gaveta:\s*(.*?)(?:\.\s*Nome original:|\.|$)/i)
+        );
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Nome original",
+          extrairCampoHistoricoCard(textoOriginal, /Nome original:\s*(.*?)(?:\.\s*Enviado automaticamente como:|\.|$)/i)
+        );
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Enviado como",
+          extrairCampoHistoricoCard(textoOriginal, /Enviado automaticamente como:\s*(.*?)(?:,\s*para evitar|\.|$)/i)
+        );
+      } else if (acaoNormalizada === "MESCLOU" || acaoNormalizada === "MESCLADO") {
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "PDF anexado",
+          extrairCampoHistoricoCard(textoOriginal, /arquivo local:\s*(.*?)(?:\.\s*Motivo:|$)/i)
+        );
+
+        motivo = extrairCampoHistoricoCard(textoOriginal, /Motivo:\s*(.*?)(?:\.\s*$|$)/i);
+      } else if (acaoNormalizada === "SUBSTITUIU") {
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Arquivo enviado",
+          extrairCampoHistoricoCard(textoOriginal, /nova versão enviada:\s*(.*?)(?:\.\s*Tamanho:|$)/i)
+        );
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Tamanho",
+          extrairCampoHistoricoCard(textoOriginal, /Tamanho:\s*(.*?)(?:\.|$)/i)
+        );
+      } else if (acaoNormalizada === "RENOMEOU") {
+        const renomeou = /Arquivo renomeado de "(.+?)" para "(.+?)"/i.exec(textoOriginal || "");
+        if (renomeou) {
+          adicionarDetalheHistoricoCard(detalhes, "Nome anterior", renomeou[1]);
+          adicionarDetalheHistoricoCard(detalhes, "Novo nome", renomeou[2]);
+        }
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Nome solicitado",
+          extrairCampoHistoricoCard(textoOriginal, /porque j[aá] existia "(.+?)"/i)
+        );
+      } else if (acaoNormalizada === "VISUALIZOU") {
+        adicionarDetalheHistoricoCard(detalhes, "Registro", textoLimpo || "Documento aberto pelo botão Abrir PDF.");
+      } else {
+        motivo = textoLimpo;
+      }
+
+      if (!motivo && !detalhes.length && textoLimpo) {
+        motivo = textoLimpo;
+      }
+
+      return `${montarBlocoDetalhesHistoricoCard(detalhes, esc)}${montarBlocoMotivoHistoricoCard(motivo, esc)}`;
+    }
+
     
     function formatarAcaoHistorico(acao) {
       const texto = (acao || "").toString().trim();
@@ -2358,14 +2503,19 @@ async function carregarHistoricoDocumento(documento) {
             `;
           }
 
-          const motivoLimpo = limparMotivoHistoricoSeguro(item.observacao || "");
+          const usuarioHistorico = usuario || email
+            ? `${usuario}${email}`.replace(/^\s+-\s+/, "")
+            : "Usuario nao informado";
+          const historicoFormatado = montarHistoricoFormatado(item.acao, item.observacao || "", esc);
 
           return `
             <div class="itemHistorico">
-              <strong>${esc(formatarAcaoHistorico(item.acao))}</strong><br>
-              <span>${esc(dataFormatada)}</span><br>
-              <span>${usuario}${email}</span>
-              ${motivoLimpo ? `<div class="motivoHistorico"><strong>Motivo:</strong> ${esc(motivoLimpo)}</div>` : `<div class="motivoHistorico vazio">Sem motivo informado.</div>`}
+              <div class="cabecalhoHistoricoCard">
+                <strong class="acaoHistoricoCard">${esc(formatarAcaoHistorico(item.acao))}</strong>
+                <span class="dataHistoricoCard">${esc(dataFormatada)}</span>
+              </div>
+              <div class="usuarioHistoricoCard">${usuarioHistorico}</div>
+              ${historicoFormatado}
             </div>
           `;
         }).join("");
@@ -7916,7 +8066,130 @@ function renderizarDocumentos(listaArquivos) {
         max-width: 100vw;
       }
     }
-  </style>
+  
+    /* Cards do histórico organizados em detalhes + motivo */
+    .cabecalhoHistoricoCard {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .acaoHistoricoCard {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+      color: #0f172a;
+    }
+
+    .dataHistoricoCard {
+      flex: 0 0 auto;
+      font-size: 0.72rem;
+      color: #64748b;
+      text-align: right;
+      line-height: 1.25;
+    }
+
+    .usuarioHistoricoCard {
+      margin-bottom: 8px;
+      font-size: 0.76rem;
+      color: #475569;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .blocoHistoricoCard {
+      margin-top: 8px;
+      padding: 9px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 12px;
+      background: rgba(248, 250, 252, 0.92);
+    }
+
+    .tituloBlocoHistorico {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+    }
+
+    .listaDetalhesHistorico {
+      list-style: none;
+      display: grid;
+      gap: 5px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .listaDetalhesHistorico li {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.45);
+    }
+
+    .listaDetalhesHistorico li:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .rotuloDetalheHistorico {
+      flex: 0 0 auto;
+      color: #64748b;
+      font-size: 0.76rem;
+      line-height: 1.35;
+    }
+
+    .valorDetalheHistorico {
+      color: #0f172a;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .motivoHistoricoCard p {
+      margin: 0;
+      color: #1f2937;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .motivoHistoricoCard.vazio p {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    @media (max-width: 640px) {
+      .cabecalhoHistoricoCard {
+        display: grid;
+        gap: 4px;
+      }
+
+      .dataHistoricoCard {
+        text-align: left;
+      }
+
+      .listaDetalhesHistorico li {
+        display: grid;
+        gap: 2px;
+      }
+
+      .valorDetalheHistorico {
+        text-align: left;
+      }
+    }
+</style>
 
 </head>
 <body>
@@ -8330,6 +8603,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
