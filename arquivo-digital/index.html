@@ -563,7 +563,7 @@
 
         return `
           <div class="nomeParecido">
-            <strong>${item.doc.nome}</strong>
+            <strong>${escaparHtml(item.doc.nome)}</strong>
             <span class="${classe}">${status}</span>
             <small>Possível semelhança pelo nome. Confira antes de substituir, renomear ou mesclar.</small>
           </div>
@@ -4643,11 +4643,11 @@ function renderizarDocumentos(listaArquivos) {
         const li = document.createElement("li");
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
-            <strong>${item.nome}</strong>
+            <strong>${escaparHtml(item.nome)}</strong>
             ${seloGavetaHtml(item.gaveta)}
             <span>Clique para ver detalhes, histórico e ações</span>
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoHistorico(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
-            ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${formatarData(item.modificado)}</span>` : ""}
+            ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${escaparHtml(formatarData(item.modificado))}</span>` : ""}
           </button>
         `;
         lista.appendChild(li);
@@ -10240,6 +10240,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
