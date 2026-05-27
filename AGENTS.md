@@ -3171,3 +3171,125 @@ Indice consolidado dos passos antigos:
 
 <!-- FIM_CONSOLIDACAO_SALVAMENTO_AUTOMATICO_20260527 -->
 
+<!-- INICIO_REGISTRO_REMOCAO_CARD_GAVETAS_DASHBOARD_20260527 -->
+
+## 37. Registro recente — remoção do card Gavetas do dashboard
+
+Data: 2026-05-27
+
+### 37.1. Pedido do usuário
+
+O usuário pediu a remoção do card/resumo:
+
+`	ext
+Gavetas
+`
+
+que aparecia no dashboard, porque a mesma função já existia na guia:
+
+`	ext
+Gavetas
+`
+
+na área inferior de documentos.
+
+### 37.2. Diagnóstico feito antes da remoção
+
+Foi feito diagnóstico somente leitura antes da alteração.
+
+Relatório gerado:
+
+`	ext
+diagnosticos\DIAGNOSTICO_CARD_GAVETAS_DASHBOARD_20260527_140553.txt
+`
+
+O diagnóstico confirmou:
+
+- Git limpo antes da alteração;
+- último commit antes da alteração: 3c69e99 Consolidar AGENTS e limpar salvamento automatico;
+- card visual localizado no dashboard como utton.cardDash.cardGavetas;
+- IDs do card:
+  - dashGavetas;
+  - infoDashGavetas;
+- atualização do card dentro de tualizarDashboard();
+- função obterResumoGavetas() usada para o card;
+- função brirAreaGavetas() e montarConteudoPainelGavetas() usadas pelo card para abrir painel antigo;
+- CSS exclusivo relacionado a .cardGavetas e .listaGavetasPainel;
+- guia inferior Gavetas, reaGavetas, listaGavetasAtivos e enderizarGavetasAtivos() deveriam ser preservadas.
+
+### 37.3. Alteração aplicada
+
+Foi removido de forma controlada:
+
+- o botão/card visual Gavetas do dashboard;
+- os IDs exclusivos dashGavetas e infoDashGavetas;
+- a atualização JS exclusiva do card em tualizarDashboard();
+- a função obterResumoGavetas();
+- as funções exclusivas brirAreaGavetas() e montarConteudoPainelGavetas();
+- CSS exclusivo de .cardGavetas;
+- CSS exclusivo de .listaGavetasPainel;
+- restos :not(.cardGavetas) das regras globais de hover/active.
+
+### 37.4. O que foi preservado
+
+A alteração NÃO removeu:
+
+- guia inferior Gavetas;
+- reaGavetas;
+- listaGavetasAtivos;
+- enderizarGavetasAtivos();
+- funções SharePoint de gavetas;
+- Central de Upload;
+- seleção de gaveta no upload;
+- alteração de gaveta no painel lateral;
+- Central de Configurações;
+- cadastro, edição e exclusão segura de gavetas;
+- listagem de documentos por gaveta.
+
+### 37.5. Teste do usuário
+
+O usuário testou e informou:
+
+`	ext
+funcionou
+`
+
+Depois foi feito commit/push.
+
+### 37.6. Commit e ponto seguro
+
+Commit publicado:
+
+`	ext
+816aff9 Remover card de gavetas do dashboard
+`
+
+Tag criada pelo usuário:
+
+`	ext
+ponto-seguro-remover-card-gavetas-dashboard-ok
+`
+
+Estado esperado:
+
+`	ext
+Dashboard sem card Gavetas.
+Guia Gavetas preservada.
+Git limpo e sincronizado com origin/main.
+SALVAMENTO_AUTOMATICO continua apenas como registro local ignorado pelo Git.
+`
+
+### 37.7. Regra para próximas alterações
+
+Não recriar o card Gavetas no dashboard, salvo pedido explícito do usuário.
+
+A função visual principal de gavetas deve permanecer na guia inferior:
+
+`	ext
+Gavetas
+`
+
+e nas configurações/fluxos já existentes.
+
+<!-- FIM_REGISTRO_REMOCAO_CARD_GAVETAS_DASHBOARD_20260527 -->
+
