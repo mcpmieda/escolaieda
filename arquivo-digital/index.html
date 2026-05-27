@@ -2275,14 +2275,14 @@
         </div>
       `;
     }
-
     function montarBlocoMotivoHistoricoCard(motivo, esc) {
       const motivoLimpo = limparTextoHistoricoCard(motivo);
+      if (!motivoLimpo) return "";
 
       return `
-        <div class="blocoHistoricoCard motivoHistoricoCard ${motivoLimpo ? "" : "vazio"}">
+        <div class="blocoHistoricoCard motivoHistoricoCard">
           <span class="tituloBlocoHistorico">Motivo informado</span>
-          <p>${motivoLimpo ? esc(motivoLimpo) : "Não informado"}</p>
+          <p>${esc(motivoLimpo)}</p>
         </div>
       `;
     }
@@ -8065,64 +8065,82 @@ function renderizarDocumentos(listaArquivos) {
         width: 100vw;
         max-width: 100vw;
       }
+    }      .dataHistoricoCard {
+        text-align: left;
+      }
+
+      .listaDetalhesHistorico li {
+        display: grid;
+        gap: 2px;
+      }
+
+      .valorDetalheHistorico {
+        text-align: left;
+      }
     }
-  
-    /* Cards do histórico organizados em detalhes + motivo */
+
+    /* Cards do histórico compactos */
+    .itemHistorico {
+      padding: 10px 11px;
+    }
+
     .cabecalhoHistoricoCard {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 6px;
+      gap: 8px;
+      margin-bottom: 3px;
     }
 
     .acaoHistoricoCard {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-      letter-spacing: 0.02em;
+      gap: 5px;
+      font-size: 0.82rem;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
       color: #0f172a;
     }
 
     .dataHistoricoCard {
       flex: 0 0 auto;
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       color: #64748b;
       text-align: right;
-      line-height: 1.25;
+      line-height: 1.15;
+      white-space: nowrap;
     }
 
     .usuarioHistoricoCard {
-      margin-bottom: 8px;
-      font-size: 0.76rem;
-      color: #475569;
-      line-height: 1.35;
+      margin-bottom: 5px;
+      font-size: 0.7rem;
+      color: #64748b;
+      line-height: 1.25;
       word-break: break-word;
     }
 
     .blocoHistoricoCard {
-      margin-top: 8px;
-      padding: 9px 10px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      border-radius: 12px;
-      background: rgba(248, 250, 252, 0.92);
+      margin-top: 5px;
+      padding: 6px 7px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 9px;
+      background: rgba(248, 250, 252, 0.74);
     }
 
     .tituloBlocoHistorico {
       display: block;
-      margin-bottom: 6px;
-      font-size: 0.68rem;
+      margin-bottom: 4px;
+      font-size: 0.61rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.045em;
       color: #64748b;
     }
 
     .listaDetalhesHistorico {
       list-style: none;
       display: grid;
-      gap: 5px;
+      gap: 3px;
       margin: 0;
       padding: 0;
     }
@@ -8131,9 +8149,9 @@ function renderizarDocumentos(listaArquivos) {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
-      padding-bottom: 5px;
-      border-bottom: 1px dashed rgba(148, 163, 184, 0.45);
+      gap: 8px;
+      padding-bottom: 3px;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.32);
     }
 
     .listaDetalhesHistorico li:last-child {
@@ -8144,14 +8162,14 @@ function renderizarDocumentos(listaArquivos) {
     .rotuloDetalheHistorico {
       flex: 0 0 auto;
       color: #64748b;
-      font-size: 0.76rem;
-      line-height: 1.35;
+      font-size: 0.69rem;
+      line-height: 1.25;
     }
 
     .valorDetalheHistorico {
       color: #0f172a;
-      font-size: 0.78rem;
-      line-height: 1.35;
+      font-size: 0.71rem;
+      line-height: 1.25;
       text-align: right;
       word-break: break-word;
     }
@@ -8159,30 +8177,26 @@ function renderizarDocumentos(listaArquivos) {
     .motivoHistoricoCard p {
       margin: 0;
       color: #1f2937;
-      font-size: 0.78rem;
-      line-height: 1.45;
+      font-size: 0.71rem;
+      line-height: 1.32;
       white-space: pre-wrap;
       word-break: break-word;
-    }
-
-    .motivoHistoricoCard.vazio p {
-      color: #94a3b8;
-      font-style: italic;
     }
 
     @media (max-width: 640px) {
       .cabecalhoHistoricoCard {
         display: grid;
-        gap: 4px;
+        gap: 2px;
       }
 
       .dataHistoricoCard {
         text-align: left;
+        white-space: normal;
       }
 
       .listaDetalhesHistorico li {
         display: grid;
-        gap: 2px;
+        gap: 1px;
       }
 
       .valorDetalheHistorico {
@@ -8603,6 +8617,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
