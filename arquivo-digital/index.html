@@ -9194,10 +9194,167 @@ body.modoCompacto {
     }
 /* FIM_LAYOUT_MODERNO_1A_CABECALHO_UPLOAD_20260527 */
 
+
+
+/* INICIO_LAYOUT_MODERNO_1B_LEVE_CARDS_EXISTENTES_20260527 */
+    body.visualModernoResumoLeve h2 {
+      color: #0f2f66;
+      font-size: 18px;
+      letter-spacing: -.02em;
+      margin: 16px 0 10px;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash,
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral {
+      position: relative;
+      border-radius: 16px;
+      border: 1px solid rgba(203, 213, 225, .86);
+      background: rgba(255, 255, 255, .90);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .055);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      overflow: hidden;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash {
+      padding-left: 66px;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral {
+      padding-left: 66px;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash:hover,
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades:hover,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37, 99, 235, .26);
+      background: rgba(255, 255, 255, .97);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .085);
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash::before,
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::before,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::before {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      transform: translateY(-50%);
+      background: rgba(219, 234, 254, .92);
+      box-shadow: inset 0 0 0 1px rgba(147, 197, 253, .45);
+      pointer-events: none;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash::after,
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::after,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::after {
+      content: "";
+      position: absolute;
+      left: 25px;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      transform: translateY(-50%);
+      background: #1d4ed8;
+      -webkit-mask: center / contain no-repeat;
+      mask: center / contain no-repeat;
+      pointer-events: none;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashDocumentos)::after {
+      -webkit-mask-image: url("assets/icones/arquivo.svg");
+      mask-image: url("assets/icones/arquivo.svg");
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashLixeira)::before {
+      background: rgba(220, 252, 231, .92);
+      box-shadow: inset 0 0 0 1px rgba(134, 239, 172, .5);
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashLixeira)::after {
+      background: #15803d;
+      -webkit-mask-image: url("assets/icones/lixeira.svg");
+      mask-image: url("assets/icones/lixeira.svg");
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo #cardParesIgnorados::before,
+    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashPessoas)::before {
+      background: rgba(219, 234, 254, .92);
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo #cardParesIgnorados::after,
+    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashPessoas)::after {
+      background: #2563eb;
+      -webkit-mask-image: url("assets/icones/usuarios.svg");
+      mask-image: url("assets/icones/usuarios.svg");
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades {
+      border-color: rgba(251, 146, 60, .32);
+      background: linear-gradient(135deg, rgba(255, 247, 237, .92), rgba(255, 255, 255, .94));
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::before {
+      background: rgba(255, 237, 213, .96);
+      box-shadow: inset 0 0 0 1px rgba(251, 146, 60, .34);
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::after {
+      background: #ea580c;
+      -webkit-mask-image: url("assets/icones/duplicidades.svg");
+      mask-image: url("assets/icones/duplicidades.svg");
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades button {
+      margin-top: 2px;
+      border-radius: 10px;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: #f97316;
+      color: #ffffff;
+      box-shadow: 0 9px 18px rgba(234, 88, 12, .20);
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral {
+      border-color: rgba(20, 184, 166, .32);
+      background: linear-gradient(135deg, rgba(240, 253, 250, .92), rgba(255, 255, 255, .94));
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::before {
+      background: rgba(204, 251, 241, .96);
+      box-shadow: inset 0 0 0 1px rgba(45, 212, 191, .36);
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::after {
+      background: #0f766e;
+      -webkit-mask-image: url("assets/icones/historico.svg");
+      mask-image: url("assets/icones/historico.svg");
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash span,
+    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades strong,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral span {
+      color: #475569;
+      letter-spacing: .035em;
+    }
+
+    body.visualModernoResumoLeve .dashboardTopo .cardDash strong,
+    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral strong {
+      color: #0f2f66;
+    }
+/* FIM_LAYOUT_MODERNO_1B_LEVE_CARDS_EXISTENTES_20260527 */
 </style>
 
 </head>
-<body class="visualModernoFase1A">
+<body class="visualModernoFase1A visualModernoResumoLeve">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -9612,6 +9769,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
