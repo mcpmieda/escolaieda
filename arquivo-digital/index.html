@@ -5169,12 +5169,17 @@ function renderizarDocumentos(listaArquivos) {
       transition: background .16s ease, box-shadow .16s ease, transform .16s ease;
     }
 
-    button:hover:not(:disabled) {
+    /* REGRA_GLOBAL_BUTTON_HOVER_LIMITADA_20260527
+       Antes era button:hover:not(:disabled), muito genérico.
+       Agora não atinge componentes que já têm visual próprio.
+    */
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardGavetas):not(.cardParesIgnorados):not(.centralDuplicidades):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
-    button:active:not(:disabled) {
+    /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardGavetas):not(.cardParesIgnorados):not(.centralDuplicidades):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -9021,6 +9026,14 @@ function renderizarDocumentos(listaArquivos) {
       border-color: #123a7a;
     }
     /* Fim correção final de hover dos controles do Histórico Geral */
+
+    /* REGRA_TECNICA_CSS_BOTOES_20260527
+       Botões/componentes novos devem ter classe própria e hover escopado.
+       Evitar depender apenas de button:hover global.
+       A regra global de hover foi limitada para não atingir:
+       itemArquivo, abaDocumento, filtros/ordenação do Histórico Geral,
+       cards de dashboard e central de duplicidades.
+    */
 </style>
 
 </head>
@@ -9435,6 +9448,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
