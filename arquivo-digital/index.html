@@ -4236,6 +4236,28 @@ window.abrirSeletorNovoDocumento = function () {
       descartarCentralUpload();
     };
 
+
+
+/* INICIO_TOGGLE_UPLOAD_HERO_20260527 */
+    window.alternarCentralUploadHero = function () {
+      const central = document.getElementById("centralUpload");
+      const centralAberta = central && central.classList.contains("aberta");
+
+      if (centralAberta) {
+        if (typeof fecharCentralUpload === "function") {
+          fecharCentralUpload();
+          return;
+        }
+
+        central.classList.remove("aberta");
+        return;
+      }
+
+      if (typeof abrirSeletorNovoDocumento === "function") {
+        abrirSeletorNovoDocumento();
+      }
+    };
+/* FIM_TOGGLE_UPLOAD_HERO_20260527 */
     window.escolherArquivosCentralUpload = function () {
       document.getElementById("inputNovoDocumento")?.click();
     };
@@ -5103,13 +5125,13 @@ function renderizarDocumentos(listaArquivos) {
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -8885,15 +8907,32 @@ body.modoCompacto {
     }
 /* FIM_HOVER_BOTOES_UPLOAD_CONFIGURACOES_20260527 */
 
-
 /* INICIO_LAYOUT_MODERNO_1A_CABECALHO_UPLOAD_20260527 */
     body.visualModernoFase1A {
+      position: relative;
+      isolation: isolate;
+      min-height: 100vh;
       background:
         radial-gradient(circle at top left, rgba(59, 130, 246, .14), transparent 34%),
         linear-gradient(180deg, #eef4fb 0%, #f8fafc 52%, #eef2f7 100%);
     }
 
+    body.visualModernoFase1A::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(239, 246, 255, .92), rgba(248, 250, 252, .96)),
+        url("assets/imagens/arquivo-digital-capa.jpg") center/cover no-repeat;
+      opacity: .32;
+      filter: saturate(.72) contrast(.96);
+    }
+
     body.visualModernoFase1A .card {
+      position: relative;
+      z-index: 1;
       border-radius: 24px;
       border: 1px solid rgba(148, 163, 184, .35);
       box-shadow: 0 24px 70px rgba(15, 23, 42, .12);
@@ -8987,6 +9026,7 @@ body.modoCompacto {
       box-shadow: none;
       backdrop-filter: blur(12px);
       white-space: nowrap;
+      transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
     }
 
     body.visualModernoFase1A .btnCabecalhoAcao .iconeBotao,
@@ -8995,12 +9035,6 @@ body.modoCompacto {
       height: 15px;
       flex: 0 0 auto;
       filter: brightness(0) invert(1);
-    }
-
-    body.visualModernoFase1A .btnCabecalhoAcao .iconeEntrar {
-      filter: none;
-      font-size: 15px;
-      line-height: 1;
     }
 
     body.visualModernoFase1A .btnCabecalhoAcao:hover:not(:disabled),
@@ -9012,9 +9046,24 @@ body.modoCompacto {
       box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
     }
 
-    body.visualModernoFase1A .btnCabecalhoSair {
-      background: rgba(248, 113, 113, .18);
-      border-color: rgba(254, 202, 202, .38);
+    body.visualModernoFase1A #btnSair.btnCabecalhoSair {
+      background: rgba(255, 255, 255, .94);
+      color: #0f2f66;
+      border-color: rgba(255, 255, 255, .70);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .12);
+    }
+
+    body.visualModernoFase1A #btnSair.btnCabecalhoSair .iconeBotao {
+      filter: none;
+      opacity: .92;
+    }
+
+    body.visualModernoFase1A #btnSair.btnCabecalhoSair:hover:not(:disabled) {
+      background: #ffffff;
+      color: #0b2552;
+      border-color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
     }
 
     body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
@@ -9032,24 +9081,48 @@ body.modoCompacto {
       box-shadow: 0 12px 34px rgba(15, 47, 102, .08);
     }
 
-    body.visualModernoFase1A .areaUploadIcone {
-      display: grid;
-      place-items: center;
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      background: #0f2f66;
+    body.visualModernoFase1A .btnNovoDocumentoHero {
+      grid-column: 1;
+      grid-row: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0;
+      min-height: 40px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
       color: #ffffff;
-      box-shadow: 0 12px 28px rgba(15, 47, 102, .22);
+      border: 1px solid rgba(29, 78, 216, .25);
+      box-shadow: 0 12px 26px rgba(29, 78, 216, .22);
+      white-space: nowrap;
+      transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+      will-change: transform;
     }
 
-    body.visualModernoFase1A .areaUploadIcone img {
-      width: 24px;
-      height: 24px;
+    body.visualModernoFase1A .btnNovoDocumentoHero .iconeBotao {
+      width: 17px;
+      height: 17px;
       filter: brightness(0) invert(1);
     }
 
+    body.visualModernoFase1A .btnNovoDocumentoHero:hover:not(:disabled) {
+      background: linear-gradient(135deg, #123d82, #2563eb);
+      color: #ffffff;
+      border-color: rgba(96, 165, 250, .45);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(29, 78, 216, .28);
+    }
+
+    body.visualModernoFase1A .btnNovoDocumentoHero:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 8px 18px rgba(29, 78, 216, .20);
+    }
+
     body.visualModernoFase1A .areaUploadTexto {
+      grid-column: 2;
+      grid-row: 1;
       min-width: 0;
       display: grid;
       gap: 3px;
@@ -9067,33 +9140,23 @@ body.modoCompacto {
       line-height: 1.35;
     }
 
-    body.visualModernoFase1A .btnNovoDocumentoHero {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 0;
-      min-height: 40px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
+    body.visualModernoFase1A .areaUploadIcone {
+      grid-column: 3;
+      grid-row: 1;
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: #0f2f66;
       color: #ffffff;
-      border: 1px solid rgba(29, 78, 216, .25);
-      box-shadow: 0 12px 26px rgba(29, 78, 216, .22);
-      white-space: nowrap;
+      box-shadow: 0 12px 28px rgba(15, 47, 102, .22);
     }
 
-    body.visualModernoFase1A .btnNovoDocumentoHero .iconeBotao {
-      width: 17px;
-      height: 17px;
+    body.visualModernoFase1A .areaUploadIcone img {
+      width: 24px;
+      height: 24px;
       filter: brightness(0) invert(1);
-    }
-
-    body.visualModernoFase1A .btnNovoDocumentoHero:hover:not(:disabled) {
-      background: linear-gradient(135deg, #123d82, #2563eb);
-      color: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(29, 78, 216, .28);
     }
 
     @media (max-width: 760px) {
@@ -9109,15 +9172,26 @@ body.modoCompacto {
       }
 
       body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
-        grid-template-columns: auto 1fr;
+        grid-template-columns: 1fr auto;
       }
 
       body.visualModernoFase1A .btnNovoDocumentoHero {
         grid-column: 1 / -1;
         width: 100%;
       }
+
+      body.visualModernoFase1A .areaUploadTexto {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      body.visualModernoFase1A .areaUploadIcone {
+        grid-column: 2;
+        grid-row: 2;
+      }
     }
 /* FIM_LAYOUT_MODERNO_1A_CABECALHO_UPLOAD_20260527 */
+
 </style>
 
 </head>
@@ -9162,7 +9236,7 @@ body.modoCompacto {
           <strong>Adicionar documentos ao arquivo</strong>
           <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
         </div>
-        <button class="btnNovoDocumento btnNovoDocumentoHero" onclick="abrirSeletorNovoDocumento()">
+        <button class="btnNovoDocumento btnNovoDocumentoHero" onclick="alternarCentralUploadHero()">
           <img class="iconeBotao" src="assets/icones/upload.svg" alt="" aria-hidden="true">
           <span>Enviar novo PDF</span>
         </button>
@@ -9536,6 +9610,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
