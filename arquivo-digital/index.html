@@ -1407,13 +1407,44 @@
       document.querySelector(`[data-filtro="${nome}"]`)?.classList.toggle("ativo", ativo);
       });
     }
-
     window.abrirHistoricoGeral = function () {
       limiteHistoricoGeralAtual = preferenciasSistema.limiteRelatorios || 30;
-      abrirPainelDashboard("Histórico geral", "<div id=\"listaHistoricoGeral\" class=\"listaHistoricoGeral\"><p>Carregando histórico geral...</p></div>");
+
+      if (!window.filtroHistoricoGeralAtual) {
+        window.filtroHistoricoGeralAtual = { tipo: "todos", inicio: "", fim: "" };
+      }
+
+      abrirPainelDashboard("Histórico geral", `
+        <div class="filtroHistoricoGeral" onclick="event.stopPropagation()">
+          <div class="topoFiltroHistoricoGeral">
+            <strong>Filtrar alterações</strong>
+            <small id="resumoFiltroHistoricoGeral">Mostrando histórico completo.</small>
+          </div>
+
+          <div class="linhaBotoesFiltroHistoricoGeral">
+            <button class="botaoFiltroHistoricoGeral ativo" type="button" data-filtro-historico="todos" onclick="filtrarHistoricoGeralPeriodo('todos', event)">Tudo</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="hoje" onclick="filtrarHistoricoGeralPeriodo('hoje', event)">Hoje</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="7dias" onclick="filtrarHistoricoGeralPeriodo('7dias', event)">7 dias</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="30dias" onclick="filtrarHistoricoGeralPeriodo('30dias', event)">30 dias</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="personalizado" onclick="filtrarHistoricoGeralPeriodo('personalizado', event)">Personalizado</button>
+          </div>
+
+          <div id="camposFiltroHistoricoPersonalizado" class="camposFiltroHistoricoPersonalizado">
+            <label>De <input id="filtroHistoricoInicio" type="date" onclick="event.stopPropagation()"></label>
+            <label>Até <input id="filtroHistoricoFim" type="date" onclick="event.stopPropagation()"></label>
+            <button class="botaoAplicarFiltroHistorico" type="button" onclick="aplicarFiltroHistoricoGeralPersonalizado(event)">Aplicar</button>
+          </div>
+        </div>
+
+        <div id="listaHistoricoGeral" class="listaHistoricoGeral">
+          <p>Carregando histórico geral...</p>
+        </div>
+      `);
+
+      sincronizarCamposFiltroHistoricoGeral();
       renderizarHistoricoGeral();
     };
-    window.verMaisHistoricoGeral = function (event) {
+window.verMaisHistoricoGeral = function (event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -1432,9 +1463,179 @@
         }
       });
     };
+    /* JS_FILTRO_DATAS_HISTORICO_GERAL_INICIO */
+    function obterFiltroHistoricoGeralAtual() {
+      if (!window.filtroHistoricoGeralAtual) {
+        window.filtroHistoricoGeralAtual = { tipo: "todos", inicio: "", fim: "" };
+      }
+
+      return window.filtroHistoricoGeralAtual;
+    }
+
+    function formatarInputDataLocal(data) {
+      const d = new Date(data);
+      if (Number.isNaN(d.getTime())) return "";
+
+      const ano = d.getFullYear();
+      const mes = String(d.getMonth() + 1).padStart(2, "0");
+      const dia = String(d.getDate()).padStart(2, "0");
+
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    function dataInputParaInicio(valor) {
+      if (!valor) return null;
+      const partes = valor.split("-").map(Number);
+      if (partes.length !== 3 || partes.some(Number.isNaN)) return null;
+      return new Date(partes[0], partes[1] - 1, partes[2], 0, 0, 0, 0);
+    }
+
+    function dataInputParaFim(valor) {
+      if (!valor) return null;
+      const partes = valor.split("-").map(Number);
+      if (partes.length !== 3 || partes.some(Number.isNaN)) return null;
+      return new Date(partes[0], partes[1] - 1, partes[2], 23, 59, 59, 999);
+    }
+
+    function definirFiltroHistoricoGeral(tipo, inicio = "", fim = "") {
+      window.filtroHistoricoGeralAtual = { tipo, inicio, fim };
+      limiteHistoricoGeralAtual = preferenciasSistema.limiteRelatorios || 30;
+      sincronizarCamposFiltroHistoricoGeral();
+      renderizarHistoricoGeral();
+    }
+
+    function sincronizarCamposFiltroHistoricoGeral() {
+      const filtro = obterFiltroHistoricoGeralAtual();
+
+      document.querySelectorAll("[data-filtro-historico]").forEach(botao => {
+        botao.classList.toggle("ativo", botao.dataset.filtroHistorico === filtro.tipo);
+      });
+
+      const boxPersonalizado = document.getElementById("camposFiltroHistoricoPersonalizado");
+      if (boxPersonalizado) {
+        boxPersonalizado.classList.toggle("visivel", filtro.tipo === "personalizado");
+      }
+
+      const campoInicio = document.getElementById("filtroHistoricoInicio");
+      const campoFim = document.getElementById("filtroHistoricoFim");
+
+      if (campoInicio) campoInicio.value = filtro.inicio || "";
+      if (campoFim) campoFim.value = filtro.fim || "";
+    }
+
+    function itemDentroFiltroHistoricoGeral(item) {
+      const filtro = obterFiltroHistoricoGeralAtual();
+      if (!item || !item.DATA_HORA) return false;
+      if (!filtro || filtro.tipo === "todos") return true;
+
+      const dataItem = new Date(item.DATA_HORA);
+      if (Number.isNaN(dataItem.getTime())) return false;
+
+      const inicio = dataInputParaInicio(filtro.inicio);
+      const fim = dataInputParaFim(filtro.fim);
+
+      if (inicio && dataItem < inicio) return false;
+      if (fim && dataItem > fim) return false;
+
+      return true;
+    }
+
+    function montarResumoFiltroHistoricoGeral(totalFiltrado, totalGeral) {
+      const filtro = obterFiltroHistoricoGeralAtual();
+
+      if (!totalGeral) {
+        return "Nenhum histórico carregado.";
+      }
+
+      if (!filtro || filtro.tipo === "todos") {
+        return `Mostrando histórico completo: ${totalFiltrado} registro(s).`;
+      }
+
+      if (filtro.tipo === "hoje") {
+        return `Hoje: ${totalFiltrado} de ${totalGeral} registro(s).`;
+      }
+
+      if (filtro.tipo === "7dias") {
+        return `Últimos 7 dias: ${totalFiltrado} de ${totalGeral} registro(s).`;
+      }
+
+      if (filtro.tipo === "30dias") {
+        return `Últimos 30 dias: ${totalFiltrado} de ${totalGeral} registro(s).`;
+      }
+
+      const partes = [];
+      if (filtro.inicio) partes.push(`de ${filtro.inicio.split("-").reverse().join("/")}`);
+      if (filtro.fim) partes.push(`até ${filtro.fim.split("-").reverse().join("/")}`);
+
+      return `Período ${partes.join(" ")}: ${totalFiltrado} de ${totalGeral} registro(s).`;
+    }
+
+    window.filtrarHistoricoGeralPeriodo = function (tipo, event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      const hoje = new Date();
+      const fim = formatarInputDataLocal(hoje);
+      const inicio = new Date(hoje);
+
+      if (tipo === "todos") {
+        definirFiltroHistoricoGeral("todos", "", "");
+        return;
+      }
+
+      if (tipo === "hoje") {
+        definirFiltroHistoricoGeral("hoje", fim, fim);
+        return;
+      }
+
+      if (tipo === "7dias") {
+        inicio.setDate(inicio.getDate() - 6);
+        definirFiltroHistoricoGeral("7dias", formatarInputDataLocal(inicio), fim);
+        return;
+      }
+
+      if (tipo === "30dias") {
+        inicio.setDate(inicio.getDate() - 29);
+        definirFiltroHistoricoGeral("30dias", formatarInputDataLocal(inicio), fim);
+        return;
+      }
+
+      if (tipo === "personalizado") {
+        const atual = obterFiltroHistoricoGeralAtual();
+        window.filtroHistoricoGeralAtual = {
+          tipo: "personalizado",
+          inicio: atual.inicio || "",
+          fim: atual.fim || ""
+        };
+        sincronizarCamposFiltroHistoricoGeral();
+      }
+    };
+
+    window.aplicarFiltroHistoricoGeralPersonalizado = function (event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      let inicio = document.getElementById("filtroHistoricoInicio")?.value || "";
+      let fim = document.getElementById("filtroHistoricoFim")?.value || "";
+
+      if (inicio && fim && dataInputParaInicio(inicio) > dataInputParaFim(fim)) {
+        const temporario = inicio;
+        inicio = fim;
+        fim = temporario;
+      }
+
+      definirFiltroHistoricoGeral("personalizado", inicio, fim);
+    };
+
     function renderizarHistoricoGeral() {
       const caixa = document.getElementById("listaHistoricoGeral");
       if (!caixa) return;
+
+      sincronizarCamposFiltroHistoricoGeral();
 
       if (!historicoCarregado.length) {
         caixa.innerHTML = "<p>Histórico geral ainda não carregado. Aguarde alguns segundos e tente novamente.</p>";
@@ -1445,8 +1646,19 @@
         .filter(item => item && item.DATA_HORA)
         .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA));
 
+      const filtrados = ordenados.filter(itemDentroFiltroHistoricoGeral);
       const limite = limiteHistoricoGeralAtual || preferenciasSistema.limiteRelatorios || 30;
-      const exibidos = ordenados.slice(0, limite);
+      const exibidos = filtrados.slice(0, limite);
+
+      const resumo = document.getElementById("resumoFiltroHistoricoGeral");
+      if (resumo) {
+        resumo.textContent = montarResumoFiltroHistoricoGeral(filtrados.length, ordenados.length);
+      }
+
+      if (!filtrados.length) {
+        caixa.innerHTML = "<p class=\"historicoSemResultado\">Nenhuma alteração encontrada nesse período.</p>";
+        return;
+      }
 
       const itensHtml = exibidos.map(item => {
         const acao = item.ACAO || "MOVIMENTOU";
@@ -1469,13 +1681,14 @@
         `;
       }).join("");
 
-      const botaoMais = ordenados.length > exibidos.length ? `
+      const botaoMais = filtrados.length > exibidos.length ? `
         <button class="secundario btnVerMaisHistoricoGeral" type="button" onclick="verMaisHistoricoGeral(event)">Ver mais</button>
       ` : "";
 
       caixa.innerHTML = itensHtml + botaoMais;
     }
-    function abrirPainelDashboard(titulo, conteudoHtml) {
+    /* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM */
+function abrirPainelDashboard(titulo, conteudoHtml) {
       const painel = document.getElementById("painelDashboard");
       const tituloEl = document.getElementById("painelDashboardTitulo");
       const conteudo = document.getElementById("painelDashboardConteudo");
@@ -8382,6 +8595,131 @@ function renderizarDocumentos(listaArquivos) {
       }
     }
     /* Fim histórico geral super compacto */
+
+    /* Filtro de datas do Histórico Geral */
+    .filtroHistoricoGeral {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      margin-bottom: 7px;
+      padding: 7px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 10px;
+      background: rgba(248, 250, 252, 0.96);
+      backdrop-filter: blur(6px);
+    }
+
+    .topoFiltroHistoricoGeral {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .topoFiltroHistoricoGeral strong {
+      color: #0f172a;
+      font-size: 0.72rem;
+      line-height: 1.1;
+    }
+
+    .topoFiltroHistoricoGeral small {
+      color: #64748b;
+      font-size: 0.61rem;
+      line-height: 1.1;
+      text-align: right;
+    }
+
+    .linhaBotoesFiltroHistoricoGeral {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .botaoFiltroHistoricoGeral,
+    .botaoAplicarFiltroHistorico {
+      appearance: none;
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 999px;
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+      font-size: 0.61rem;
+      font-weight: 800;
+      line-height: 1;
+      padding: 5px 8px;
+      transition: 0.15s ease;
+    }
+
+    .botaoFiltroHistoricoGeral:hover,
+    .botaoAplicarFiltroHistorico:hover {
+      border-color: rgba(37, 99, 235, 0.45);
+      color: #1d4ed8;
+    }
+
+    .botaoFiltroHistoricoGeral.ativo {
+      border-color: rgba(37, 99, 235, 0.4);
+      background: rgba(37, 99, 235, 0.08);
+      color: #1d4ed8;
+    }
+
+    .camposFiltroHistoricoPersonalizado {
+      display: none;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      gap: 5px;
+      align-items: end;
+      margin-top: 6px;
+    }
+
+    .camposFiltroHistoricoPersonalizado.visivel {
+      display: grid;
+    }
+
+    .camposFiltroHistoricoPersonalizado label {
+      display: grid;
+      gap: 2px;
+      color: #64748b;
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .camposFiltroHistoricoPersonalizado input {
+      min-width: 0;
+      height: 27px;
+      padding: 4px 6px;
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 8px;
+      color: #0f172a;
+      font-size: 0.68rem;
+    }
+
+    .historicoSemResultado {
+      margin: 6px 0 0;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(248, 250, 252, 0.9);
+      color: #64748b;
+      font-size: 0.72rem;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .topoFiltroHistoricoGeral {
+        display: grid;
+        gap: 3px;
+      }
+
+      .topoFiltroHistoricoGeral small {
+        text-align: left;
+      }
+
+      .camposFiltroHistoricoPersonalizado {
+        grid-template-columns: 1fr;
+      }
+    }
+    /* Fim filtro de datas do Histórico Geral */
 </style>
 
 </head>
@@ -8796,6 +9134,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
