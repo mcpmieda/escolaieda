@@ -5103,13 +5103,13 @@ function renderizarDocumentos(listaArquivos) {
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -8851,6 +8851,39 @@ body.modoCompacto {
        com versões antigas e com estados internos como seloGaveta, linhaDataArquivo
        e linhaMovimentacaoArquivo.
     */
+
+
+/* INICIO_HOVER_BOTOES_UPLOAD_CONFIGURACOES_20260527 */
+    .centralUpload .btnUploadSecundario,
+    #btnAbrirConfiguracoesTopo.btnConfiguracoesTopo {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      box-shadow: none;
+    }
+
+    .centralUpload .btnUploadSecundario:hover:not(:disabled),
+    #btnAbrirConfiguracoesTopo.btnConfiguracoesTopo:hover:not(:disabled) {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #94a3b8;
+      box-shadow: 0 4px 10px rgba(15, 47, 102, .10);
+      transform: none;
+    }
+
+    .centralUpload .btnUploadSecundario:focus-visible,
+    #btnAbrirConfiguracoesTopo.btnConfiguracoesTopo:focus-visible {
+      outline: 2px solid #bfdbfe;
+      outline-offset: 2px;
+    }
+
+    .centralUpload .btnUploadSecundario:active:not(:disabled),
+    #btnAbrirConfiguracoesTopo.btnConfiguracoesTopo:active:not(:disabled) {
+      background: #dbeafe;
+      color: #0f172a;
+      transform: translateY(1px);
+    }
+/* FIM_HOVER_BOTOES_UPLOAD_CONFIGURACOES_20260527 */
 </style>
 
 </head>
@@ -8867,7 +8900,7 @@ body.modoCompacto {
       <div class="cabecalhoAcoes">
         <p id="status">Verificando login...</p>
         <button id="btnEntrar" onclick="entrar()">Entrar com Microsoft</button>
-        <button id="btnAbrirConfiguracoesTopo" class="secundario" onclick="alternarCentralConfiguracoes()">Configurações</button>
+        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo" onclick="alternarCentralConfiguracoes()">Configurações</button>
         <button id="btnSair" onclick="sair()">Sair</button>
       </div>
     </header>
@@ -8987,7 +9020,7 @@ body.modoCompacto {
         <div class="centralUploadGrade">
           <div class="campoUpload">
             <strong>Arquivos PDF</strong>
-            <button class="secundario" onclick="escolherArquivosCentralUpload()">Selecionar PDFs</button>
+            <button id="btnSelecionarArquivoUpload" class="secundario btnUploadSecundario" onclick="escolherArquivosCentralUpload()">Selecione o arquivo</button>
             <small id="contadorArquivosUpload">0 arquivo(s) selecionado(s)</small>
           </div>
 
@@ -9023,7 +9056,7 @@ body.modoCompacto {
         <div class="centralUploadAcoes">
           <button id="btnConfirmarUploadCentral" class="principal" onclick="confirmarUploadCentral()">Enviar PDF(s)</button>
           <button id="btnConcluirUploadCentral" class="principal" style="display:none" onclick="concluirFecharCentralUpload()">Concluir e fechar</button>
-          <button class="secundario" onclick="limparCentralUpload()">Limpar seleção</button>
+          <button id="btnLimparSelecaoUpload" class="secundario btnUploadSecundario" onclick="limparCentralUpload()">Limpar seleção</button>
         </div>
       </section>
 
@@ -9260,6 +9293,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
