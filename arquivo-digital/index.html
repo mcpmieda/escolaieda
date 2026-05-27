@@ -9196,69 +9196,82 @@ body.modoCompacto {
 
 
 
-/* INICIO_LAYOUT_MODERNO_1B_LEVE_CARDS_EXISTENTES_20260527 */
-    body.visualModernoResumoLeve h2 {
+/* INICIO_LAYOUT_MODERNO_1B_DESTAQUE_CARDS_REAIS_20260527 */
+    body.visualModernoResumoDestaque h2 {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       color: #0f2f66;
-      font-size: 18px;
-      letter-spacing: -.02em;
-      margin: 16px 0 10px;
+      font-size: 20px;
+      letter-spacing: -.03em;
+      margin: 18px 0 12px;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash,
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral {
+    body.visualModernoResumoDestaque h2::before {
+      content: "";
+      width: 8px;
+      height: 24px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #1d4ed8, #0f766e);
+      box-shadow: 0 6px 18px rgba(29, 78, 216, .24);
+    }
+
+    body.visualModernoResumoDestaque .cardDash:has(#dashDocumentos),
+    body.visualModernoResumoDestaque .cardDash:has(#dashLixeira),
+    body.visualModernoResumoDestaque .cardDash:has(#dashPessoas),
+    body.visualModernoResumoDestaque #cardParesIgnorados,
+    body.visualModernoResumoDestaque #centralDuplicidades,
+    body.visualModernoResumoDestaque .centralDuplicidades,
+    body.visualModernoResumoDestaque .cardHistoricoGeral {
       position: relative;
-      border-radius: 16px;
-      border: 1px solid rgba(203, 213, 225, .86);
-      background: rgba(255, 255, 255, .90);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, .055);
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      min-height: 108px;
+      padding-left: 76px !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(191, 219, 254, .78) !important;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(248, 250, 252, .96)) !important;
+      box-shadow:
+        0 12px 30px rgba(15, 23, 42, .075),
+        inset 0 1px 0 rgba(255, 255, 255, .82) !important;
       overflow: hidden;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease !important;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash {
-      padding-left: 66px;
-    }
-
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral {
-      padding-left: 66px;
-    }
-
-    body.visualModernoResumoLeve .dashboardTopo .cardDash:hover,
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades:hover,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral:hover {
-      transform: translateY(-1px);
-      border-color: rgba(37, 99, 235, .26);
-      background: rgba(255, 255, 255, .97);
-      box-shadow: 0 14px 30px rgba(15, 23, 42, .085);
-    }
-
-    body.visualModernoResumoLeve .dashboardTopo .cardDash::before,
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::before,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::before {
+    body.visualModernoResumoDestaque .cardDash:has(#dashDocumentos)::before,
+    body.visualModernoResumoDestaque .cardDash:has(#dashLixeira)::before,
+    body.visualModernoResumoDestaque .cardDash:has(#dashPessoas)::before,
+    body.visualModernoResumoDestaque #cardParesIgnorados::before,
+    body.visualModernoResumoDestaque #centralDuplicidades::before,
+    body.visualModernoResumoDestaque .centralDuplicidades::before,
+    body.visualModernoResumoDestaque .cardHistoricoGeral::before {
       content: "";
       position: absolute;
-      left: 16px;
+      left: 18px;
       top: 50%;
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
       transform: translateY(-50%);
-      background: rgba(219, 234, 254, .92);
-      box-shadow: inset 0 0 0 1px rgba(147, 197, 253, .45);
+      background: rgba(219, 234, 254, .95);
+      box-shadow:
+        inset 0 0 0 1px rgba(147, 197, 253, .48),
+        0 10px 22px rgba(37, 99, 235, .10);
       pointer-events: none;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash::after,
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::after,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::after {
+    body.visualModernoResumoDestaque .cardDash:has(#dashDocumentos)::after,
+    body.visualModernoResumoDestaque .cardDash:has(#dashLixeira)::after,
+    body.visualModernoResumoDestaque .cardDash:has(#dashPessoas)::after,
+    body.visualModernoResumoDestaque #cardParesIgnorados::after,
+    body.visualModernoResumoDestaque #centralDuplicidades::after,
+    body.visualModernoResumoDestaque .centralDuplicidades::after,
+    body.visualModernoResumoDestaque .cardHistoricoGeral::after {
       content: "";
       position: absolute;
-      left: 25px;
+      left: 29px;
       top: 50%;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       transform: translateY(-50%);
       background: #1d4ed8;
       -webkit-mask: center / contain no-repeat;
@@ -9266,95 +9279,113 @@ body.modoCompacto {
       pointer-events: none;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashDocumentos)::after {
+    body.visualModernoResumoDestaque .cardDash:has(#dashDocumentos)::after {
       -webkit-mask-image: url("assets/icones/arquivo.svg");
       mask-image: url("assets/icones/arquivo.svg");
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashLixeira)::before {
-      background: rgba(220, 252, 231, .92);
-      box-shadow: inset 0 0 0 1px rgba(134, 239, 172, .5);
+    body.visualModernoResumoDestaque .cardDash:has(#dashLixeira)::before {
+      background: rgba(220, 252, 231, .96);
+      box-shadow:
+        inset 0 0 0 1px rgba(134, 239, 172, .56),
+        0 10px 22px rgba(22, 163, 74, .10);
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashLixeira)::after {
+    body.visualModernoResumoDestaque .cardDash:has(#dashLixeira)::after {
       background: #15803d;
       -webkit-mask-image: url("assets/icones/lixeira.svg");
       mask-image: url("assets/icones/lixeira.svg");
     }
 
-    body.visualModernoResumoLeve .dashboardTopo #cardParesIgnorados::before,
-    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashPessoas)::before {
-      background: rgba(219, 234, 254, .92);
-    }
-
-    body.visualModernoResumoLeve .dashboardTopo #cardParesIgnorados::after,
-    body.visualModernoResumoLeve .dashboardTopo .cardDash:has(#dashPessoas)::after {
+    body.visualModernoResumoDestaque .cardDash:has(#dashPessoas)::after,
+    body.visualModernoResumoDestaque #cardParesIgnorados::after {
       background: #2563eb;
       -webkit-mask-image: url("assets/icones/usuarios.svg");
       mask-image: url("assets/icones/usuarios.svg");
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades {
-      border-color: rgba(251, 146, 60, .32);
-      background: linear-gradient(135deg, rgba(255, 247, 237, .92), rgba(255, 255, 255, .94));
+    body.visualModernoResumoDestaque #centralDuplicidades,
+    body.visualModernoResumoDestaque .centralDuplicidades {
+      border-color: rgba(251, 146, 60, .44) !important;
+      background: linear-gradient(135deg, rgba(255, 247, 237, .98), rgba(255, 255, 255, .95)) !important;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::before {
-      background: rgba(255, 237, 213, .96);
-      box-shadow: inset 0 0 0 1px rgba(251, 146, 60, .34);
+    body.visualModernoResumoDestaque #centralDuplicidades::before,
+    body.visualModernoResumoDestaque .centralDuplicidades::before {
+      background: rgba(255, 237, 213, .98);
+      box-shadow:
+        inset 0 0 0 1px rgba(251, 146, 60, .44),
+        0 10px 22px rgba(234, 88, 12, .10);
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades::after {
+    body.visualModernoResumoDestaque #centralDuplicidades::after,
+    body.visualModernoResumoDestaque .centralDuplicidades::after {
       background: #ea580c;
       -webkit-mask-image: url("assets/icones/duplicidades.svg");
       mask-image: url("assets/icones/duplicidades.svg");
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades button {
-      margin-top: 2px;
-      border-radius: 10px;
-      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    body.visualModernoResumoDestaque .cardHistoricoGeral {
+      border-color: rgba(20, 184, 166, .42) !important;
+      background: linear-gradient(135deg, rgba(240, 253, 250, .98), rgba(255, 255, 255, .95)) !important;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      background: #f97316;
-      color: #ffffff;
-      box-shadow: 0 9px 18px rgba(234, 88, 12, .20);
+    body.visualModernoResumoDestaque .cardHistoricoGeral::before {
+      background: rgba(204, 251, 241, .98);
+      box-shadow:
+        inset 0 0 0 1px rgba(45, 212, 191, .42),
+        0 10px 22px rgba(15, 118, 110, .10);
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral {
-      border-color: rgba(20, 184, 166, .32);
-      background: linear-gradient(135deg, rgba(240, 253, 250, .92), rgba(255, 255, 255, .94));
-    }
-
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::before {
-      background: rgba(204, 251, 241, .96);
-      box-shadow: inset 0 0 0 1px rgba(45, 212, 191, .36);
-    }
-
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral::after {
+    body.visualModernoResumoDestaque .cardHistoricoGeral::after {
       background: #0f766e;
       -webkit-mask-image: url("assets/icones/historico.svg");
       mask-image: url("assets/icones/historico.svg");
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash span,
-    body.visualModernoResumoLeve .dashboardTopo .centralDuplicidades strong,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral span {
-      color: #475569;
-      letter-spacing: .035em;
+    body.visualModernoResumoDestaque .cardDash:has(#dashDocumentos):hover,
+    body.visualModernoResumoDestaque .cardDash:has(#dashLixeira):hover,
+    body.visualModernoResumoDestaque .cardDash:has(#dashPessoas):hover,
+    body.visualModernoResumoDestaque #cardParesIgnorados:hover,
+    body.visualModernoResumoDestaque #centralDuplicidades:hover,
+    body.visualModernoResumoDestaque .centralDuplicidades:hover,
+    body.visualModernoResumoDestaque .cardHistoricoGeral:hover {
+      transform: translateY(-2px);
+      border-color: rgba(37, 99, 235, .38) !important;
+      box-shadow:
+        0 18px 38px rgba(15, 23, 42, .105),
+        inset 0 1px 0 rgba(255, 255, 255, .90) !important;
     }
 
-    body.visualModernoResumoLeve .dashboardTopo .cardDash strong,
-    body.visualModernoResumoLeve .dashboardTopo .cardHistoricoGeral strong {
-      color: #0f2f66;
+    body.visualModernoResumoDestaque .dashboardTopo .cardDash span,
+    body.visualModernoResumoDestaque .dashboardTopo .centralDuplicidades strong,
+    body.visualModernoResumoDestaque .dashboardTopo .cardHistoricoGeral span {
+      color: #475569 !important;
+      font-weight: 900 !important;
+      letter-spacing: .045em !important;
     }
-/* FIM_LAYOUT_MODERNO_1B_LEVE_CARDS_EXISTENTES_20260527 */
+
+    body.visualModernoResumoDestaque .dashboardTopo .cardDash strong,
+    body.visualModernoResumoDestaque .dashboardTopo .cardHistoricoGeral strong {
+      color: #0f2f66 !important;
+    }
+
+    body.visualModernoResumoDestaque .centralDuplicidades button {
+      border-radius: 10px;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    body.visualModernoResumoDestaque .centralDuplicidades button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: #f97316;
+      color: #ffffff;
+      box-shadow: 0 9px 18px rgba(234, 88, 12, .22);
+    }
+/* FIM_LAYOUT_MODERNO_1B_DESTAQUE_CARDS_REAIS_20260527 */
 </style>
 
 </head>
-<body class="visualModernoFase1A visualModernoResumoLeve">
+<body class="visualModernoFase1A visualModernoResumoDestaque">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -9769,6 +9800,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
