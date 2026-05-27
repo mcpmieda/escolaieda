@@ -5386,43 +5386,13 @@ function renderizarDocumentos(listaArquivos) {
       transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
     }
 
-    .itemArquivo:hover {
-      background: #0f2f66;
-      color: #ffffff;
-      border-color: #0f2f66;
-      box-shadow: 0 10px 24px rgba(15, 47, 102, .20);
-      opacity: 1;
-    }
 
-    .itemArquivo:hover strong {
-      color: #ffffff;
-      opacity: 1;
-    }
 
-    .itemArquivo:hover span {
-      color: #dbeafe;
-      opacity: 1;
-    }
 
-    .itemArquivo:hover .linhaDataArquivo {
-      color: #bfdbfe !important;
-      opacity: 1;
-    }
 
-    .itemArquivo:hover .linhaMovimentacaoArquivo {
-      background: #eff6ff;
-      color: #0f2f66 !important;
-      opacity: 1;
-    }
 
-    .itemArquivo:hover .seloGaveta {
-      background: #e8f5ee;
-      color: #17623a !important;
-      border-color: #b7e0c7;
-      opacity: 1;
-    }
 
-    .itemArquivo strong {
+.itemArquivo strong {
       display: block;
       color: #0f2f66;
       margin-bottom: 4px;
@@ -6799,31 +6769,12 @@ function renderizarDocumentos(listaArquivos) {
       line-height: 1.35;
     }
 
-    .itemArquivo:hover {
-      background: #eaf1fb;
-      color: #172033;
-      border-color: #bfdbfe;
-      box-shadow: 0 8px 18px rgba(15, 47, 102, .12);
-    }
 
-    .itemArquivo:hover strong {
-      color: #0f2f66;
-    }
 
-    .itemArquivo:hover span {
-      color: #475569;
-    }
 
-    .itemArquivo:hover .linhaDataArquivo {
-      color: #475569 !important;
-    }
 
-    .itemArquivo:hover .linhaMovimentacaoArquivo {
-      background: #ffffff;
-      color: #0f2f66 !important;
-    }
 
-    .painelLateral,
+.painelLateral,
     .painelConteudo,
     .painelCentralDuplicidades {
       overscroll-behavior: contain;
@@ -7170,34 +7121,12 @@ function renderizarDocumentos(listaArquivos) {
       display: none;
     }
 
-    .itemArquivo:hover {
-      background: #f1f6fd;
-      color: #172033;
-      border-color: #9fc5f8;
-      box-shadow: 0 6px 16px rgba(15, 47, 102, .10);
-    }
 
-    .itemArquivo:hover strong {
-      color: #0f2f66;
-    }
 
-    .itemArquivo:hover span,
-    .itemArquivo:hover .linhaDataArquivo {
-      color: #334155 !important;
-    }
+.itemArquivo:hover span,
 
-    .itemArquivo:hover .seloGaveta {
-      background: #e8f5ee;
-      color: #17623a !important;
-      border-color: #b7e0c7;
-    }
 
-    .itemArquivo:hover .linhaMovimentacaoArquivo {
-      background: #ffffff;
-      color: #0f2f66 !important;
-    }
-
-    /* PACOTE3_HISTORICO_RELATORIOS_ACESSO */
+/* PACOTE3_HISTORICO_RELATORIOS_ACESSO */
     .cardHistoricoGeral,
     .cardRelatorios {
       display: block;
@@ -7674,35 +7603,13 @@ function renderizarDocumentos(listaArquivos) {
       border-radius: 10px;
     }
 
-    .itemArquivo:hover {
-      background: #eef6ff;
-      color: #172033;
-      border-color: #8bbcf2;
-      box-shadow: 0 6px 16px rgba(15, 47, 102, .12);
-    }
 
-    .itemArquivo:hover strong {
-      color: #0b2a5b;
-    }
 
-    .itemArquivo:hover span,
-    .itemArquivo:hover .linhaDataArquivo {
-      color: #263548 !important;
-    }
+.itemArquivo:hover span,
 
-    .itemArquivo:hover .linhaMovimentacaoArquivo {
-      background: #ffffff;
-      color: #0b2a5b !important;
-      border: 1px solid #bfdbfe;
-    }
 
-    .itemArquivo:hover .seloGaveta {
-      background: #dcfce7;
-      color: #14532d !important;
-      border-color: #86efac;
-    }
 
-    body.modoCompacto {
+body.modoCompacto {
       padding: 12px;
     }
 
@@ -9034,6 +8941,14 @@ function renderizarDocumentos(listaArquivos) {
        itemArquivo, abaDocumento, filtros/ordenação do Histórico Geral,
        cards de dashboard e central de duplicidades.
     */
+
+    /* REGRA_TECNICA_ITEMARQUIVO_HOVER_20260527
+       Hover oficial dos cards de arquivo:
+       usar button.itemArquivo:hover:not(:disabled) e seus filhos.
+       Evitar recriar regras genéricas .itemArquivo:hover, pois elas acumulam conflito
+       com versões antigas e com estados internos como seloGaveta, linhaDataArquivo
+       e linhaMovimentacaoArquivo.
+    */
 </style>
 
 </head>
@@ -9448,6 +9363,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
