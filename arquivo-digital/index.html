@@ -277,27 +277,6 @@
       return "As gavetas reais do SharePoint não foram carregadas. Edição indisponível.";
     }
 
-    function obterResumoGavetas() {
-      const mapa = new Map();
-      let semGaveta = 0;
-
-      documentosAtivos.forEach(doc => {
-        const gaveta = chaveGaveta(doc.gaveta);
-        if (gaveta === "Gaveta nao informada") semGaveta++;
-        mapa.set(gaveta, (mapa.get(gaveta) || 0) + 1);
-      });
-
-      const usadas = [...mapa.keys()].filter(gaveta => gaveta !== "Gaveta nao informada").length;
-      const maior = [...mapa.entries()]
-        .filter(([gaveta]) => gaveta !== "Gaveta nao informada")
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"))[0];
-
-      return {
-        usadas,
-        semGaveta,
-        maiorGaveta: maior ? `${maior[0]} (${maior[1]})` : ""
-      };
-    }
 
     function seloGavetaHtml(valor) {
       return `<span class="seloGaveta">${escaparHtml(gavetaOuPadrao(valor))}</span>`;
@@ -784,14 +763,8 @@
     function atualizarDashboard() {
       document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
       document.getElementById("dashLixeira").textContent = documentosLixeira ? documentosLixeira.length : 0;
-      const resumoGavetas = obterResumoGavetas();
-      const dashGavetas = document.getElementById("dashGavetas");
-      const infoGavetas = document.getElementById("infoDashGavetas");
-      if (dashGavetas) dashGavetas.textContent = resumoGavetas.usadas;
-      if (infoGavetas) {
-        infoGavetas.textContent = `${resumoGavetas.semGaveta} sem gaveta. Maior: ${resumoGavetas.maiorGaveta || "nenhuma"}`;
-      }
-      atualizarCardParesIgnorados();
+
+atualizarCardParesIgnorados();
     }
     async function carregarDadosDeApoio() {
       if (dadosApoioCarregando) return;
@@ -1295,49 +1268,6 @@
       }
     };
 
-    window.abrirAreaGavetas = function () {
-      modoListaAtual = "ativos";
-      document.getElementById("campoBusca").value = "";
-      aplicarListaAtual();
-      abrirPainelDashboard("Gavetas dos documentos ativos", montarConteudoPainelGavetas());
-    };
-
-    function montarConteudoPainelGavetas() {
-      const mapa = new Map();
-      documentosAtivos.forEach(doc => {
-        const gaveta = chaveGaveta(doc.gaveta);
-        mapa.set(gaveta, (mapa.get(gaveta) || 0) + 1);
-      });
-
-      const entradas = [...mapa.entries()].sort((a, b) => {
-        if (a[0] === "Gaveta nao informada") return -1;
-        if (b[0] === "Gaveta nao informada") return 1;
-        return a[0].localeCompare(b[0], "pt-BR", { numeric: true });
-      });
-
-      if (!entradas.length) {
-        return "<p class=\"painelVazio\">Nenhuma gaveta encontrada nos documentos ativos.</p>";
-      }
-
-      return `
-        <div class="listaGavetasPainel">
-          ${entradas.map(([gaveta, total]) => `
-            <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" onclick='selecionarGavetaDoPainel(${JSON.stringify(gaveta)})'>
-              <span>${escaparHtml(gaveta)}</span>
-              <strong>${total}</strong>
-            </button>
-          `).join("")}
-        </div>
-      `;
-    }
-
-    window.selecionarGavetaDoPainel = function (gaveta) {
-      filtroGavetaAtual = gaveta || "";
-      limparFiltrosAvancadosOcultos();
-      modoListaAtual = "ativos";
-      window.fecharPainelDashboard();
-      aplicarListaAtual();
-    };
 
     function renderizarGavetasAtivos() {
       const area = document.getElementById("areaGavetas");
@@ -5173,13 +5103,13 @@ function renderizarDocumentos(listaArquivos) {
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardGavetas):not(.cardParesIgnorados):not(.centralDuplicidades):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardGavetas):not(.cardParesIgnorados):not(.centralDuplicidades):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -6959,31 +6889,10 @@ function renderizarDocumentos(listaArquivos) {
       color: #ffffff;
     }
 
-    .cardGavetas {
-      display: block;
-      width: 100%;
-      text-align: left;
-      background: #f8fafc;
-      color: #1f2937;
-      border: 1px solid #e5e7eb;
-      cursor: pointer;
-    }
 
-    .cardGavetas:hover:not(:disabled) {
-      background: #eef3ff;
-      color: #0f2f66;
-      border-color: #bfdbfe;
-    }
 
-    .cardGavetas small {
-      display: block;
-      margin-top: 6px;
-      color: #64748b;
-      font-size: 12px;
-      line-height: 1.35;
-    }
 
-    .areaGavetas {
+.areaGavetas {
       margin: 14px 0;
       padding: 14px;
       border: 1px solid #dbeafe;
@@ -7519,7 +7428,7 @@ function renderizarDocumentos(listaArquivos) {
 
     .cardDash small,
     .cardParesIgnorados small,
-    .cardGavetas small,
+
     .cardHistoricoGeral small {
       margin-top: 4px;
       font-size: 11px;
@@ -7564,13 +7473,8 @@ function renderizarDocumentos(listaArquivos) {
       background: #f8fbff;
     }
 
-    .listaGavetasPainel {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 8px;
-    }
 
-    .painelVazio {
+.painelVazio {
       margin: 0;
       color: #64748b;
     }
@@ -8091,7 +7995,7 @@ body.modoCompacto {
 
     .cardDash small,
     .cardParesIgnorados small,
-    .cardGavetas small,
+
     .cardHistoricoGeral small {
       margin-top: 3px;
       line-height: 1.2;
@@ -9138,13 +9042,8 @@ body.modoCompacto {
           <strong id="dashLixeira">0</strong>
         </div>
 
-        <button class="cardDash cardGavetas" type="button" onclick="abrirAreaGavetas()">
-          <span>Gavetas</span>
-          <strong id="dashGavetas">0</strong>
-          <small id="infoDashGavetas">0 sem gaveta.</small>
-        </button>
 
-        <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0" onclick="alternarCentralDuplicidades()">
+<div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0" onclick="alternarCentralDuplicidades()">
           <div class="centralDuplicidadesTopo">
             <div>
               <h2>Central de duplicidades</h2>
@@ -9361,6 +9260,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
