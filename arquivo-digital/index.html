@@ -9510,10 +9510,102 @@ body.modoCompacto {
       }
     }
 /* FIM_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
+
+
+/* INICIO_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo {
+      border-color: rgba(191, 219, 254, .78);
+      background:
+        linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .96)),
+        radial-gradient(circle at top right, rgba(59, 130, 246, .08), transparent 34%);
+      box-shadow: 0 9px 24px rgba(15, 23, 42, .045);
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo .buscaLinha {
+      position: relative;
+      gap: 6px;
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: #0f2f66;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos::before {
+      content: "";
+      width: 7px;
+      height: 19px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #1d4ed8, #0f766e);
+      box-shadow: 0 5px 14px rgba(29, 78, 216, .18);
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
+      width: 100%;
+      min-height: 40px;
+      margin: 0;
+      padding: 10px 13px;
+      border-radius: 12px;
+      border: 1px solid rgba(203, 213, 225, .96);
+      background: rgba(255, 255, 255, .98);
+      color: #0f172a;
+      font-size: 14px;
+      line-height: 1.2;
+      outline: none;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .90),
+        0 6px 16px rgba(15, 23, 42, .035);
+      transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca:hover {
+      background: #ffffff;
+      border-color: rgba(148, 163, 184, .95);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .92),
+        0 8px 18px rgba(15, 23, 42, .045);
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca:focus {
+      background: #ffffff;
+      border-color: rgba(37, 99, 235, .64);
+      box-shadow:
+        0 0 0 4px rgba(59, 130, 246, .12),
+        0 9px 22px rgba(15, 23, 42, .06);
+    }
+
+    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca::placeholder {
+      color: #64748b;
+    }
+
+    @media (max-width: 760px) {
+      body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos {
+        font-size: 15px;
+      }
+
+      body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
+        min-height: 38px;
+        padding: 9px 11px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos {
+        font-size: 14px;
+      }
+    }
+/* FIM_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
 </style>
 
 </head>
-<body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc">
+<body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -9928,6 +10020,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
