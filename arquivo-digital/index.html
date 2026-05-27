@@ -9603,25 +9603,24 @@ body.modoCompacto {
     }
 /* FIM_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
 
-
 /* INICIO_LAYOUT_1D_GAVETAS_HOVER_20260527 */
     body.visualModernoGavetas .areaGavetas {
-      margin: 10px 0 12px;
-      padding: 12px;
+      margin: 8px 0 10px;
+      padding: 10px;
       border-radius: 18px;
       border: 1px solid rgba(191, 219, 254, .78);
       background:
         linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .96)),
         radial-gradient(circle at top right, rgba(15, 118, 110, .08), transparent 34%);
-      box-shadow: 0 10px 26px rgba(15, 23, 42, .045);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .045);
     }
 
     body.visualModernoGavetas .areaGavetasTopo {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     body.visualModernoGavetas .areaGavetasTopo h3 {
@@ -9630,16 +9629,16 @@ body.modoCompacto {
       gap: 8px;
       margin: 0;
       color: #0f2f66;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       letter-spacing: -.02em;
-      line-height: 1.15;
+      line-height: 1.1;
     }
 
     body.visualModernoGavetas .areaGavetasTopo h3::before {
       content: "";
       width: 7px;
-      height: 19px;
+      height: 18px;
       border-radius: 999px;
       background: linear-gradient(180deg, #1d4ed8, #0f766e);
       box-shadow: 0 5px 14px rgba(15, 118, 110, .18);
@@ -9647,26 +9646,31 @@ body.modoCompacto {
 
     body.visualModernoGavetas .listaGavetasAtivos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 6px;
     }
 
     body.visualModernoGavetas .gavetaCard {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      gap: 8px;
-      min-height: 48px;
-      padding: 9px 11px;
-      border-radius: 13px;
+      gap: 7px;
+      min-height: 42px;
+      padding: 7px 10px;
+      border-radius: 12px;
       border: 1px solid rgba(203, 213, 225, .92);
-      background: rgba(255, 255, 255, .96);
-      color: #334155;
+      background: rgba(255, 255, 255, .98);
+      color: #334155 !important;
       text-align: left;
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .90),
-        0 6px 16px rgba(15, 23, 42, .035);
+        0 4px 12px rgba(15, 23, 42, .032);
       transition: background .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+
+    body.visualModernoGavetas .gavetaCard,
+    body.visualModernoGavetas .gavetaCard * {
+      text-decoration: none;
     }
 
     body.visualModernoGavetas .gavetaCard span {
@@ -9674,19 +9678,20 @@ body.modoCompacto {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: #334155;
-      font-size: 13px;
+      color: #334155 !important;
+      font-size: 12px;
       font-weight: 850;
-      line-height: 1.15;
+      line-height: 1.1;
+      letter-spacing: -.01em;
     }
 
     body.visualModernoGavetas .gavetaCard strong {
-      min-width: 30px;
-      padding: 4px 8px;
+      min-width: 28px;
+      padding: 3px 8px;
       border-radius: 999px;
-      background: rgba(219, 234, 254, .85);
-      color: #0f2f66;
-      font-size: 13px;
+      background: rgba(219, 234, 254, .90);
+      color: #0f2f66 !important;
+      font-size: 12px;
       font-weight: 950;
       line-height: 1;
       text-align: center;
@@ -9695,19 +9700,21 @@ body.modoCompacto {
 
     body.visualModernoGavetas .gavetaCard:hover:not(:disabled) {
       background: linear-gradient(135deg, #ffffff, #eff6ff);
-      color: #0f2f66;
+      color: #0f2f66 !important;
       border-color: rgba(37, 99, 235, .38);
       box-shadow:
-        0 10px 22px rgba(15, 47, 102, .10),
+        0 8px 18px rgba(15, 47, 102, .09),
         inset 0 1px 0 rgba(255, 255, 255, .92);
       transform: translateY(-1px);
     }
 
-    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) span {
+    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) span,
+    body.visualModernoGavetas .gavetaCard:focus-visible span {
       color: #0f2f66 !important;
     }
 
-    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) strong {
+    body.visualModernoGavetas .gavetaCard:hover:not(:disabled) strong,
+    body.visualModernoGavetas .gavetaCard:focus-visible strong {
       background: #dbeafe;
       color: #0f2f66 !important;
       box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .55);
@@ -9716,15 +9723,16 @@ body.modoCompacto {
     body.visualModernoGavetas .gavetaCard.ativo,
     body.visualModernoGavetas .gavetaCard.ativo:hover:not(:disabled) {
       background: linear-gradient(135deg, #0f2f66, #1d4ed8);
-      color: #ffffff;
+      color: #ffffff !important;
       border-color: rgba(29, 78, 216, .54);
-      box-shadow: 0 10px 24px rgba(29, 78, 216, .22);
+      box-shadow: 0 9px 20px rgba(29, 78, 216, .22);
       transform: none;
     }
 
     body.visualModernoGavetas .gavetaCard.ativo span,
     body.visualModernoGavetas .gavetaCard.ativo:hover:not(:disabled) span {
       color: #ffffff !important;
+      font-size: 12px;
     }
 
     body.visualModernoGavetas .gavetaCard.ativo strong,
@@ -9736,32 +9744,34 @@ body.modoCompacto {
 
     @media (max-width: 760px) {
       body.visualModernoGavetas .areaGavetas {
-        padding: 10px;
+        padding: 9px;
       }
 
       body.visualModernoGavetas .areaGavetasTopo {
         display: grid;
         grid-template-columns: 1fr;
         align-items: stretch;
+        margin-bottom: 7px;
       }
 
       body.visualModernoGavetas .listaGavetasAtivos {
-        grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
-        gap: 7px;
+        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+        gap: 5px;
       }
 
       body.visualModernoGavetas .gavetaCard {
-        min-height: 46px;
-        padding: 8px 10px;
+        min-height: 40px;
+        padding: 7px 9px;
       }
     }
 
     @media (max-width: 420px) {
       body.visualModernoGavetas .listaGavetasAtivos {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
       }
     }
 /* FIM_LAYOUT_1D_GAVETAS_HOVER_20260527 */
+
 </style>
 
 </head>
@@ -10180,6 +10190,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
