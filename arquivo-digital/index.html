@@ -289,6 +289,7 @@
       } catch {
         return data;
       }
+    }
 
     function limparObservacaoHistorico(texto) {
       let limpo = (texto || "").toString().trim();
@@ -305,8 +306,7 @@
       });
 
       return limpo.trim();
-    }    }
-
+    }
     function obterPalavrasNome(nome) {
       const ignorar = new Set(["pdf", "de", "da", "do", "das", "dos", "e", "a", "o", "conflito", "documento", "teste", "substituir", "substituido", "substituicao", "versao", "copia", "novo", "nova"]);
 
@@ -10240,6 +10240,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
