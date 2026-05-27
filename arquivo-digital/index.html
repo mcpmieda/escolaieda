@@ -1413,10 +1413,24 @@
       abrirPainelDashboard("Histórico geral", "<div id=\"listaHistoricoGeral\" class=\"listaHistoricoGeral\"><p>Carregando histórico geral...</p></div>");
       renderizarHistoricoGeral();
     };
+    window.verMaisHistoricoGeral = function (event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
 
-    window.verMaisHistoricoGeral = function () {
+      const conteudoPainel = document.querySelector("#painelDashboard .painelConteudo");
+      const posicaoRolagem = conteudoPainel ? conteudoPainel.scrollTop : 0;
+
       limiteHistoricoGeralAtual += preferenciasSistema.limiteRelatorios || 30;
       renderizarHistoricoGeral();
+
+      requestAnimationFrame(() => {
+        const conteudoAtualizado = document.querySelector("#painelDashboard .painelConteudo");
+        if (conteudoAtualizado) {
+          conteudoAtualizado.scrollTop = posicaoRolagem;
+        }
+      });
     };
     function renderizarHistoricoGeral() {
       const caixa = document.getElementById("listaHistoricoGeral");
@@ -1456,7 +1470,7 @@
       }).join("");
 
       const botaoMais = ordenados.length > exibidos.length ? `
-        <button class="secundario" onclick="verMaisHistoricoGeral()">Ver mais</button>
+        <button class="secundario btnVerMaisHistoricoGeral" type="button" onclick="verMaisHistoricoGeral(event)">Ver mais</button>
       ` : "";
 
       caixa.innerHTML = itensHtml + botaoMais;
@@ -4576,6 +4590,7 @@ function renderizarDocumentos(listaArquivos) {
       const painel = document.getElementById("painelLateral");
       const painelCentral = document.getElementById("painelCentralDuplicidades");
       const painelDashboard = document.getElementById("painelDashboard");
+      const caminhoClique = typeof event.composedPath === "function" ? event.composedPath() : [];
 
       if (
         painelCentral &&
@@ -4590,7 +4605,7 @@ function renderizarDocumentos(listaArquivos) {
       if (
         painelDashboard &&
         painelDashboard.classList.contains("aberto") &&
-        !painelDashboard.contains(event.target) &&
+        !(painelDashboard.contains(event.target) || caminhoClique.includes(painelDashboard)) &&
         !event.target.closest(".cardDash") &&
         !event.target.closest("#painelCentralDuplicidades") &&
         !event.target.closest("#centralDuplicidades") &&
@@ -8781,6 +8796,7 @@ function renderizarDocumentos(listaArquivos) {
 
 </body>
 </html>
+
 
 
 
