@@ -2865,3 +2865,195 @@ Commit:
 ```text
 1f38f24 Refatorar gavetas com SharePoint como fonte oficial
 ```
+
+---
+
+## 35. Fechamento consolidado — histórico visual, limpeza e estado atual em 27/05/2026
+
+Esta seção consolida as alterações feitas após o ponto de gavetas com SharePoint como fonte oficial. Ela deve ser considerada junto com as regras anteriores deste AGENTS.md.
+
+### 35.1. Estado Git/local mais recente conhecido
+
+Após sincronização com o GitHub, o repositório local ficou limpo e alinhado ao remoto.
+
+Último commit conhecido após alteração manual no GitHub:
+
+```text
+e0f4bf6 Update subtitle in index.html
+```
+
+Alteração desse commit:
+
+```text
+Subtítulo da página atualizado para: Gestão escolar de documentos
+```
+
+### 35.2. Histórico do arquivo — cards organizados
+
+O histórico exibido dentro do painel lateral do arquivo foi reorganizado para usuário leigo entender melhor.
+
+Padrão aprovado:
+
+```text
+AÇÃO
+data/hora
+usuário
+
+Detalhes da ação
+- campos técnicos separados, como gaveta anterior e nova gaveta
+
+Motivo informado
+- aparece somente quando há motivo real
+```
+
+Decisões importantes:
+
+- não misturar detalhes técnicos dentro de "Motivo";
+- quando não houver motivo real, ocultar o bloco "Motivo informado";
+- preservar informações como gaveta anterior, nova gaveta, nome anterior, novo nome, arquivo mesclado e outras observações úteis;
+- manter o layout compacto.
+
+Commits relacionados:
+
+```text
+dc7cc9d Organizar cards do historico do arquivo
+a57ffe0 Compactar cards do historico
+```
+
+### 35.3. Histórico Geral — layout compacto aprovado
+
+O Histórico Geral também foi reorganizado.
+
+Padrão visual aprovado:
+
+```text
+NOME DO ARQUIVO
+AÇÃO                         DATA/HORA
+USUÁRIO
+
+Detalhes da ação:
+campo: valor
+
+Motivo informado: texto, somente se existir
+```
+
+Decisões importantes:
+
+- o título do card deve ser o nome do arquivo;
+- a ação deve ficar abaixo do nome do arquivo;
+- data/hora deve ficar na mesma linha da ação quando couber;
+- usuário deve aparecer de forma discreta;
+- cards devem ser bem condensados, próximos do limite real do texto;
+- o título do arquivo foi levemente aumentado para destacar, mas sem forçar quebra de linha desnecessária;
+- o botão "Ver mais" deve preservar o painel aberto.
+
+Commits relacionados:
+
+```text
+bcff42d Compactar historico geral
+f29e815 Condensar historico geral
+0de8b83 Destacar titulo do historico geral
+7a446d7 Corrigir ver mais do historico geral
+```
+
+### 35.4. Correção do botão "Ver mais" no Histórico Geral
+
+Foi identificado que o botão "Ver mais" poderia fechar o painel do Histórico Geral.
+
+Causa provável:
+
+- o botão recria a lista via `renderizarHistoricoGeral()`;
+- durante o mesmo clique, o listener global de clique poderia interpretar a ação como clique fora do painel;
+- com isso, o `painelDashboard` era fechado.
+
+Correção aplicada:
+
+- o botão "Ver mais" passou a receber o evento do clique;
+- a função `verMaisHistoricoGeral(event)` usa `preventDefault()` e `stopPropagation()`;
+- o listener global de clique passou a considerar o caminho original do evento com `composedPath()`;
+- a rolagem do painel é preservada ao carregar mais itens.
+
+Commit relacionado:
+
+```text
+7a446d7 Corrigir ver mais do historico geral
+```
+
+### 35.5. Próxima melhoria planejada
+
+Próxima etapa aprovada para fazer depois:
+
+```text
+Criar filtro de datas no início do painel de Histórico Geral.
+```
+
+Ideia recomendada:
+
+```text
+Filtrar alterações por período:
+Hoje | 7 dias | 30 dias | Personalizado | Limpar
+```
+
+No modo personalizado:
+
+```text
+De: __/__/____   Até: __/__/____
+```
+
+Regras esperadas:
+
+- se não houver filtro, mostrar histórico normalmente;
+- se houver filtro, o botão "Ver mais" deve respeitar o período selecionado;
+- o painel não deve fechar;
+- o filtro deve ficar compacto no topo do painel.
+
+### 35.6. Arquivos de apoio e limpeza do repositório
+
+Foi decidido consolidar o histórico importante no `AGENTS.md` e evitar manter muitos arquivos soltos versionados.
+
+Pastas de apoio locais:
+
+```text
+SALVAMENTO_AUTOMATICO/
+diagnosticos/
+backups_locais/
+```
+
+Regras:
+
+- essas pastas podem continuar existindo no computador local;
+- elas não precisam continuar versionadas no Git;
+- não apagar arquivos físicos sem confirmação;
+- preferir remover apenas do rastreamento do Git com `git rm --cached`;
+- manter essas pastas no `.gitignore`.
+
+Observação:
+
+```text
+diagnosticos/ e backups_locais/ já estavam no .gitignore.
+SALVAMENTO_AUTOMATICO/ deve ser adicionado ao .gitignore.
+```
+
+### 35.7. Estado de referência para próximos chats/Codex
+
+Antes de novas alterações:
+
+```powershell
+git status --short
+git log -1 --oneline --decorate
+```
+
+Estado limpo esperado no momento desta consolidação:
+
+```text
+HEAD/main/origin/main em e0f4bf6 Update subtitle in index.html
+```
+
+Próximos passos recomendados:
+
+1. Confirmar que `AGENTS.md` contém esta seção.
+2. Parar de versionar `SALVAMENTO_AUTOMATICO/` e `diagnosticos/`.
+3. Manter os arquivos físicos no PC, mas fora do Git.
+4. Criar commit de organização.
+5. Depois iniciar filtro de datas do Histórico Geral.
+
