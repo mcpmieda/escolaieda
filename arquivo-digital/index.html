@@ -10511,7 +10511,94 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       }
     }
     /* FIM_CARREGAMENTOS_VISUAIS_FASE6C_20260527 */
-</style>
+
+    /* INICIO_LEGIBILIDADE_CABECALHO_PAINEL_FASE6D_PRE_20260527
+       Correção pontual:
+       torna o nome do arquivo legível no cabeçalho do painel lateral.
+       Apenas CSS; não altera JS, histórico, versões ou Graph.
+    */
+    #painelLateral > .painelTopo {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      min-height: 64px;
+      padding: 14px 14px 13px;
+      border-bottom: 1px solid rgba(147, 197, 253, .28);
+      background:
+        linear-gradient(135deg, #0f2f66 0%, #1d4ed8 62%, #0f766e 100%);
+      box-shadow:
+        0 12px 26px rgba(15, 23, 42, .16),
+        inset 0 1px 0 rgba(255, 255, 255, .14);
+    }
+
+    #painelLateral > .painelTopo #painelTitulo {
+      max-width: calc(100% - 48px);
+      margin: 0;
+      color: #ffffff !important;
+      font-size: 16px;
+      font-weight: 950;
+      line-height: 1.18;
+      letter-spacing: -.025em;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .22);
+      overflow-wrap: anywhere;
+    }
+
+    #painelLateral > .painelTopo .btnFechar {
+      min-width: 34px;
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .30);
+      background: rgba(255, 255, 255, .14);
+      color: #ffffff !important;
+      box-shadow: none;
+    }
+
+    #painelLateral > .painelTopo .btnFechar:hover:not(:disabled),
+    #painelLateral > .painelTopo .btnFechar:focus-visible:not(:disabled) {
+      background: rgba(255, 255, 255, .22);
+      border-color: rgba(255, 255, 255, .48);
+      color: #ffffff !important;
+      transform: none;
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:first-of-type {
+      border-color: rgba(37, 99, 235, .24);
+      background:
+        linear-gradient(135deg, rgba(239, 246, 255, .98), rgba(255, 255, 255, .96));
+      box-shadow:
+        0 8px 18px rgba(15, 47, 102, .045),
+        inset 0 1px 0 rgba(255, 255, 255, .86);
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:first-of-type strong {
+      color: #0f2f66;
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:first-of-type #painelNome {
+      color: #0f172a;
+      font-weight: 850;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 560px) {
+      #painelLateral > .painelTopo {
+        min-height: 58px;
+        padding: 12px;
+      }
+
+      #painelLateral > .painelTopo #painelTitulo {
+        font-size: 14px;
+        max-width: calc(100% - 44px);
+      }
+
+      #painelLateral > .painelTopo .btnFechar {
+        min-width: 32px;
+        min-height: 32px;
+      }
+    }
+    /* FIM_LEGIBILIDADE_CABECALHO_PAINEL_FASE6D_PRE_20260527 */
+  </style>
 
 </head>
 <body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
@@ -10929,6 +11016,7 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
 </body>
 </html>
+
 
 
 
