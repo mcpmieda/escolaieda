@@ -3927,8 +3927,8 @@ try {
         const ehAtual = indiceReal === 0;
 
         const botao = ehAtual
-          ? `<button class="secundario btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versao atual</button>`
-          : `<button class="secundario btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versao</button>`;
+          ? `<button class="btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versao atual</button>`
+          : `<button class="btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versao</button>`;
 
         return `
           <div class="itemVersao">
@@ -3941,7 +3941,7 @@ try {
           </div>
         `;
       }).join("") + (versoes.length > 2 ? `
-        <button class="secundario btnAlternarVersoes" type="button" onclick="alternarTodasVersoesSharePoint()">
+        <button class="btnAlternarVersoes" type="button" onclick="alternarTodasVersoesSharePoint()">
           ${versoesSharePointExpandido ? "Recolher" : "Ver todas"}
         </button>
       ` : "");
@@ -5362,13 +5362,13 @@ function renderizarDocumentos(listaArquivos) {
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -11066,6 +11066,7 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
 </body>
 </html>
+
 
 
 
