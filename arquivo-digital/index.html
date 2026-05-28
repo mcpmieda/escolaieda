@@ -5362,13 +5362,13 @@ function renderizarDocumentos(listaArquivos) {
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -10648,6 +10648,103 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       transform: none !important;
     }
     /* FIM_HOVER_BOTOES_VERSOES_SHAREPOINT_FASE6D_PRE_20260527 */
+
+    /* INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
+       Correção pontual:
+       botões de ações do painel lateral com hover próprio, legível e sem herdar hover antigo.
+    */
+    #painelLateral .painelAcoes button,
+    #painelLateral .btnAlterarGaveta {
+      min-height: 38px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, .62) !important;
+      background: #f8fafc !important;
+      color: #0f172a !important;
+      box-shadow:
+        0 5px 12px rgba(15, 23, 42, .045),
+        inset 0 1px 0 rgba(255, 255, 255, .86) !important;
+      transform: none !important;
+      text-shadow: none !important;
+      filter: none !important;
+    }
+
+    #painelLateral .painelAcoes button:hover:not(:disabled),
+    #painelLateral .painelAcoes button:focus-visible:not(:disabled),
+    #painelLateral .btnAlterarGaveta:hover:not(:disabled),
+    #painelLateral .btnAlterarGaveta:focus-visible:not(:disabled) {
+      background: #ffffff !important;
+      color: #0f2f66 !important;
+      border-color: rgba(37, 99, 235, .42) !important;
+      box-shadow:
+        0 8px 18px rgba(15, 47, 102, .075),
+        inset 0 1px 0 rgba(255, 255, 255, .92) !important;
+      transform: none !important;
+      text-shadow: none !important;
+      filter: none !important;
+      outline: none;
+    }
+
+    #painelLateral .painelAcoes button:active:not(:disabled),
+    #painelLateral .btnAlterarGaveta:active:not(:disabled) {
+      background: #e0f2fe !important;
+      color: #0f2f66 !important;
+      border-color: rgba(37, 99, 235, .48) !important;
+      box-shadow: inset 0 2px 5px rgba(15, 47, 102, .08) !important;
+      transform: none !important;
+    }
+
+    #painelLateral #btnSubstituir,
+    #painelLateral #btnMesclar {
+      background: #fff7ed !important;
+      color: #7c2d12 !important;
+      border-color: rgba(251, 146, 60, .52) !important;
+    }
+
+    #painelLateral #btnSubstituir:hover:not(:disabled),
+    #painelLateral #btnSubstituir:focus-visible:not(:disabled),
+    #painelLateral #btnMesclar:hover:not(:disabled),
+    #painelLateral #btnMesclar:focus-visible:not(:disabled) {
+      background: #fffbeb !important;
+      color: #78350f !important;
+      border-color: rgba(245, 158, 11, .60) !important;
+      box-shadow: 0 8px 18px rgba(146, 64, 14, .09) !important;
+    }
+
+    #painelLateral #btnArquivar {
+      background: #fef2f2 !important;
+      color: #7f1d1d !important;
+      border-color: rgba(248, 113, 113, .50) !important;
+    }
+
+    #painelLateral #btnArquivar:hover:not(:disabled),
+    #painelLateral #btnArquivar:focus-visible:not(:disabled) {
+      background: #fff1f2 !important;
+      color: #7f1d1d !important;
+      border-color: rgba(239, 68, 68, .58) !important;
+      box-shadow: 0 8px 18px rgba(127, 29, 29, .08) !important;
+    }
+
+    #painelLateral #btnRestaurar {
+      background: #ecfdf5 !important;
+      color: #064e3b !important;
+      border-color: rgba(52, 211, 153, .52) !important;
+    }
+
+    #painelLateral #btnRestaurar:hover:not(:disabled),
+    #painelLateral #btnRestaurar:focus-visible:not(:disabled) {
+      background: #f0fdf4 !important;
+      color: #064e3b !important;
+      border-color: rgba(16, 185, 129, .58) !important;
+      box-shadow: 0 8px 18px rgba(6, 95, 70, .08) !important;
+    }
+
+    #painelLateral .painelAcoes button:disabled,
+    #painelLateral .btnAlterarGaveta:disabled {
+      opacity: .60;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    /* FIM_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527 */
   </style>
 
 </head>
@@ -11066,6 +11163,7 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
 </body>
 </html>
+
 
 
 
