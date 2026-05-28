@@ -96,19 +96,16 @@ O usuário prefere:
 - preservar o que já funciona;
 - quando pedir código/alteração longa, receber arquivo para baixar.
 
-Fluxo preferido:
+Fluxo com ChatGPT:
+ChatGPT pode gerar script .txt para o usuário executar no PowerShell.
 
-```text
-ChatGPT cria script direto em .txt
-Usuário baixa
-Usuário executa no PowerShell
-Usuário testa
-Usuário publica
-Usuário confirma
-ChatGPT orienta tag/ponto seguro
+Fluxo com Codex no PowerShell:
+Codex pode diagnosticar e alterar arquivos diretamente no projeto, seguindo rigorosamente o AGENTS.md.
 ```
 
-Codex pode ser usado para diagnósticos grandes, mas alterações pequenas devem continuar por script direto.
+Codex no PowerShell pode fazer diagnósticos e correções diretamente no repositório, desde que siga o fluxo obrigatório do projeto: ler o AGENTS.md, confirmar estado do Git, fazer diagnóstico, criar backup, aplicar alteração pequena, gerar relatório, validar, aguardar teste do usuário e só então fazer commit/push/tag quando autorizado.
+
+Para fases novas ou sensíveis, Codex deve começar por diagnóstico somente leitura, salvo ordem explícita do usuário para aplicar a correção.
 
 ---
 
