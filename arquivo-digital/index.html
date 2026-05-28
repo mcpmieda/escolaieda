@@ -2741,7 +2741,7 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
       const caixa = document.getElementById("historicoArquivo");
       if (!caixa) return;
 
-      caixa.innerHTML = "<p>Carregando histórico...</p>";
+      caixa.innerHTML = montarCarregamentoVisual("Carregando histórico", "Buscando os registros deste documento.", "🕘");
 
       const esc = (valor) => (valor || "")
         .toString()
@@ -2838,7 +2838,7 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
       };
 
       if (!dadosApoioCarregados) {
-        caixa.innerHTML = "<p>Histórico carregando em segundo plano...</p>";
+        caixa.innerHTML = montarCarregamentoVisual("Histórico em segundo plano", "Os dados estão sendo preparados. Tente novamente em alguns instantes.", "⏱️");
 
         agendarTarefaSegundoPlano(async () => {
           try {
@@ -3976,7 +3976,7 @@ try {
         !documentoVersoesId ||
         (documentoSelecionado && documentoSelecionado.id === documentoVersoesId);
 
-      caixa.innerHTML = "<p>Carregando versoes do arquivo...</p>";
+      caixa.innerHTML = montarCarregamentoVisual("Carregando versões", "Consultando versões disponíveis para este arquivo.", "🧾");
 
       try {
         if (!versoesAindaDoDocumentoAtual()) return;
@@ -4108,10 +4108,10 @@ try {
       if (nomesParecidosPainel) nomesParecidosPainel.innerHTML = "<p>Procurando nomes parecidos...</p>";
 
       const historicoPainel = document.getElementById("historicoArquivo");
-      if (historicoPainel) historicoPainel.innerHTML = "<p>Carregando historico...</p>";
+      if (historicoPainel) historicoPainel.innerHTML = montarCarregamentoVisual("Carregando histórico", "Buscando movimentações e anotações do documento.", "🕘");
 
       const versoesPainel = document.getElementById("versoesSharePoint");
-      if (versoesPainel) versoesPainel.innerHTML = "<p>Carregando versoes do arquivo...</p>";
+      if (versoesPainel) versoesPainel.innerHTML = montarCarregamentoVisual("Carregando versões", "Consultando versões disponíveis para este arquivo.", "🧾");
 
       const campoAnotacaoPainel = document.getElementById("campoAnotacao");
       if (campoAnotacaoPainel) campoAnotacaoPainel.value = "";
@@ -4935,9 +4935,26 @@ function renderizarDocumentos(listaArquivos) {
       `;
     }
     /* FIM_ESTADOS_VAZIOS_DOCUMENTOS_FASE6A_20260527 */
+
+    /* INICIO_CARREGAMENTOS_VISUAIS_FASE6C_20260527 */
+    function montarCarregamentoVisual(titulo, texto = "", icone = "⏳", tag = "div") {
+      const tagSeguro = tag === "li" ? "li" : "div";
+      return `
+        <${tagSeguro} class="carregamentoVisual" aria-live="polite">
+          <div class="carregamentoVisualCard">
+            <div class="carregamentoVisualIcone" aria-hidden="true">${escaparHtml(icone)}</div>
+            <div class="carregamentoVisualTexto">
+              <p class="carregamentoVisualTitulo">${escaparHtml(titulo || "Carregando...")}</p>
+              ${texto ? `<p class="carregamentoVisualDescricao">${escaparHtml(texto)}</p>` : ""}
+            </div>
+          </div>
+        </${tagSeguro}>
+      `;
+    }
+    /* FIM_CARREGAMENTOS_VISUAIS_FASE6C_20260527 */
     async function listarDocumentos() {
       const lista = document.getElementById("listaDocumentos");
-      lista.innerHTML = "<li>Carregando documentos...</li>";
+      lista.innerHTML = montarCarregamentoVisual("Buscando documentos", "Consultando o Arquivo Digital. Aguarde um instante.", "📂", "li");
 
       try {
         const token = await obterToken();
@@ -10390,7 +10407,111 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       }
     }
     /* FIM_MENSAGENS_SOBREPOSTAS_FASE6B2_20260527 */
-  </style>
+
+    /* INICIO_CARREGAMENTOS_VISUAIS_FASE6C_20260527
+       Carregamentos visuais compactos para lista, histórico e versões.
+    */
+    .carregamentoVisual {
+      list-style: none;
+      margin: 8px 0;
+      padding: 0;
+    }
+
+    .carregamentoVisualCard {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 13px;
+      border-radius: 15px;
+      border: 1px solid rgba(191, 219, 254, .74);
+      background:
+        linear-gradient(135deg, rgba(239, 246, 255, .98), rgba(255, 255, 255, .96));
+      color: #183b70;
+      box-shadow:
+        0 7px 18px rgba(15, 47, 102, .052),
+        inset 0 1px 0 rgba(255, 255, 255, .86);
+    }
+
+    .carregamentoVisualIcone {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 13px;
+      background: #dbeafe;
+      color: #0f2f66;
+      font-size: 17px;
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .42);
+    }
+
+    .carregamentoVisualIcone::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 16px;
+      border: 2px solid rgba(37, 99, 235, .18);
+      border-top-color: rgba(37, 99, 235, .72);
+      animation: carregamentoVisualGirar .82s linear infinite;
+    }
+
+    .carregamentoVisualTexto {
+      min-width: 0;
+    }
+
+    .carregamentoVisualTitulo {
+      margin: 0;
+      color: #0f2f66;
+      font-size: 13.5px;
+      font-weight: 950;
+      line-height: 1.16;
+      letter-spacing: -.02em;
+    }
+
+    .carregamentoVisualDescricao {
+      margin: 3px 0 0;
+      color: #526174;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.28;
+    }
+
+    @keyframes carregamentoVisualGirar {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    body.modoCompacto .carregamentoVisualCard {
+      padding: 10px 11px;
+      border-radius: 13px;
+    }
+
+    body.modoCompacto .carregamentoVisualIcone {
+      width: 30px;
+      height: 30px;
+      border-radius: 11px;
+      font-size: 15px;
+    }
+
+    @media (max-width: 560px) {
+      .carregamentoVisualCard {
+        grid-template-columns: auto 1fr;
+        padding: 11px;
+      }
+
+      .carregamentoVisualTitulo {
+        font-size: 13px;
+      }
+
+      .carregamentoVisualDescricao {
+        font-size: 12px;
+      }
+    }
+    /* FIM_CARREGAMENTOS_VISUAIS_FASE6C_20260527 */
+</style>
 
 </head>
 <body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
@@ -10808,6 +10929,7 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
 </body>
 </html>
+
 
 
 
