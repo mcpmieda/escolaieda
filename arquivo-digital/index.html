@@ -755,6 +755,80 @@
       setTimeout(executar, atraso);
     }
 
+/* INICIO_FETCHGRAPH_RETRY_FASE3B_20260527 */
+    function aguardar(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function obterTempoRetryAfterMs(resposta) {
+      const valor = resposta?.headers?.get?.("Retry-After");
+
+      if (!valor) {
+        return 0;
+      }
+
+      const segundos = Number(valor);
+      if (Number.isFinite(segundos)) {
+        return Math.max(0, segundos * 1000);
+      }
+
+      const data = new Date(valor).getTime();
+      if (Number.isFinite(data)) {
+        return Math.max(0, data - Date.now());
+      }
+
+      return 0;
+    }
+
+    async function fetchGraphComRetry(url, opcoes = {}, config = {}) {
+      const metodo = (opcoes.method || "GET").toString().toUpperCase();
+      const permitirRetryEscrita = config.permitirRetryEscrita === true;
+      const podeRepetirMetodo = metodo === "GET" || permitirRetryEscrita;
+      const totalTentativas = Math.max(1, Number(config.tentativas || 3));
+      const atrasoBaseMs = Math.max(200, Number(config.atrasoBaseMs || 700));
+      const statusRepetiveis = new Set([429, 500, 502, 503, 504]);
+      let ultimoErro = null;
+
+      for (let tentativa = 1; tentativa <= totalTentativas; tentativa++) {
+        try {
+          const resposta = await fetch(url, opcoes);
+
+          if (resposta.ok) {
+            return resposta;
+          }
+
+          const deveRepetir = podeRepetirMetodo &&
+            statusRepetiveis.has(resposta.status) &&
+            tentativa < totalTentativas;
+
+          if (!deveRepetir) {
+            return resposta;
+          }
+
+          const retryAfterMs = obterTempoRetryAfterMs(resposta);
+          const atraso = retryAfterMs || Math.min(6000, atrasoBaseMs * Math.pow(2, tentativa - 1));
+
+          console.warn(`Graph retornou HTTP ${resposta.status}. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`);
+          await aguardar(atraso);
+
+        } catch (erro) {
+          ultimoErro = erro;
+
+          const deveRepetir = podeRepetirMetodo && tentativa < totalTentativas;
+          if (!deveRepetir) {
+            throw erro;
+          }
+
+          const atraso = Math.min(6000, atrasoBaseMs * Math.pow(2, tentativa - 1));
+          console.warn(`Falha temporaria no Graph. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`, erro);
+          await aguardar(atraso);
+        }
+      }
+
+      throw ultimoErro || new Error("Falha ao chamar Microsoft Graph.");
+    }
+    /* FIM_FETCHGRAPH_RETRY_FASE3B_20260527 */
+
     function atualizarCardParesIgnorados() {
       const total = paresDuplicidadesIgnoradosDetalhes.length || paresDuplicidadesIgnorados.size || 0;
       const elemento = document.getElementById("dashParesIgnorados");
@@ -3922,10 +3996,13 @@ try {
 
         const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${documento.listItemId}/driveItem/versions?$top=20`;
 
-        const resposta = await fetch(url, {
+        const resposta = await fetchGraphComRetry(url, {
           headers: {
             Authorization: `Bearer ${token}`
           }
+        }, {
+          tentativas: 3,
+          atrasoBaseMs: 800
         });
 
         if (!versoesAindaDoDocumentoAtual()) return;
@@ -10307,6 +10384,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
