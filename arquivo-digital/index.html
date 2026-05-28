@@ -5426,27 +5426,8 @@ function renderizarDocumentos(listaArquivos) {
       line-height: 1.4;
     }
 
-    .abasDocumentos {
-      display: flex;
-      gap: 8px;
-      margin: 20px 0 12px 0;
-      flex-wrap: wrap;
-    }
 
-    .abaDocumento {
-      background: #e2e8f0;
-      color: #0f172a;
-      padding: 9px 14px;
-      margin: 0;
-      font-size: 13px;
-      border: 1px solid #cbd5e1;
-    }
 
-    .abaDocumento.ativo {
-      background: #0f2f66;
-      color: white;
-      border-color: #0f2f66;
-    }
 
     .busca {
       width: 100%;
@@ -7189,10 +7170,6 @@ function renderizarDocumentos(listaArquivos) {
       margin: 6px 0;
     }
 
-    body.modoCompacto .abasDocumentos,
-    body.modoCompacto .barraFiltros {
-      margin: 8px 0;
-    }
 
     body.detalhesReduzidos .itemArquivo > span:not(.seloGaveta):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
       display: none;
@@ -7374,17 +7351,7 @@ function renderizarDocumentos(listaArquivos) {
         min-width: 0;
       }
 
-      .abasDocumentos {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-      }
 
-      .abaDocumento {
-        width: 100%;
-        padding: 10px 8px;
-        text-align: center;
-      }
 
       .busca {
         font-size: 15px;
@@ -7469,15 +7436,7 @@ function renderizarDocumentos(listaArquivos) {
         padding: 12px;
       }
 
-      .abasDocumentos {
-        grid-template-columns: 1fr;
-      }
 
-      button,
-      .abaDocumento {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
 
       .painelLateral {
         width: 100vw;
@@ -7760,21 +7719,7 @@ body.modoCompacto {
 
 
 
-    button.abaDocumento:hover:not(:disabled) {
-      background: #f8fbff;
-      color: #172033;
-      border-color: #c7d8ee;
-      box-shadow: 0 3px 10px rgba(15, 47, 102, .07);
-      transform: none;
-    }
 
-    button.abaDocumento.ativo:hover:not(:disabled) {
-      background: #f8fbff;
-      color: #102a56;
-      border-color: #c7d8ee;
-      box-shadow: 0 3px 10px rgba(15, 47, 102, .07);
-      transform: none;
-    }
 
     /* UX_FINAL_CURTO_20260526 */
     .dashboard {
@@ -8117,10 +8062,6 @@ body.modoCompacto {
       gap: 6px;
     }
 
-    .abaDocumento {
-      padding: 8px 11px;
-      line-height: 1.15;
-    }
 
     .buscaLinha {
       gap: 4px;
@@ -8241,10 +8182,6 @@ body.modoCompacto {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .abaDocumento {
-        width: 100%;
-        text-align: center;
-      }
 
       .centralUpload,
       .centralConfiguracoes {
@@ -9511,187 +9448,36 @@ body.modoCompacto {
 /* FIM_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
 
 /* INICIO_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      margin: 0;
-      padding: 3px;
-      border-radius: 14px;
-      background: rgba(226, 232, 240, .72);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
-    }
 
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
-      min-height: 36px;
-      margin: 0;
-      padding: 8px 14px;
-      border-radius: 11px;
-      border: 1px solid rgba(203, 213, 225, .92);
-      background: rgba(248, 250, 252, .96);
-      color: #0f172a;
-      font-size: 13px;
-      font-weight: 850;
-      line-height: 1.1;
-      white-space: nowrap;
-      box-shadow: none;
-      transition: background .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
-    }
 
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento:hover:not(:disabled) {
-      background: #ffffff;
-      color: #0f2f66;
-      border-color: rgba(37, 99, 235, .30);
-      box-shadow: 0 8px 18px rgba(15, 47, 102, .09);
-      transform: translateY(-1px);
-    }
 
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento.ativo,
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento.ativo:hover:not(:disabled) {
-      background: linear-gradient(135deg, #0f2f66, #1d4ed8);
-      color: #ffffff;
-      border-color: rgba(29, 78, 216, .52);
-      box-shadow: 0 9px 20px rgba(29, 78, 216, .22);
-      transform: none;
-    }
 
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo #btnVerAtivos:not(.ativo) {
-      background: rgba(239, 246, 255, .98);
-      border-color: rgba(147, 197, 253, .70);
-    }
 
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo #btnVerAtivos:not(.ativo):hover:not(:disabled) {
-      background: #ffffff;
-      border-color: rgba(37, 99, 235, .34);
-    }
 
-    body.visualModernoAbasDoc .navegacaoDocumentosTopo #btnVerLixeira:not(.ativo) {
-      background: rgba(248, 250, 252, .98);
-    }
 
     @media (max-width: 760px) {
-      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        width: 100%;
-        gap: 5px;
-      }
 
-      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
-        width: 100%;
-        min-width: 0;
-        padding-left: 7px;
-        padding-right: 7px;
-        text-align: center;
-        font-size: 12px;
-      }
     }
 
     @media (max-width: 420px) {
-      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abasDocumentos {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        width: 100%;
-        gap: 4px;
-      }
 
-      body.visualModernoAbasDoc .navegacaoDocumentosTopo .abaDocumento {
-        min-height: 34px;
-        padding-left: 5px;
-        padding-right: 5px;
-        font-size: 12px;
-      }
     }
 /* FIM_LAYOUT_1C_SOMENTE_ABAS_DOC_20260527 */
 
 /* INICIO_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo {
-      border-color: rgba(191, 219, 254, .78);
-      background:
-        linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .96)),
-        radial-gradient(circle at top right, rgba(59, 130, 246, .08), transparent 34%);
-      box-shadow: 0 9px 24px rgba(15, 23, 42, .045);
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo .buscaLinha {
-      position: relative;
-      gap: 6px;
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      color: #0f2f66;
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: -.02em;
-      line-height: 1.15;
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos::before {
-      content: "";
-      width: 7px;
-      height: 19px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #1d4ed8, #0f766e);
-      box-shadow: 0 5px 14px rgba(29, 78, 216, .18);
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
-      width: 100%;
-      min-height: 40px;
-      margin: 0;
-      padding: 10px 13px;
-      border-radius: 12px;
-      border: 1px solid rgba(203, 213, 225, .96);
-      background: rgba(255, 255, 255, .98);
-      color: #0f172a;
-      font-size: 14px;
-      line-height: 1.2;
-      outline: none;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, .90),
-        0 6px 16px rgba(15, 23, 42, .035);
-      transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca:hover {
-      background: #ffffff;
-      border-color: rgba(148, 163, 184, .95);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, .92),
-        0 8px 18px rgba(15, 23, 42, .045);
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca:focus {
-      background: #ffffff;
-      border-color: rgba(37, 99, 235, .64);
-      box-shadow:
-        0 0 0 4px rgba(59, 130, 246, .12),
-        0 9px 22px rgba(15, 23, 42, .06);
-    }
 
-    body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca::placeholder {
-      color: #64748b;
-    }
 
     @media (max-width: 760px) {
-      body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos {
-        font-size: 15px;
-      }
 
-      body.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
-        min-height: 38px;
-        padding: 9px 11px;
-      }
     }
 
     @media (max-width: 420px) {
-      body.visualModernoCampoBusca .navegacaoDocumentosTopo #tituloListaDocumentos {
-        font-size: 14px;
-      }
     }
 /* FIM_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
 
@@ -11004,6 +10790,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
