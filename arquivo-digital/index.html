@@ -10240,7 +10240,130 @@ body.modoCompacto {
       }
     }
     /* FIM_ESTADOS_VAZIOS_DOCUMENTOS_FASE6A_20260527 */
-</style>
+
+    /* INICIO_VISUAL_MENSAGENS_FASE6B_20260527
+       Visual moderno para mensagens e avisos.
+       Apenas CSS: preserva mostrarMensagem(), mostrarMensagemPainel() e textContent.
+    */
+    .mensagem,
+    .mensagemPainel {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      width: fit-content;
+      max-width: min(100%, 720px);
+      margin: 8px 0;
+      padding: 10px 13px 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(147, 197, 253, .62);
+      background:
+        linear-gradient(135deg, rgba(239, 246, 255, .98), rgba(255, 255, 255, .96));
+      color: #183b70;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.28;
+      box-shadow:
+        0 9px 22px rgba(15, 47, 102, .065),
+        inset 0 1px 0 rgba(255, 255, 255, .86);
+      animation: mensagemEntradaSuave .18s ease-out;
+    }
+
+    .mensagem:empty,
+    .mensagemPainel:empty {
+      display: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .mensagem::before,
+    .mensagemPainel::before {
+      content: "ℹ";
+      flex: 0 0 auto;
+      width: 21px;
+      height: 21px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -1px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: #0f2f66;
+      font-size: 13px;
+      font-weight: 950;
+      line-height: 1;
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .42);
+    }
+
+    .erroBox,
+    .erroPainel {
+      border-color: rgba(252, 165, 165, .76);
+      background:
+        linear-gradient(135deg, rgba(254, 242, 242, .99), rgba(255, 255, 255, .96));
+      color: #7f1d1d;
+      box-shadow:
+        0 9px 22px rgba(127, 29, 29, .075),
+        inset 0 1px 0 rgba(255, 255, 255, .88);
+    }
+
+    .erroBox::before,
+    .erroPainel::before {
+      content: "!";
+      background: #fee2e2;
+      color: #991b1b;
+      box-shadow: inset 0 0 0 1px rgba(248, 113, 113, .42);
+    }
+
+    .mensagemPainel {
+      width: 100%;
+      max-width: 100%;
+      margin: 8px 0 10px;
+      padding: 9px 12px;
+      border-radius: 13px;
+      font-size: 12.5px;
+      box-shadow:
+        0 6px 16px rgba(15, 47, 102, .052),
+        inset 0 1px 0 rgba(255, 255, 255, .86);
+    }
+
+    .mensagemPainel::before {
+      width: 19px;
+      height: 19px;
+      font-size: 12px;
+    }
+
+    body.modoCompacto .mensagem,
+    body.modoCompacto .mensagemPainel {
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      gap: 8px;
+    }
+
+    @keyframes mensagemEntradaSuave {
+      from {
+        opacity: 0;
+        transform: translateY(-3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .mensagem,
+      .mensagemPainel {
+        width: 100%;
+        max-width: 100%;
+        font-size: 12.5px;
+        padding: 9px 10px;
+      }
+    }
+    /* FIM_VISUAL_MENSAGENS_FASE6B_20260527 */
+  </style>
 
 </head>
 <body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
@@ -10658,6 +10781,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
