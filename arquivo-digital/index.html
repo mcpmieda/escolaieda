@@ -10363,6 +10363,69 @@ body.modoCompacto {
       }
     }
     /* FIM_VISUAL_MENSAGENS_FASE6B_20260527 */
+
+    /* INICIO_MENSAGENS_SOBREPOSTAS_FASE6B2_20260527
+       Ajuste pontual:
+       mensagens ficam por cima da interface e não empurram página/painel.
+       Mantém o design visual da Fase 6B.
+    */
+    #mensagemSistema.mensagem,
+    #mensagemSistema.mensagem.erroBox {
+      position: fixed !important;
+      top: 14px !important;
+      right: 14px !important;
+      left: auto !important;
+      z-index: 99999 !important;
+      width: auto !important;
+      max-width: min(560px, calc(100vw - 28px)) !important;
+      margin: 0 !important;
+      pointer-events: none;
+    }
+
+    #mensagemPainel.mensagemPainel,
+    #mensagemPainel.mensagemPainel.erroPainel {
+      position: fixed !important;
+      top: 72px !important;
+      right: 18px !important;
+      left: auto !important;
+      z-index: 100000 !important;
+      width: min(430px, calc(100vw - 36px)) !important;
+      max-width: min(430px, calc(100vw - 36px)) !important;
+      margin: 0 !important;
+      pointer-events: none;
+    }
+
+    #mensagemSistema.mensagem:empty,
+    #mensagemPainel.mensagemPainel:empty {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    @media (max-width: 720px) {
+      #mensagemSistema.mensagem,
+      #mensagemSistema.mensagem.erroBox {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-width: none !important;
+      }
+
+      #mensagemPainel.mensagemPainel,
+      #mensagemPainel.mensagemPainel.erroPainel {
+        top: 62px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-width: none !important;
+      }
+    }
+    /* FIM_MENSAGENS_SOBREPOSTAS_FASE6B2_20260527 */
   </style>
 
 </head>
@@ -10781,6 +10844,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
