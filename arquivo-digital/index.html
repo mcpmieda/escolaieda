@@ -3880,7 +3880,6 @@ try {
       versoesSharePointExpandido = !versoesSharePointExpandido;
       renderizarVersoesSharePoint();
     };
-
     async function carregarVersoesSharePointDocumento(documento) {
       const caixa = document.getElementById("versoesSharePoint");
 
@@ -3895,11 +3894,22 @@ try {
         return;
       }
 
+      const documentoVersoesId = documento.id || "";
+      const versoesAindaDoDocumentoAtual = () =>
+        !documentoVersoesId ||
+        (documentoSelecionado && documentoSelecionado.id === documentoVersoesId);
+
       caixa.innerHTML = "<p>Carregando versoes do arquivo...</p>";
 
       try {
+        if (!versoesAindaDoDocumentoAtual()) return;
+
         const token = await obterToken();
+        if (!versoesAindaDoDocumentoAtual()) return;
+
         const driveItem = await obterDriveItemDoDocumento(documento);
+        if (!versoesAindaDoDocumentoAtual()) return;
+
         const driveId = driveItem.parentReference?.driveId || documento.driveId || "";
         const driveItemId = driveItem.id || documento.driveItemId || "";
 
@@ -3918,11 +3928,16 @@ try {
           }
         });
 
+        if (!versoesAindaDoDocumentoAtual()) return;
+
         if (!resposta.ok) {
           throw new Error(await resposta.text());
         }
 
         const dados = await resposta.json();
+
+        if (!versoesAindaDoDocumentoAtual()) return;
+
         const versoes = dados.value || [];
 
         if (!versoes.length) {
@@ -3935,7 +3950,10 @@ try {
 
       } catch (erro) {
         console.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar as versoes do arquivo.</p>";
+
+        if (versoesAindaDoDocumentoAtual()) {
+          caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar as versoes do arquivo.</p>";
+        }
       }
     }
     async function abrirDocumentoNoPainel(documento) {
@@ -3982,10 +4000,56 @@ try {
       document.getElementById("statusMesclar").textContent = "";
       arquivoLocalMesclar = null;
 
-      carregarNomesParecidos(documento);
-      await carregarHistoricoDocumento(documento);
-      await carregarAnotacaoDocumento(documento);
-      await carregarVersoesSharePointDocumento(documento);
+      /* INICIO_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
+      const documentoDoPainel = documento;
+      const painel = document.getElementById("painelLateral");
+      const tokenCarregamentoPainel = `${documentoDoPainel.id || ""}-${Date.now()}`;
+      if (painel) painel.dataset.carregamentoPainel = tokenCarregamentoPainel;
+
+      const painelAindaMostraDocumento = () =>
+        painel &&
+        painel.dataset.carregamentoPainel === tokenCarregamentoPainel &&
+        documentoSelecionado &&
+        documentoSelecionado.id === documentoDoPainel.id;
+
+      const carregarBlocoPainel = (nomeBloco, tarefa, atraso = 0) => {
+        setTimeout(async () => {
+          if (!painelAindaMostraDocumento()) return;
+
+          try {
+            await tarefa();
+          } catch (erro) {
+            console.error(`Falha ao carregar ${nomeBloco} do painel.`, erro);
+          }
+        }, atraso);
+      };
+
+      const nomesParecidosPainel = document.getElementById("nomesParecidosArquivo");
+      if (nomesParecidosPainel) nomesParecidosPainel.innerHTML = "<p>Procurando nomes parecidos...</p>";
+
+      const historicoPainel = document.getElementById("historicoArquivo");
+      if (historicoPainel) historicoPainel.innerHTML = "<p>Carregando historico...</p>";
+
+      const versoesPainel = document.getElementById("versoesSharePoint");
+      if (versoesPainel) versoesPainel.innerHTML = "<p>Carregando versoes do arquivo...</p>";
+
+      const campoAnotacaoPainel = document.getElementById("campoAnotacao");
+      if (campoAnotacaoPainel) campoAnotacaoPainel.value = "";
+      anotacaoAtualItemId = null;
+      anotacaoUltimoTextoSalvo = "";
+      atualizarStatusAnotacao("Carregando anotacao...");
+
+      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel), 0);
+
+      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel), 40);
+
+      carregarBlocoPainel("anotacao", async () => {
+        await carregarAnotacaoDocumento(documentoDoPainel);
+        ajustarAlturaAnotacao();
+      }, 80);
+
+      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel), 120);
+      /* FIM_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
     }
 
     window.selecionarDocumento = async function (indice) {
@@ -10243,6 +10307,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
