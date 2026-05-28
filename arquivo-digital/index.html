@@ -615,10 +615,13 @@
       let seguranca = 0;
 
       while (url && seguranca < 50) {
-        const resposta = await fetch(url, {
+        const resposta = await fetchGraphComRetry(url, {
           headers: {
             Authorization: `Bearer ${token}`
           }
+        }, {
+          tentativas: 3,
+          atrasoBaseMs: 700
         });
 
         if (!resposta.ok) {
@@ -10384,6 +10387,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
