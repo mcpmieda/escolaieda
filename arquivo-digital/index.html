@@ -10598,6 +10598,56 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       }
     }
     /* FIM_LEGIBILIDADE_CABECALHO_PAINEL_FASE6D_PRE_20260527 */
+
+    /* INICIO_HOVER_BOTOES_VERSOES_SHAREPOINT_FASE6D_PRE_20260527
+       Correção pontual:
+       remove o hover antigo dos botões de versões do SharePoint no painel lateral.
+       Mantém os botões claros e legíveis no normal, hover, focus e active.
+    */
+    #painelLateral #versoesSharePoint button.btnVersaoSharePoint,
+    #painelLateral #versoesSharePoint button.btnAlternarVersoes {
+      background: #eff6ff !important;
+      color: #0f2f66 !important;
+      border: 1px solid rgba(147, 197, 253, .80) !important;
+      box-shadow:
+        0 5px 12px rgba(15, 47, 102, .055),
+        inset 0 1px 0 rgba(255, 255, 255, .88) !important;
+      transform: none !important;
+      text-shadow: none !important;
+    }
+
+    #painelLateral #versoesSharePoint button.btnVersaoSharePoint:hover:not(:disabled),
+    #painelLateral #versoesSharePoint button.btnVersaoSharePoint:focus-visible:not(:disabled),
+    #painelLateral #versoesSharePoint button.btnAlternarVersoes:hover:not(:disabled),
+    #painelLateral #versoesSharePoint button.btnAlternarVersoes:focus-visible:not(:disabled) {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-color: rgba(37, 99, 235, .48) !important;
+      box-shadow:
+        0 8px 18px rgba(15, 47, 102, .075),
+        inset 0 1px 0 rgba(255, 255, 255, .92) !important;
+      transform: none !important;
+      text-shadow: none !important;
+      filter: none !important;
+    }
+
+    #painelLateral #versoesSharePoint button.btnVersaoSharePoint:active:not(:disabled),
+    #painelLateral #versoesSharePoint button.btnAlternarVersoes:active:not(:disabled) {
+      background: #dbeafe !important;
+      color: #0f2f66 !important;
+      border-color: rgba(37, 99, 235, .52) !important;
+      box-shadow:
+        inset 0 2px 4px rgba(15, 47, 102, .08) !important;
+      transform: none !important;
+    }
+
+    #painelLateral #versoesSharePoint button.btnVersaoSharePoint:disabled,
+    #painelLateral #versoesSharePoint button.btnAlternarVersoes:disabled {
+      opacity: .62;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    /* FIM_HOVER_BOTOES_VERSOES_SHAREPOINT_FASE6D_PRE_20260527 */
   </style>
 
 </head>
@@ -11016,6 +11066,7 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
 </body>
 </html>
+
 
 
 
