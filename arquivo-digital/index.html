@@ -4773,7 +4773,7 @@ function renderizarDocumentos(listaArquivos) {
         : `${listaExibida.length} resultado(s) encontrado(s)`;
 
       if (!listaExibida.length) {
-        lista.innerHTML = "<li>Nenhum documento encontrado.</li>";
+        lista.innerHTML = montarEstadoVazioDocumentos();
         return;
       }
 
@@ -4883,6 +4883,58 @@ function renderizarDocumentos(listaArquivos) {
       renderizarDocumentos(filtrados);
     }
 
+    /* INICIO_ESTADOS_VAZIOS_DOCUMENTOS_FASE6A_20260527 */
+    function montarEstadoVazioDocumentos() {
+      const campoBusca = document.getElementById("campoBusca");
+      const termo = (campoBusca?.value || "").trim();
+      const temBusca = termo.length > 0;
+      const nomeGaveta = filtroGavetaAtual || "";
+      let icone = "📄";
+      let titulo = "Nenhum documento encontrado.";
+      let texto = "Quando houver documentos disponíveis, eles aparecerão aqui.";
+      let dica = "Tente atualizar a página ou conferir os filtros.";
+
+      if (temBusca) {
+        icone = "🔎";
+        titulo = "Nenhum resultado para esta busca.";
+        texto = `Não encontrei documentos com “${escaparHtml(termo)}”.`;
+        dica = "Tente pesquisar por parte do nome, matrícula, ano ou palavra-chave.";
+      } else if (modoListaAtual === "na Lixeira") {
+        icone = "🗑️";
+        titulo = "A lixeira está vazia.";
+        texto = "Nenhum documento foi movido para a Lixeira até o momento.";
+        dica = "Arquivos enviados para a Lixeira continuam recuperáveis.";
+      } else if (modoListaAtual === "ativos" && nomeGaveta) {
+        icone = "🗂️";
+        titulo = "Esta gaveta ainda não possui documentos.";
+        texto = `A gaveta “${escaparHtml(nomeGaveta)}” não tem documentos vinculados no momento.`;
+        dica = "Escolha outra gaveta ou envie um novo PDF para esta categoria.";
+      } else if (modoListaAtual === "ativos") {
+        icone = "🗃️";
+        titulo = "Nenhum documento ativo encontrado.";
+        texto = "Não há documentos ativos para exibir nesta guia.";
+        dica = "Envie PDFs ou confira se os documentos estão na Lixeira.";
+      } else {
+        icone = "🕘";
+        titulo = "Nenhum documento recente para exibir.";
+        texto = "Os documentos acessados ou enviados recentemente aparecerão aqui.";
+        dica = "Use a guia Gavetas ou o campo de busca para localizar arquivos.";
+      }
+
+      return `
+        <li class="estadoVazioDocumentos">
+          <div class="estadoVazioDocumentosCard">
+            <div class="estadoVazioDocumentosIcone" aria-hidden="true">${icone}</div>
+            <div>
+              <p class="estadoVazioDocumentosTitulo">${titulo}</p>
+              <p class="estadoVazioDocumentosTexto">${texto}</p>
+              <span class="estadoVazioDocumentosDica">${dica}</span>
+            </div>
+          </div>
+        </li>
+      `;
+    }
+    /* FIM_ESTADOS_VAZIOS_DOCUMENTOS_FASE6A_20260527 */
     async function listarDocumentos() {
       const lista = document.getElementById("listaDocumentos");
       lista.innerHTML = "<li>Carregando documentos...</li>";
@@ -10087,7 +10139,108 @@ body.modoCompacto {
       }
     }
     /* FIM_GAVETAS_2_COLUNAS_CELULAR_FASE5D_20260527 */
-  </style>
+
+    /* INICIO_ESTADOS_VAZIOS_DOCUMENTOS_FASE6A_20260527
+       Estados vazios mais claros para Recentes, Gavetas, Lixeira e Busca.
+    */
+    .estadoVazioDocumentos {
+      list-style: none;
+      margin: 10px 0 0;
+      padding: 0;
+    }
+
+    .estadoVazioDocumentosCard {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px dashed rgba(148, 163, 184, .72);
+      background:
+        linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .96)),
+        radial-gradient(circle at top right, rgba(59, 130, 246, .08), transparent 34%);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, .045);
+    }
+
+    .estadoVazioDocumentosIcone {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: rgba(219, 234, 254, .95);
+      color: #0f2f66;
+      font-size: 22px;
+      box-shadow: inset 0 0 0 1px rgba(147, 197, 253, .55);
+    }
+
+    .estadoVazioDocumentosTitulo {
+      margin: 0;
+      color: #0f2f66;
+      font-size: 15px;
+      font-weight: 950;
+      line-height: 1.18;
+      letter-spacing: -.02em;
+    }
+
+    .estadoVazioDocumentosTexto {
+      margin: 4px 0 0;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .estadoVazioDocumentosDica {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      margin-top: 8px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(239, 246, 255, .98);
+      color: #1e3a8a;
+      font-size: 11.5px;
+      font-weight: 850;
+      line-height: 1.15;
+    }
+
+    body.modoCompacto .estadoVazioDocumentosCard {
+      padding: 12px;
+      border-radius: 14px;
+    }
+
+    body.modoCompacto .estadoVazioDocumentosIcone {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      font-size: 19px;
+    }
+
+    @media (max-width: 560px) {
+      .estadoVazioDocumentosCard {
+        grid-template-columns: 1fr;
+        gap: 9px;
+        padding: 13px;
+        text-align: left;
+      }
+
+      .estadoVazioDocumentosIcone {
+        width: 38px;
+        height: 38px;
+      }
+
+      .estadoVazioDocumentosTitulo {
+        font-size: 14px;
+      }
+
+      .estadoVazioDocumentosTexto {
+        font-size: 12.5px;
+      }
+    }
+    /* FIM_ESTADOS_VAZIOS_DOCUMENTOS_FASE6A_20260527 */
+</style>
 
 </head>
 <body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
@@ -10505,6 +10658,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
