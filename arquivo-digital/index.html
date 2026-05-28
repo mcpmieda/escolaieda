@@ -7052,41 +7052,10 @@ function renderizarDocumentos(listaArquivos) {
       background: #f8fbff;
     }
 
-    .areaGavetasTopo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
 
-    .listaGavetasAtivos {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 8px;
-    }
 
-    .gavetaCard {
-      display: grid;
-      gap: 5px;
-      text-align: left;
-      background: #ffffff;
-      color: #334155;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      box-shadow: none;
-    }
 
-    .gavetaCard.ativo,
-    .gavetaCard:hover:not(:disabled) {
-      background: #eef3ff;
-      color: #0f2f66;
-      border-color: #bfdbfe;
-    }
 
-    .gavetaCard strong {
-      font-size: 20px;
-    }
 
     .barraFiltros,
     .filtrosAvancados {
@@ -7578,9 +7547,6 @@ function renderizarDocumentos(listaArquivos) {
       display: none !important;
     }
 
-    .areaGavetas {
-      margin-top: 8px;
-    }
 
     .painelDashboard .painelConteudo {
       background: #f8fbff;
@@ -7755,28 +7721,10 @@ body.modoCompacto {
       margin-top: 6px;
     }
 
-    .areaGavetas {
-      padding: 9px;
-      border-radius: 12px;
-    }
 
-    .areaGavetasTopo {
-      margin-bottom: 6px;
-    }
 
-    .listaGavetasAtivos {
-      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-      gap: 6px;
-    }
 
-    .gavetaCard {
-      padding: 8px 9px;
-      border-radius: 10px;
-    }
 
-    .gavetaCard strong {
-      font-size: 17px;
-    }
 
     .itemHistoricoGeral {
       padding: 8px 9px;
@@ -8077,20 +8025,8 @@ body.modoCompacto {
       padding: 9px 11px;
     }
 
-    .areaGavetas {
-      margin: 8px 0;
-      padding: 8px;
-    }
 
-    .listaGavetasAtivos {
-      grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-      gap: 6px;
-    }
 
-    .gavetaCard {
-      min-height: 52px;
-      padding: 7px 8px;
-    }
 
     .centralConfiguracoes {
       padding: 12px;
@@ -9481,193 +9417,6 @@ body.modoCompacto {
     }
 /* FIM_LAYOUT_1C_SOMENTE_CAMPO_BUSCA_20260527 */
 
-/* INICIO_LAYOUT_1D_GAVETAS_HOVER_20260527 */
-    body.visualModernoGavetas .areaGavetas {
-      margin: 8px 0 10px;
-      padding: 10px;
-      border-radius: 18px;
-      border: 1px solid rgba(191, 219, 254, .78);
-      background:
-        linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .96)),
-        radial-gradient(circle at top right, rgba(15, 118, 110, .08), transparent 34%);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, .045);
-    }
-
-    body.visualModernoGavetas .areaGavetasTopo {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    body.visualModernoGavetas .areaGavetasTopo h3 {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      color: #0f2f66;
-      font-size: 15px;
-      font-weight: 900;
-      letter-spacing: -.02em;
-      line-height: 1.1;
-    }
-
-    body.visualModernoGavetas .areaGavetasTopo h3::before {
-      content: "";
-      width: 7px;
-      height: 18px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #1d4ed8, #0f766e);
-      box-shadow: 0 5px 14px rgba(15, 118, 110, .18);
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 5px;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 7px;
-      width: 154px;
-      min-height: 36px;
-      margin: 0 !important;
-      padding: 6px 9px !important;
-      border-radius: 11px;
-      border: 1px solid rgba(203, 213, 225, .92);
-      background: rgba(255, 255, 255, .98);
-      color: #334155 !important;
-      text-align: left;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, .90),
-        0 3px 10px rgba(15, 23, 42, .028);
-      transform: none !important;
-      transition: none !important;
-      text-decoration: none;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard * {
-      text-decoration: none;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard span {
-      min-width: 0;
-      flex: 1 1 auto;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #334155 !important;
-      font-size: 12px;
-      font-weight: 850;
-      line-height: 1.1;
-      letter-spacing: -.01em;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard strong {
-      flex: 0 0 auto;
-      min-width: 30px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(219, 234, 254, .92);
-      color: #0f2f66 !important;
-      font-size: 12px;
-      font-weight: 950;
-      line-height: 1;
-      text-align: center;
-      box-shadow: inset 0 0 0 1px rgba(147, 197, 253, .45);
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:hover:not(:disabled),
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:focus-visible:not(:disabled) {
-      background: #f8fafc !important;
-      color: #0f2f66 !important;
-      border-color: rgba(37, 99, 235, .44) !important;
-      box-shadow:
-        0 6px 14px rgba(15, 47, 102, .08),
-        inset 0 1px 0 rgba(255, 255, 255, .94) !important;
-      transform: none !important;
-      outline: none;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:hover:not(:disabled) span,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:focus-visible:not(:disabled) span {
-      color: #0f2f66 !important;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:hover:not(:disabled) strong,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard:focus-visible:not(:disabled) strong {
-      background: #dbeafe !important;
-      color: #0f2f66 !important;
-      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .58) !important;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:hover:not(:disabled),
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:focus-visible:not(:disabled) {
-      background: linear-gradient(135deg, #0f2f66, #1d4ed8) !important;
-      color: #ffffff !important;
-      border-color: rgba(29, 78, 216, .54) !important;
-      box-shadow: 0 7px 16px rgba(29, 78, 216, .18) !important;
-      transform: none !important;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo span,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:hover:not(:disabled) span,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:focus-visible:not(:disabled) span {
-      color: #ffffff !important;
-      font-size: 12px;
-    }
-
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo strong,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:hover:not(:disabled) strong,
-    body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard.ativo:focus-visible:not(:disabled) strong {
-      background: rgba(255, 255, 255, .18) !important;
-      color: #ffffff !important;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .28) !important;
-    }
-
-    @media (min-width: 1500px) {
-      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
-        width: 162px;
-      }
-    }
-
-    @media (max-width: 760px) {
-      body.visualModernoGavetas .areaGavetas {
-        padding: 9px;
-      }
-
-      body.visualModernoGavetas .areaGavetasTopo {
-        display: grid;
-        grid-template-columns: 1fr;
-        align-items: stretch;
-        margin-bottom: 7px;
-      }
-
-      body.visualModernoGavetas .listaGavetasAtivos {
-        gap: 5px;
-      }
-
-      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
-        width: 148px;
-        min-height: 36px;
-        padding: 6px 8px !important;
-      }
-    }
-
-    @media (max-width: 420px) {
-      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
-        width: calc(50% - 3px);
-      }
-    }
-/* FIM_LAYOUT_1D_GAVETAS_HOVER_20260527 */
-
     /* INICIO_CARD_DOCUMENTO_OFICIAL_FASE5B_20260527
        Bloco oficial final dos cards de documento.
        Não remover ainda regras antigas de .itemArquivo; este bloco consolida a aparência por precedência.
@@ -10790,6 +10539,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
