@@ -10586,6 +10586,68 @@ body.modoCompacto {
       }
     }
     /* FIM_GAVETAS_VISUAIS_OFICIAL_FASE5D_20260527 */
+
+    /* INICIO_GAVETAS_2_COLUNAS_CELULAR_FASE5D_20260527
+       Ajuste pontual após teste real:
+       no celular, manter gavetas em 2 colunas para reduzir rolagem.
+    */
+    @media (max-width: 760px) {
+      body.visualModernoGavetas .listaGavetasAtivos {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+      }
+
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
+        flex: 0 0 calc(50% - 3px) !important;
+        width: calc(50% - 3px) !important;
+        max-width: calc(50% - 3px) !important;
+        min-width: 0 !important;
+        min-height: 36px !important;
+        padding: 6px 7px !important;
+      }
+
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard span {
+        font-size: 11.5px;
+        line-height: 1.1;
+        -webkit-line-clamp: 2;
+      }
+
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard strong {
+        min-width: 26px;
+        max-width: 46px;
+        padding: 3px 6px;
+        font-size: 11.5px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body.visualModernoGavetas .listaGavetasAtivos {
+        gap: 4px !important;
+      }
+
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard {
+        flex-basis: calc(50% - 2px) !important;
+        width: calc(50% - 2px) !important;
+        max-width: calc(50% - 2px) !important;
+        min-height: 35px !important;
+        padding: 5px 6px !important;
+      }
+
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard span {
+        font-size: 11px;
+        line-height: 1.08;
+        -webkit-line-clamp: 2;
+      }
+
+      body.visualModernoGavetas .listaGavetasAtivos button.gavetaCard strong {
+        min-width: 24px;
+        max-width: 42px;
+        padding: 3px 5px;
+        font-size: 11px;
+      }
+    }
+    /* FIM_GAVETAS_2_COLUNAS_CELULAR_FASE5D_20260527 */
   </style>
 
 </head>
@@ -11004,6 +11066,7 @@ body.modoCompacto {
 
 </body>
 </html>
+
 
 
 
