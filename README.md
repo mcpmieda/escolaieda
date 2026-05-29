@@ -2,6 +2,24 @@
 
 Repositório do site e dos sistemas digitais da Escola Municipal Professora Iêda Alves de Oliveira MCPM.
 
+## Continuação automática da organização
+
+Quando este README for usado para retomar a organização do repositório, a próxima tarefa é seguir as fases pendentes descritas abaixo, na ordem em que aparecem.
+
+Ordem atual:
+
+```text
+1. Fase 1.1 — ativar a rota institucional na home.
+2. Fase 2 — mover professores.html e calendario.html para site-institucional/.
+3. Parar antes da Fase 3, pois imagens exigem validação visual.
+```
+
+Regra principal:
+
+```text
+Não alterar arquivo-digital/ durante esta organização.
+```
+
 ## Estrutura principal
 
 ```text
