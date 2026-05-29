@@ -61,12 +61,18 @@ Concluída parcialmente.
 - Usar `https://escolaieda.com/institucional/` como endereço da futura área institucional.
 - Próximo ajuste seguro: ativar no `index.html` da home o redirecionamento de perfis `secretaria`, `secretario`, `institucional`, `admin` e `administrador` para `/institucional/`.
 
+#### Comando/instrução para o Codex ler
+
+```text
+Leia o README.md e o AGENTS.md. Não mexa em arquivo-digital/. Faça somente o ajuste seguro no index.html da raiz para ativar a rota institucional: no bloco ROTAS_PORTAL_ATIVAS, adicione secretaria, secretario, institucional, admin e administrador apontando para '/institucional/'. Depois remova esses mesmos perfis de ROTAS_PORTAL_FUTURAS ou deixe ROTAS_PORTAL_FUTURAS vazio, se não houver outras rotas futuras. Altere apenas esse trecho do index.html. Valide que o restante da página não mudou, confira git diff -- index.html e não faça outras alterações.
+```
+
 ### Fase 2 — Páginas institucionais públicas
 
-Próxima fase recomendada.
+Em andamento inicial.
 
-- Organizar `professores.html` e `calendario.html` dentro de `site-institucional/`.
-- Manter os caminhos antigos como redirecionamentos para não quebrar links públicos.
+- Já existem rotas organizadas em `site-institucional/professores.html` e `site-institucional/calendario.html`, por enquanto redirecionando para as páginas antigas da raiz.
+- Próxima etapa segura: mover de verdade `professores.html` e `calendario.html` para `site-institucional/`, mantendo os caminhos antigos como redirecionamentos para não quebrar links públicos.
 
 ### Fase 3 — Imagens e arquivos públicos
 
