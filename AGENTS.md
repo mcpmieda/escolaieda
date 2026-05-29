@@ -221,7 +221,6 @@ escolaieda/
 │  └─ index.html
 ├─ calendario.html
 ├─ CNAME
-├─ documentos.html
 ├─ fundo_logo_ieda.jpg
 ├─ index.html
 ├─ logo_escola.png
@@ -913,7 +912,7 @@ SILVA JOAO.pdf
 Critério:
 
 ```text
-a Central deve considerar os dois como candidatos quando fizer sentido.
+A Central deve considerar os dois como candidatos quando fizer sentido.
 ```
 
 ### Fase 1.2 — ordenação da Lixeira
@@ -1729,7 +1728,7 @@ carregamentos visuais;
 cabeçalho do painel corrigido;
 hovers dos botões de versões corrigidos;
 hover antigo das versões removido;
-botões de ações do painel corrigidos;
+botões de ações do painel corrigido;
 CSS antigo dos botões de ações removido.
 ```
 
