@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <!-- ================================================== -->
-  <!-- 1. CONFIGURAÇÕES BÁSICAS DA PÁGINA                 -->
-  <!-- Esta seção define idioma, título e metadados.      -->
-  <!-- ================================================== -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Escola Municipal Professora Iêda Alves de Oliveira MCPM</title>
+  <meta name="description" content="Portal institucional da Escola Municipal Professora Iêda Alves de Oliveira MCPM, em Medeiros Neto - Bahia. Informações, calendário escolar, contato e acesso à área restrita.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#003366">
+  <link rel="canonical" href="https://escolaieda.com/">
   <link rel="icon" type="image/png" href="imagens/favicon.png">
 
-  <!-- ================================================== -->
-  <!-- 2. GOOGLE ANALYTICS                                -->
-  <!-- Esta seção monitora os acessos da página.          -->
-  <!-- ================================================== -->
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Escola Iêda MCPM">
+  <meta property="og:title" content="Escola Municipal Professora Iêda Alves de Oliveira MCPM">
+  <meta property="og:description" content="Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.">
+  <meta property="og:url" content="https://escolaieda.com/">
+  <meta property="og:image" content="https://escolaieda.com/logo_escola.png">
+  <meta property="og:image:alt" content="Logo da Escola Municipal Professora Iêda Alves de Oliveira MCPM">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Escola Municipal Professora Iêda Alves de Oliveira MCPM">
+  <meta name="twitter:description" content="Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.">
+  <meta name="twitter:image" content="https://escolaieda.com/logo_escola.png">
+
+  <!-- Google Analytics mantido sem alteração até confirmação do ID correto. -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NK676T1Y6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -22,617 +32,108 @@
     gtag('config', 'G-ZN0NX8Q3E9');
   </script>
 
-  <!-- ================================================== -->
-  <!-- 3. BIBLIOTECA DE AUTENTICAÇÃO MICROSOFT (MSAL)     -->
-  <!-- Esta seção carrega a biblioteca usada no login     -->
-  <!-- Microsoft / Entra ID.                              -->
-  <!-- ================================================== -->
   <script src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
 
   <style>
-    /* ================================================== */
-    /* 4. VARIÁVEIS GERAIS DO SITE                         */
-    /* ================================================== */
-    :root{
-      --azul:#003366;
-      --azul2:#0b5aa3;
-      --fundo:#f4f6f8;
-      --texto:#1f2937;
-      --branco:#ffffff;
-      --verde:#25D366;
-      --sombra:0 10px 30px rgba(0,0,0,0.10);
-      --raio:18px;
-    }
+    :root{--azul:#003366;--azul2:#0b5aa3;--fundo:#f4f6f8;--texto:#1f2937;--verde:#25D366;--sombra:0 10px 30px rgba(0,0,0,.10);--raio:18px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:Arial,sans-serif;background:var(--fundo);color:var(--texto);line-height:1.6;}
+    a{text-decoration:none;}
+    img{max-width:100%;display:block;}
+    button,a{-webkit-tap-highlight-color:transparent;}
 
-    /* ================================================== */
-    /* 5. AJUSTES GERAIS DA PÁGINA                         */
-    /* ================================================== */
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
+    .topbar{position:fixed;top:0;left:0;width:100%;z-index:1000;background:rgba(0,33,71,.92);backdrop-filter:blur(8px);box-shadow:0 4px 18px rgba(0,0,0,.15);transform:translateY(-120%);opacity:0;pointer-events:none;transition:transform .35s ease,opacity .35s ease;}
+    .topbar.mostrar-menu{transform:translateY(0);opacity:1;pointer-events:auto;}
+    .nav{max-width:1150px;margin:auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .marca{color:white;font-weight:bold;font-size:.92rem;}
+    .menu{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;align-items:center;}
+    .menu-botao{display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:10px;font-weight:bold;transition:.25s;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:white!important;text-decoration:none!important;min-height:38px;font-size:.93rem;white-space:nowrap;}
+    .menu-botao:hover,.menu-botao:focus-visible{transform:translateY(-2px);background:rgba(255,255,255,.20);}
 
-    html{
-      scroll-behavior:smooth;
-    }
+    .hero{min-height:100vh;background:linear-gradient(rgba(0,32,71,.72),rgba(0,51,102,.78)),url("fundo_logo_ieda.jpg") center/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;padding:90px 20px 70px;color:white;position:relative;overflow:hidden;}
+    .hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:90px;background:linear-gradient(to top,var(--fundo),rgba(244,246,248,0));}
+    .hero-content{position:relative;z-index:1;max-width:900px;width:100%;}
+    .logo{width:120px;margin:54px auto 18px;background:rgba(255,255,255,.10);padding:10px;border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.22);animation:flutuar 3s ease-in-out infinite;}
+    .hero h1{font-size:clamp(1.9rem,4vw,3.2rem);margin-bottom:12px;}
+    .hero .sub{font-size:clamp(1rem,2vw,1.15rem);max-width:760px;margin:0 auto 14px;opacity:.96;}
 
-    body{
-      font-family:Arial, sans-serif;
-      background:var(--fundo);
-      color:var(--texto);
-      line-height:1.6;
-    }
+    .botoes{margin:26px auto 0;display:flex;justify-content:center;gap:14px;flex-wrap:wrap;max-width:760px;}
+    .botao{display:inline-flex;align-items:center;justify-content:center;padding:13px 22px;border-radius:12px;font-weight:bold;transition:.25s;border:none;cursor:pointer;font-size:1rem;font-family:Arial,sans-serif;text-align:center;min-width:220px;}
+    .botao:disabled{opacity:.72;cursor:not-allowed;transform:none!important;}
+    .botao-secundario{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.35);}
+    .botao-secundario:hover,.botao-secundario:focus-visible{transform:translateY(-2px);background:rgba(255,255,255,.18);}
+    .botao-login{background:#fff;color:#1f2937;border:1px solid rgba(255,255,255,.35);box-shadow:0 8px 20px rgba(0,0,0,.14);min-width:190px;font-size:.95rem;padding:12px 18px;}
+    .botao-login:hover,.botao-login:focus-visible{transform:translateY(-2px);background:#f3f4f6;}
 
-    a{
-      text-decoration:none;
-    }
+    .container{max-width:1150px;margin:auto;padding:65px 20px;}
+    .titulo-secao{text-align:center;margin-bottom:34px;}
+    .titulo-secao h2{color:var(--azul);font-size:2rem;margin-bottom:8px;}
+    .titulo-secao p{max-width:760px;margin:auto;color:#5d6877;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;}
+    .card{background:white;border-radius:var(--raio);padding:24px;box-shadow:var(--sombra);transition:.3s;border:1px solid rgba(0,0,0,.04);}
+    .card:hover{transform:translateY(-6px);box-shadow:0 16px 35px rgba(0,0,0,.12);}
+    .card h3{color:var(--azul);margin-bottom:10px;font-size:1.1rem;}
 
-    img{
-      max-width:100%;
-      display:block;
-    }
+    .faixa{background:linear-gradient(135deg,var(--azul),var(--azul2));color:white;border-radius:24px;padding:36px 24px;text-align:center;box-shadow:0 16px 35px rgba(0,0,0,.12);}
+    .faixa h2{font-size:1.8rem;margin-bottom:10px;}
+    .numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px;margin-top:28px;}
+    .numero{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:18px;}
+    .numero strong{display:block;font-size:1.9rem;margin-bottom:4px;}
 
-    /* ================================================== */
-    /* 6. MENU SUPERIOR FIXO                              */
-    /* Aparece só quando os botões centrais deixam        */
-    /* de estar acessíveis.                               */
-    /* ================================================== */
-    .topbar{
-      position:fixed;
-      top:0;
-      left:0;
-      width:100%;
-      z-index:1000;
-      background:rgba(0, 33, 71, 0.92);
-      backdrop-filter:blur(8px);
-      box-shadow:0 4px 18px rgba(0,0,0,0.15);
-      transform:translateY(-120%);
-      opacity:0;
-      pointer-events:none;
-      transition:transform 0.35s ease, opacity 0.35s ease;
-    }
+    .contato-card{background:white;border-radius:22px;padding:28px;box-shadow:var(--sombra);max-width:850px;margin:auto;text-align:center;}
+    .contato-card h2{color:var(--azul);margin-bottom:14px;}
+    .contato-card p{margin:8px 0;}
+    .contato-card a.email{color:var(--azul2);font-weight:bold;}
+    .contato-card a.email:hover,.contato-card a.email:focus-visible{text-decoration:underline;}
+    .whats-link{display:inline-block;margin-top:14px;padding:12px 20px;background:var(--verde);color:white;font-weight:bold;border-radius:12px;transition:.25s;}
+    .whats-link:hover,.whats-link:focus-visible{transform:translateY(-2px);filter:brightness(.96);}
 
-    .topbar.mostrar-menu{
-      transform:translateY(0);
-      opacity:1;
-      pointer-events:auto;
-    }
+    footer{background:#002147;color:white;text-align:center;padding:26px 16px;margin-top:40px;}
+    .whatsapp-float{position:fixed;right:18px;bottom:18px;z-index:1001;width:58px;height:58px;border-radius:50%;background:#25D366;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 10px 25px rgba(0,0,0,.22);animation:pulso 2s infinite;}
+    .topo-btn{position:fixed;left:18px;bottom:18px;z-index:1001;width:48px;height:48px;border:none;border-radius:50%;background:var(--azul);color:white;font-size:20px;box-shadow:0 10px 25px rgba(0,0,0,.20);display:none;cursor:pointer;}
+    .mostrar{display:flex!important;align-items:center;justify-content:center;}
+    .reveal{opacity:0;transform:translateY(35px);transition:opacity .8s ease,transform .8s ease;}
+    .reveal.ativo{opacity:1;transform:translateY(0);}
 
-    .nav{
-      max-width:1150px;
-      margin:auto;
-      padding:12px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
+    @keyframes flutuar{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+    @keyframes pulso{0%{box-shadow:0 0 0 0 rgba(37,211,102,.45);}70%{box-shadow:0 0 0 14px rgba(37,211,102,0);}100%{box-shadow:0 0 0 0 rgba(37,211,102,0);}}
 
-    .marca{
-      color:white;
-      font-weight:bold;
-      font-size:0.92rem;
-    }
-
-    .menu{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      align-items:center;
-    }
-
-    .menu-botao{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:9px 14px;
-      border-radius:10px;
-      font-weight:bold;
-      transition:0.25s;
-      border:1px solid rgba(255,255,255,0.28);
-      background:rgba(255,255,255,0.12);
-      color:white !important;
-      text-decoration:none !important;
-      min-height:38px;
-      font-size:0.93rem;
-      white-space:nowrap;
-    }
-
-    .menu-botao:hover{
-      transform:translateY(-2px);
-      background:rgba(255,255,255,0.20);
-    }
-
-    .menu-login{
-      background:#ffffff;
-      color:#1f2937 !important;
-      box-shadow:0 8px 20px rgba(0,0,0,0.14);
-    }
-
-    .menu-login:hover{
-      background:#f3f4f6;
-    }
-
-    /* ================================================== */
-    /* 7. SEÇÃO PRINCIPAL DO TOPO / HERO                  */
-    /* ================================================== */
-    .hero{
-      min-height:100vh;
-      background:
-        linear-gradient(rgba(0,32,71,0.72), rgba(0,51,102,0.78)),
-        url("fundo_logo_ieda.jpg") center/cover no-repeat;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:90px 20px 70px;
-      color:white;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .hero::after{
-      content:"";
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:-1px;
-      height:90px;
-      background:linear-gradient(to top, var(--fundo), rgba(244,246,248,0));
-    }
-
-    .hero-content{
-      position:relative;
-      z-index:1;
-      max-width:900px;
-      width:100%;
-    }
-
-    .hero-top-actions{
-      position:absolute;
-      top:0;
-      right:0;
-      display:flex;
-      justify-content:flex-end;
-      width:100%;
-      pointer-events:none;
-    }
-
-    .hero-top-actions .botao{
-      pointer-events:auto;
-    }
-
-    .logo{
-      width:120px;
-      margin:54px auto 18px;
-      background:rgba(255,255,255,0.10);
-      padding:10px;
-      border-radius:20px;
-      box-shadow:0 10px 28px rgba(0,0,0,0.22);
-      animation:flutuar 3s ease-in-out infinite;
-    }
-
-    .hero h1{
-      font-size:clamp(1.9rem, 4vw, 3.2rem);
-      margin-bottom:12px;
-    }
-
-    .hero .sub{
-      font-size:clamp(1rem, 2vw, 1.15rem);
-      max-width:760px;
-      margin:0 auto 14px;
-      opacity:0.96;
-    }
-
-    .hero p{
-      max-width:760px;
-      margin:0 auto 10px;
-    }
-
-    /* ================================================== */
-    /* 8. BOTÕES DA PÁGINA INICIAL                        */
-    /* ================================================== */
-    .botoes{
-      margin-top:26px;
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
-      max-width:760px;
-      margin-left:auto;
-      margin-right:auto;
-    }
-
-    .botao{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:13px 22px;
-      border-radius:12px;
-      font-weight:bold;
-      transition:0.25s;
-      border:none;
-      cursor:pointer;
-      font-size:1rem;
-      font-family:Arial, sans-serif;
-      text-align:center;
-      min-width:220px;
-    }
-
-    .botao-principal{
-      background:white;
-      color:var(--azul);
-      box-shadow:0 8px 20px rgba(0,0,0,0.14);
-    }
-
-    .botao-principal:hover{
-      transform:translateY(-2px);
-    }
-
-    .botao-secundario{
-      background:rgba(255,255,255,0.12);
-      color:white;
-      border:1px solid rgba(255,255,255,0.35);
-    }
-
-    .botao-secundario:hover{
-      transform:translateY(-2px);
-      background:rgba(255,255,255,0.18);
-    }
-
-    .botao-login{
-      background:#ffffff;
-      color:#1f2937;
-      border:1px solid rgba(255,255,255,0.35);
-      box-shadow:0 8px 20px rgba(0,0,0,0.14);
-      min-width:190px;
-      font-size:0.95rem;
-      padding:12px 18px;
-    }
-
-    .botao-login:hover{
-      transform:translateY(-2px);
-      background:#f3f4f6;
-    }
-
-    /* ================================================== */
-    /* 9. CONTAINER GERAL DAS SEÇÕES                      */
-    /* ================================================== */
-    .container{
-      max-width:1150px;
-      margin:auto;
-      padding:65px 20px;
-    }
-
-    .titulo-secao{
-      text-align:center;
-      margin-bottom:34px;
-    }
-
-    .titulo-secao h2{
-      color:var(--azul);
-      font-size:2rem;
-      margin-bottom:8px;
-    }
-
-    .titulo-secao p{
-      max-width:760px;
-      margin:auto;
-      color:#5d6877;
-    }
-
-    /* ================================================== */
-    /* 10. SEÇÃO DOS CARDS EM GRADE                       */
-    /* ================================================== */
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:22px;
-    }
-
-    .card{
-      background:white;
-      border-radius:var(--raio);
-      padding:24px;
-      box-shadow:var(--sombra);
-      transition:0.3s;
-      border:1px solid rgba(0,0,0,0.04);
-    }
-
-    .card:hover{
-      transform:translateY(-6px);
-      box-shadow:0 16px 35px rgba(0,0,0,0.12);
-    }
-
-    .card h3{
-      color:var(--azul);
-      margin-bottom:10px;
-      font-size:1.1rem;
-    }
-
-    /* ================================================== */
-    /* 11. SEÇÃO DA FAIXA DE DESTAQUE                     */
-    /* ================================================== */
-    .faixa{
-      background:linear-gradient(135deg, var(--azul), var(--azul2));
-      color:white;
-      border-radius:24px;
-      padding:36px 24px;
-      text-align:center;
-      box-shadow:0 16px 35px rgba(0,0,0,0.12);
-    }
-
-    .faixa h2{
-      font-size:1.8rem;
-      margin-bottom:10px;
-    }
-
-    .numeros{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-      gap:18px;
-      margin-top:28px;
-    }
-
-    .numero{
-      background:rgba(255,255,255,0.12);
-      border:1px solid rgba(255,255,255,0.18);
-      border-radius:18px;
-      padding:18px;
-    }
-
-    .numero strong{
-      display:block;
-      font-size:1.9rem;
-      margin-bottom:4px;
-    }
-
-    /* ================================================== */
-    /* 12. SEÇÃO DE CONTATO                               */
-    /* ================================================== */
-    .contato-card{
-      background:white;
-      border-radius:22px;
-      padding:28px;
-      box-shadow:var(--sombra);
-      max-width:850px;
-      margin:auto;
-      text-align:center;
-    }
-
-    .contato-card h2{
-      color:var(--azul);
-      margin-bottom:14px;
-    }
-
-    .contato-card p{
-      margin:8px 0;
-    }
-
-    .contato-card a.email{
-      color:var(--azul2);
-      font-weight:bold;
-    }
-
-    .contato-card a.email:hover{
-      text-decoration:underline;
-    }
-
-    .whats-link{
-      display:inline-block;
-      margin-top:14px;
-      padding:12px 20px;
-      background:var(--verde);
-      color:white;
-      font-weight:bold;
-      border-radius:12px;
-      transition:0.25s;
-    }
-
-    .whats-link:hover{
-      transform:translateY(-2px);
-      filter:brightness(0.96);
-    }
-
-    /* ================================================== */
-    /* 13. RODAPÉ DA PÁGINA                               */
-    /* ================================================== */
-    footer{
-      background:#002147;
-      color:white;
-      text-align:center;
-      padding:26px 16px;
-      margin-top:40px;
-    }
-
-    /* ================================================== */
-    /* 14. BOTÕES FLUTUANTES                              */
-    /* ================================================== */
-    .whatsapp-float{
-      position:fixed;
-      right:18px;
-      bottom:18px;
-      z-index:1001;
-      width:58px;
-      height:58px;
-      border-radius:50%;
-      background:#25D366;
-      color:white;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:28px;
-      box-shadow:0 10px 25px rgba(0,0,0,0.22);
-      animation:pulso 2s infinite;
-    }
-
-    .topo-btn{
-      position:fixed;
-      left:18px;
-      bottom:18px;
-      z-index:1001;
-      width:48px;
-      height:48px;
-      border:none;
-      border-radius:50%;
-      background:var(--azul);
-      color:white;
-      font-size:20px;
-      box-shadow:0 10px 25px rgba(0,0,0,0.20);
-      display:none;
-      cursor:pointer;
-    }
-
-    .mostrar{
-      display:flex !important;
-      align-items:center;
-      justify-content:center;
-    }
-
-    /* ================================================== */
-    /* 15. ANIMAÇÕES DA PÁGINA                            */
-    /* ================================================== */
-    .reveal{
-      opacity:0;
-      transform:translateY(35px);
-      transition:opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .reveal.ativo{
-      opacity:1;
-      transform:translateY(0);
-    }
-
-    @keyframes flutuar{
-      0%,100%{ transform:translateY(0); }
-      50%{ transform:translateY(-6px); }
-    }
-
-    @keyframes pulso{
-      0%{ box-shadow:0 0 0 0 rgba(37,211,102,0.45); }
-      70%{ box-shadow:0 0 0 14px rgba(37,211,102,0); }
-      100%{ box-shadow:0 0 0 0 rgba(37,211,102,0); }
-    }
-
-    /* ================================================== */
-    /* 16. AJUSTES PARA CELULAR                           */
-    /* ================================================== */
     @media (max-width:780px){
-      .nav{
-        flex-direction:column;
-        align-items:center;
-      }
-
-      .menu{
-        justify-content:center;
-        gap:8px;
-      }
-
-      .hero{
-        min-height:auto;
-        padding:90px 18px 80px;
-      }
-
-      .hero-top-actions{
-        position:relative;
-        top:auto;
-        right:auto;
-        justify-content:center;
-        margin-bottom:8px;
-      }
-
-      .logo{
-        width:100px;
-        margin-top:12px;
-      }
-
-      .container{
-        padding:50px 16px;
-      }
-
-      .card,
-      .contato-card,
-      .faixa{
-        padding:22px 18px;
-      }
-
-      .whatsapp-float{
-        width:56px;
-        height:56px;
-      }
-
-      .botao{
-        min-width:170px;
-        padding:12px 18px;
-        font-size:0.95rem;
-      }
-
-      .menu-botao{
-        min-height:36px;
-        padding:8px 12px;
-        font-size:0.88rem;
-      }
+      .nav{flex-direction:column;align-items:center;}
+      .menu{justify-content:center;gap:8px;}
+      .hero{min-height:auto;padding:90px 18px 80px;}
+      .logo{width:100px;margin-top:12px;}
+      .container{padding:50px 16px;}
+      .card,.contato-card,.faixa{padding:22px 18px;}
+      .whatsapp-float{width:56px;height:56px;}
+      .botao{min-width:170px;padding:12px 18px;font-size:.95rem;}
+      .menu-botao{min-height:36px;padding:8px 12px;font-size:.88rem;}
     }
-
     @media (max-width:520px){
-      .botoes{
-        gap:12px;
-      }
-
-      .botao{
-        width:calc(50% - 6px);
-        min-width:0;
-      }
-
-      .hero-top-actions .botao-login{
-        width:auto;
-        min-width:170px;
-      }
-
-      .menu{
-        display:grid;
-        grid-template-columns:repeat(2, auto);
-        justify-content:center;
-      }
+      .botoes{gap:12px;}
+      .botao{width:calc(50% - 6px);min-width:0;}
+      .menu{display:grid;grid-template-columns:repeat(2,auto);justify-content:center;}
     }
   </style>
 </head>
 <body>
-
-  <!-- ================================================== -->
-  <!-- 17. MENU SUPERIOR                                 -->
-  <!-- Aparece quando os botões centrais deixam de estar -->
-  <!-- acessíveis/visíveis.                              -->
-  <!-- ================================================== -->
   <div class="topbar" id="topbar">
-    <nav class="nav">
+    <nav class="nav" aria-label="Menu principal">
       <div class="marca">ESCOLA IÊDA MCPM</div>
       <div class="menu">
         <a href="professores.html" class="menu-botao">Professores</a>
         <a href="calendario.html" class="menu-botao">Calendário Escolar</a>
         <a href="#contato" class="menu-botao">Contato</a>
-        
       </div>
     </nav>
   </div>
 
-  <!-- ================================================== -->
-  <!-- 18. SEÇÃO PRINCIPAL DA PÁGINA / HERO              -->
-  <!-- ================================================== -->
   <header class="hero" id="inicio">
     <div class="hero-content reveal">
-
-      <img src="logo_escola.png" alt="Logo da Escola" class="logo">
-
+      <img src="logo_escola.png" alt="Logo da Escola Municipal Professora Iêda Alves de Oliveira MCPM" class="logo">
       <h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
-
-      <p class="sub">
-        Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.
-      </p>
-
+      <p class="sub">Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.</p>
       <div class="botoes" id="botoesHero">
         <a href="professores.html" class="botao botao-secundario">Professores</a>
         <a href="calendario.html" class="botao botao-secundario">Calendário Escolar</a>
@@ -642,328 +143,190 @@
   </header>
 
   <main>
-
-    <!-- ================================================ -->
-    <!-- 19. SEÇÃO NOSSA ESCOLA                           -->
-    <!-- ================================================ -->
     <section class="container reveal" id="sobre">
       <div class="titulo-secao">
         <h2>Nossa Escola</h2>
-        <p>
-          Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com
-          a formação dos estudantes e com a participação da comunidade escolar.
-        </p>
+        <p>Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.</p>
       </div>
-
       <div class="grid">
-        <div class="card">
-          <h3>Portal Institucional</h3>
-          <p>
-            Este site foi criado para aproximar a escola das famílias, com um canal
-            simples, bonito e organizado para divulgar informações importantes.
-          </p>
-        </div>
-
-        <div class="card">
-          <h3>Compromisso com a Educação</h3>
-          <p>
-            Valorizamos o ensino, a disciplina, o respeito, a convivência e a
-            formação cidadã dos nossos estudantes.
-          </p>
-        </div>
-
-        <div class="card">
-          <h3>Comunicação com a Comunidade</h3>
-          <p>
-            Este espaço poderá reunir avisos, orientações, documentos, projetos e
-            outras informações de interesse da comunidade escolar.
-          </p>
-        </div>
+        <div class="card"><h3>Portal Institucional</h3><p>Este site foi criado para aproximar a escola das famílias, com um canal simples, bonito e organizado para divulgar informações importantes.</p></div>
+        <div class="card"><h3>Compromisso com a Educação</h3><p>Valorizamos o ensino, a disciplina, o respeito, a convivência e a formação cidadã dos nossos estudantes.</p></div>
+        <div class="card"><h3>Comunicação com a Comunidade</h3><p>Este espaço poderá reunir avisos, orientações, documentos, projetos e outras informações de interesse da comunidade escolar.</p></div>
       </div>
     </section>
 
-    <!-- ================================================ -->
-    <!-- 20. SEÇÃO DA FAIXA DE DESTAQUE                   -->
-    <!-- ================================================ -->
     <section class="container reveal">
       <div class="faixa">
         <h2>Educar é construir o futuro</h2>
-        <p>
-          Nossa missão é contribuir para uma educação de qualidade, fortalecendo
-          valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.
-        </p>
-
+        <p>Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.</p>
         <div class="numeros">
-          <div class="numero">
-            <strong>1990</strong>
-            <span>Fundação</span>
-          </div>
-          <div class="numero">
-            <strong>6º ao 9º</strong>
-            <span>Ensino Fundamental Anos Finais</span>
-          </div>
-          <div class="numero">
-            <strong>21</strong>
-            <span>Professores</span>
-          </div>
-          <div class="numero">
-            <strong>41</strong>
-            <span>Funcionários</span>
-          </div>
+          <div class="numero"><strong>1990</strong><span>Fundação</span></div>
+          <div class="numero"><strong>6º ao 9º</strong><span>Ensino Fundamental Anos Finais</span></div>
+          <div class="numero"><strong>21</strong><span>Professores</span></div>
+          <div class="numero"><strong>41</strong><span>Funcionários</span></div>
         </div>
       </div>
     </section>
 
-    <!-- ================================================ -->
-    <!-- 21. SEÇÃO DE INFORMAÇÕES                         -->
-    <!-- ================================================ -->
     <section class="container reveal" id="informacoes">
       <div class="titulo-secao">
         <h2>Informações</h2>
-        <p>
-          Um espaço institucional pensado para centralizar conteúdos relevantes da escola.
-        </p>
+        <p>Um espaço institucional pensado para centralizar conteúdos relevantes da escola.</p>
       </div>
-
       <div class="grid">
-        <div class="card">
-          <h3>Avisos</h3>
-          <p>
-            Comunicados importantes à comunidade escolar poderão ser publicados aqui
-            de forma clara e acessível.
-          </p>
-        </div>
-
-        <div class="card">
-          <h3>Documentos</h3>
-          <p>
-            Futuramente, este portal poderá disponibilizar documentos, orientações,
-            cronogramas e materiais institucionais.
-          </p>
-        </div>
-
-        <div class="card">
-          <h3>Calendário Escolar</h3>
-          <p>
-            A comunidade escolar pode consultar o calendário letivo com datas,
-            períodos importantes e organização do ano escolar.
-          </p>
-        </div>
+        <div class="card"><h3>Avisos</h3><p>Comunicados importantes à comunidade escolar poderão ser publicados aqui de forma clara e acessível.</p></div>
+        <div class="card"><h3>Documentos</h3><p>Futuramente, este portal poderá disponibilizar documentos, orientações, cronogramas e materiais institucionais.</p></div>
+        <div class="card"><h3>Calendário Escolar</h3><p>A comunidade escolar pode consultar o calendário letivo com datas, períodos importantes e organização do ano escolar.</p></div>
       </div>
     </section>
 
-    <!-- ================================================ -->
-    <!-- 22. SEÇÃO DE CONTATO                             -->
-    <!-- ================================================ -->
     <section class="container reveal" id="contato">
       <div class="contato-card">
         <h2>Contato</h2>
-
-        <p>
-          <strong>Email:</strong>
-          <a class="email" href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a>
-        </p>
-
-        <p>
-          <strong>Telefone / WhatsApp:</strong>
-          <a class="email" href="tel:+5573998710105">(73) 99871-0105</a>
-        </p>
-
-        <a href="https://wa.me/5573998710105" class="whats-link" target="_blank">
-          Conversar pelo WhatsApp
-        </a>
-
-        <p style="margin-top:16px;">
-          <strong>Endereço:</strong> Rua Clidenor de Oliveira, S/N – Centro<br>
-          Medeiros Neto - BA
-        </p>
-
-<div style="margin-top:22px; text-align:center;">
-  <button class="botao botao-login" onclick="loginMicrosoft()">Área Restrita</button>
-</div>
-
+        <p><strong>Email:</strong> <a class="email" href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a></p>
+        <p><strong>Telefone / WhatsApp:</strong> <a class="email" href="tel:+5573998710105">(73) 99871-0105</a></p>
+        <a href="https://wa.me/5573998710105" class="whats-link" target="_blank" rel="noopener noreferrer">Conversar pelo WhatsApp</a>
+        <p style="margin-top:16px;"><strong>Endereço:</strong> Rua Clidenor de Oliveira, S/N – Centro<br>Medeiros Neto - BA</p>
+        <div style="margin-top:22px;text-align:center;">
+          <button class="botao botao-login" type="button" onclick="loginMicrosoft(this)">Área Restrita</button>
+        </div>
       </div>
     </section>
-
   </main>
 
-  <!-- ================================================== -->
-  <!-- 23. RODAPÉ                                        -->
-  <!-- ================================================== -->
-  <footer>
-    <p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p>
-  </footer>
-
-  <!-- ================================================== -->
-  <!-- 24. BOTÃO FLUTUANTE DO WHATSAPP                   -->
-  <!-- ================================================== -->
-  <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" aria-label="WhatsApp da escola">
-    ✆
-  </a>
-
-  <!-- ================================================== -->
-  <!-- 25. BOTÃO VOLTAR AO TOPO                          -->
-  <!-- ================================================== -->
-  <button class="topo-btn" id="topoBtn" aria-label="Voltar ao topo">↑</button>
+  <footer><p>© 2026 Escola Municipal Professora Iêda Alves de Oliveira MCPM - Todos os direitos reservados.</p></footer>
+  <a href="https://wa.me/5573998710105" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp da escola">✆</a>
+  <button class="topo-btn" id="topoBtn" type="button" aria-label="Voltar ao topo">↑</button>
 
   <script>
-    /* ================================================== */
-    /* 26. ELEMENTOS DO JAVASCRIPT                        */
-    /* ================================================== */
     const reveals = document.querySelectorAll('.reveal');
     const topbar = document.getElementById('topbar');
     const topoBtn = document.getElementById('topoBtn');
     const botoesHero = document.getElementById('botoesHero');
 
-    /* ================================================== */
-    /* 27. REVELAÇÃO DOS ELEMENTOS                        */
-    /* ================================================== */
-    function revelarElementos(){
-      const alturaJanela = window.innerHeight;
-
-      reveals.forEach((el) => {
-        const topo = el.getBoundingClientRect().top;
-        if(topo < alturaJanela - 80){
-          el.classList.add('ativo');
-        }
-      });
-    }
-
-    /* ================================================== */
-    /* 28. CONTROLE DO MENU SUPERIOR                      */
-    /* O menu aparece quando os botões centrais deixam    */
-    /* de estar visíveis/acessíveis.                      */
-    /* ================================================== */
-    function controlarMenuTopo(){
-      const areaBotoes = botoesHero.getBoundingClientRect();
-      const aindaVisivel = areaBotoes.bottom > 80 && areaBotoes.top < window.innerHeight - 40;
-
-      if(aindaVisivel){
-        topbar.classList.remove('mostrar-menu');
-      }else{
-        topbar.classList.add('mostrar-menu');
-      }
-    }
-
-    /* ================================================== */
-    /* 29. EFEITOS DE ROLAGEM                             */
-    /* ================================================== */
-    function efeitosScroll(){
-      if(window.scrollY > 400){
-        topoBtn.classList.add('mostrar');
-      }else{
-        topoBtn.classList.remove('mostrar');
-      }
-    }
-
-    /* ================================================== */
-    /* 30. BOTÃO VOLTAR AO TOPO                           */
-    /* ================================================== */
-    topoBtn.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+    const ROTAS_PORTAL = Object.freeze({
+      aluno:'/aluno/',
+      professor:'/professor/',
+      professores:'/professor/',
+      direcao:'/direcao/',
+      secretaria:'/institucional/',
+      secretario:'/institucional/',
+      institucional:'/institucional/',
+      admin:'/institucional/',
+      administrador:'/institucional/'
     });
 
-    /* ================================================== */
-    /* 31. EVENTOS DE SCROLL                              */
-    /* ================================================== */
+    function revelarElementos(){
+      const alturaJanela = window.innerHeight;
+      reveals.forEach((el) => {
+        const topo = el.getBoundingClientRect().top;
+        if(topo < alturaJanela - 80){ el.classList.add('ativo'); }
+      });
+    }
+
+    function controlarMenuTopo(){
+      if(!topbar || !botoesHero){ return; }
+      const areaBotoes = botoesHero.getBoundingClientRect();
+      const aindaVisivel = areaBotoes.bottom > 80 && areaBotoes.top < window.innerHeight - 40;
+      topbar.classList.toggle('mostrar-menu', !aindaVisivel);
+    }
+
+    function efeitosScroll(){
+      if(!topoBtn){ return; }
+      topoBtn.classList.toggle('mostrar', window.scrollY > 400);
+    }
+
+    if(topoBtn){
+      topoBtn.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+    }
+
     window.addEventListener('scroll', () => {
       revelarElementos();
       controlarMenuTopo();
       efeitosScroll();
-    });
+    }, { passive:true });
+    window.addEventListener('load', () => { revelarElementos(); controlarMenuTopo(); efeitosScroll(); });
+    window.addEventListener('resize', controlarMenuTopo);
 
-    /* ================================================== */
-    /* 32. INICIALIZAÇÃO VISUAL DA PÁGINA                 */
-    /* ================================================== */
-    window.addEventListener('load', () => {
-      revelarElementos();
-      controlarMenuTopo();
-      efeitosScroll();
-    });
-
-    /* ================================================== */
-    /* 33. AJUSTE AO REDIMENSIONAR A TELA                 */
-    /* ================================================== */
-    window.addEventListener('resize', () => {
-      controlarMenuTopo();
-    });
-
-    /* ================================================== */
-    /* 34. CONFIGURAÇÃO DO LOGIN MICROSOFT / ENTRA ID     */
-    /* ================================================== */
     const msalConfig = {
       auth: {
         clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
         authority: "https://login.microsoftonline.com/organizations",
         redirectUri: window.location.origin
       },
-      cache: {
-        cacheLocation: "sessionStorage",
-        storeAuthStateInCookie: true
-      }
+      cache: { cacheLocation:"sessionStorage", storeAuthStateInCookie:true }
     };
 
-    const loginRequest = {
-      scopes: ["openid", "profile"],
-      prompt: "select_account"
-    };
+    const loginRequest = { scopes:["openid","profile"], prompt:"select_account" };
+    let msalInstance = null;
+    let loginEmAndamento = false;
 
-    const msalInstance = new msal.PublicClientApplication(msalConfig);
-
-    /* ================================================== */
-    /* 35. FUNÇÃO DE LOGIN MICROSOFT                      */
-    /* ================================================== */
-    function loginMicrosoft(){
-      msalInstance.loginRedirect(loginRequest);
+    if(window.msal && window.msal.PublicClientApplication){
+      msalInstance = new msal.PublicClientApplication(msalConfig);
+    }else{
+      console.error("Biblioteca MSAL não foi carregada.");
     }
 
-    /* ================================================== */
-    /* 36. LEITURA DAS ROLES E REDIRECIONAMENTO           */
-    /* ================================================== */
-    function redirecionarPorPerfil(claims){
-      const roles = claims && claims.roles ? claims.roles : [];
-
-      if (!roles || roles.length === 0){
-        alert("Sua conta entrou, mas não possui permissão de acesso ao portal.");
-        return;
-      }
-
-      if (roles.includes("aluno")){
-        window.location.href = "/aluno";
-        return;
-      }
-
-      if (roles.includes("professor")){
-        window.location.href = "/professor";
-        return;
-      }
-
-      if (roles.includes("direcao")){
-        window.location.href = "/direcao";
-        return;
-      }
-
-      alert("Perfil encontrado, mas sem rota configurada.");
+    function normalizarTexto(valor){
+      return String(valor || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
 
-    /* ================================================== */
-    /* 37. TRATAMENTO DO RETORNO DO LOGIN                 */
-    /* ================================================== */
-    msalInstance.handleRedirectPromise()
-      .then((response) => {
-        if (response && response.account){
-          msalInstance.setActiveAccount(response.account);
-          redirecionarPorPerfil(response.idTokenClaims);
-        }
-      })
-      .catch((erro) => {
-        console.error("Erro no login Microsoft:", erro);
-        alert("Ocorreu um erro ao entrar com Microsoft.");
+    function obterRoles(claims){
+      return claims && Array.isArray(claims.roles) ? claims.roles : [];
+    }
+
+    function definirEstadoBotaoLogin(botao, bloqueado){
+      if(!botao){ return; }
+      botao.disabled = bloqueado;
+      botao.textContent = bloqueado ? "Entrando..." : "Área Restrita";
+    }
+
+    function mostrarErroLogin(mensagem){
+      alert(mensagem || "Não foi possível concluir o login. Tente novamente.");
+    }
+
+    function loginMicrosoft(botao){
+      if(loginEmAndamento){ return; }
+      if(!msalInstance){
+        mostrarErroLogin("Não foi possível carregar o sistema de login Microsoft. Atualize a página e tente novamente.");
+        return;
+      }
+      loginEmAndamento = true;
+      definirEstadoBotaoLogin(botao, true);
+      msalInstance.loginRedirect(loginRequest).catch((erro) => {
+        console.error("Erro ao iniciar login Microsoft:", erro);
+        loginEmAndamento = false;
+        definirEstadoBotaoLogin(botao, false);
+        mostrarErroLogin("Não foi possível abrir o login Microsoft. Verifique sua conexão e tente novamente.");
       });
-  </script>
+    }
 
+    function redirecionarPorPerfil(claims){
+      const roles = obterRoles(claims);
+      if(!roles.length){
+        mostrarErroLogin("Sua conta entrou, mas ainda não possui permissão de acesso ao portal.");
+        return;
+      }
+      for(const role of roles){
+        const rota = ROTAS_PORTAL[normalizarTexto(role)];
+        if(rota){ window.location.href = rota; return; }
+      }
+      mostrarErroLogin("Sua conta foi reconhecida, mas o perfil ainda não possui uma área configurada no portal.");
+    }
+
+    if(msalInstance){
+      msalInstance.handleRedirectPromise()
+        .then((response) => {
+          if(response && response.account){
+            msalInstance.setActiveAccount(response.account);
+            redirecionarPorPerfil(response.idTokenClaims);
+          }
+        })
+        .catch((erro) => {
+          console.error("Erro no login Microsoft:", erro);
+          mostrarErroLogin("Ocorreu um erro ao entrar com Microsoft. Tente novamente.");
+        });
+    }
+  </script>
 </body>
 </html>
