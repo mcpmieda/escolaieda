@@ -43,6 +43,7 @@ escolaieda/
 - Portais de aluno, professor e direção estão em fase de teste.
 - A pasta `institucional/` é a página de teste da futura área institucional/secretaria.
 - Mudanças grandes devem ser feitas em fases pequenas e testáveis.
+- Arquivos grandes, como `index.html`, `professores.html` e `calendario.html`, devem ser alterados preferencialmente pelo Codex/PowerShell, com edição local pequena, validação e conferência de diferenças antes do commit.
 
 ## Roteiro de organização
 
@@ -61,11 +62,13 @@ Concluída parcialmente.
 - Usar `https://escolaieda.com/institucional/` como endereço da futura área institucional.
 - Próximo ajuste seguro: ativar no `index.html` da home o redirecionamento de perfis `secretaria`, `secretario`, `institucional`, `admin` e `administrador` para `/institucional/`.
 
-#### Comando/instrução para o Codex ler
+#### Roteiro para o Codex — ativar rota institucional
 
-```text
-Leia o README.md e o AGENTS.md. Não mexa em arquivo-digital/. Faça somente o ajuste seguro no index.html da raiz para ativar a rota institucional: no bloco ROTAS_PORTAL_ATIVAS, adicione secretaria, secretario, institucional, admin e administrador apontando para '/institucional/'. Depois remova esses mesmos perfis de ROTAS_PORTAL_FUTURAS ou deixe ROTAS_PORTAL_FUTURAS vazio, se não houver outras rotas futuras. Altere apenas esse trecho do index.html. Valide que o restante da página não mudou, confira git diff -- index.html e não faça outras alterações.
-```
+Codex deve ler este README e o AGENTS.md, preservar `arquivo-digital/` sem alterações e editar somente o trecho de rotas no `index.html` da raiz.
+
+A alteração desejada é colocar os perfis `secretaria`, `secretario`, `institucional`, `admin` e `administrador` em `ROTAS_PORTAL_ATIVAS`, apontando para `/institucional/`. Esses mesmos perfis devem sair de `ROTAS_PORTAL_FUTURAS`, ou a lista futura pode ficar vazia se não houver outra rota pendente.
+
+Antes de concluir, conferir que apenas o trecho de rotas do `index.html` mudou.
 
 ### Fase 2 — Páginas institucionais públicas
 
@@ -73,6 +76,23 @@ Em andamento inicial.
 
 - Já existem rotas organizadas em `site-institucional/professores.html` e `site-institucional/calendario.html`, por enquanto redirecionando para as páginas antigas da raiz.
 - Próxima etapa segura: mover de verdade `professores.html` e `calendario.html` para `site-institucional/`, mantendo os caminhos antigos como redirecionamentos para não quebrar links públicos.
+- Essa fase deve ser executada pelo Codex/PowerShell, porque envolve arquivos grandes e caminhos internos de imagens/scripts.
+
+#### Roteiro para o Codex — mover páginas institucionais
+
+Codex deve ler este README e o AGENTS.md, preservar `arquivo-digital/` sem alterações e executar a Fase 2 com mudança pequena e validada.
+
+Plano da Fase 2:
+
+1. Copiar o conteúdo completo de `professores.html` para `site-institucional/professores.html`.
+2. Copiar o conteúdo completo de `calendario.html` para `site-institucional/calendario.html`.
+3. Transformar `professores.html` da raiz em redirecionamento para `/site-institucional/professores.html`.
+4. Transformar `calendario.html` da raiz em redirecionamento para `/site-institucional/calendario.html`.
+5. Atualizar na home apenas os links públicos de professores e calendário para os novos caminhos.
+6. Conferir caminhos internos de imagens e arquivos nas páginas movidas.
+7. Conferir que `arquivo-digital/` não foi alterado.
+
+Não fazer refatoração visual nem mudança de design nessa fase.
 
 ### Fase 3 — Imagens e arquivos públicos
 
