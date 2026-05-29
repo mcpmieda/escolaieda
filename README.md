@@ -11,7 +11,8 @@ Ordem atual:
 ```text
 1. Fase 1.1 — ativar a rota institucional na home.
 2. Fase 2 — mover professores.html e calendario.html para site-institucional/.
-3. Parar antes da Fase 3, pois imagens exigem validação visual.
+3. Fase 3 — otimizar imagens de professores e funcionários.
+4. Parar antes de mover imagens para assets/, pois isso exige validação visual posterior.
 ```
 
 Regra principal:
@@ -62,6 +63,7 @@ escolaieda/
 - A pasta `institucional/` é a página de teste da futura área institucional/secretaria.
 - Mudanças grandes devem ser feitas em fases pequenas e testáveis.
 - Arquivos grandes, como `index.html`, `professores.html` e `calendario.html`, devem ser alterados preferencialmente pelo Codex/PowerShell, com edição local pequena, validação e conferência de diferenças antes do commit.
+- Imagens devem ser otimizadas com backup e relatório antes/depois, sem reduzir qualidade visual perceptível.
 
 ## Roteiro de organização
 
@@ -112,12 +114,54 @@ Plano da Fase 2:
 
 Não fazer refatoração visual nem mudança de design nessa fase.
 
-### Fase 3 — Imagens e arquivos públicos
+### Fase 3 — Otimizar imagens de professores e funcionários
+
+Pendente.
+
+Objetivo:
+
+- Reduzir o peso das fotos da pasta `imagens/professores/`.
+- Manter qualidade visual adequada para o site.
+- Manter os nomes e extensões dos arquivos quando possível, para não quebrar caminhos existentes.
+- Não alterar `arquivo-digital/`.
+
+#### Roteiro para o Codex — otimizar imagens
+
+Codex deve fazer a otimização localmente pelo PowerShell, não manualmente pelo GitHub web.
+
+Plano seguro:
+
+1. Ler este README e o AGENTS.md.
+2. Conferir estado do Git.
+3. Criar backup local da pasta `imagens/professores/` em `backups_locais/`.
+4. Gerar relatório em `diagnosticos/` com tamanho de cada imagem antes da otimização.
+5. Otimizar somente imagens de `imagens/professores/`.
+6. Preferir manter o mesmo nome e a mesma extensão.
+7. Para fotos JPG/JPEG, usar largura máxima entre 900px e 1200px e qualidade aproximada entre 82 e 88.
+8. Para PNG, manter PNG se houver transparência; se for foto sem transparência, apenas sugerir conversão para JPG em relatório, sem converter automaticamente nesta fase.
+9. Remover metadados pesados quando possível.
+10. Gerar relatório depois da otimização com peso antes/depois e percentual reduzido.
+11. Conferir visualmente algumas imagens importantes antes de commit.
+12. Conferir que `arquivo-digital/` não foi alterado.
+
+Critério de conclusão:
+
+- Fotos continuam visualmente boas no site.
+- O peso total de `imagens/professores/` diminui.
+- Nenhum caminho público é quebrado.
+- `arquivo-digital/` permanece intacto.
+
+### Fase 4 — Imagens e arquivos públicos em assets
+
+Futura.
 
 - Organizar imagens em `assets/`, atualizando caminhos com cuidado.
 - Testar todas as páginas publicadas depois de mover imagens.
+- Não executar antes de validação visual, pois pode quebrar fundo, logo, favicon e fotos.
 
-### Fase 4 — Arquivo Digital
+### Fase 5 — Arquivo Digital
+
+Bloqueada por enquanto.
 
 - Não mover `arquivo-digital/` agora.
 - Só planejar organização interna em fase própria, com diagnóstico específico e sem alterar comportamento.
