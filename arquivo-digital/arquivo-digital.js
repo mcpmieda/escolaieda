@@ -4329,7 +4329,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     window.fecharPainel = function (opcoes = {}) {
       if (!opcoes.forcar && fluxoMesclagemAtivo()) {
         if (mesclagemEmAndamento) {
-          mostrarMensagemPainel("A mesclagem está em andamento. Aguarde terminar.", "erro");
+          mostrarMensagemPainel("Conclua ou cancele a mesclagem antes de fechar.", "erro");
           return;
         }
 
@@ -5538,7 +5538,7 @@ function renderizarDocumentos(listaArquivos) {
       }
 
       if (fluxoMesclagemAtivo()) {
-        mostrarMensagemPainel("Mesclagem em preparação. Use os botões do painel para continuar, cancelar ou fechar.", "erro");
+        mostrarMensagemPainel("Conclua ou cancele a mesclagem antes de fechar.", "erro");
         return;
       }
 
@@ -5568,6 +5568,12 @@ function renderizarDocumentos(listaArquivos) {
 
         const painel = document.getElementById("painelLateral");
         if (painel && painel.classList.contains("aberto")) {
+          if (fluxoMesclagemAtivo()) {
+            event.preventDefault();
+            mostrarMensagemPainel("Conclua ou cancele a mesclagem antes de fechar.", "erro");
+            return;
+          }
+
           fecharPainel();
         }
       }
