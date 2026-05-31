@@ -5408,6 +5408,9 @@ function renderizarDocumentos(listaArquivos) {
     document.getElementById("btnFecharPainelCentralDuplicidades")?.addEventListener("click", fecharPainelCentralDuplicidades);
     document.getElementById("btnFecharPainelDashboard")?.addEventListener("click", window.fecharPainelDashboard);
     document.getElementById("btnFecharPainelLateral")?.addEventListener("click", fecharPainel);
+    document.getElementById("btnVerRecentes")?.addEventListener("click", window.mostrarDocumentosRecentes);
+    document.getElementById("btnVerAtivos")?.addEventListener("click", window.mostrarDocumentosAtivos);
+    document.getElementById("btnVerLixeira")?.addEventListener("click", window.mostrarDocumentosLixeira);
 
     // Clique fora do painel lateral para fechar
     window.addEventListener("click", function (event) {
