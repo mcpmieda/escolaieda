@@ -668,6 +668,7 @@
     }
 
     function mostrarTelaAcessoRestrito(mensagemExtra = "") {
+      aplicarBlindagemVisualPreLogin();
       acessoArquivoDigitalPermitido = false;
       documentosAtivos = [];
       documentosLixeira = [];
@@ -684,6 +685,22 @@
       document.getElementById("status").textContent = "Acesso restrito";
       document.getElementById("btnAbrirConfiguracoesTopo").style.display = "none";
       fecharPainel();
+    }
+
+    function aplicarBlindagemVisualPreLogin() {
+      document.body.classList.add("estadoPreLogin");
+      document.getElementById("areaSistema")?.style.setProperty("display", "none");
+      document.getElementById("btnAbrirConfiguracoesTopo")?.style.setProperty("display", "none");
+      document.getElementById("btnSair")?.style.setProperty("display", "none");
+      document.getElementById("centralConfiguracoes")?.classList.remove("aberta");
+      document.getElementById("centralUpload")?.classList.remove("aberta");
+      document.getElementById("painelCentralDuplicidades")?.classList.remove("aberto");
+      document.getElementById("painelDashboard")?.classList.remove("aberto");
+      document.getElementById("painelLateral")?.classList.remove("aberto");
+    }
+
+    function liberarBlindagemVisualPreLogin() {
+      document.body.classList.remove("estadoPreLogin");
     }
 
     function ocultarTelaAcessoRestrito() {
@@ -5017,6 +5034,7 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     async function atualizarTela() {
+      aplicarBlindagemVisualPreLogin();
       aplicarPreferenciasVisuais();
       atualizarControlesPreferencias();
       const contas = msalInstance.getAllAccounts();
@@ -5052,6 +5070,7 @@ function renderizarDocumentos(listaArquivos) {
           acessoArquivoDigitalPermitido = true;
           ocultarTelaAcessoRestrito();
           document.getElementById("status").textContent = "Usuário conectado";
+          liberarBlindagemVisualPreLogin();
           document.getElementById("btnAbrirConfiguracoesTopo").style.display = "inline-block";
           document.getElementById("areaSistema").style.display = "block";
 
@@ -5064,6 +5083,7 @@ function renderizarDocumentos(listaArquivos) {
         }
       } else {
         acessoArquivoDigitalPermitido = false;
+        aplicarBlindagemVisualPreLogin();
         ocultarTelaAcessoRestrito();
         document.getElementById("usuario").innerHTML = "";
       }
@@ -5427,6 +5447,15 @@ function renderizarDocumentos(listaArquivos) {
     #areaSistema {
       margin-top: 25px;
       display: none;
+    }
+
+    body.estadoPreLogin #areaSistema,
+    body.estadoPreLogin #btnAbrirConfiguracoesTopo,
+    body.estadoPreLogin #btnSair,
+    body.estadoPreLogin #centralConfiguracoes,
+    body.estadoPreLogin #centralUpload,
+    body.estadoPreLogin .painelLateral {
+      display: none !important;
     }
 
     .dashboardTopo {
@@ -10725,7 +10754,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   </style>
 
 </head>
-<body class="visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
+<body class="estadoPreLogin visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -10738,8 +10767,8 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       <div class="cabecalhoAcoes">
         <p id="status">Verificando login...</p>
         <button id="btnEntrar" class="btnCabecalhoAcao btnCabecalhoEntrar" onclick="entrar()"><span class="iconeBotao iconeEntrar" aria-hidden="true">↗</span><span>Entrar com Microsoft</span></button>
-        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo btnCabecalhoAcao" onclick="alternarCentralConfiguracoes()"><img class="iconeBotao" src="assets/icones/configuracoes.svg" alt="" aria-hidden="true"><span>Configurações</span></button>
-        <button id="btnSair" class="btnCabecalhoAcao btnCabecalhoSair" onclick="sair()"><img class="iconeBotao" src="assets/icones/sair.svg" alt="" aria-hidden="true"><span>Sair</span></button>
+        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo btnCabecalhoAcao" style="display:none" onclick="alternarCentralConfiguracoes()"><img class="iconeBotao" src="assets/icones/configuracoes.svg" alt="" aria-hidden="true"><span>Configurações</span></button>
+        <button id="btnSair" class="btnCabecalhoAcao btnCabecalhoSair" style="display:none" onclick="sair()"><img class="iconeBotao" src="assets/icones/sair.svg" alt="" aria-hidden="true"><span>Sair</span></button>
       </div>
     </header>
 
