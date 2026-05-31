@@ -59,6 +59,33 @@
       scopes: ["User.Read", "Sites.ReadWrite.All"]
     };
 
+    const MODO_DIAGNOSTICO = false;
+    const logger = {
+      info(...args) {
+        if (MODO_DIAGNOSTICO) console.info(...args);
+      },
+      warn(...args) {
+        if (MODO_DIAGNOSTICO) {
+          console.warn(...args);
+          return;
+        }
+        console.warn(formatarResumoLog(args[0]));
+      },
+      error(...args) {
+        if (MODO_DIAGNOSTICO) {
+          console.error(...args);
+          return;
+        }
+        console.error(formatarResumoLog(args[0]));
+      }
+    };
+
+    function formatarResumoLog(valor) {
+      if (typeof valor === "string") return valor;
+      if (valor instanceof Error) return valor.message || valor.name || "Erro interno.";
+      return "Evento interno registrado.";
+    }
+
     function normalizarTexto(texto) {
       return (texto || "")
         .toString()
@@ -756,10 +783,10 @@
         try {
           const resultado = tarefa();
           if (resultado && typeof resultado.catch === "function") {
-            resultado.catch(erro => console.warn("Tarefa em segundo plano falhou.", erro));
+            resultado.catch(erro => logger.warn("Tarefa em segundo plano falhou.", erro));
           }
         } catch (erro) {
-          console.warn("Tarefa em segundo plano falhou.", erro);
+          logger.warn("Tarefa em segundo plano falhou.", erro);
         }
       };
 
@@ -824,7 +851,7 @@
           const retryAfterMs = obterTempoRetryAfterMs(resposta);
           const atraso = retryAfterMs || Math.min(6000, atrasoBaseMs * Math.pow(2, tentativa - 1));
 
-          console.warn(`Graph retornou HTTP ${resposta.status}. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`);
+          logger.warn(`Graph retornou HTTP ${resposta.status}. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`);
           await aguardar(atraso);
 
         } catch (erro) {
@@ -836,7 +863,7 @@
           }
 
           const atraso = Math.min(6000, atrasoBaseMs * Math.pow(2, tentativa - 1));
-          console.warn(`Falha temporaria no Graph. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`, erro);
+          logger.warn(`Falha temporaria no Graph. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`, erro);
           await aguardar(atraso);
         }
       }
@@ -909,7 +936,7 @@ atualizarCardParesIgnorados();
         await carregarDadosDeApoio();
         mostrarMensagem("Dashboard atualizado.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagem("Nao foi possivel atualizar o resumo agora.", "erro");
       }
     };
@@ -1118,7 +1145,7 @@ atualizarCardParesIgnorados();
         renderizarGavetasConfiguracao();
         return opcoesGavetaSharePoint;
       } catch (erro) {
-        console.warn("Nao foi possivel carregar opcoes da coluna GAVETA no SharePoint. Usando fallback Gaveta 1 a Gaveta 34.", erro);
+        logger.warn("Nao foi possivel carregar opcoes da coluna GAVETA no SharePoint. Usando fallback Gaveta 1 a Gaveta 34.", erro);
         opcoesGavetaSharePoint = [];
         opcoesGavetaCarregadas = false;
         erroOpcoesGavetaSharePoint = mensagemGavetasSharePointIndisponiveis();
@@ -1192,7 +1219,7 @@ atualizarCardParesIgnorados();
         mostrarMensagem("Gaveta cadastrada.");
         if (status) status.textContent = "Gaveta cadastrada com sucesso.";
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         if (status) status.textContent = "Não foi possível salvar a nova gaveta no SharePoint. Verifique as permissões.";
         mostrarMensagem("Não foi possível salvar a nova gaveta no SharePoint. Verifique as permissões.", "erro");
       }
@@ -1203,7 +1230,7 @@ atualizarCardParesIgnorados();
         try {
           await registrarHistorico(documento, "ALTEROU_GAVETA", motivo(gavetaAnterior, novaGaveta));
         } catch (erro) {
-          console.warn("Nao foi possivel registrar historico da alteracao de gaveta.", documento?.nome, erro);
+          logger.warn("Nao foi possivel registrar historico da alteracao de gaveta.", documento?.nome, erro);
         }
       }
     }
@@ -1298,7 +1325,7 @@ atualizarCardParesIgnorados();
         if (status) status.textContent = "Gaveta renomeada com sucesso.";
         mostrarMensagem("Gaveta renomeada com sucesso.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         if (status) status.textContent = "Não foi possível renomear a gaveta. Nenhuma etapa seguinte foi forçada.";
         mostrarMensagem("Não foi possível renomear a gaveta. Veja o console para detalhes técnicos.", "erro");
       }
@@ -1371,7 +1398,7 @@ atualizarCardParesIgnorados();
         if (status) status.textContent = "Gaveta excluída com sucesso.";
         mostrarMensagem("Gaveta excluída com sucesso.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         if (status) status.textContent = "Não foi possível excluir a gaveta. Se documentos foram reclassificados, tente novamente para remover a opção.";
         mostrarMensagem("Não foi possível excluir a gaveta. Veja o console para detalhes técnicos.", "erro");
       }
@@ -1983,7 +2010,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         });
 
         if (!resposta.ok) {
-          console.warn("Não foi possível carregar pares ignorados.", await resposta.text());
+          logger.warn("Não foi possível carregar pares ignorados.", await resposta.text());
           return;
         }
 
@@ -2017,7 +2044,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         carregouIgnoradosDuplicidade = true;
         renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
-        console.warn("Erro ao carregar pares ignorados:", erro);
+        logger.warn("Erro ao carregar pares ignorados:", erro);
       }
     }
 
@@ -2090,7 +2117,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           await atualizarCentralDuplicidades();
         }
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagem("Nao foi possivel salvar esta marcacao. Tente novamente.", "erro");
       }
     };
@@ -2165,7 +2192,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
         atualizarCentralDuplicidadesSegundoPlano();
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagem("Nao foi possivel desfazer a marcacao. Tente novamente.", "erro");
       }
     };
@@ -2199,7 +2226,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           await atualizarCentralDuplicidades();
         }
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         carregouIgnoradosDuplicidade = false;
         mostrarMensagem("Nao foi possivel desfazer todas as marcacoes. Atualize a analise e confira os pares restantes.", "erro");
 
@@ -2479,7 +2506,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         await carregarParesDuplicidadeIgnorados();
         renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
-        console.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
+        logger.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
         resumo.textContent = "Nao foi possivel atualizar a Central de Duplicidades agora.";
         duplicidadesCarregando = false;
         return;
@@ -2909,7 +2936,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
               carregarHistoricoDocumento(documento);
             }
           } catch (erro) {
-            console.error(erro);
+            logger.error(erro);
             if (documentoSelecionado && documentoSelecionado.id === documento.id) {
               caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
             }
@@ -2922,7 +2949,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       try {
         renderizarHistoricoDoCache();
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
       }
     }
@@ -2947,7 +2974,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         }
 
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         atualizarStatusAnotacao("Nao foi possivel carregar a anotacao.");
       }
     }
@@ -3060,7 +3087,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           anotacaoUltimoTextoSalvo = texto;
 
         } catch (erroHistoricoAnotacao) {
-          console.warn("Anotação salva, mas não foi possível registrar no histórico.", erroHistoricoAnotacao);
+          logger.warn("Anotação salva, mas não foi possível registrar no histórico.", erroHistoricoAnotacao);
           anotacaoUltimoTextoSalvo = texto;
         }
       } else {
@@ -3089,7 +3116,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         await salvarAnotacaoAgora();
         mostrarMensagemPainel("Anotação salva.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         if (erro.conflitoAnotacao) {
           mostrarMensagemPainel("Conflito de edicao: revise o texto antes de salvar novamente.", "erro");
         } else {
@@ -3261,7 +3288,7 @@ try {
         );
 
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagemPainel("Nao foi possivel renomear o arquivo. Tente novamente.", "erro");
       }
     };
@@ -3355,7 +3382,7 @@ try {
         mostrarMensagemPainel("Arquivo substituido com sucesso. O historico foi atualizado.");
 
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagemPainel("Nao foi possivel substituir o arquivo. Tente novamente.", "erro");
       }
     };
@@ -3569,7 +3596,7 @@ try {
         await atualizarDadosMantendoPainel();
         mostrarMensagemPainel("Mesclagem concluida. O arquivo foi atualizado mantendo o mesmo nome.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         atualizarStatusMesclar("");
         mostrarMensagemPainel("Nao foi possivel concluir a mesclagem. Tente novamente.", "erro");
       } finally {
@@ -3714,7 +3741,7 @@ try {
         mostrarMensagem("Arquivo movido para a Lixeira. Ele nao foi excluido.");
 
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagemPainel("Nao foi possivel mover o arquivo para a Lixeira. Tente novamente.", "erro");
       }
     };
@@ -3821,7 +3848,7 @@ try {
         mostrarMensagem("Arquivo restaurado para Documentos ativos.");
 
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagemPainel("Nao foi possivel restaurar o arquivo. Tente novamente.", "erro");
       }
     };
@@ -3891,7 +3918,7 @@ try {
         await atualizarDadosMantendoPainel();
         mostrarMensagemPainel("Gaveta atualizada com sucesso.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagemPainel("Nao foi possivel alterar a gaveta. Tente novamente.", "erro");
       }
     };
@@ -4007,7 +4034,7 @@ try {
 
         mostrarMensagemPainel("Versao aberta em nova aba.");
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         mostrarMensagemPainel("Nao foi possivel abrir esta versao. Tente novamente.", "erro");
       }
     };
@@ -4135,7 +4162,7 @@ try {
         renderizarVersoesSharePoint();
 
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
 
         if (versoesAindaDoDocumentoAtual()) {
           caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar as versoes do arquivo.</p>";
@@ -4205,7 +4232,7 @@ try {
           try {
             await tarefa();
           } catch (erro) {
-            console.error(`Falha ao carregar ${nomeBloco} do painel.`, erro);
+            logger.error(`Falha ao carregar ${nomeBloco} do painel.`, erro);
           }
         }, atraso);
       };
@@ -4307,7 +4334,7 @@ try {
             mostrarMensagemPainel("Acesso registrado no historico.");
           }
         } catch (erro) {
-          console.error(erro);
+          logger.error(erro);
 
           if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
             mostrarMensagemPainel("PDF aberto, mas nao foi possivel registrar no historico agora.", "erro");
@@ -5000,7 +5027,7 @@ window.abrirSeletorNovoDocumento = function () {
             resultados.push(resultado);
             atualizarStatusArquivoUpload(indice, resultado.nomeFoiAjustado ? "Conflito" : "Enviado");
           } catch (erroArquivo) {
-            console.error(erroArquivo);
+            logger.error(erroArquivo);
             erros.push({ arquivo: arquivo.name, erro: erroArquivo.message || String(erroArquivo) });
             atualizarStatusArquivoUpload(indice, erroArquivo.uploadParcial ? "Parcial" : "Erro");
           }
@@ -5037,7 +5064,7 @@ window.abrirSeletorNovoDocumento = function () {
           }, 900);
         }
       } catch (erro) {
-        console.error(erro);
+        logger.error(erro);
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
         mostrarMensagem("Nao foi possivel enviar os PDF(s). Tente novamente.", "erro");
@@ -5307,7 +5334,7 @@ function renderizarDocumentos(listaArquivos) {
 
       } catch (erro) {
         lista.innerHTML = "<li class=\"erro\">Nao foi possivel carregar os documentos. Tente novamente.</li>";
-        console.error(erro);
+        logger.error(erro);
       }
     }
 
@@ -5356,7 +5383,7 @@ function renderizarDocumentos(listaArquivos) {
           await listarDocumentos();
           agendarTarefaSegundoPlano(carregarDadosDeApoio, 120);
         } catch (erro) {
-          console.error(erro);
+          logger.error(erro);
           mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");
         }
       } else {
