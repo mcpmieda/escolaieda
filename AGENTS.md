@@ -1985,6 +1985,17 @@ Observacao importante da FASE 5.1:
 - Escritas como historico, anotacoes, upload, substituir, mesclar, mover/restaurar NAO devem receber retry cego, para evitar duplicidade de acoes.
 - Anotacoes sem eTag/If-Match ficaram confirmadas como risco futuro da FASE 8.
 
+Resumo recente da FASE 6:
+
+- FASE 6 — Diagnostico upload grande/upload session: concluida e com ponto seguro.
+- FASE 6.1 — Preparacao para upload grande: concluida, publicada, testada e com ponto seguro.
+- FASE 6.2 — Projeto tecnico upload session: concluida e com ponto seguro.
+- O upload atual ainda usa PUT simples para arquivos pequenos/medios.
+- Arquivos acima de 25 MB agora recebem aviso e confirmacao antes do envio simples.
+- Upload session real ainda NAO foi implementada.
+- FASE 6.3 sera a implementacao real de createUploadSession para arquivos grandes.
+- FASE 6.3 e media/grande e deve preservar nome livre, gaveta obrigatoria, motivo obrigatorio, historico ENVIOU e evitar retry cego.
+
 Regra operacional:
 
 - Usar modo economico com Codex.
