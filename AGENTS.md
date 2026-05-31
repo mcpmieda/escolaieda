@@ -2163,3 +2163,40 @@ Regras permanentes:
 - Não substituir `logger.*` por `console.*` direto sem motivo justificado.
 - Próxima fase provável: FASE 16 — textos, consistência, CSP/SRI e polimento final.
 
+
+---
+
+## 18.10. Fechamento da FASE 16 em 31/05/2026
+
+FASE 16.1 — polimento textual:
+
+- Concluída, publicada e testada.
+- Corrigiu textos visíveis, acentos e termos como Lixeira.
+- Não alterou lógica.
+
+FASE 16.2 — diagnóstico CSP/SRI:
+
+- Concluída como diagnóstico.
+- CSP forte ainda não é segura.
+- SRI ainda não é plenamente viável.
+- Bloqueios: handlers inline, CSS inline crítico, atributos `style`, MSAL via CDN, pdf-lib via CDN/import dinâmico e conexões Graph/SharePoint.
+
+FASE 16.3 — redução de handlers inline:
+
+- Removidos 3 `onclick` inline de botões estáticos de fechamento.
+- Migrados para `addEventListener`.
+- Handlers inline no HTML caíram de 48 para 45.
+
+FASE 16.4 — redução de handlers inline de abas:
+
+- Removidos 3 `onclick` inline de `btnVerRecentes`, `btnVerAtivos` e `btnVerLixeira`.
+- Migrados para `addEventListener`.
+- Handlers inline no HTML caíram de 45 para 42.
+
+Regras permanentes:
+
+- Não implementar CSP forte enquanto ainda houver handlers inline e dependências externas sem estratégia.
+- Não mexer em MSAL, Graph, upload, anotações, Lixeira, Duplicidades, gavetas, Dashboard, mesclar/substituir sem fase própria.
+- Continuar usando `node scripts/validar-arquivo-digital.mjs` após mudanças.
+- Reduzir handlers restantes só em pacotes pequenos e testáveis.
+
