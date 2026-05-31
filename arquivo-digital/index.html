@@ -394,6 +394,14 @@
         return 0;
       }
 
+      if (
+        palavrasA.length === palavrasB.length &&
+        palavrasA.length >= 2 &&
+        [...palavrasA].sort().join("|") === [...palavrasB].sort().join("|")
+      ) {
+        return 4;
+      }
+
       let pontos = 0;
       const usadasB = new Set();
 
