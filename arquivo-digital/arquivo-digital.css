@@ -4188,13 +4188,13 @@ body.modoCompacto {
    Este bloco substitui a precedência visual dos blocos antigos do dashboard.
 */
     .dashboardSecaoTopo {
-      margin: 14px 0 8px;
-      padding-top: 12px;
+      margin: 12px 0 7px;
+      padding-top: 10px;
       border-top: 1px solid rgba(226, 232, 240, .95);
     }
 
     .dashboardSecaoAcoesTopo {
-      margin-top: 16px;
+      margin-top: 12px;
     }
 
     .dashboardSecaoTopo h2 {
@@ -4206,22 +4206,24 @@ body.modoCompacto {
 
     .dashboardContadores {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 9px;
-      margin: 8px 0 14px;
+      gap: 10px;
+      width: 100%;
+      margin: 7px 0 12px;
       align-items: stretch;
     }
 
     .dashboardAcoes {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin: 8px 0 18px;
+      gap: 12px;
+      width: 100%;
+      margin: 7px 0 16px;
       align-items: stretch;
     }
 
     body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
     body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
-      min-height: 62px;
-      padding: 10px 12px 10px 52px !important;
+      min-height: 74px !important;
+      padding: 9px 12px 9px 50px !important;
       border-radius: 14px !important;
       cursor: default;
       align-content: center;
@@ -4229,17 +4231,17 @@ body.modoCompacto {
 
     body.visualModernoResumoDestaque .dashboardContadores > .cardDash::before,
     body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados::before {
-      left: 13px;
-      width: 30px;
-      height: 30px;
-      border-radius: 11px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
     }
 
     body.visualModernoResumoDestaque .dashboardContadores > .cardDash::after,
     body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados::after {
-      left: 21px;
-      width: 15px;
-      height: 15px;
+      left: 19px;
+      width: 14px;
+      height: 14px;
     }
 
     .dashboardContadores > .cardDash span {
@@ -4270,8 +4272,10 @@ body.modoCompacto {
     body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-      min-height: 96px;
-      padding: 15px 16px 15px 64px !important;
+      min-height: 104px !important;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px 16px 13px 60px !important;
       border-radius: 16px !important;
       display: grid;
       align-content: center;
@@ -4331,7 +4335,7 @@ body.modoCompacto {
       body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
       body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
       body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-        min-height: 86px;
+        min-height: 92px !important;
       }
     }
 
@@ -4345,7 +4349,7 @@ body.modoCompacto {
       body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
       body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
       body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-        padding-left: 56px !important;
+        padding-left: 52px !important;
       }
     }
 /* FIM_AJUSTE_VISUAL_CONTADORES_DASHBOARD_RC1_20260531 */
