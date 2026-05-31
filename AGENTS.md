@@ -2132,3 +2132,34 @@ Fases restantes principais:
 - FASE 16 — textos, consistência, CSP/SRI e polimento final.
 - Revisão final geral antes de considerar o Arquivo Digital pronto para uso oficial amplo.
 
+
+---
+
+## 18.9. Fechamento das FASES 14 e 15 em 31/05/2026
+
+FASE 14 — validação automática inicial:
+
+- Criado `scripts/validar-arquivo-digital.mjs`.
+- Valida `index.html`, `arquivo-digital.css` e `arquivo-digital.js`.
+- Valida referências externas de CSS/JS.
+- Valida CSS crítico pré-login.
+- Valida ausência de tags indevidas.
+- Valida sintaxe JS em modo módulo.
+- Valida funções `window.*`, IDs principais e handlers esperados.
+- Comando oficial: `node scripts/validar-arquivo-digital.mjs`.
+
+FASE 15 — observabilidade e logs:
+
+- Criado logger controlado em `arquivo-digital/arquivo-digital.js`.
+- Criado `MODO_DIAGNOSTICO = false`.
+- Criados `logger.info`, `logger.warn` e `logger.error`.
+- `console.warn/error` diretos foram substituídos por `logger.warn/error`.
+- Não adicionar logs de token, senha, conteúdo completo de anotações, conteúdo de PDF ou dados pessoais desnecessários.
+
+Regras permanentes:
+
+- Sempre que alterar `index.html`, `arquivo-digital.css` ou `arquivo-digital.js`, rodar `node scripts/validar-arquivo-digital.mjs`.
+- Após alteração no JavaScript, validar sintaxe com Node.
+- Não substituir `logger.*` por `console.*` direto sem motivo justificado.
+- Próxima fase provável: FASE 16 — textos, consistência, CSP/SRI e polimento final.
+
