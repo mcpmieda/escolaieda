@@ -39,6 +39,7 @@
     let filtroGavetaAtual = "";
     let filtrosAvancados = filtrosAvancadosPadrao();
     let preferenciasSistema = carregarPreferenciasSistema();
+    const operacoesCriticasEmAndamento = new Set();
 
     const msalConfig = {
       auth: {
@@ -776,6 +777,24 @@
       const div = document.createElement("div");
       div.textContent = (valor || "").toString();
       return div.innerHTML;
+    }
+
+    function iniciarOperacaoCritica(chave, botaoId, mensagem = "A operação já está em andamento. Aguarde terminar.") {
+      if (operacoesCriticasEmAndamento.has(chave)) {
+        mostrarMensagemPainel(mensagem, "erro");
+        return null;
+      }
+
+      operacoesCriticasEmAndamento.add(chave);
+      const botao = document.getElementById(botaoId);
+      if (botao) botao.disabled = true;
+      return { chave, botao };
+    }
+
+    function finalizarOperacaoCritica(operacao) {
+      if (!operacao) return;
+      operacoesCriticasEmAndamento.delete(operacao.chave);
+      if (operacao.botao) operacao.botao.disabled = false;
     }
 
     function agendarTarefaSegundoPlano(tarefa, atraso = 80) {
@@ -3238,7 +3257,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       const nomeFinalRenomear = criarNomeUnicoRenomear(novoNome);
       const houveAjusteNomeDuplicado = normalizarTexto(nomeFinalRenomear) !== normalizarTexto(novoNome);
-try {
+      const operacao = iniciarOperacaoCritica("renomear", "btnConfirmarRenomear");
+      if (!operacao) return;
+
+      try {
         mostrarMensagemPainel(
           houveAjusteNomeDuplicado
             ? `Nome já existente. Renomeando como "${nomeFinalRenomear}"...`
@@ -3294,6 +3316,8 @@ try {
       } catch (erro) {
         logger.error(erro);
         mostrarMensagemPainel("Não foi possível renomear o arquivo. Tente novamente.", "erro");
+      } finally {
+        finalizarOperacaoCritica(operacao);
       }
     };
 
@@ -3351,6 +3375,9 @@ try {
         return;
       }
 
+      const operacao = iniciarOperacaoCritica("substituir", "btnConfirmarSubstituir");
+      if (!operacao) return;
+
       try {
         mostrarMensagemPainel("Substituindo arquivo. Aguarde...");
 
@@ -3388,6 +3415,8 @@ try {
       } catch (erro) {
         logger.error(erro);
         mostrarMensagemPainel("Não foi possível substituir o arquivo. Tente novamente.", "erro");
+      } finally {
+        finalizarOperacaoCritica(operacao);
       }
     };
 
@@ -3703,6 +3732,9 @@ try {
         return;
       }
 
+      const operacao = iniciarOperacaoCritica("arquivar", "btnConfirmarArquivar");
+      if (!operacao) return;
+
       try {
         mostrarMensagemPainel("Movendo para a Lixeira...");
 
@@ -3747,6 +3779,8 @@ try {
       } catch (erro) {
         logger.error(erro);
         mostrarMensagemPainel("Não foi possível mover o arquivo para a Lixeira. Tente novamente.", "erro");
+      } finally {
+        finalizarOperacaoCritica(operacao);
       }
     };
 
@@ -3801,6 +3835,9 @@ try {
         return;
       }
 
+      const operacao = iniciarOperacaoCritica("restaurar", "btnConfirmarRestaurar");
+      if (!operacao) return;
+
       try {
         mostrarMensagemPainel("Restaurando arquivo...");
 
@@ -3854,6 +3891,8 @@ try {
       } catch (erro) {
         logger.error(erro);
         mostrarMensagemPainel("Não foi possível restaurar o arquivo. Tente novamente.", "erro");
+      } finally {
+        finalizarOperacaoCritica(operacao);
       }
     };
 
@@ -3900,6 +3939,9 @@ try {
         return;
       }
 
+      const operacao = iniciarOperacaoCritica("alterar-gaveta", "btnConfirmarAlterarGaveta");
+      if (!operacao) return;
+
       try {
         mostrarMensagemPainel("Salvando nova gaveta...");
 
@@ -3924,6 +3966,8 @@ try {
       } catch (erro) {
         logger.error(erro);
         mostrarMensagemPainel("Não foi possível alterar a gaveta. Tente novamente.", "erro");
+      } finally {
+        finalizarOperacaoCritica(operacao);
       }
     };
 
@@ -4434,7 +4478,8 @@ try {
         .filter(valor => valor !== "Gaveta nao informada")
         .forEach(valor => {
         const selecionado = valor === valorAtual ? " selected" : "";
-        opcoes.push(`<option value="${valor}"${selecionado}>${valor}</option>`);
+        const valorSeguro = escaparHtml(valor);
+        opcoes.push(`<option value="${valorSeguro}"${selecionado}>${valorSeguro}</option>`);
       });
       return opcoes.join("");
     }
@@ -5360,10 +5405,13 @@ function renderizarDocumentos(listaArquivos) {
 
       if (usuario) {
         modoListaAtual = preferenciasSistema.guiaInicial || "recentes";
-        document.getElementById("usuario").innerHTML = `
-          <span>${usuario.name || "Usuário conectado"}</span>
-          <small>${usuario.username || ""}</small>
-        `;
+        const areaUsuario = document.getElementById("usuario");
+        areaUsuario.textContent = "";
+        const nomeUsuario = document.createElement("span");
+        nomeUsuario.textContent = usuario.name || "Usuário conectado";
+        const emailUsuario = document.createElement("small");
+        emailUsuario.textContent = usuario.username || "";
+        areaUsuario.append(nomeUsuario, emailUsuario);
 
         document.getElementById("status").textContent = "Verificando acesso...";
 

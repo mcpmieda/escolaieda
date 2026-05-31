@@ -209,7 +209,7 @@
 
       <div class="dashboard">
         <div class="cardDash">
-          <span>Documentos na Lixeira</span>
+          <span>Documentos ativos</span>
           <strong id="dashDocumentos">0</strong>
         </div>
 
@@ -346,7 +346,7 @@
         <input id="novoNomeArquivo" type="text" placeholder="Novo nome do arquivo">
         <small>O sistema adiciona .pdf automaticamente se você não digitar.</small>
         <div class="linhaBotoes">
-          <button onclick="confirmarRenomear()">Confirmar renomeação</button>
+          <button id="btnConfirmarRenomear" onclick="confirmarRenomear()">Confirmar renomeação</button>
           <button class="secundario" onclick="cancelarRenomear()">Cancelar</button>
         </div>
       </div>
@@ -357,7 +357,7 @@
         <input id="arquivoSubstituto" type="file" accept="application/pdf,.pdf">
         <small>As versões anteriores deverão continuar disponíveis no histórico do arquivo.</small>
         <div class="linhaBotoes">
-          <button onclick="confirmarSubstituir()">Confirmar substituição</button>
+          <button id="btnConfirmarSubstituir" onclick="confirmarSubstituir()">Confirmar substituição</button>
           <button class="secundario" onclick="cancelarSubstituir()">Cancelar</button>
         </div>
       </div>
@@ -367,7 +367,7 @@
         <p>O documento será enviado para a <strong>Lixeira</strong> interna do sistema. Ele não será excluído.</p>
         <textarea id="motivoArquivar" placeholder="Informe o motivo para enviar à Lixeira..."></textarea>
         <div class="linhaBotoes">
-          <button onclick="confirmarArquivar()">Confirmar envio para Lixeira</button>
+          <button id="btnConfirmarArquivar" onclick="confirmarArquivar()">Confirmar envio para Lixeira</button>
           <button class="secundario" onclick="cancelarArquivar()">Cancelar</button>
         </div>
       </div>
@@ -377,7 +377,7 @@
         <p>O documento será restaurado da <strong>Lixeira</strong> para a lista principal de documentos ativos.</p>
         <textarea id="motivoRestaurar" placeholder="Informe o motivo para restaurar da Lixeira..."></textarea>
         <div class="linhaBotoes">
-          <button onclick="confirmarRestaurar()">Confirmar restauração</button>
+          <button id="btnConfirmarRestaurar" onclick="confirmarRestaurar()">Confirmar restauração</button>
           <button class="secundario" onclick="cancelarRestaurar()">Cancelar</button>
         </div>
       </div>
@@ -387,7 +387,7 @@
         <select id="novaGavetaDocumento"></select>
         <textarea id="motivoAlterarGaveta" placeholder="Informe o motivo da alteração de gaveta..."></textarea>
         <div class="linhaBotoes">
-          <button onclick="confirmarAlterarGaveta()">Salvar gaveta</button>
+          <button id="btnConfirmarAlterarGaveta" onclick="confirmarAlterarGaveta()">Salvar gaveta</button>
           <button class="secundario" onclick="cancelarAlterarGaveta()">Cancelar</button>
         </div>
       </div>
