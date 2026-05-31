@@ -2066,3 +2066,35 @@ Regra permanente:
 - Não sobrescrever anotação alterada por outro usuário sem aviso claro.
 - Futuras melhorias podem tratar corrida na criação de anotação nova, mas a proteção principal de edição existente já foi implementada.
 
+
+---
+
+## 18.7. Fechamento das FASES 11, 12 e 13.1 em 31/05/2026
+
+Resumo recente:
+
+- FASE 11 — Limpeza geral de CSS restante: concluída com limpezas seguras.
+- FASE 11.1 — CSS de gavetas mobile: removidas regras mobile duplicadas/obsoletas, preservando o bloco atual de 2 colunas no celular.
+- FASE 11.2 — CSS obsoleto restante: removidos blocos `.btnAtualizar` sem uso confirmado.
+- FASE 11.3 — encerrada sem alteração porque os candidatos restantes tinham uso real, área sensível ou dúvida visual.
+- FASE 12 — Código morto/IDs órfãos: removido CSS órfão seguro de `.cardRelatorios`, `.listaRelatorios` e `#centralRelatorios`.
+- FASE 13.1 — CSS principal separado: CSS grande do `arquivo-digital/index.html` movido para `arquivo-digital/arquivo-digital.css`.
+
+Decisão importante da FASE 13.1:
+
+- O JavaScript NÃO foi separado nesta fase.
+- O CSS principal foi extraído preservando a ordem original.
+- O `index.html` passou a referenciar `arquivo-digital.css`.
+- Foi mantido CSS crítico mínimo inline para evitar flash visual pré-login antes do CSS externo carregar.
+
+Regras permanentes:
+
+- Não juntar novamente o CSS principal dentro do `index.html` sem motivo forte.
+- Não remover o CSS crítico inline de pré-login sem testar risco de flash visual.
+- Separação de JavaScript deve ser fase futura própria, com diagnóstico e cuidado maior.
+- Limpezas futuras devem continuar em pacotes seguros dentro da mesma fase, sem misturar áreas sensíveis.
+
+Próxima fase provável:
+
+- FASE 13.2 — diagnóstico para separar JavaScript, sem alteração automática no primeiro passo.
+
