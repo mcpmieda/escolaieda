@@ -1961,3 +1961,42 @@ A FASE 10.1 deve ser considerada parte complementar da Fase 10.
 Nenhuma das 16 fases originais deve ser apagada, resumida ou substituída por causa deste adendo.
 
 Fim do arquivo.
+
+---
+
+## 18.4. Bloco concluido em 31/05/2026
+
+Resumo curto do bloco concluido:
+
+- FASE 0.1 — Blindagem visual pre-login: concluida, publicada, testada e com ponto seguro.
+- FASE 1.1 — Central de Duplicidades: concluida, incluindo reconhecimento de nomes invertidos como "silva joao" e "JOAO SILVA".
+- FASE 1.2 — Ordenacao da Lixeira: diagnosticada sem alteracao e com ponto seguro.
+- FASE 1.3 — Filtros avancados: diagnosticada sem alteracao; existem funcoes/CSS legados sem HTML ativo correspondente.
+- FASE 2.1 — Inventario innerHTML/XSS: concluido e com ponto seguro.
+- FASE 2.2 — Correcoes XSS de maior risco: Central de Duplicidades, Gavetas de Configuracao e Painel interno/Dashboard corrigidos e testados.
+- FASE 7.1 — pdf-lib sob demanda: concluida e testada; regressao da primeira mesclagem foi corrigida.
+- FASE 5.1 — Inventario de fetch Graph: concluido e com ponto seguro.
+
+Observacao importante da FASE 5.1:
+
+- Ja existe fetchGraphComRetry com retry/backoff e suporte a Retry-After.
+- Algumas leituras ja usam caminho mais seguro.
+- Leituras criticas ainda usam fetch direto e podem ser padronizadas depois.
+- Escritas como historico, anotacoes, upload, substituir, mesclar, mover/restaurar NAO devem receber retry cego, para evitar duplicidade de acoes.
+- Anotacoes sem eTag/If-Match ficaram confirmadas como risco futuro da FASE 8.
+
+Regra operacional:
+
+- Usar modo economico com Codex.
+- Nao refazer inventarios completos sem necessidade.
+- Nao reler arquivos grandes repetidamente.
+- Nao criar relatorios longos quando commit/resumo curto bastar.
+- Manter uma fase por vez.
+- Nao usar git add .
+- Nao alterar index.html sem necessidade confirmada.
+
+Proximo caminho recomendado:
+
+- Antes de iniciar nova fase, confirmar git status, ultimo commit e tags no HEAD.
+- Proxima fase provavel: FASE 6 — upload grande/upload session, com diagnostico somente antes de qualquer alteracao.
+
