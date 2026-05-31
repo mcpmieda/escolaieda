@@ -3491,6 +3491,13 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("arquivoLocalMesclar").click();
     };
 
+    function fluxoMesclagemAtivo() {
+      const boxMesclar = document.getElementById("boxMesclar");
+      return mesclagemEmAndamento ||
+        !!arquivoLocalMesclar ||
+        boxMesclar?.style.display === "block";
+    }
+
     function atualizarStatusMesclar(texto) {
       const status = document.getElementById("statusMesclar");
       if (status) status.textContent = texto || "";
@@ -4319,7 +4326,20 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       await abrirDocumentoNoPainel(documento);
     };
 
-    window.fecharPainel = function () {
+    window.fecharPainel = function (opcoes = {}) {
+      if (!opcoes.forcar && fluxoMesclagemAtivo()) {
+        if (mesclagemEmAndamento) {
+          mostrarMensagemPainel("A mesclagem está em andamento. Aguarde terminar.", "erro");
+          return;
+        }
+
+        const confirmar = confirm("Há uma mesclagem em preparação. Fechar o painel vai cancelar esse fluxo. Deseja fechar mesmo assim?");
+        if (!confirmar) {
+          mostrarMensagemPainel("Mesclagem mantida. Continue ou cancele pelo botão do painel.");
+          return;
+        }
+      }
+
       document.getElementById("painelLateral").classList.remove("aberto");
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
@@ -5514,6 +5534,11 @@ function renderizarDocumentos(listaArquivos) {
       }
 
       if (event.target.closest(".itemArquivo")) {
+        return;
+      }
+
+      if (fluxoMesclagemAtivo()) {
+        mostrarMensagemPainel("Mesclagem em preparação. Use os botões do painel para continuar, cancelar ou fechar.", "erro");
         return;
       }
 
