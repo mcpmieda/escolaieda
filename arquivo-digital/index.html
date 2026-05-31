@@ -8,7 +8,6 @@
 
   <script type="module">
     import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
-    import { PDFDocument } from "https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.esm.min.js";
 
     const CONFIG = {
       clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
@@ -34,6 +33,7 @@
     let anotacaoUltimoTextoSalvo = "";
     let arquivoLocalMesclar = null;
     let mesclagemEmAndamento = false;
+    let pdfLibPromise = null;
     let dadosApoioCarregando = false;
     let dadosApoioCarregados = false;
     let duplicidadesCarregando = false;
@@ -3438,7 +3438,18 @@ try {
       return resposta.arrayBuffer();
     }
 
+    async function carregarPdfLibSobDemanda() {
+      if (!pdfLibPromise) {
+        pdfLibPromise = import("https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.esm.min.js");
+      }
+
+      const modulo = await pdfLibPromise;
+      return modulo.PDFDocument;
+    }
+
     async function criarPdfMescladoComArquivoLocal(documentoAtual, arquivoLocal, token) {
+      atualizarStatusMesclar("Carregando motor de PDF...");
+      const PDFDocument = await carregarPdfLibSobDemanda();
       const pdfFinal = await PDFDocument.create();
       atualizarStatusMesclar("Lendo o arquivo atual...");
       const bytesAtual = await baixarPdfAtualParaMesclar(documentoAtual, token);
