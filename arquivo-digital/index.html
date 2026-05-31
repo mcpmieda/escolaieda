@@ -1509,7 +1509,7 @@ atualizarCardParesIgnorados();
         <div id="listaHistoricoGeral" class="listaHistoricoGeral">
           <p>Carregando histórico geral...</p>
         </div>
-      `);
+      `, { htmlInternoConfiavel: true });
 
       sincronizarCamposFiltroHistoricoGeral();
       renderizarHistoricoGeral();
@@ -1834,14 +1834,18 @@ window.verMaisHistoricoGeral = function (event) {
       caixa.innerHTML = itensHtml + botaoMais;
     }
     /* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM */
-function abrirPainelDashboard(titulo, conteudoHtml) {
+function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const painel = document.getElementById("painelDashboard");
       const tituloEl = document.getElementById("painelDashboardTitulo");
       const conteudo = document.getElementById("painelDashboardConteudo");
       if (!painel || !tituloEl || !conteudo) return;
 
       tituloEl.textContent = titulo || "Detalhes";
-      conteudo.innerHTML = conteudoHtml || "";
+      if (opcoes.htmlInternoConfiavel === true) {
+        conteudo.innerHTML = conteudoHtml || "";
+      } else {
+        conteudo.textContent = conteudoHtml || "";
+      }
       painel.classList.add("aberto");
     }
 
