@@ -2321,7 +2321,8 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
         });
 
         if (item.palavrasChave.length >= 2) {
-          adicionarGrupoDuplicidade(grupos, `dupla:${item.palavrasChave[0]}|${item.palavrasChave[1]}`, item);
+          const chaveDupla = [item.palavrasChave[0], item.palavrasChave[1]].sort().join("|");
+          adicionarGrupoDuplicidade(grupos, `dupla:${chaveDupla}`, item);
         }
       });
 
