@@ -28,6 +28,7 @@
     let anotacoesCarregadas = [];
     let documentoSelecionado = null;
     let anotacaoAtualItemId = null;
+    let anotacaoAtualEtag = "";
     let timerSalvarAnotacao = null;
     let timerMensagemPainel = null;
     let anotacaoUltimoTextoSalvo = "";
@@ -896,6 +897,7 @@ atualizarCardParesIgnorados();
 
         anotacoesCarregadas = itensAnotacoes.map(item => ({
           ID: item.id,
+          ETAG: item["@odata.etag"] || item.eTag || "",
           ARQUIVO: item.fields?.Title || "",
           ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
           ANOTACAO: item.fields?.ANOTACAO || "",
@@ -2945,6 +2947,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const textarea = document.getElementById("campoAnotacao");
       textarea.value = "";
       anotacaoAtualItemId = null;
+      anotacaoAtualEtag = "";
       atualizarStatusAnotacao("Carregando anotação...");
 
       try {
@@ -2952,6 +2955,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
         if (item) {
           anotacaoAtualItemId = item.ID;
+          anotacaoAtualEtag = item.ETAG || "";
           textarea.value = item.ANOTACAO || "";
           atualizarStatusAnotacao(`Última atualização: ${formatarData(item.DATA_ATUALIZACAO)} - ${item.ATUALIZADO_POR || ""}`);
         } else {
@@ -2976,6 +2980,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const conta = msalInstance.getAllAccounts()[0];
       const agora = new Date().toISOString();
       const atualizadoPor = conta?.name || conta?.username || "";
+      const textoTentado = texto;
 
       const campos = {
         Title: documentoSelecionado.nome,
@@ -2992,21 +2997,44 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           method: "PATCH",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            ...(anotacaoAtualEtag ? { "If-Match": anotacaoAtualEtag } : {})
           },
           body: JSON.stringify(campos)
         });
 
         if (!resposta.ok) {
+          if (resposta.status === 412) {
+            await carregarDadosDeApoio();
+            await carregarAnotacaoDocumento(documentoSelecionado);
+
+            const campoAnotacao = document.getElementById("campoAnotacao");
+            const textoAtualSharePoint = campoAnotacao?.value || "";
+            if (campoAnotacao) {
+              campoAnotacao.dataset.textoAtualSharePoint = textoAtualSharePoint;
+              campoAnotacao.dataset.textoConflitoAnotacao = textoTentado;
+              campoAnotacao.value = textoTentado;
+              ajustarAlturaAnotacao();
+            }
+
+            atualizarStatusAnotacao("Conflito de edicao: outra pessoa salvou uma versao mais recente. Seu texto foi mantido no campo; copie ou revise antes de salvar novamente.");
+            const erroConflito = new Error("Conflito de edicao na anotacao. Outra pessoa salvou uma versao mais recente.");
+            erroConflito.conflitoAnotacao = true;
+            throw erroConflito;
+          }
           throw new Error(await resposta.text());
         }
 
+        const dadosAtualizados = await resposta.json().catch(() => ({}));
+        const novoEtag = resposta.headers.get("ETag") || resposta.headers.get("etag") || dadosAtualizados["@odata.etag"] || "";
         const itemLocal = anotacoesCarregadas.find(x => String(x.ID) === String(anotacaoAtualItemId));
         if (itemLocal) {
+          if (novoEtag) itemLocal.ETAG = novoEtag;
           itemLocal.ANOTACAO = texto;
           itemLocal.ATUALIZADO_POR = atualizadoPor;
           itemLocal.DATA_ATUALIZACAO = agora;
         }
+        if (novoEtag) anotacaoAtualEtag = novoEtag;
 
       } else {
         const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items`;
@@ -3026,9 +3054,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
         const novoItem = await resposta.json();
         anotacaoAtualItemId = novoItem.id;
+        anotacaoAtualEtag = novoItem["@odata.etag"] || novoItem.eTag || "";
 
         anotacoesCarregadas.push({
           ID: novoItem.id,
+          ETAG: anotacaoAtualEtag,
           ARQUIVO: documentoSelecionado.nome,
           ARQUIVO_ID: documentoSelecionado.id || "",
           ANOTACAO: texto,
@@ -3077,8 +3107,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         mostrarMensagemPainel("Anotação salva.");
       } catch (erro) {
         console.error(erro);
-        atualizarStatusAnotacao("Nao foi possivel salvar a anotacao.");
-        mostrarMensagemPainel("Nao foi possivel salvar a anotacao. Tente novamente.", "erro");
+        if (erro.conflitoAnotacao) {
+          mostrarMensagemPainel("Conflito de edicao: revise o texto antes de salvar novamente.", "erro");
+        } else {
+          atualizarStatusAnotacao("Nao foi possivel salvar a anotacao.");
+          mostrarMensagemPainel("Nao foi possivel salvar a anotacao. Tente novamente.", "erro");
+        }
       }
     };
 
@@ -4207,6 +4241,7 @@ try {
       const campoAnotacaoPainel = document.getElementById("campoAnotacao");
       if (campoAnotacaoPainel) campoAnotacaoPainel.value = "";
       anotacaoAtualItemId = null;
+      anotacaoAtualEtag = "";
       anotacaoUltimoTextoSalvo = "";
       atualizarStatusAnotacao("Carregando anotacao...");
 
@@ -4249,6 +4284,7 @@ try {
       arquivoLocalMesclar = null;
       documentoSelecionado = null;
       anotacaoAtualItemId = null;
+      anotacaoAtualEtag = "";
       clearTimeout(timerSalvarAnotacao);
       anotacaoUltimoTextoSalvo = "";
     };
