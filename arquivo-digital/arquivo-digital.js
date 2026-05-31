@@ -937,7 +937,7 @@ atualizarCardParesIgnorados();
         mostrarMensagem("Dashboard atualizado.");
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagem("Nao foi possivel atualizar o resumo agora.", "erro");
+        mostrarMensagem("Não foi possível atualizar o resumo agora.", "erro");
       }
     };
 
@@ -1013,7 +1013,7 @@ atualizarCardParesIgnorados();
       }
 
       if (mostrarAviso) {
-        mostrarMensagem("Configuracoes salvas.");
+        mostrarMensagem("Configurações salvas.");
       }
     };
 
@@ -1825,7 +1825,7 @@ window.verMaisHistoricoGeral = function (event) {
         const acao = item.ACAO || "MOVIMENTOU";
         const data = formatarData(item.DATA_HORA);
         const arquivo = item.ARQUIVO || "Arquivo nao informado";
-        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuario nao informado";
+        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não informado";
         const observacao = item.OBSERVACAO || "";
         const detalhesHtml = montarHistoricoFormatado(acao, observacao, escaparHtml);
 
@@ -1893,7 +1893,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const recentesAlterados = documentosAtivos.filter(documentoAlteradoRecentemente).length;
       const usuarios = new Map();
       historicoCarregado.forEach(item => {
-        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuario nao informado";
+        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não informado";
         usuarios.set(usuario, (usuarios.get(usuario) || 0) + 1);
       });
 
@@ -1932,7 +1932,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         await navigator.clipboard.writeText(texto);
         mostrarMensagem("Relatório copiado.");
       } catch {
-        mostrarMensagem("Nao foi possivel copiar o relatorio automaticamente.", "erro");
+        mostrarMensagem("Não foi possível copiar o relatório automaticamente.", "erro");
       }
     };
 
@@ -2072,7 +2072,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const b = todos.find(doc => doc.id === idB);
 
       if (!a || !b) {
-        mostrarMensagem("Nao foi possivel localizar os dois arquivos.", "erro");
+        mostrarMensagem("Não foi possível localizar os dois arquivos.", "erro");
         return;
       }
 
@@ -2118,7 +2118,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         }
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagem("Nao foi possivel salvar esta marcacao. Tente novamente.", "erro");
+        mostrarMensagem("Não foi possível salvar esta marcação. Tente novamente.", "erro");
       }
     };
 
@@ -2172,7 +2172,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
     window.desfazerPessoasDiferentesCentral = async function (itemId, chave) {
       if (!itemId || !chave) {
-        mostrarMensagem("Nao foi possivel identificar este par.", "erro");
+        mostrarMensagem("Não foi possível identificar este par.", "erro");
         return;
       }
 
@@ -2193,7 +2193,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         atualizarCentralDuplicidadesSegundoPlano();
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagem("Nao foi possivel desfazer a marcacao. Tente novamente.", "erro");
+        mostrarMensagem("Não foi possível desfazer a marcação. Tente novamente.", "erro");
       }
     };
 
@@ -2228,7 +2228,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       } catch (erro) {
         logger.error(erro);
         carregouIgnoradosDuplicidade = false;
-        mostrarMensagem("Nao foi possivel desfazer todas as marcacoes. Atualize a analise e confira os pares restantes.", "erro");
+        mostrarMensagem("Não foi possível desfazer todas as marcações. Atualize a análise e confira os pares restantes.", "erro");
 
         if (typeof atualizarCentralDuplicidades === "function") {
           await atualizarCentralDuplicidades();
@@ -2507,7 +2507,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
         logger.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
-        resumo.textContent = "Nao foi possivel atualizar a Central de Duplicidades agora.";
+        resumo.textContent = "Não foi possível atualizar a Central de Duplicidades agora.";
         duplicidadesCarregando = false;
         return;
       }
@@ -2562,7 +2562,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             <div class="duplicidadeAcoes">
               <button class="btnPessoasDiferentes" data-acao-duplicidade="pessoas-diferentes" data-id-a="${idA}" data-id-b="${idB}">São pessoas diferentes</button>
             </div>
-            <small>Revise os dois documentos antes de arquivar, substituir ou mesclar.</small>
+            <small>Revise os dois documentos antes de mover para a Lixeira, substituir ou mesclar.</small>
           </div>
         `;
       }).join("");
@@ -2903,7 +2903,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
           const usuarioHistorico = usuario || email
             ? `${usuario}${email}`.replace(/^\s+-\s+/, "")
-            : "Usuario nao informado";
+            : "Usuário não informado";
           const historicoFormatado = montarHistoricoFormatado(item.acao, item.observacao || "", esc);
 
           return `
@@ -2938,7 +2938,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           } catch (erro) {
             logger.error(erro);
             if (documentoSelecionado && documentoSelecionado.id === documento.id) {
-              caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
+              caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
             }
           }
         }, 120);
@@ -2950,7 +2950,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         renderizarHistoricoDoCache();
       } catch (erro) {
         logger.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar o historico.</p>";
+        caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
       }
     }
     async function carregarAnotacaoDocumento(documento) {
@@ -2975,7 +2975,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       } catch (erro) {
         logger.error(erro);
-        atualizarStatusAnotacao("Nao foi possivel carregar a anotacao.");
+        atualizarStatusAnotacao("Não foi possível carregar a anotação.");
       }
     }
 
@@ -3027,8 +3027,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
               ajustarAlturaAnotacao();
             }
 
-            atualizarStatusAnotacao("Conflito de edicao: outra pessoa salvou uma versao mais recente. Seu texto foi mantido no campo; copie ou revise antes de salvar novamente.");
-            const erroConflito = new Error("Conflito de edicao na anotacao. Outra pessoa salvou uma versao mais recente.");
+            atualizarStatusAnotacao("Conflito de edição: outra pessoa salvou uma versão mais recente. Seu texto foi mantido no campo; copie ou revise antes de salvar novamente.");
+            const erroConflito = new Error("Conflito de edição na anotação. Outra pessoa salvou uma versão mais recente.");
             erroConflito.conflitoAnotacao = true;
             throw erroConflito;
           }
@@ -3104,7 +3104,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     window.agendarSalvarAnotacao = function () {
       clearTimeout(timerSalvarAnotacao);
       anotacaoUltimoTextoSalvo = "";
-      atualizarStatusAnotacao("Alteracao nao salva. Clique em Salvar anotacao.");
+      atualizarStatusAnotacao("Alteração não salva. Clique em Salvar anotação.");
     };
 
     window.salvarAnotacaoManual = async function () {
@@ -3118,10 +3118,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       } catch (erro) {
         logger.error(erro);
         if (erro.conflitoAnotacao) {
-          mostrarMensagemPainel("Conflito de edicao: revise o texto antes de salvar novamente.", "erro");
+          mostrarMensagemPainel("Conflito de edição: revise o texto antes de salvar novamente.", "erro");
         } else {
-          atualizarStatusAnotacao("Nao foi possivel salvar a anotacao.");
-          mostrarMensagemPainel("Nao foi possivel salvar a anotacao. Tente novamente.", "erro");
+          atualizarStatusAnotacao("Não foi possível salvar a anotação.");
+          mostrarMensagemPainel("Não foi possível salvar a anotação. Tente novamente.", "erro");
         }
       }
     };
@@ -3289,7 +3289,7 @@ try {
 
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagemPainel("Nao foi possivel renomear o arquivo. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível renomear o arquivo. Tente novamente.", "erro");
       }
     };
 
@@ -3379,11 +3379,11 @@ try {
         document.getElementById("arquivoSubstituto").value = "";
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagemPainel("Arquivo substituido com sucesso. O historico foi atualizado.");
+        mostrarMensagemPainel("Arquivo substituído com sucesso. O histórico foi atualizado.");
 
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagemPainel("Nao foi possivel substituir o arquivo. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível substituir o arquivo. Tente novamente.", "erro");
       }
     };
 
@@ -3494,7 +3494,7 @@ try {
       const modulo = await pdfLibPromise;
       if (!modulo?.PDFDocument) {
         pdfLibPromise = null;
-        throw new Error("pdf-lib nao carregou corretamente.");
+        throw new Error("pdf-lib não carregou corretamente.");
       }
 
       return modulo.PDFDocument;
@@ -3579,7 +3579,7 @@ try {
           throw new Error(await resposta.text());
         }
 
-        atualizarStatusMesclar("Registrando no historico...");
+        atualizarStatusMesclar("Registrando no histórico...");
         await registrarHistorico(
           principal,
           "MESCLOU",
@@ -3591,14 +3591,14 @@ try {
         document.getElementById("arquivoLocalMesclar").value = "";
         document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
         document.getElementById("motivoMesclar").value = "";
-        atualizarStatusMesclar("Concluido.");
+        atualizarStatusMesclar("Concluído.");
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagemPainel("Mesclagem concluida. O arquivo foi atualizado mantendo o mesmo nome.");
+        mostrarMensagemPainel("Mesclagem concluída. O arquivo foi atualizado mantendo o mesmo nome.");
       } catch (erro) {
         logger.error(erro);
         atualizarStatusMesclar("");
-        mostrarMensagemPainel("Nao foi possivel concluir a mesclagem. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível concluir a mesclagem. Tente novamente.", "erro");
       } finally {
         mesclagemEmAndamento = false;
         const botao = document.getElementById("btnConfirmarMesclar");
@@ -3738,11 +3738,11 @@ try {
 
         fecharPainel();
         await atualizarDadosMantendoPainel();
-        mostrarMensagem("Arquivo movido para a Lixeira. Ele nao foi excluido.");
+        mostrarMensagem("Arquivo movido para a Lixeira. Ele não foi excluído.");
 
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagemPainel("Nao foi possivel mover o arquivo para a Lixeira. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível mover o arquivo para a Lixeira. Tente novamente.", "erro");
       }
     };
 
@@ -3811,7 +3811,7 @@ try {
         );
 
         if (nomeDuplicadoAtivo) {
-          mostrarMensagemPainel("Ja existe um arquivo ativo com esse nome. Renomeie um dos arquivos antes de restaurar.", "erro");
+          mostrarMensagemPainel("Já existe um arquivo ativo com esse nome. Renomeie um dos arquivos antes de restaurar.", "erro");
           return;
         }
 
@@ -3849,7 +3849,7 @@ try {
 
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagemPainel("Nao foi possivel restaurar o arquivo. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível restaurar o arquivo. Tente novamente.", "erro");
       }
     };
 
@@ -3919,7 +3919,7 @@ try {
         mostrarMensagemPainel("Gaveta atualizada com sucesso.");
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagemPainel("Nao foi possivel alterar a gaveta. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível alterar a gaveta. Tente novamente.", "erro");
       }
     };
 
@@ -3986,17 +3986,17 @@ try {
       const info = window.versaoDownloadDocumentoAtual;
 
       if (!info || !info.driveId || !info.driveItemId) {
-        mostrarMensagemPainel("Nao foi possivel identificar o arquivo para abrir esta versao.", "erro");
+        mostrarMensagemPainel("Não foi possível identificar o arquivo para abrir esta versão.", "erro");
         return;
       }
 
       if (!versionId) {
-        mostrarMensagemPainel("Esta versao nao esta disponivel.", "erro");
+        mostrarMensagemPainel("Esta versão não está disponível.", "erro");
         return;
       }
 
       try {
-        mostrarMensagemPainel("Abrindo versao...");
+        mostrarMensagemPainel("Abrindo versão...");
 
         const token = await obterToken();
 
@@ -4035,7 +4035,7 @@ try {
         mostrarMensagemPainel("Versao aberta em nova aba.");
       } catch (erro) {
         logger.error(erro);
-        mostrarMensagemPainel("Nao foi possivel abrir esta versao. Tente novamente.", "erro");
+        mostrarMensagemPainel("Não foi possível abrir esta versão. Tente novamente.", "erro");
       }
     };
 
@@ -4045,7 +4045,7 @@ try {
 
       const versoes = versoesSharePointCarregadas || [];
       if (!versoes.length) {
-        caixa.innerHTML = "<p>Nenhuma versao encontrada.</p>";
+      caixa.innerHTML = "<p>Nenhuma versão encontrada.</p>";
         return;
       }
 
@@ -4060,8 +4060,8 @@ try {
         const ehAtual = indiceReal === 0;
 
         const botao = ehAtual
-          ? `<button class="btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versao atual</button>`
-          : `<button class="btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versao</button>`;
+          ? `<button class="btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versão atual</button>`
+          : `<button class="btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versão</button>`;
 
         return `
           <div class="itemVersao">
@@ -4100,7 +4100,7 @@ try {
       versoesSharePointExpandido = false;
 
       if (!documento || !documento.listItemId) {
-        caixa.innerHTML = "<p>Selecione um arquivo para carregar as versoes.</p>";
+        caixa.innerHTML = "<p>Selecione um arquivo para carregar as versões.</p>";
         return;
       }
 
@@ -4154,7 +4154,7 @@ try {
         const versoes = dados.value || [];
 
         if (!versoes.length) {
-          caixa.innerHTML = "<p>Nenhuma versao encontrada.</p>";
+          caixa.innerHTML = "<p>Nenhuma versão encontrada.</p>";
           return;
         }
 
@@ -4165,13 +4165,13 @@ try {
         logger.error(erro);
 
         if (versoesAindaDoDocumentoAtual()) {
-          caixa.innerHTML = "<p class='textoErro'>Nao foi possivel carregar as versoes do arquivo.</p>";
+          caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar as versões do arquivo.</p>";
         }
       }
     }
     async function abrirDocumentoNoPainel(documento) {
       if (!documento) {
-        mostrarMensagem("Documento nao encontrado.", "erro");
+        mostrarMensagem("Documento não encontrado.", "erro");
         return;
       }
 
@@ -4308,7 +4308,7 @@ try {
       const linkPdf = documentoAberto.link || "";
 
       if (!linkPdf) {
-        mostrarMensagemPainel("Nao foi possivel localizar o link deste PDF.", "erro");
+        mostrarMensagemPainel("Não foi possível localizar o link deste PDF.", "erro");
         return;
       }
 
@@ -4320,7 +4320,7 @@ try {
         window.location.href = linkPdf;
       }
 
-      mostrarMensagemPainel("PDF aberto. Registrando acesso no historico...");
+      mostrarMensagemPainel("PDF aberto. Registrando acesso no histórico...");
 
       setTimeout(async () => {
         try {
@@ -4331,13 +4331,13 @@ try {
           );
 
           if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
-            mostrarMensagemPainel("Acesso registrado no historico.");
+            mostrarMensagemPainel("Acesso registrado no histórico.");
           }
         } catch (erro) {
           logger.error(erro);
 
           if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
-            mostrarMensagemPainel("PDF aberto, mas nao foi possivel registrar no historico agora.", "erro");
+            mostrarMensagemPainel("PDF aberto, mas não foi possível registrar no histórico agora.", "erro");
           }
         }
       }, 0);
@@ -4781,7 +4781,7 @@ window.abrirSeletorNovoDocumento = function () {
 
       const dados = await resposta.json();
       if (!dados.uploadUrl) {
-        throw new Error("Graph nao retornou URL de upload session.");
+        throw new Error("Graph não retornou URL de sessão de upload.");
       }
 
       return dados.uploadUrl;
@@ -4877,7 +4877,7 @@ window.abrirSeletorNovoDocumento = function () {
 
     async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, onEtapa = () => {}) {
       if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
-        throw new Error(`Arquivo ignorado porque nao e PDF: ${arquivo.name}`);
+        throw new Error(`Arquivo ignorado porque não é PDF: ${arquivo.name}`);
       }
 
       onEtapa("Preparando envio");
@@ -4924,10 +4924,10 @@ window.abrirSeletorNovoDocumento = function () {
           ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
           : `${motivo} Gaveta: ${gaveta}.`;
 
-        onEtapa("Registrando no historico");
+        onEtapa("Registrando no histórico");
         await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
       } catch (erroConclusao) {
-        const erroParcial = new Error(`Arquivo enviado como ${nomeFinal}, mas houve falha ao salvar gaveta ou historico. Verifique o SharePoint antes de reenviar.`);
+        const erroParcial = new Error(`Arquivo enviado como ${nomeFinal}, mas houve falha ao salvar gaveta ou histórico. Verifique o SharePoint antes de reenviar.`);
         erroParcial.uploadParcial = true;
         erroParcial.causaOriginal = erroConclusao;
         throw erroParcial;
@@ -4986,7 +4986,7 @@ window.abrirSeletorNovoDocumento = function () {
       if (arquivosGrandes.length) {
         const maiorArquivo = arquivosGrandes.reduce((maior, atual) => ((atual.size || 0) > (maior.size || 0) ? atual : maior), arquivosGrandes[0]);
         const continuar = confirm(
-          `${arquivosGrandes.length} arquivo(s) acima de ${formatarTamanhoUpload(LIMITE_UPLOAD_SIMPLES_BYTES)} serao enviados em blocos.\n\n` +
+          `${arquivosGrandes.length} arquivo(s) acima de ${formatarTamanhoUpload(LIMITE_UPLOAD_SIMPLES_BYTES)} serão enviados em blocos.\n\n` +
           `Maior arquivo: ${maiorArquivo.name} (${formatarTamanhoUpload(maiorArquivo.size)}).\n\n` +
           "Se a internet oscilar, o envio pode falhar. Deseja continuar?"
         );
@@ -5035,7 +5035,7 @@ window.abrirSeletorNovoDocumento = function () {
           atualizarProgressoUpload(((indice + 1) / total) * 100, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
         }
 
-        atualizarProgressoUpload(100, "Atualizando lista", "Atualizando documentos e historico.", "");
+        atualizarProgressoUpload(100, "Atualizando lista", "Atualizando documentos e histórico.", "");
         await new Promise(resolve => setTimeout(resolve, 1200));
         await listarDocumentos();
         if (typeof carregarDadosDeApoio === "function") {
@@ -5049,7 +5049,7 @@ window.abrirSeletorNovoDocumento = function () {
         const parciais = erros.filter(item => /Verifique o SharePoint antes de reenviar/i.test(item.erro || "")).length;
         uploadTeveErro = erros.length > 0;
         uploadConcluidoComSucesso = erros.length === 0;
-        atualizarProgressoUpload(100, erros.length ? "Concluido com erro" : "Concluido", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? ` ${parciais} pode(m) ja existir no SharePoint.` : ""}`, "");
+        atualizarProgressoUpload(100, erros.length ? "Concluído com erro" : "Concluído", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? ` ${parciais} pode(m) já existir no SharePoint.` : ""}`, "");
         const btnConcluir = document.getElementById("btnConcluirUploadCentral");
         if (btnConcluir) btnConcluir.style.display = erros.length ? "none" : "inline-block";
 
@@ -5067,7 +5067,7 @@ window.abrirSeletorNovoDocumento = function () {
         logger.error(erro);
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
-        mostrarMensagem("Nao foi possivel enviar os PDF(s). Tente novamente.", "erro");
+        mostrarMensagem("Não foi possível enviar os PDF(s). Tente novamente.", "erro");
       } finally {
         uploadEmAndamento = false;
         if (botao) botao.disabled = false;
@@ -5333,7 +5333,7 @@ function renderizarDocumentos(listaArquivos) {
         }
 
       } catch (erro) {
-        lista.innerHTML = "<li class=\"erro\">Nao foi possivel carregar os documentos. Tente novamente.</li>";
+        lista.innerHTML = "<li class=\"erro\">Não foi possível carregar os documentos. Tente novamente.</li>";
         logger.error(erro);
       }
     }
