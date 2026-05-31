@@ -2011,3 +2011,36 @@ Proximo caminho recomendado:
 - Antes de iniciar nova fase, confirmar git status, ultimo commit e tags no HEAD.
 - Proxima fase provavel: FASE 6 — upload grande/upload session, com diagnostico somente antes de qualquer alteracao.
 
+
+---
+
+## 18.5. Fechamento da FASE 6 em 31/05/2026
+
+Resumo da FASE 6 — upload grande/upload session:
+
+- FASE 6 diagnostico: concluida com ponto seguro.
+- FASE 6.1 preparacao: concluida, publicada, testada e com ponto seguro.
+- FASE 6.2 projeto tecnico: concluida com ponto seguro.
+- FASE 6.3 upload session real: concluida, publicada, testada e com ponto seguro.
+
+Resultado final:
+
+- Upload pequeno/medio continua usando PUT simples do Microsoft Graph.
+- Arquivos acima de 25 MB usam createUploadSession.
+- Upload grande e enviado em blocos sequenciais.
+- Retry permitido somente no bloco atual, sem retry cego do upload inteiro.
+- Nome livre automatico foi preservado.
+- Gaveta obrigatoria foi preservada.
+- Motivo obrigatorio foi preservado.
+- Historico ENVIOU so deve ser registrado apos o upload concluir e o documento final existir.
+- Fluxo foi testado com PDF pequeno, PDF grande e nome repetido.
+
+Regra permanente:
+
+- Nao reintroduzir retry cego em upload, mesclar, substituir, mover/restaurar, historico ou anotacoes.
+- Qualquer ajuste futuro no upload deve preservar o PUT simples para arquivos pequenos e upload session para arquivos grandes.
+
+Proxima fase provavel:
+
+- FASE 8 — eTag/If-Match em anotacoes.
+
