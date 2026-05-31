@@ -1030,7 +1030,7 @@ atualizarCardParesIgnorados();
         .filter(gaveta => gaveta !== "Gaveta nao informada")
         .map(gaveta => {
           const total = documentosDaGaveta(gaveta).length;
-          const gavetaParam = encodeURIComponent(gaveta);
+          const gavetaParam = escaparHtml(gaveta);
           return `
             <div class="itemGavetaConfiguracao">
               <div>
@@ -1038,8 +1038,8 @@ atualizarCardParesIgnorados();
                 <small>${total} documento(s) · Cadastrada</small>
               </div>
               <div class="acoesGavetaConfiguracao">
-                <button class="secundario" type="button" ${gavetasDisponiveis ? "" : "disabled"} onclick="editarGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Editar</button>
-                <button class="perigo" type="button" ${gavetasDisponiveis ? "" : "disabled"} onclick="excluirGavetaConfiguracao(decodeURIComponent('${gavetaParam}'))">Excluir</button>
+                <button class="secundario" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="editar" data-gaveta="${gavetaParam}">Editar</button>
+                <button class="perigo" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="excluir" data-gaveta="${gavetaParam}">Excluir</button>
               </div>
             </div>
           `;
@@ -1048,6 +1048,22 @@ atualizarCardParesIgnorados();
 
       lista.innerHTML = avisoFallback + lista.innerHTML;
     }
+
+    document.addEventListener("click", function (evento) {
+      const botao = evento.target.closest("[data-acao-gaveta-config]");
+      if (!botao || !botao.closest("#listaGavetasConfiguracao")) return;
+
+      const gaveta = botao.dataset.gaveta || "";
+
+      if (botao.dataset.acaoGavetaConfig === "editar") {
+        window.editarGavetaConfiguracao(gaveta);
+        return;
+      }
+
+      if (botao.dataset.acaoGavetaConfig === "excluir") {
+        window.excluirGavetaConfiguracao(gaveta);
+      }
+    });
 
     async function obterColunaGavetaSharePoint(token) {
       const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/columns`;
