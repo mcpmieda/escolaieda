@@ -2200,3 +2200,49 @@ Regras permanentes:
 - Continuar usando `node scripts/validar-arquivo-digital.mjs` após mudanças.
 - Reduzir handlers restantes só em pacotes pequenos e testáveis.
 
+
+---
+
+## 18.11. Fechamento dos ajustes visuais finais em 31/05/2026
+
+Resumo dos ajustes visuais finais:
+
+- Corrigida a aba Gavetas quando não selecionada, padronizando com as demais abas.
+- Corrigidos cabeçalhos/títulos da Central de Duplicidades e do Histórico Geral, com contraste e fundo consistentes.
+- Cabeçalhos desses painéis passaram a ficar fixos no topo do painel.
+- Central de Configurações e Histórico Geral passaram a resetar a rolagem ao abrir, para o título aparecer imediatamente.
+- Notificações foram padronizadas para ficarem centralizadas e empilhadas verticalmente, evitando sobreposição.
+- Após a correção visual, foi feita limpeza das regras antigas conflitantes relacionadas aos mesmos itens.
+
+Limpeza pós-ajuste visual:
+
+- Removida regra antiga específica de #btnVerAtivos:not(.ativo) que deixava a aba Gavetas diferente.
+- Removida regra antiga específica de #btnVerLixeira:not(.ativo) que ficou redundante.
+- Substituído posicionamento antigo separado das notificações por base comum mínima.
+- Removido media query antigo das notificações que conflitava com o novo empilhamento.
+
+Arquivos alterados nessa rodada:
+
+- arquivo-digital/arquivo-digital.css
+- arquivo-digital/arquivo-digital.js
+
+Validações realizadas:
+
+- node scripts/validar-arquivo-digital.mjs
+- validação de sintaxe JS quando o JS foi alterado
+- git diff --check
+- teste manual visual pelo usuário
+
+Regra permanente:
+
+- Não recriar regras antigas específicas que deixem abas não selecionadas com aparência diferente sem motivo claro.
+- Notificações devem permanecer centralizadas e empilhadas, sem sobreposição direta.
+- Cabeçalhos de painéis importantes devem manter contraste adequado e aparecer imediatamente ao abrir.
+- Ajustes visuais futuros devem substituir/remover regras antigas conflitantes quando isso for claramente seguro, evitando empilhar CSS desnecessário.
+
+Estado:
+
+- Pacote visual final aplicado.
+- Limpeza pós-ajuste visual aplicada.
+- Tag criada: ponto-seguro-ajustes-visuais-finais-ok.
+
