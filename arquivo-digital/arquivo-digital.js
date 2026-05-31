@@ -983,6 +983,9 @@ atualizarCardParesIgnorados();
       const central = document.getElementById("centralConfiguracoes");
       if (!central) return;
       central.classList.toggle("aberta");
+      if (central.classList.contains("aberta")) {
+        central.scrollTop = 0;
+      }
       atualizarControlesPreferencias();
     };
 
@@ -1861,6 +1864,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       } else {
         conteudo.textContent = conteudoHtml || "";
       }
+      conteudo.scrollTop = 0;
       painel.classList.add("aberto");
     }
 
