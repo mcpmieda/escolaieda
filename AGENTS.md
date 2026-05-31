@@ -2044,3 +2044,25 @@ Proxima fase provavel:
 
 - FASE 8 — eTag/If-Match em anotacoes.
 
+
+---
+
+## 18.6. Fechamento da FASE 8.1 em 31/05/2026
+
+Resumo da FASE 8 — eTag/If-Match em anotações:
+
+- Diagnóstico da FASE 8 confirmou risco real de sobrescrita silenciosa quando duas pessoas editam a mesma anotação.
+- FASE 8.1 foi implementada, publicada, testada e fechada com ponto seguro.
+- O sistema agora guarda `@odata.etag` das anotações carregadas.
+- Ao abrir uma anotação, o sistema associa o eTag atual ao item em edição.
+- Ao salvar anotação existente, o PATCH envia `If-Match`.
+- Se o Graph retornar `412 Precondition Failed`, o sistema não registra histórico, não atualiza cache como se tivesse salvo, recarrega a anotação atual e mantém o texto tentado pelo usuário para não perder conteúdo.
+- POST de nova anotação não foi alterado nesta fase.
+
+Regra permanente:
+
+- Não remover o uso de `If-Match` no PATCH de anotação existente.
+- Não registrar histórico `ANOTACAO` quando o salvamento falhar por conflito.
+- Não sobrescrever anotação alterada por outro usuário sem aviso claro.
+- Futuras melhorias podem tratar corrida na criação de anotação nova, mas a proteção principal de edição existente já foi implementada.
+
