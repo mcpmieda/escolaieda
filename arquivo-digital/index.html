@@ -2226,6 +2226,10 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
       return div.innerHTML;
     }
 
+    function atributoSeguroCentral(valor) {
+      return textoSeguroCentral(valor).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
     function assinaturaDuplicidades(todos) {
       const docs = todos
         .map(doc => `${doc.id}:${doc.nome}:${doc.status || ""}:${doc.modificado || ""}`)
@@ -2495,6 +2499,10 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
         const tagA = par.a.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
         const tagB = par.b.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
         const alerta = par.mesmoNome ? "Mesmo nome" : "Nome parecido";
+        const idA = atributoSeguroCentral(par.a.id);
+        const idB = atributoSeguroCentral(par.b.id);
+        const statusValorA = atributoSeguroCentral(par.a.status);
+        const statusValorB = atributoSeguroCentral(par.b.status);
 
         return `
           <div class="cardDuplicidade">
@@ -2507,18 +2515,18 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
               <div class="duplicidadeArquivo">
                 <span class="${tagA}">${statusA}</span>
                 <strong>${textoSeguroCentral(par.a.nome)}</strong>
-                <button onclick="abrirArquivoDaCentral('${par.a.id}', '${par.a.status}')">Abrir no painel</button>
+                <button data-acao-duplicidade="abrir" data-id="${idA}" data-status="${statusValorA}">Abrir no painel</button>
               </div>
 
               <div class="duplicidadeArquivo">
                 <span class="${tagB}">${statusB}</span>
                 <strong>${textoSeguroCentral(par.b.nome)}</strong>
-                <button onclick="abrirArquivoDaCentral('${par.b.id}', '${par.b.status}')">Abrir no painel</button>
+                <button data-acao-duplicidade="abrir" data-id="${idB}" data-status="${statusValorB}">Abrir no painel</button>
               </div>
             </div>
 
             <div class="duplicidadeAcoes">
-              <button class="btnPessoasDiferentes" onclick="marcarPessoasDiferentesCentral('${par.a.id}', '${par.b.id}')">São pessoas diferentes</button>
+              <button class="btnPessoasDiferentes" data-acao-duplicidade="pessoas-diferentes" data-id-a="${idA}" data-id-b="${idB}">São pessoas diferentes</button>
             </div>
             <small>Revise os dois documentos antes de arquivar, substituir ou mesclar.</small>
           </div>
@@ -2526,6 +2534,22 @@ function abrirPainelDashboard(titulo, conteudoHtml) {
       }).join("");
       duplicidadesCarregando = false;
     };
+
+    document.addEventListener("click", function (evento) {
+      const botao = evento.target.closest("[data-acao-duplicidade]");
+      if (!botao || !botao.closest("#listaCentralDuplicidades")) return;
+
+      const acao = botao.dataset.acaoDuplicidade;
+
+      if (acao === "abrir") {
+        window.abrirArquivoDaCentral(botao.dataset.id || "", botao.dataset.status || "");
+        return;
+      }
+
+      if (acao === "pessoas-diferentes") {
+        window.marcarPessoasDiferentesCentral(botao.dataset.idA || "", botao.dataset.idB || "");
+      }
+    });
 
     window.abrirArquivoDaCentral = async function (id, status) {
       const todos = [...documentosAtivos, ...documentosLixeira];
