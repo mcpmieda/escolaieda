@@ -203,11 +203,11 @@
         </div>
       </section>
 
-<div class="dashboardTopo">
-        <h2>Resumo do arquivo digital</h2>
+<div class="dashboardTopo dashboardSecaoTopo">
+        <h2>Contadores</h2>
       </div>
 
-      <div class="dashboard">
+      <div class="dashboard dashboardContadores">
         <div class="cardDash">
           <span>Documentos ativos</span>
           <strong id="dashDocumentos">0</strong>
@@ -218,8 +218,19 @@
           <strong id="dashLixeira">0</strong>
         </div>
 
+        <div id="cardParesIgnorados" class="cardDash cardParesIgnorados">
+          <span>Pessoas diferentes</span>
+          <strong id="dashParesIgnorados">0</strong>
+          <small>Pares marcados para não aparecer como duplicidade</small>
+        </div>
+      </div>
 
-<div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0" onclick="alternarCentralDuplicidades()">
+      <div class="dashboardTopo dashboardSecaoTopo dashboardSecaoAcoesTopo">
+        <h2>Central de validação e histórico</h2>
+      </div>
+
+      <div class="dashboard dashboardAcoes">
+        <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0" onclick="alternarCentralDuplicidades()">
           <div class="centralDuplicidadesTopo">
             <div>
               <h2>Central de duplicidades</h2>
@@ -230,12 +241,6 @@
             </div>
           </div>
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
-        </div>
-
-        <div id="cardParesIgnorados" class="cardDash cardParesIgnorados">
-          <span>Pessoas diferentes</span>
-          <strong id="dashParesIgnorados">0</strong>
-          <small>Pares marcados para não aparecer como duplicidade</small>
         </div>
 
         <button class="cardDash cardHistoricoGeral" type="button" onclick="abrirHistoricoGeral()">

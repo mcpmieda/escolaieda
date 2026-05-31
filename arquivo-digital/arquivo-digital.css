@@ -4183,6 +4183,173 @@ body.modoCompacto {
     }
 /* FIM_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
 
+/* INICIO_AJUSTE_VISUAL_CONTADORES_DASHBOARD_RC1_20260531
+   Layout oficial do resumo: contadores compactos acima e ações abaixo.
+   Este bloco substitui a precedência visual dos blocos antigos do dashboard.
+*/
+    .dashboardSecaoTopo {
+      margin: 14px 0 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(226, 232, 240, .95);
+    }
+
+    .dashboardSecaoAcoesTopo {
+      margin-top: 16px;
+    }
+
+    .dashboardSecaoTopo h2 {
+      font-size: 15px;
+      font-weight: 950;
+      letter-spacing: 0;
+      color: #0f2f66;
+    }
+
+    .dashboardContadores {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin: 8px 0 14px;
+      align-items: stretch;
+    }
+
+    .dashboardAcoes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 8px 0 18px;
+      align-items: stretch;
+    }
+
+    body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
+    body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
+      min-height: 62px;
+      padding: 10px 12px 10px 52px !important;
+      border-radius: 14px !important;
+      cursor: default;
+      align-content: center;
+    }
+
+    body.visualModernoResumoDestaque .dashboardContadores > .cardDash::before,
+    body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados::before {
+      left: 13px;
+      width: 30px;
+      height: 30px;
+      border-radius: 11px;
+    }
+
+    body.visualModernoResumoDestaque .dashboardContadores > .cardDash::after,
+    body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados::after {
+      left: 21px;
+      width: 15px;
+      height: 15px;
+    }
+
+    .dashboardContadores > .cardDash span {
+      margin-bottom: 3px;
+      font-size: 10.5px;
+      line-height: 1.15;
+    }
+
+    .dashboardContadores > .cardDash strong {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .dashboardContadores > .cardDash small {
+      margin-top: 3px;
+      font-size: 10.5px;
+      line-height: 1.18;
+    }
+
+    body.visualModernoResumoDestaque .dashboardContadores > .cardDash:hover,
+    body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados:hover {
+      transform: none;
+      box-shadow:
+        0 9px 22px rgba(15, 23, 42, .065),
+        inset 0 1px 0 rgba(255, 255, 255, .82) !important;
+    }
+
+    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
+    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
+    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
+      min-height: 96px;
+      padding: 15px 16px 15px 64px !important;
+      border-radius: 16px !important;
+      display: grid;
+      align-content: center;
+      text-align: left;
+    }
+
+    .dashboardAcoes .centralDuplicidadesTopo {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .dashboardAcoes .centralDuplicidadesTopo h2 {
+      font-size: 15px;
+      line-height: 1.15;
+    }
+
+    .dashboardAcoes .centralDuplicidadesTopo p {
+      display: block;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .dashboardAcoes .acoesCentralDuplicidades {
+      min-height: 0;
+    }
+
+    .dashboardAcoes .resumoCentralDuplicidades {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .dashboardAcoes .cardHistoricoGeral span {
+      margin-bottom: 5px;
+      font-size: 11px;
+    }
+
+    .dashboardAcoes .cardHistoricoGeral strong {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .dashboardAcoes .cardHistoricoGeral small {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    @media (max-width: 900px) {
+      .dashboardContadores,
+      .dashboardAcoes {
+        grid-template-columns: 1fr;
+      }
+
+      body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
+      body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
+      body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
+        min-height: 86px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .dashboardSecaoTopo {
+        margin-top: 12px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
+      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados,
+      body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
+      body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
+      body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
+        padding-left: 56px !important;
+      }
+    }
+/* FIM_AJUSTE_VISUAL_CONTADORES_DASHBOARD_RC1_20260531 */
+
 /* INICIO_CARD_DOCUMENTO_OFICIAL_FASE5B_20260527
        Bloco oficial final dos cards de documento.
        Não remover ainda regras antigas de .itemArquivo; este bloco consolida a aparência por precedência.
