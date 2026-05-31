@@ -4397,6 +4397,15 @@ try {
     let uploadConcluidoComSucesso = false;
     let uploadTeveErro = false;
     let statusArquivosUpload = [];
+    const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
+
+    function formatarTamanhoUpload(bytes) {
+      const tamanho = Number(bytes) || 0;
+      if (tamanho >= 1024 * 1024) {
+        return `${(tamanho / (1024 * 1024)).toFixed(1).replace(".", ",")} MB`;
+      }
+      return `${Math.max(1, Math.round(tamanho / 1024))} KB`;
+    }
 
 window.abrirSeletorNovoDocumento = function () {
       abrirCentralUpload();
@@ -4571,7 +4580,8 @@ window.abrirSeletorNovoDocumento = function () {
 
         return {
           nomeSolicitado,
-          nomeRepetido: repetidoExistente || repetidoNaSelecao
+          nomeRepetido: repetidoExistente || repetidoNaSelecao,
+          arquivoGrande: (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES
         };
       });
     }
@@ -4592,12 +4602,14 @@ window.abrirSeletorNovoDocumento = function () {
 
       lista.innerHTML = arquivosCentralUpload.map((arquivo, indice) => {
         const nomeRepetido = analiseNomes[indice]?.nomeRepetido;
+        const arquivoGrande = analiseNomes[indice]?.arquivoGrande;
         return `
-        <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}${nomeRepetido ? " uploadNomeRepetido" : ""}">
+        <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}${nomeRepetido ? " uploadNomeRepetido" : ""}${arquivoGrande ? " uploadNomeRepetido" : ""}">
           <strong>${escaparHtml(arquivo.name)}</strong>
-          <span>${Math.round((arquivo.size || 0) / 1024)} KB</span>
+          <span>${escaparHtml(formatarTamanhoUpload(arquivo.size))}</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
           ${nomeRepetido ? "<small class=\"avisoNomeRepetido\">Nome já existe — será enviado com nome livre</small>" : ""}
+          ${arquivoGrande ? "<small class=\"avisoNomeRepetido\">Arquivo grande — envio simples pode demorar ou falhar</small>" : ""}
         </li>
       `;
       }).join("");
@@ -4709,17 +4721,24 @@ window.abrirSeletorNovoDocumento = function () {
       }
 
       const driveItem = await respostaUpload.json();
-      const listItemId = await obterListItemIdDoDriveItem(driveId, driveItem.id, token);
-      onEtapa("Salvando gaveta");
-      await atualizarGavetaItemSharePoint(listItemId, gaveta, token);
-      const documentoNovo = await carregarDocumentoPorListItemId(listItemId, token);
+      try {
+        const listItemId = await obterListItemIdDoDriveItem(driveId, driveItem.id, token);
+        onEtapa("Salvando gaveta");
+        await atualizarGavetaItemSharePoint(listItemId, gaveta, token);
+        const documentoNovo = await carregarDocumentoPorListItemId(listItemId, token);
 
-      const observacaoEnvio = nomeFoiAjustado
-        ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
-        : `${motivo} Gaveta: ${gaveta}.`;
+        const observacaoEnvio = nomeFoiAjustado
+          ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
+          : `${motivo} Gaveta: ${gaveta}.`;
 
-      onEtapa("Registrando no historico");
-      await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
+        onEtapa("Registrando no historico");
+        await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
+      } catch (erroConclusao) {
+        const erroParcial = new Error(`Arquivo enviado como ${nomeFinal}, mas houve falha ao salvar gaveta ou historico. Verifique o SharePoint antes de reenviar.`);
+        erroParcial.uploadParcial = true;
+        erroParcial.causaOriginal = erroConclusao;
+        throw erroParcial;
+      }
 
       return { nomeSolicitado, nomeFinal, nomeFoiAjustado };
     }
@@ -4770,6 +4789,17 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
+      const arquivosGrandes = arquivosCentralUpload.filter(arquivo => (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES);
+      if (arquivosGrandes.length) {
+        const maiorArquivo = arquivosGrandes.reduce((maior, atual) => ((atual.size || 0) > (maior.size || 0) ? atual : maior), arquivosGrandes[0]);
+        const continuar = confirm(
+          `${arquivosGrandes.length} arquivo(s) acima de ${formatarTamanhoUpload(LIMITE_UPLOAD_SIMPLES_BYTES)} serao enviados pelo modo simples atual.\n\n` +
+          `Maior arquivo: ${maiorArquivo.name} (${formatarTamanhoUpload(maiorArquivo.size)}).\n\n` +
+          "Se a internet oscilar, o envio pode falhar. Deseja continuar?"
+        );
+        if (!continuar) return;
+      }
+
       try {
         uploadEmAndamento = true;
         uploadConcluidoComSucesso = false;
@@ -4799,7 +4829,7 @@ window.abrirSeletorNovoDocumento = function () {
           } catch (erroArquivo) {
             console.error(erroArquivo);
             erros.push({ arquivo: arquivo.name, erro: erroArquivo.message || String(erroArquivo) });
-            atualizarStatusArquivoUpload(indice, "Erro");
+            atualizarStatusArquivoUpload(indice, erroArquivo.uploadParcial ? "Parcial" : "Erro");
           }
 
           atualizarProgressoUpload(((indice + 1) / total) * 100, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
@@ -4816,15 +4846,16 @@ window.abrirSeletorNovoDocumento = function () {
         }
 
         const ajustados = resultados.filter(item => item.nomeFoiAjustado).length;
+        const parciais = erros.filter(item => /Verifique o SharePoint antes de reenviar/i.test(item.erro || "")).length;
         uploadTeveErro = erros.length > 0;
         uploadConcluidoComSucesso = erros.length === 0;
-        atualizarProgressoUpload(100, erros.length ? "Concluido com erro" : "Concluido", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.`, "");
+        atualizarProgressoUpload(100, erros.length ? "Concluido com erro" : "Concluido", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? ` ${parciais} pode(m) ja existir no SharePoint.` : ""}`, "");
         const btnConcluir = document.getElementById("btnConcluirUploadCentral");
         if (btnConcluir) btnConcluir.style.display = erros.length ? "none" : "inline-block";
 
         const mensagemConflito = ajustados ? " Revise nomes parecidos na Central de Duplicidades." : "";
 
-        mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${mensagemConflito}`);
+        mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? " Verifique o SharePoint antes de reenviar arquivo parcial." : ""}${mensagemConflito}`);
         if (!erros.length) {
           setTimeout(() => {
             if (uploadConcluidoComSucesso && !uploadEmAndamento) {
