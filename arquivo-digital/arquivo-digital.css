@@ -4448,16 +4448,6 @@ body.modoCompacto {
       transform: none;
     }
 
-    body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #btnVerAtivos:not(.ativo) {
-      background: rgba(239, 246, 255, .98);
-      border-color: rgba(147, 197, 253, .70);
-    }
-
-    body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #btnVerLixeira:not(.ativo) {
-      background: rgba(248, 250, 252, .98);
-      border-color: rgba(203, 213, 225, .92);
-    }
-
     body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo .buscaLinha {
       display: grid;
       gap: 6px;
@@ -5100,27 +5090,10 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
        Mantém o design visual da Fase 6B.
     */
     #mensagemSistema.mensagem,
-    #mensagemSistema.mensagem.erroBox {
-      position: fixed !important;
-      top: 14px !important;
-      right: 14px !important;
-      left: auto !important;
-      z-index: 99999 !important;
-      width: auto !important;
-      max-width: min(560px, calc(100vw - 28px)) !important;
-      margin: 0 !important;
-      pointer-events: none;
-    }
-
+    #mensagemSistema.mensagem.erroBox,
     #mensagemPainel.mensagemPainel,
     #mensagemPainel.mensagemPainel.erroPainel {
       position: fixed !important;
-      top: 72px !important;
-      right: 18px !important;
-      left: auto !important;
-      z-index: 100000 !important;
-      width: min(430px, calc(100vw - 36px)) !important;
-      max-width: min(430px, calc(100vw - 36px)) !important;
       margin: 0 !important;
       pointer-events: none;
     }
@@ -5136,25 +5109,6 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       box-shadow: none !important;
     }
 
-    @media (max-width: 720px) {
-      #mensagemSistema.mensagem,
-      #mensagemSistema.mensagem.erroBox {
-        top: 10px !important;
-        right: 10px !important;
-        left: 10px !important;
-        width: auto !important;
-        max-width: none !important;
-      }
-
-      #mensagemPainel.mensagemPainel,
-      #mensagemPainel.mensagemPainel.erroPainel {
-        top: 62px !important;
-        right: 10px !important;
-        left: 10px !important;
-        width: auto !important;
-        max-width: none !important;
-      }
-    }
     /* FIM_MENSAGENS_SOBREPOSTAS_FASE6B2_20260527 */
 
     /* INICIO_CARREGAMENTOS_VISUAIS_FASE6C_20260527
