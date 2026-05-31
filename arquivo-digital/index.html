@@ -3440,10 +3440,19 @@ try {
 
     async function carregarPdfLibSobDemanda() {
       if (!pdfLibPromise) {
-        pdfLibPromise = import("https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.esm.min.js");
+        pdfLibPromise = import("https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.esm.min.js")
+          .catch(erro => {
+            pdfLibPromise = null;
+            throw erro;
+          });
       }
 
       const modulo = await pdfLibPromise;
+      if (!modulo?.PDFDocument) {
+        pdfLibPromise = null;
+        throw new Error("pdf-lib nao carregou corretamente.");
+      }
+
       return modulo.PDFDocument;
     }
 
@@ -3503,7 +3512,7 @@ try {
         mesclagemEmAndamento = true;
         const botao = document.getElementById("btnConfirmarMesclar");
         if (botao) botao.disabled = true;
-        atualizarStatusMesclar("Lendo o arquivo atual...");
+        atualizarStatusMesclar("Preparando mesclagem...");
 
         const token = await obterToken();
         const principal = documentoSelecionado;
@@ -3544,6 +3553,7 @@ try {
         mostrarMensagemPainel("Mesclagem concluida. O arquivo foi atualizado mantendo o mesmo nome.");
       } catch (erro) {
         console.error(erro);
+        atualizarStatusMesclar("");
         mostrarMensagemPainel("Nao foi possivel concluir a mesclagem. Tente novamente.", "erro");
       } finally {
         mesclagemEmAndamento = false;
