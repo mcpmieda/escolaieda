@@ -2098,3 +2098,37 @@ Próxima fase provável:
 
 - FASE 13.2 — diagnóstico para separar JavaScript, sem alteração automática no primeiro passo.
 
+
+---
+
+## 18.8. Fechamento da FASE 13 em 31/05/2026
+
+Resumo da FASE 13 — separação estrutural:
+
+- FASE 13.1 — CSS principal separado do `index.html` para `arquivo-digital/arquivo-digital.css`.
+- FASE 13.2 — diagnóstico da separação do JavaScript concluído sem alteração.
+- FASE 13.3 — JavaScript principal separado do `index.html` para `arquivo-digital/arquivo-digital.js`.
+- O `index.html` agora referencia o CSS e o JavaScript externos.
+- Foi mantido CSS crítico mínimo inline para blindagem visual pré-login.
+- O JavaScript foi extraído de forma mecânica, preservando `type="module"`, ordem original, `window.*`, handlers existentes e comportamento.
+- Teste manual geral foi aprovado: login, listagem, busca, painel lateral, PDF, anotações, upload, duplicidades, configurações, gavetas, Lixeira/restaurar, mesclar e sair/entrar.
+
+Regras permanentes:
+
+- Não juntar novamente CSS ou JavaScript principal dentro do `index.html` sem motivo forte.
+- Não remover CSS crítico inline de pré-login sem testar risco de flash visual.
+- Futuras mudanças devem considerar que agora existem:
+  - `arquivo-digital/index.html`
+  - `arquivo-digital/arquivo-digital.css`
+  - `arquivo-digital/arquivo-digital.js`
+- Alterações futuras em visual devem procurar primeiro no CSS externo.
+- Alterações futuras em lógica devem procurar primeiro no JS externo.
+- Continuar validando JavaScript com Node após mudanças no JS.
+
+Fases restantes principais:
+
+- FASE 14 — testes automatizados iniciais.
+- FASE 15 — observabilidade e logs.
+- FASE 16 — textos, consistência, CSP/SRI e polimento final.
+- Revisão final geral antes de considerar o Arquivo Digital pronto para uso oficial amplo.
+
