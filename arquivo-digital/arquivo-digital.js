@@ -5404,6 +5404,11 @@ function renderizarDocumentos(listaArquivos) {
     };
 
     window.filtrarDocumentos = filtrarDocumentos;
+
+    document.getElementById("btnFecharPainelCentralDuplicidades")?.addEventListener("click", fecharPainelCentralDuplicidades);
+    document.getElementById("btnFecharPainelDashboard")?.addEventListener("click", window.fecharPainelDashboard);
+    document.getElementById("btnFecharPainelLateral")?.addEventListener("click", fecharPainel);
+
     // Clique fora do painel lateral para fechar
     window.addEventListener("click", function (event) {
       const painel = document.getElementById("painelLateral");
