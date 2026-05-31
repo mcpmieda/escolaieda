@@ -4398,6 +4398,8 @@ try {
     let uploadTeveErro = false;
     let statusArquivosUpload = [];
     const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
+    const TAMANHO_BLOCO_UPLOAD_SESSION_BYTES = 5 * 1024 * 1024;
+    const MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD = 2;
 
     function formatarTamanhoUpload(bytes) {
       const tamanho = Number(bytes) || 0;
@@ -4609,7 +4611,7 @@ window.abrirSeletorNovoDocumento = function () {
           <span>${escaparHtml(formatarTamanhoUpload(arquivo.size))}</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
           ${nomeRepetido ? "<small class=\"avisoNomeRepetido\">Nome já existe — será enviado com nome livre</small>" : ""}
-          ${arquivoGrande ? "<small class=\"avisoNomeRepetido\">Arquivo grande — envio simples pode demorar ou falhar</small>" : ""}
+          ${arquivoGrande ? "<small class=\"avisoNomeRepetido\">Arquivo grande — será enviado em blocos</small>" : ""}
         </li>
       `;
       }).join("");
@@ -4692,6 +4694,146 @@ window.abrirSeletorNovoDocumento = function () {
       };
     }
 
+    function aguardarUpload(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function obterEsperaRetryUpload(resposta, tentativa) {
+      const retryAfter = resposta?.headers?.get?.("Retry-After");
+      if (retryAfter) {
+        const segundos = Number(retryAfter);
+        if (Number.isFinite(segundos)) return Math.max(1000, segundos * 1000);
+
+        const data = Date.parse(retryAfter);
+        if (!Number.isNaN(data)) return Math.max(1000, data - Date.now());
+      }
+
+      return Math.min(1000 * Math.pow(2, tentativa), 8000);
+    }
+
+    function erroUploadSessionAmbiguo(nomeFinal, causa) {
+      const erro = new Error(`Falha ambigua ao concluir upload grande de ${nomeFinal}. Verifique o SharePoint antes de reenviar.`);
+      erro.uploadParcial = true;
+      erro.causaOriginal = causa;
+      return erro;
+    }
+
+    async function criarUploadSessionPdf(driveId, nomeFinal, token) {
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/createUploadSession`;
+      const resposta = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          item: {
+            "@microsoft.graph.conflictBehavior": "fail",
+            name: nomeFinal
+          }
+        })
+      });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const dados = await resposta.json();
+      if (!dados.uploadUrl) {
+        throw new Error("Graph nao retornou URL de upload session.");
+      }
+
+      return dados.uploadUrl;
+    }
+
+    async function enviarBlocoUploadSession(uploadUrl, bloco, inicio, fim, total, ultimoBloco) {
+      let tentativa = 0;
+      while (true) {
+        let resposta;
+        try {
+          resposta = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: {
+              "Content-Range": `bytes ${inicio}-${fim - 1}/${total}`
+            },
+            body: bloco
+          });
+        } catch (erroRede) {
+          if (ultimoBloco && tentativa >= MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD) {
+            throw erroRede;
+          }
+          if (tentativa >= MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD) throw erroRede;
+          await aguardarUpload(Math.min(1000 * Math.pow(2, tentativa), 8000));
+          tentativa++;
+          continue;
+        }
+
+        if (resposta.ok) return resposta;
+
+        const podeTentar = resposta.status === 408 || resposta.status === 429 || resposta.status >= 500;
+        if (!podeTentar || tentativa >= MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD) {
+          const detalhe = await resposta.text();
+          const erro = new Error(detalhe || `Falha no bloco de upload. HTTP ${resposta.status}`);
+          erro.status = resposta.status;
+          throw erro;
+        }
+
+        await aguardarUpload(obterEsperaRetryUpload(resposta, tentativa));
+        tentativa++;
+      }
+    }
+
+    async function enviarArquivoPdfComUploadSession(arquivo, driveId, nomeFinal, token, onProgresso = () => {}) {
+      const uploadUrl = await criarUploadSessionPdf(driveId, nomeFinal, token);
+      const total = arquivo.size || 0;
+      let enviados = 0;
+      let driveItemFinal = null;
+      const totalBlocos = Math.max(1, Math.ceil(total / TAMANHO_BLOCO_UPLOAD_SESSION_BYTES));
+
+      for (let inicio = 0, indiceBloco = 1; inicio < total; inicio += TAMANHO_BLOCO_UPLOAD_SESSION_BYTES, indiceBloco++) {
+        const fim = Math.min(inicio + TAMANHO_BLOCO_UPLOAD_SESSION_BYTES, total);
+        const bloco = arquivo.slice(inicio, fim);
+        const ultimoBloco = fim >= total;
+
+        onProgresso({
+          enviados,
+          total,
+          percentual: total ? (enviados / total) * 100 : 0,
+          etapa: `Enviando bloco ${indiceBloco} de ${totalBlocos}`
+        });
+
+        let resposta;
+        try {
+          resposta = await enviarBlocoUploadSession(uploadUrl, bloco, inicio, fim, total, ultimoBloco);
+        } catch (erroBloco) {
+          if (ultimoBloco) throw erroUploadSessionAmbiguo(nomeFinal, erroBloco);
+          throw erroBloco;
+        }
+
+        enviados = fim;
+        onProgresso({
+          enviados,
+          total,
+          percentual: total ? (enviados / total) * 100 : 100,
+          etapa: `Enviando bloco ${indiceBloco} de ${totalBlocos}`
+        });
+
+        if (ultimoBloco) {
+          try {
+            driveItemFinal = await resposta.json();
+          } catch (erroJson) {
+            throw erroUploadSessionAmbiguo(nomeFinal, erroJson);
+          }
+        }
+      }
+
+      if (!driveItemFinal?.id) {
+        throw erroUploadSessionAmbiguo(nomeFinal, new Error("Upload session terminou sem driveItem final."));
+      }
+
+      return driveItemFinal;
+    }
+
     async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, onEtapa = () => {}) {
       if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
         throw new Error(`Arquivo ignorado porque nao e PDF: ${arquivo.name}`);
@@ -4704,23 +4846,33 @@ window.abrirSeletorNovoDocumento = function () {
       const nomeFinal = gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, ocupados);
       ocupados.add(normalizarTexto(nomeFinal));
       const nomeFoiAjustado = normalizarTexto(nomeFinal) !== normalizarTexto(nomeSolicitado);
+      const usarUploadSession = (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES;
+      let driveItem;
 
-      onEtapa("Enviando arquivo");
-      const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
-      const respostaUpload = await fetch(urlUpload, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/pdf"
-        },
-        body: arquivo
-      });
+      if (usarUploadSession) {
+        onEtapa("Criando upload session");
+        driveItem = await enviarArquivoPdfComUploadSession(arquivo, driveId, nomeFinal, token, progresso => {
+          onEtapa(progresso.etapa || "Enviando arquivo grande", progresso);
+        });
+      } else {
+        onEtapa("Enviando arquivo");
+        const urlUpload = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/content`;
+        const respostaUpload = await fetch(urlUpload, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/pdf"
+          },
+          body: arquivo
+        });
 
-      if (!respostaUpload.ok) {
-        throw new Error(await respostaUpload.text());
+        if (!respostaUpload.ok) {
+          throw new Error(await respostaUpload.text());
+        }
+
+        driveItem = await respostaUpload.json();
       }
 
-      const driveItem = await respostaUpload.json();
       try {
         const listItemId = await obterListItemIdDoDriveItem(driveId, driveItem.id, token);
         onEtapa("Salvando gaveta");
@@ -4793,7 +4945,7 @@ window.abrirSeletorNovoDocumento = function () {
       if (arquivosGrandes.length) {
         const maiorArquivo = arquivosGrandes.reduce((maior, atual) => ((atual.size || 0) > (maior.size || 0) ? atual : maior), arquivosGrandes[0]);
         const continuar = confirm(
-          `${arquivosGrandes.length} arquivo(s) acima de ${formatarTamanhoUpload(LIMITE_UPLOAD_SIMPLES_BYTES)} serao enviados pelo modo simples atual.\n\n` +
+          `${arquivosGrandes.length} arquivo(s) acima de ${formatarTamanhoUpload(LIMITE_UPLOAD_SIMPLES_BYTES)} serao enviados em blocos.\n\n` +
           `Maior arquivo: ${maiorArquivo.name} (${formatarTamanhoUpload(maiorArquivo.size)}).\n\n` +
           "Se a internet oscilar, o envio pode falhar. Deseja continuar?"
         );
@@ -4821,8 +4973,15 @@ window.abrirSeletorNovoDocumento = function () {
           atualizarProgressoUpload(basePercentual, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
 
           try {
-            const resultado = await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, etapa => {
-              atualizarProgressoUpload(basePercentual, etapa, `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
+            const resultado = await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, (etapa, progressoArquivo) => {
+              const percentualArquivo = Number(progressoArquivo?.percentual);
+              const percentualTotal = Number.isFinite(percentualArquivo)
+                ? basePercentual + (percentualArquivo / 100) * (100 / total)
+                : basePercentual;
+              const detalheArquivo = progressoArquivo?.total
+                ? `${formatarTamanhoUpload(progressoArquivo.enviados)} de ${formatarTamanhoUpload(progressoArquivo.total)}`
+                : `Enviando ${indice + 1} de ${total} arquivos`;
+              atualizarProgressoUpload(percentualTotal, etapa, detalheArquivo, arquivo.name);
             });
             resultados.push(resultado);
             atualizarStatusArquivoUpload(indice, resultado.nomeFoiAjustado ? "Conflito" : "Enviado");
