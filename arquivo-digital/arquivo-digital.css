@@ -4373,6 +4373,7 @@ body.modoCompacto {
       width: 100%;
       margin: 7px 0 16px;
       align-items: stretch;
+      grid-auto-rows: 1fr;
     }
 
     body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
@@ -4429,6 +4430,8 @@ body.modoCompacto {
     body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
       min-height: 104px !important;
       width: 100%;
+      min-width: 0;
+      height: 100%;
       box-sizing: border-box;
       padding: 13px 16px 13px 60px !important;
       border-radius: 16px !important;
@@ -4482,15 +4485,8 @@ body.modoCompacto {
     }
 
     @media (max-width: 900px) {
-      .dashboardContadores,
-      .dashboardAcoes {
+      .dashboardContadores {
         grid-template-columns: 1fr;
-      }
-
-      body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
-      body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
-      body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-        min-height: 92px !important;
       }
     }
 
@@ -4522,7 +4518,7 @@ body.modoCompacto {
     body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-      min-height: 96px !important;
+      min-height: 104px !important;
       padding: 11px 14px 11px 56px !important;
       align-content: center;
       box-sizing: border-box;
@@ -4665,6 +4661,11 @@ body.modoCompacto {
       body.visualModernoResumoDestaque .dashboardAcoes {
         gap: 6px;
         margin: 4px 0 6px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardAcoes {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
       }
 
       body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
@@ -4832,16 +4833,17 @@ body.modoCompacto {
       justify-content: center;
       width: fit-content;
       max-width: 100%;
-      margin: 2px 0 2px;
-      padding: 3px 8px;
+      min-height: 22px;
+      margin: 0;
+      padding: 0 8px;
       border-radius: 999px;
       border: 1px solid #bfe3ce;
       background: #ecfdf3;
       color: #17623a !important;
-      font-size: 11px !important;
+      font-size: 10.5px !important;
       font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: .03em;
+      line-height: 1;
+      letter-spacing: 0;
       text-transform: uppercase;
       white-space: nowrap;
     }
@@ -6146,13 +6148,60 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
     }
 
     button.itemArquivo .tagArquivado {
-      border-color: #cbd5e1;
-      background: #e2e8f0;
-      color: #475569 !important;
+      border-color: #fecdd3;
+      background: #fff1f2;
+      color: #9f1239 !important;
     }
     /* FIM_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527 */
 
 /* INICIO_COMPLEMENTO_NOMES_REPETIDOS_20260601 */
+    .seloGaveta,
+    .seloNomeRepetido,
+    .tagAtivo,
+    .tagArquivado,
+    .statusRecenteArquivo {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      max-width: 100%;
+      min-height: 22px;
+      margin: 0;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 10.5px !important;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    .tagAtivo {
+      border: 1px solid #bbf7d0;
+      background: #dcfce7;
+      color: #166534 !important;
+    }
+
+    .tagArquivado {
+      border: 1px solid #fecdd3;
+      background: #fff1f2;
+      color: #9f1239 !important;
+    }
+
+    .seloGaveta {
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a !important;
+    }
+
+    .seloNomeRepetido {
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      color: #92400e !important;
+    }
+
     .painelCentralDuplicidades .paresIgnoradosDuplicidade {
       margin: 0 0 14px;
     }
@@ -6174,21 +6223,6 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
     }
 
     .seloNomeRepetido {
-      display: inline-flex !important;
-      align-items: center;
-      justify-content: center;
-      width: fit-content;
-      min-height: 20px;
-      margin: 1px 0 0;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid #fde68a;
-      background: #fffbeb;
-      color: #92400e !important;
-      font-size: 11px !important;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: 0;
       box-shadow: none;
     }
 

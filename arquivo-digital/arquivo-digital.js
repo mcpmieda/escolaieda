@@ -349,7 +349,7 @@
 
     function seloNomeRepetidoHtml(documento, lista) {
       return temNomeVisualRepetido(documento, lista)
-        ? "<span class=\"seloNomeRepetido\">Nome repetido</span>"
+        ? "<span class=\"seloNomeRepetido\">Nome igual</span>"
         : "";
     }
 
@@ -5320,7 +5320,7 @@ function renderizarDocumentos(listaArquivos) {
             <span class="metadadosArquivo">
               ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
               ${seloGavetaHtml(item.gaveta)}
-              ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome repetido</span>" : ""}
+              ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome igual</span>" : ""}
             </span>
             <span>Clique para ver detalhes, histórico e ações</span>
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
