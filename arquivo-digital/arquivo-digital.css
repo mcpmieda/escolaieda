@@ -263,7 +263,7 @@
       font-size: 20px;
     }
 
-    .dashboard {
+    .dashboard:not(.dashboardAcoes) {
       display: grid;
       grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 12px;
@@ -2501,8 +2501,8 @@ body.modoCompacto {
       margin: 6px 0 8px;
     }
 
-    body.modoCompacto .cardDash,
-    body.modoCompacto .dashboard .centralDuplicidades {
+    body.modoCompacto .dashboard:not(.dashboardAcoes) .cardDash,
+    body.modoCompacto .dashboard:not(.dashboardAcoes) .centralDuplicidades {
       padding: 8px 9px;
       min-height: 54px;
     }
@@ -2565,14 +2565,14 @@ body.modoCompacto {
 
 
     /* UX_FINAL_CURTO_20260526 */
-    .dashboard {
+    .dashboard:not(.dashboardAcoes) {
       grid-template-columns: repeat(5, minmax(130px, 1fr));
       align-items: stretch;
       margin-bottom: 8px;
     }
 
     .cardDash,
-    .dashboard .centralDuplicidades {
+    .dashboard:not(.dashboardAcoes) .centralDuplicidades {
       min-height: 58px;
       padding: 9px 11px;
       display: grid;
@@ -2658,12 +2658,12 @@ body.modoCompacto {
       font-weight: 700;
     }
 
-    body.modoCompacto .dashboard {
+    body.modoCompacto .dashboard:not(.dashboardAcoes) {
       grid-template-columns: repeat(5, minmax(110px, 1fr));
     }
 
     body.modoCompacto .cardDash,
-    body.modoCompacto .dashboard .centralDuplicidades {
+    body.modoCompacto .dashboard:not(.dashboardAcoes) .centralDuplicidades {
       min-height: 48px;
       padding: 7px 8px;
     }
@@ -2708,8 +2708,8 @@ body.modoCompacto {
       align-items: stretch;
     }
 
-    .dashboard > .cardDash,
-    .dashboard > .centralDuplicidades {
+    .dashboard:not(.dashboardAcoes) > .cardDash,
+    .dashboard:not(.dashboardAcoes) > .centralDuplicidades {
       min-height: 74px;
       box-sizing: border-box;
       display: grid;
@@ -2717,19 +2717,19 @@ body.modoCompacto {
       grid-template-rows: auto;
     }
 
-    .dashboard .centralDuplicidades {
+    .dashboard:not(.dashboardAcoes) .centralDuplicidades {
       gap: 3px;
     }
 
-    .dashboard .centralDuplicidadesTopo {
+    .dashboard:not(.dashboardAcoes) .centralDuplicidadesTopo {
       margin-bottom: 2px;
     }
 
-    .dashboard .acoesCentralDuplicidades {
+    .dashboard:not(.dashboardAcoes) .acoesCentralDuplicidades {
       min-height: 24px;
     }
 
-    .dashboard .resumoCentralDuplicidades {
+    .dashboard:not(.dashboardAcoes) .resumoCentralDuplicidades {
       display: -webkit-box;
       margin: 0;
       overflow: hidden;
@@ -2762,8 +2762,8 @@ body.modoCompacto {
       margin-top: 3px;
     }
 
-    body.modoCompacto .dashboard > .cardDash,
-    body.modoCompacto .dashboard > .centralDuplicidades {
+    body.modoCompacto .dashboard:not(.dashboardAcoes) > .cardDash,
+    body.modoCompacto .dashboard:not(.dashboardAcoes) > .centralDuplicidades {
       min-height: 64px;
     }
 
@@ -2773,8 +2773,8 @@ body.modoCompacto {
         grid-template-columns: 1fr;
       }
 
-      .dashboard > .cardDash,
-      .dashboard > .centralDuplicidades {
+      .dashboard:not(.dashboardAcoes) > .cardDash,
+      .dashboard:not(.dashboardAcoes) > .centralDuplicidades {
         min-height: 68px;
       }
     }
@@ -4372,6 +4372,14 @@ body.modoCompacto {
       grid-auto-rows: 1fr;
     }
 
+    .dashboard.dashboardAcoes > .cardDash {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      margin: 0;
+      grid-column: auto;
+    }
+
     body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
     body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
       min-height: 74px !important;
@@ -4455,13 +4463,28 @@ body.modoCompacto {
     }
 
     .dashboardAcoes .cardAcaoTitulo {
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       margin: 0 0 4px;
       color: #0f2f66;
       font-size: 15px;
       font-weight: 950;
       line-height: 1.15;
       text-transform: none;
+    }
+
+    .dashboardAcoes .cardAcaoTitulo::before {
+      content: "";
+      width: 5px;
+      height: 18px;
+      border-radius: 999px;
+      background: #0f766e;
+      flex: 0 0 auto;
+    }
+
+    .dashboardAcoes #centralDuplicidades.comAlerta .cardAcaoTitulo::before {
+      background: #f97316;
     }
 
     .dashboardAcoes .cardAcaoDescricao {
@@ -4499,6 +4522,8 @@ body.modoCompacto {
       font-size: 12px;
       font-weight: 900;
       line-height: 1;
+      text-transform: none;
+      letter-spacing: 0;
     }
 
     .dashboardAcoes #centralDuplicidades.comAlerta .cardAcaoBotao {
