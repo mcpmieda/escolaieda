@@ -171,13 +171,13 @@
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -936,6 +936,44 @@ ul {
       gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
+    }
+
+    .confirmacaoFecharUploadAcoes .btnConfirmacaoFecharUpload {
+      border-radius: 10px;
+      font-weight: 800;
+      box-shadow: none;
+    }
+
+    .confirmacaoFecharUploadAcoes .btnContinuarUpload {
+      background: #0f2f66;
+      color: #ffffff;
+      border-color: #0f2f66;
+    }
+
+    .confirmacaoFecharUploadAcoes .btnContinuarUpload:hover:not(:disabled),
+    .confirmacaoFecharUploadAcoes .btnContinuarUpload:focus-visible:not(:disabled) {
+      background: #123d82;
+      color: #ffffff;
+      border-color: #123d82;
+      box-shadow: 0 4px 10px rgba(15, 47, 102, .14);
+    }
+
+    .confirmacaoFecharUploadAcoes .btnSairUpload {
+      background: #fff7ed;
+      color: #9a3412;
+      border-color: #fdba74;
+    }
+
+    .confirmacaoFecharUploadAcoes .btnSairUpload:hover:not(:disabled),
+    .confirmacaoFecharUploadAcoes .btnSairUpload:focus-visible:not(:disabled) {
+      background: #fed7aa;
+      color: #7c2d12;
+      border-color: #fb923c;
+      box-shadow: 0 4px 10px rgba(124, 45, 18, .12);
+    }
+
+    .confirmacaoFecharUploadAcoes .btnConfirmacaoFecharUpload:active:not(:disabled) {
+      transform: translateY(1px);
     }
 
     .btnFecharUpload {
