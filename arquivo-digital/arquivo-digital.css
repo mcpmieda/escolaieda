@@ -2030,7 +2030,7 @@ ul {
       background: #f8fafc;
       color: #1f2937;
       border: 1px solid #e5e7eb;
-      cursor: pointer;
+      cursor: pointer;`r`n      font: inherit;`r`n      box-shadow: none;
     }
 
     .cardHistoricoGeral:hover:not(:disabled) {
@@ -4456,20 +4456,13 @@ body.modoCompacto {
 
     .dashboardAcoes .centralDuplicidadesTopo {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       align-items: start;
       gap: 8px;
       margin-bottom: 6px;
     }
 
-    .dashboardAcoes .cardAcaoTitulo {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 4px;
-      color: #0f2f66;
-      font-size: 15px;
-      font-weight: 950;
+    $1900;
       line-height: 1.15;
       text-transform: none;
     }
@@ -4489,50 +4482,20 @@ body.modoCompacto {
 
     .dashboardAcoes .cardAcaoDescricao {
       display: block;
-      margin: 0;
+      margin:  4px 0 0;
       color: #64748b;
       font-size: 12px;
       font-weight: 500;
       line-height: 1.25;
     }
 
-    .dashboardAcoes .acoesCentralDuplicidades {
-      min-height: 0;
-      justify-self: end;
-    }
-
-    .dashboardAcoes .resumoCentralDuplicidades {
+.dashboardAcoes .resumoCentralDuplicidades {
       margin: 0;
       font-size: 12px;
       line-height: 1.25;
     }
 
-    .dashboardAcoes .cardAcaoBotao {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: fit-content;
-      min-height: 32px;
-      margin: 0;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: #e0f2fe;
-      border: 1px solid #7dd3fc;
-      color: #075985 !important;
-      font-size: 12px;
-      font-weight: 900;
-      line-height: 1;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    .dashboardAcoes #centralDuplicidades.comAlerta .cardAcaoBotao {
-      background: #ffedd5;
-      border-color: #fdba74;
-      color: #9a3412 !important;
-    }
-
-    @media (max-width: 900px) {
+@media (max-width: 900px) {
       .dashboardContadores {
         grid-template-columns: 1fr;
       }
@@ -4568,16 +4531,7 @@ body.modoCompacto {
       box-sizing: border-box;
     }
 
-    .dashboardAcoes .acoesCentralDuplicidades {
-      justify-self: end;
-    }
-
-    .dashboardAcoes .acoesCentralDuplicidades button {
-      margin: 0;
-      white-space: nowrap;
-    }
-
-    body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
+body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
       min-height: 46px;
       padding: 12px 14px 12px 42px;
       background-image: url("assets/icones/pesquisa.svg");
@@ -4727,7 +4681,7 @@ body.modoCompacto {
       }
 
       .dashboardAcoes .centralDuplicidadesTopo {
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr);
         gap: 7px;
       }
 

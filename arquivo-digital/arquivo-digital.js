@@ -2521,8 +2521,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     function aplicarEstadoVisualCentralDuplicidades(quantidadePares) {
       const central = document.getElementById("centralDuplicidades");
       const caixa = document.getElementById("listaCentralDuplicidades");
-      const botao = document.getElementById("btnAlternarCentralDuplicidades");
-
       if (!central || !caixa) {
         return;
       }
@@ -2531,11 +2529,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       central.classList.toggle("comAlerta", quantidadePares > 0);
       central.classList.toggle("centralFechada", quantidadePares > 0 && !centralDuplicidadesAberta);
       caixa.style.display = quantidadePares > 0 && centralDuplicidadesAberta ? "grid" : "none";
-
-      if (botao) {
-        botao.style.display = "inline-block";
-        botao.textContent = quantidadePares > 0 ? "Abrir Central" : "Ver Central";
-      }
     }
 
     function atualizarCentralDuplicidadesSegundoPlano() {
