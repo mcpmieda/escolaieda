@@ -814,21 +814,15 @@
 
     function mostrarMensagemPainel(texto, tipo = "info") {
       const msg = document.getElementById("mensagemPainel");
-      if (!msg) return;
-
       clearTimeout(timerMensagemPainel);
-
-      msg.textContent = texto;
-      msg.className = tipo === "erro" ? "mensagemPainel erroPainel" : "mensagemPainel";
-      msg.style.visibility = "visible";
-      msg.style.opacity = "1";
-      msg.style.pointerEvents = "auto";
-
-      timerMensagemPainel = setTimeout(() => {
-        msg.style.opacity = "0";
+      if (msg) {
+        msg.textContent = "";
+        msg.className = "mensagemPainel";
         msg.style.visibility = "hidden";
+        msg.style.opacity = "0";
         msg.style.pointerEvents = "none";
-      }, 3500);
+      }
+      mostrarMensagem(texto, tipo);
     }
     function atualizarStatusAnotacao(texto) {
       document.getElementById("statusAnotacao").textContent = texto;
@@ -3398,11 +3392,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         document.getElementById("novoNomeArquivo").value = "";
 
         await atualizarDadosMantendoPainel();
-        mostrarMensagem(
-          houveAjusteNomeDuplicado
-            ? `Arquivo renomeado como "${nomeFinalRenomear}". A Central de Duplicidades pode apontar nomes parecidos.`
-            : "Arquivo renomeado com sucesso."
-        );
 
       } catch (erro) {
         logger.error(erro);
@@ -5328,9 +5317,11 @@ function renderizarDocumentos(listaArquivos) {
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.nome))}</strong>
-            ${seloGavetaHtml(item.gaveta)}
-            ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome repetido</span>" : ""}
-            ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
+            <span class="metadadosArquivo">
+              ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
+              ${seloGavetaHtml(item.gaveta)}
+              ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome repetido</span>" : ""}
+            </span>
             <span>Clique para ver detalhes, histórico e ações</span>
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${escaparHtml(formatarData(item.modificado))}</span>` : ""}

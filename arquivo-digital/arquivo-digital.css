@@ -4192,23 +4192,44 @@ body.modoCompacto {
       mask-image: url("assets/icones/usuarios.svg");
     }
 
-    body.visualModernoResumoDestaque #centralDuplicidades,
-    body.visualModernoResumoDestaque .centralDuplicidades {
+    body.visualModernoResumoDestaque #centralDuplicidades.comAlerta,
+    body.visualModernoResumoDestaque .centralDuplicidades.comAlerta {
       border-color: rgba(251, 146, 60, .44) !important;
       background: linear-gradient(135deg, rgba(255, 247, 237, .98), rgba(255, 255, 255, .95)) !important;
     }
 
-    body.visualModernoResumoDestaque #centralDuplicidades::before,
-    body.visualModernoResumoDestaque .centralDuplicidades::before {
+    body.visualModernoResumoDestaque #centralDuplicidades.comAlerta::before,
+    body.visualModernoResumoDestaque .centralDuplicidades.comAlerta::before {
       background: rgba(255, 237, 213, .98);
       box-shadow:
         inset 0 0 0 1px rgba(251, 146, 60, .44),
         0 10px 22px rgba(234, 88, 12, .10);
     }
 
-    body.visualModernoResumoDestaque #centralDuplicidades::after,
-    body.visualModernoResumoDestaque .centralDuplicidades::after {
+    body.visualModernoResumoDestaque #centralDuplicidades.comAlerta::after,
+    body.visualModernoResumoDestaque .centralDuplicidades.comAlerta::after {
       background: #ea580c;
+      -webkit-mask-image: url("assets/icones/duplicidades.svg");
+      mask-image: url("assets/icones/duplicidades.svg");
+    }
+
+    body.visualModernoResumoDestaque #centralDuplicidades.discreta,
+    body.visualModernoResumoDestaque .centralDuplicidades.discreta {
+      border-color: rgba(134, 239, 172, .52) !important;
+      background: linear-gradient(135deg, rgba(240, 253, 244, .98), rgba(255, 255, 255, .95)) !important;
+    }
+
+    body.visualModernoResumoDestaque #centralDuplicidades.discreta::before,
+    body.visualModernoResumoDestaque .centralDuplicidades.discreta::before {
+      background: rgba(220, 252, 231, .98);
+      box-shadow:
+        inset 0 0 0 1px rgba(134, 239, 172, .52),
+        0 10px 22px rgba(22, 163, 74, .10);
+    }
+
+    body.visualModernoResumoDestaque #centralDuplicidades.discreta::after,
+    body.visualModernoResumoDestaque .centralDuplicidades.discreta::after {
+      background: #15803d;
       -webkit-mask-image: url("assets/icones/duplicidades.svg");
       mask-image: url("assets/icones/duplicidades.svg");
     }
@@ -4789,10 +4810,23 @@ body.modoCompacto {
       overflow-wrap: anywhere;
     }
 
+    button.itemArquivo .metadadosArquivo {
+      display: flex !important;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 6px;
+      width: auto;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      line-height: 1;
+    }
+
     button.itemArquivo .seloGaveta,
     button.itemArquivo .tagAtivo,
     button.itemArquivo .tagArquivado,
-    button.itemArquivo .statusRecenteArquivo {
+    button.itemArquivo .statusRecenteArquivo,
+    button.itemArquivo .metadadosArquivo .seloNomeRepetido {
       display: inline-flex !important;
       align-items: center;
       justify-content: center;
@@ -4891,7 +4925,7 @@ body.modoCompacto {
       line-height: 1.18;
     }
 
-    body.detalhesReduzidos button.itemArquivo > span:not(.seloGaveta):not(.seloNomeRepetido):not(.statusRecenteArquivo):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
+    body.detalhesReduzidos button.itemArquivo > span:not(.metadadosArquivo):not(.seloGaveta):not(.seloNomeRepetido):not(.statusRecenteArquivo):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
       display: none;
     }
 
