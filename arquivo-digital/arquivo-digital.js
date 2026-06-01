@@ -2902,12 +2902,20 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         .replaceAll("'", "&#039;");
 
       const chaveTexto = (valor) => normalizarTexto(valor || "").replace(/\s+/g, " ").trim();
+      const idDocumentoHistorico = (documento.id || "").toString();
+      const nomeDocumentoHistorico = normalizarTexto(nomeArquivoSemExtensaoVisual(documento.nome || ""));
 
       const renderizarHistoricoDoCache = () => {
         const anotacoesJaMostradas = new Set();
 
         const entradasHistorico = (historicoCarregado || [])
-          .filter(item => item && item.ARQUIVO_ID === documento.id)
+          .filter(item => {
+            if (!item) return false;
+            if (idDocumentoHistorico && item.ARQUIVO_ID === idDocumentoHistorico) return true;
+
+            const nomeHistorico = normalizarTexto(nomeArquivoSemExtensaoVisual(item.ARQUIVO || ""));
+            return Boolean(nomeDocumentoHistorico && nomeHistorico && nomeHistorico === nomeDocumentoHistorico);
+          })
           .map(item => ({
             tipo: "historico",
             acao: item.ACAO || "",
@@ -4605,9 +4613,27 @@ window.abrirSeletorNovoDocumento = function () {
       document.getElementById("gavetaUpload").value = "";
       const btnConcluir = document.getElementById("btnConcluirUploadCentral");
       if (btnConcluir) btnConcluir.style.display = "none";
+      const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
+      if (btnEnviarMais) btnEnviarMais.style.display = "none";
       atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
       renderizarListaCentralUpload();
       document.getElementById("centralUpload")?.classList.remove("aberta");
+    }
+
+    function prepararCentralUploadParaNovoEnvio() {
+      arquivosCentralUpload = [];
+      statusArquivosUpload = [];
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      document.getElementById("motivoUpload").value = "";
+      document.getElementById("gavetaUpload").value = "";
+      document.getElementById("inputNovoDocumento").value = "";
+      const btnConcluir = document.getElementById("btnConcluirUploadCentral");
+      if (btnConcluir) btnConcluir.style.display = "none";
+      const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
+      if (btnEnviarMais) btnEnviarMais.style.display = "none";
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
+      renderizarListaCentralUpload();
     }
 
     function ocultarConfirmacaoFecharUpload() {
@@ -4670,6 +4696,16 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
       descartarCentralUpload();
+    };
+
+    window.prepararNovoEnvioCentralUpload = function () {
+      if (uploadEmAndamento) {
+        mostrarMensagem("O envio está em andamento. Aguarde terminar para iniciar outro.", "erro");
+        return;
+      }
+
+      prepararCentralUploadParaNovoEnvio();
+      escolherArquivosCentralUpload();
     };
 
 /* INICIO_TOGGLE_UPLOAD_HERO_20260527 */
@@ -5174,22 +5210,21 @@ window.abrirSeletorNovoDocumento = function () {
         uploadConcluidoComSucesso = erros.length === 0;
         atualizarProgressoUpload(100, erros.length ? "Concluído com erro" : "Concluído", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? ` ${parciais} pode(m) já existir no SharePoint.` : ""}`, "");
         const btnConcluir = document.getElementById("btnConcluirUploadCentral");
-        if (btnConcluir) btnConcluir.style.display = erros.length ? "none" : "inline-block";
+        if (btnConcluir) btnConcluir.style.display = "inline-block";
+        const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
+        if (btnEnviarMais) btnEnviarMais.style.display = "inline-block";
 
         const mensagemConflito = ajustados ? " Revise nomes parecidos na Central de Duplicidades." : "";
 
         mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? " Verifique o SharePoint antes de reenviar arquivo parcial." : ""}${mensagemConflito}`);
-        if (!erros.length) {
-          setTimeout(() => {
-            if (uploadConcluidoComSucesso && !uploadEmAndamento) {
-              descartarCentralUpload();
-            }
-          }, 900);
-        }
       } catch (erro) {
         logger.error(erro);
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
+        const btnConcluir = document.getElementById("btnConcluirUploadCentral");
+        if (btnConcluir) btnConcluir.style.display = "inline-block";
+        const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
+        if (btnEnviarMais) btnEnviarMais.style.display = "inline-block";
         mostrarMensagem("Não foi possível enviar os PDF(s). Tente novamente.", "erro");
       } finally {
         uploadEmAndamento = false;
