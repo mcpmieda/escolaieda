@@ -2582,9 +2582,7 @@ body.modoCompacto {
     }
 
     .centralConfiguracoesTopo {
-      position: sticky;
-      top: 0;
-      z-index: 2;
+      position: static;
       background: #ffffff;
       padding-bottom: 8px;
     }
@@ -5802,12 +5800,10 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
     }
 
     .centralConfiguracoesTopo {
-      top: 0;
       margin: -12px -12px 12px;
       padding: 12px 12px 10px;
       border-bottom: 1px solid rgba(219, 234, 254, .9);
       background: rgba(255, 255, 255, .98);
-      box-shadow: 0 8px 18px rgba(15, 47, 102, .06);
     }
 
     #mensagemSistema.mensagem,
