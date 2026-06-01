@@ -4426,7 +4426,13 @@ body.modoCompacto {
 
       body.visualModernoFase1A .cabecalhoSistema {
         margin: -12px -12px 10px;
-        border-radius: 0 0 20px 20px;
+        border-radius: 19px 19px 20px 20px;
+        overflow: hidden;
+        background-clip: padding-box;
+      }
+
+      body.visualModernoFase1A .cabecalhoSistema::after {
+        inset: auto -84px -122px auto;
       }
 
       body.visualModernoFase1A .cabecalhoAcoes {
@@ -4452,9 +4458,45 @@ body.modoCompacto {
         justify-self: end;
       }
 
+      body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
+        gap: 8px;
+        margin: 0 0 7px;
+        padding: 10px;
+        border-radius: 15px;
+      }
+
+      body.visualModernoFase1A .areaUploadTexto {
+        gap: 1px;
+      }
+
+      body.visualModernoFase1A .areaUploadTexto strong {
+        font-size: 13px;
+      }
+
+      body.visualModernoFase1A .areaUploadTexto small {
+        font-size: 11px;
+        line-height: 1.2;
+      }
+
+      body.visualModernoFase1A .areaUploadIcone {
+        width: 38px;
+        height: 38px;
+        border-radius: 13px;
+      }
+
+      body.visualModernoFase1A .areaUploadIcone img {
+        width: 20px;
+        height: 20px;
+      }
+
+      body.visualModernoFase1A .btnNovoDocumentoHero {
+        min-height: 36px;
+        padding: 8px 12px;
+      }
+
       body.visualModernoResumoDestaque .dashboardSecaoTopo {
-        margin: 7px 0 4px;
-        padding-top: 6px;
+        margin: 5px 0 3px;
+        padding-top: 4px;
       }
 
       body.visualModernoResumoDestaque .dashboardSecaoTopo h2 {
@@ -4464,8 +4506,8 @@ body.modoCompacto {
 
       body.visualModernoResumoDestaque .dashboardContadores,
       body.visualModernoResumoDestaque .dashboardAcoes {
-        gap: 7px;
-        margin: 5px 0 8px;
+        gap: 6px;
+        margin: 4px 0 6px;
       }
 
       body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
@@ -4524,7 +4566,7 @@ body.modoCompacto {
       }
 
       body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo {
-        margin-top: 6px;
+        margin-top: 4px;
       }
 
       body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
