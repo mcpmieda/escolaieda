@@ -2246,3 +2246,66 @@ Estado:
 - Limpeza pós-ajuste visual aplicada.
 - Tag criada: ponto-seguro-ajustes-visuais-finais-ok.
 
+
+---
+
+## 18.12. Fechamento dos ajustes de 01/06/2026
+
+Resumo da rodada:
+
+- Corrigido hover antigo dos botões da Central de Upload.
+- Os botões "Continuar enviando" e "Sair sem enviar" receberam classes próprias:
+  - `btnConfirmacaoFecharUpload`
+  - `btnContinuarUpload`
+  - `btnSairUpload`
+- A regra global antiga de `button:hover` e `button:active` foi limitada para não atingir os botões de confirmação do fechamento da Central de Upload.
+- Corrigido o posicionamento das notificações para não aparecerem sobre o cabeçalho.
+- Corrigida a causa real do sumiço/posição errada das notificações: `#mensagemSistema` estava dentro de `.card`, que usa `overflow: hidden` e `backdrop-filter`.
+- `#mensagemSistema` agora fica como filho direto do `body`, fora da `.card`.
+- `mostrarMensagem()` passou a exibir a mensagem com `display: flex`, alinhado ao CSS do componente.
+- Foi feito diagnóstico de sobras nas notificações: não há função duplicada nem ID duplicado, mas há CSS de mensagens em camadas históricas.
+
+Commits relevantes:
+
+- `cac0239` — Corrigir hover antigo dos botoes.
+- `8889c4f` — Corrigir notificacoes fora do cabecalho.
+- `b129102` — Corrigir notificacao fora do card.
+
+Relatórios relevantes:
+
+- `diagnosticos/relatorio-correcao-hover-botoes-2026-06-01.md`
+- `diagnosticos/relatorio-correcao-notificacoes-fora-cabecalho-2026-06-01.md`
+- `diagnosticos/relatorio-diagnostico-profundo-notificacoes-2026-06-01.md`
+- `diagnosticos/relatorio-diagnostico-lixo-notificacoes-2026-06-01.md`
+
+Regras permanentes adicionadas:
+
+- A notificação global `#mensagemSistema` deve permanecer fora de `.card`.
+- Não recolocar `#mensagemSistema` dentro de containers com `overflow`, `transform`, `filter`, `backdrop-filter` ou contexto visual forte.
+- Notificações globais devem funcionar como overlay real da viewport.
+- `mostrarMensagem()` deve continuar compatível com o layout flex da classe `.mensagem`.
+- Botões sensíveis de diálogos ou centrais não devem depender apenas de `button:hover` global; usar classe própria e hover escopado.
+- Antes de adicionar CSS novo para notificações, verificar os blocos existentes de `.mensagem`, `.mensagemPainel`, `#mensagemSistema` e `#mensagemPainel`.
+
+Dívida técnica pequena identificada:
+
+- O CSS das mensagens está funcional, mas em camadas:
+  - bloco visual base;
+  - bloco de sobreposição;
+  - bloco posterior de posicionamento final.
+- Próxima limpeza recomendada: consolidar o overlay das mensagens em um bloco único marcado, sem alterar comportamento.
+
+Validações realizadas na rodada:
+
+- `node scripts/validar-arquivo-digital.mjs`
+- `node --check arquivo-digital/arquivo-digital.js` quando o JS foi alterado
+- `git diff --check`
+- teste manual do usuário confirmando funcionamento das notificações
+
+Estado:
+
+- Hover da Central de Upload corrigido.
+- Notificações corrigidas no PC e no celular.
+- Diagnóstico de sobras concluído.
+- Tag de fechamento desta rodada: `ponto-seguro-notificacoes-hover-2026-06-01-ok`.
+
