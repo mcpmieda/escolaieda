@@ -6053,3 +6053,43 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       transform: none !important;
     }
     /* FIM_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527 */
+
+/* INICIO_ETAPA3_MOBILE_CENTRAIS_20260531 */
+    @media (max-width: 760px) {
+      .centralConfiguracoesTopo,
+      .centralUploadTopo {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 10px;
+      }
+
+      .centralConfiguracoesTopo .btnFechar,
+      .centralUploadTopo .btnFechar,
+      .centralUploadTopo .btnFecharUpload {
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        justify-self: end;
+        align-self: start;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        line-height: 1;
+      }
+
+      .centralUploadTopo > div,
+      .centralConfiguracoesTopo > h2 {
+        min-width: 0;
+      }
+
+      .painelCentralDuplicidades .paresIgnoradosDuplicidade {
+        margin: 0 0 12px;
+      }
+    }
+/* FIM_ETAPA3_MOBILE_CENTRAIS_20260531 */
