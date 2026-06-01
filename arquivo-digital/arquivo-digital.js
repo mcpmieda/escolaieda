@@ -805,7 +805,7 @@
       const msg = document.getElementById("mensagemSistema");
       msg.textContent = texto;
       msg.className = tipo === "erro" ? "mensagem erroBox" : "mensagem";
-      msg.style.display = "block";
+      msg.style.display = "flex";
 
       setTimeout(() => {
         msg.style.display = "none";
