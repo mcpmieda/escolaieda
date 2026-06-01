@@ -4644,6 +4644,27 @@ window.abrirSeletorNovoDocumento = function () {
       return arquivosCentralUpload.length > 0 || !!gaveta || !!motivo;
     }
 
+    function atualizarAcoesCentralUpload() {
+      const btnConfirmar = document.getElementById("btnConfirmarUploadCentral");
+      const btnConcluir = document.getElementById("btnConcluirUploadCentral");
+      const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
+      const envioProcessado = uploadConcluidoComSucesso || uploadTeveErro;
+      const podeEnviar = arquivosCentralUpload.length > 0 && !uploadEmAndamento && !envioProcessado;
+
+      if (btnConfirmar) {
+        btnConfirmar.style.display = podeEnviar ? "inline-block" : "none";
+        btnConfirmar.disabled = uploadEmAndamento;
+      }
+
+      if (btnConcluir) {
+        btnConcluir.style.display = envioProcessado ? "inline-block" : "none";
+      }
+
+      if (btnEnviarMais) {
+        btnEnviarMais.style.display = envioProcessado ? "inline-block" : "none";
+      }
+    }
+
     function descartarCentralUpload() {
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
@@ -4651,12 +4672,9 @@ window.abrirSeletorNovoDocumento = function () {
       uploadTeveErro = false;
       document.getElementById("motivoUpload").value = "";
       document.getElementById("gavetaUpload").value = "";
-      const btnConcluir = document.getElementById("btnConcluirUploadCentral");
-      if (btnConcluir) btnConcluir.style.display = "none";
-      const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
-      if (btnEnviarMais) btnEnviarMais.style.display = "none";
       atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
       renderizarListaCentralUpload();
+      atualizarAcoesCentralUpload();
       document.getElementById("centralUpload")?.classList.remove("aberta");
     }
 
@@ -4668,12 +4686,9 @@ window.abrirSeletorNovoDocumento = function () {
       document.getElementById("motivoUpload").value = "";
       document.getElementById("gavetaUpload").value = "";
       document.getElementById("inputNovoDocumento").value = "";
-      const btnConcluir = document.getElementById("btnConcluirUploadCentral");
-      if (btnConcluir) btnConcluir.style.display = "none";
-      const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
-      if (btnEnviarMais) btnEnviarMais.style.display = "none";
       atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
       renderizarListaCentralUpload();
+      atualizarAcoesCentralUpload();
     }
 
     function ocultarConfirmacaoFecharUpload() {
@@ -4781,6 +4796,7 @@ window.abrirSeletorNovoDocumento = function () {
       input.value = "";
       abrirCentralUpload();
       renderizarListaCentralUpload();
+      atualizarAcoesCentralUpload();
     };
 
     window.limparCentralUpload = function () {
@@ -4803,6 +4819,7 @@ window.abrirSeletorNovoDocumento = function () {
       document.getElementById("gavetaUpload").value = "";
       atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
       renderizarListaCentralUpload();
+      atualizarAcoesCentralUpload();
     };
 
     function textoStatusUpload(status) {
@@ -4837,6 +4854,7 @@ window.abrirSeletorNovoDocumento = function () {
 
       if (!arquivosCentralUpload.length) {
         lista.innerHTML = "<li>Nenhum PDF selecionado.</li>";
+        atualizarAcoesCentralUpload();
         return;
       }
 
@@ -4855,6 +4873,7 @@ window.abrirSeletorNovoDocumento = function () {
         </li>
       `;
       }).join("");
+      atualizarAcoesCentralUpload();
     }
 
     function atualizarStatusArquivoUpload(indice, status) {
@@ -5155,7 +5174,6 @@ window.abrirSeletorNovoDocumento = function () {
 
       const gaveta = (document.getElementById("gavetaUpload").value || "").trim();
       const motivo = (document.getElementById("motivoUpload").value || "").trim();
-      const botao = document.getElementById("btnConfirmarUploadCentral");
 
       if (!arquivosCentralUpload.length) {
         mostrarMensagem("Selecione pelo menos um arquivo PDF.", "erro");
@@ -5196,7 +5214,7 @@ window.abrirSeletorNovoDocumento = function () {
         uploadEmAndamento = true;
         uploadConcluidoComSucesso = false;
         uploadTeveErro = false;
-        if (botao) botao.disabled = true;
+        atualizarAcoesCentralUpload();
         document.getElementById("btnFecharCentralUpload")?.classList.add("desativado");
         mostrarMensagem("Enviando PDF(s). Aguarde...");
         atualizarProgressoUpload(0, "Preparando envio", `Enviando 0 de ${arquivosCentralUpload.length} arquivos`, "");
@@ -5249,10 +5267,7 @@ window.abrirSeletorNovoDocumento = function () {
         uploadTeveErro = erros.length > 0;
         uploadConcluidoComSucesso = erros.length === 0;
         atualizarProgressoUpload(100, erros.length ? "Concluído com erro" : "Concluído", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? ` ${parciais} pode(m) já existir no SharePoint.` : ""}`, "");
-        const btnConcluir = document.getElementById("btnConcluirUploadCentral");
-        if (btnConcluir) btnConcluir.style.display = "inline-block";
-        const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
-        if (btnEnviarMais) btnEnviarMais.style.display = "inline-block";
+        atualizarAcoesCentralUpload();
 
         const mensagemConflito = ajustados ? " Revise nomes parecidos na Central de Duplicidades." : "";
 
@@ -5261,14 +5276,11 @@ window.abrirSeletorNovoDocumento = function () {
         logger.error(erro);
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
-        const btnConcluir = document.getElementById("btnConcluirUploadCentral");
-        if (btnConcluir) btnConcluir.style.display = "inline-block";
-        const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
-        if (btnEnviarMais) btnEnviarMais.style.display = "inline-block";
+        atualizarAcoesCentralUpload();
         mostrarMensagem("Não foi possível enviar os PDF(s). Tente novamente.", "erro");
       } finally {
         uploadEmAndamento = false;
-        if (botao) botao.disabled = false;
+        atualizarAcoesCentralUpload();
         document.getElementById("btnFecharCentralUpload")?.classList.remove("desativado");
       }
     };
