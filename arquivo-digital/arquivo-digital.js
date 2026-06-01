@@ -353,6 +353,13 @@
         : "";
     }
 
+    function seloNomeRepetidoHtmlComMapa(documento, mapaNomes) {
+      const chave = chaveNomeArquivoVisualLimpo(documento?.nome || "");
+      return chave && (mapaNomes.get(chave) || 0) > 1
+        ? "<span class=\"seloNomeRepetido\">Nome igual</span>"
+        : "";
+    }
+
     function mensagemGavetasSharePointIndisponiveis() {
       return "As gavetas reais do SharePoint não foram carregadas. Edição indisponível.";
     }
@@ -645,7 +652,12 @@
         return;
       }
 
-      caixa.classList.add("comNomesParecidos");
+      const chaveDocumento = chaveNomeArquivoVisualLimpo(documento.nome || "");
+      const temNomeParecidoReal = parecidos.some(item =>
+        chaveNomeArquivoVisualLimpo(item.doc.nome || "") !== chaveDocumento
+      );
+      caixa.classList.toggle("comNomesParecidos", temNomeParecidoReal);
+      const mapaNomesAtivos = criarMapaNomesVisuaisRepetidos(documentosAtivos);
       caixa.innerHTML = parecidos.map(item => {
         const status = item.doc.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
         const classe = item.doc.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
@@ -655,7 +667,7 @@
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.doc.nome))}</strong>
             <div class="chipsArquivo">
               <span class="${classe}">${status}</span>
-              ${seloNomeRepetidoHtml(item.doc, documentosAtivos)}
+              ${seloNomeRepetidoHtmlComMapa(item.doc, mapaNomesAtivos)}
             </div>
             <small>Possível semelhança pelo nome. Confira antes de substituir, renomear ou mesclar.</small>
           </div>
@@ -4333,9 +4345,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(documento.gaveta);
       const painelTituloChips = document.getElementById("painelTituloChips");
       if (painelTituloChips) {
+        const mapaNomesPainel = criarMapaNomesVisuaisRepetidos([...documentosAtivos, ...documentosLixeira]);
         painelTituloChips.innerHTML = `
           <span class="${documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo"}">${documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo"}</span>
-          ${seloNomeRepetidoHtml(documento, [...documentosAtivos, ...documentosLixeira])}
+          ${seloNomeRepetidoHtmlComMapa(documento, mapaNomesPainel)}
           <span class="chipPainelGaveta">${escaparHtml(gavetaOuPadrao(documento.gaveta))}</span>
         `;
       }
@@ -4392,7 +4405,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       };
 
       const nomesParecidosPainel = document.getElementById("nomesParecidosArquivo");
-      if (nomesParecidosPainel) nomesParecidosPainel.innerHTML = "<p>Procurando nomes parecidos...</p>";
+      if (nomesParecidosPainel) {
+        nomesParecidosPainel.classList.remove("comNomesParecidos");
+        nomesParecidosPainel.innerHTML = "<p>Procurando nomes parecidos...</p>";
+      }
 
       const historicoPainel = document.getElementById("historicoArquivo");
       if (historicoPainel) historicoPainel.innerHTML = montarCarregamentoVisual("Carregando histórico", "Buscando movimentações e anotações do documento.", "🕘");

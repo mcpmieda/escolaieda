@@ -4354,7 +4354,7 @@ body.modoCompacto {
     }
 
     .dashboardAcoes {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
       gap: 12px;
       width: 100%;
       margin: 7px 0 16px;
@@ -4414,23 +4414,34 @@ body.modoCompacto {
     body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-      min-height: 104px !important;
+      min-height: 96px !important;
       width: 100%;
       min-width: 0;
       height: 100%;
       box-sizing: border-box;
-      padding: 13px 16px 13px 60px !important;
+      padding: 14px 16px !important;
       border-radius: 16px !important;
       display: grid;
       align-content: center;
+      align-items: center;
       text-align: left;
+    }
+
+    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades::before,
+    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades::after,
+    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades::before,
+    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades::after,
+    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral::before,
+    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral::after {
+      content: none;
     }
 
     .dashboardAcoes .centralDuplicidadesTopo {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 5px;
-      margin-bottom: 5px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
     .dashboardAcoes .centralDuplicidadesTopo h2 {
@@ -4446,6 +4457,7 @@ body.modoCompacto {
 
     .dashboardAcoes .acoesCentralDuplicidades {
       min-height: 0;
+      justify-self: end;
     }
 
     .dashboardAcoes .resumoCentralDuplicidades {
@@ -4455,7 +4467,7 @@ body.modoCompacto {
     }
 
     .dashboardAcoes .cardHistoricoGeral span {
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       color: #0f2f66;
       font-size: 15px;
       font-weight: 950;
@@ -4471,8 +4483,9 @@ body.modoCompacto {
       margin-top: 8px;
       padding: 8px 10px;
       border-radius: 10px;
-      background: #0f2f66;
-      color: #ffffff;
+      background: #e0f2fe;
+      border: 1px solid #7dd3fc;
+      color: #075985 !important;
       font-size: 12px;
       font-weight: 900;
       line-height: 1;
@@ -4496,10 +4509,7 @@ body.modoCompacto {
       }
 
       body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
-      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados,
-      body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
-      body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
-      body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
+      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
         padding-left: 52px !important;
       }
     }
@@ -4518,27 +4528,10 @@ body.modoCompacto {
     body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
     body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
-      min-height: 104px !important;
-      padding: 11px 14px 11px 56px !important;
+      min-height: 96px !important;
+      padding: 14px 16px !important;
       align-content: center;
       box-sizing: border-box;
-    }
-
-    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades::before,
-    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades::before,
-    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral::before {
-      left: 14px;
-      width: 30px;
-      height: 30px;
-      border-radius: 11px;
-    }
-
-    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades::after,
-    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades::after,
-    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral::after {
-      left: 21px;
-      width: 16px;
-      height: 16px;
     }
 
     .dashboardAcoes .centralDuplicidadesTopo {
