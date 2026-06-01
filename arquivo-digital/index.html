@@ -234,20 +234,20 @@
         <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0" onclick="alternarCentralDuplicidades()">
           <div class="centralDuplicidadesTopo">
             <div>
-              <h2>Central de duplicidades</h2>
-              <p>Revise nomes iguais ou parecidos.</p>
+              <h2 class="cardAcaoTitulo">Central de duplicidades</h2>
+              <p class="cardAcaoDescricao">Revise nomes iguais ou parecidos.</p>
             </div>
             <div class="acoesCentralDuplicidades">
-              <button id="btnAlternarCentralDuplicidades" onclick="event.stopPropagation(); alternarCentralDuplicidades()" style="display:none">Abrir Central</button>
+              <button id="btnAlternarCentralDuplicidades" class="cardAcaoBotao" onclick="event.stopPropagation(); alternarCentralDuplicidades()" style="display:none">Abrir Central</button>
             </div>
           </div>
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
         </div>
 
         <button class="cardDash cardHistoricoGeral" type="button" onclick="abrirHistoricoGeral()">
-          <span>Central de histórico</span>
-          <strong>Abrir Central</strong>
-          <small>Revise histórico de movimentações de arquivos.</small>
+          <span class="cardAcaoTitulo">Central de histórico</span>
+          <span class="cardAcaoBotao">Abrir Central</span>
+          <small class="cardAcaoDescricao">Revise histórico de movimentações de arquivos.</small>
         </button>
 
       </div>
