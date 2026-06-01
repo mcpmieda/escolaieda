@@ -1365,7 +1365,7 @@ ul {
     }
 
     .acoes::before {
-      content: "Acoes do arquivo";
+      content: "AÇÕES DO ARQUIVO";
       position: absolute;
       top: 11px;
       left: 12px;
@@ -1396,6 +1396,40 @@ ul {
       background: #fff7ed;
       border-color: #fed7aa;
       border-left-color: #b45309;
+    }
+
+    #painelStatus.statusPainel {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 24px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    #painelStatus.statusPainelAtivo {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    #painelStatus.statusPainelLixeira {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .nomesParecidosBox {
+      background: #fffbeb;
+      border-color: #fde68a;
+      border-left: 4px solid #f59e0b;
+    }
+
+    .nomesParecidosBox h3 {
+      color: #92400e;
     }
 
     .painelConteudo > h3,
@@ -3042,6 +3076,58 @@ body.modoCompacto {
       color: #64748b;
       line-height: 1.25;
       word-break: break-word;
+    }
+
+    #historicoArquivo .itemHistorico {
+      border-left: 4px solid #cbd5e1;
+    }
+
+    #historicoArquivo .historicoAcaoVisualizou {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      border-left-color: #60a5fa;
+    }
+
+    #historicoArquivo .historicoAcaoEnviou {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      border-left-color: #4ade80;
+    }
+
+    #historicoArquivo .historicoAcaoRenomeou {
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+      border-left-color: #8b5cf6;
+    }
+
+    #historicoArquivo .historicoAcaoSubstituiu {
+      background: #fffbeb;
+      border-color: #fde68a;
+      border-left-color: #f59e0b;
+    }
+
+    #historicoArquivo .historicoAcaoMesclou {
+      background: #ecfeff;
+      border-color: #a5f3fc;
+      border-left-color: #06b6d4;
+    }
+
+    #historicoArquivo .historicoAcaoLixeira {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      border-left-color: #fb7185;
+    }
+
+    #historicoArquivo .historicoAcaoRestaurado {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      border-left-color: #10b981;
+    }
+
+    #historicoArquivo .historicoAcaoAnotacao {
+      background: #f8fafc;
+      border-color: #dbeafe;
+      border-left-color: #94a3b8;
     }
 
     .blocoHistoricoCard {
@@ -5851,7 +5937,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
        Correção pontual:
        botões de ações do painel lateral com hover próprio, legível e sem herdar hover antigo.
     */
-    #painelLateral .painelAcoes button,
+    #painelLateral .acoes button,
     #painelLateral .btnAlterarGaveta {
       min-height: 38px;
       border-radius: 12px;
@@ -5866,8 +5952,8 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       filter: none !important;
     }
 
-    #painelLateral .painelAcoes button:hover:not(:disabled),
-    #painelLateral .painelAcoes button:focus-visible:not(:disabled),
+    #painelLateral .acoes button:hover:not(:disabled),
+    #painelLateral .acoes button:focus-visible:not(:disabled),
     #painelLateral .btnAlterarGaveta:hover:not(:disabled),
     #painelLateral .btnAlterarGaveta:focus-visible:not(:disabled) {
       background: #ffffff !important;
@@ -5882,7 +5968,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       outline: none;
     }
 
-    #painelLateral .painelAcoes button:active:not(:disabled),
+    #painelLateral .acoes button:active:not(:disabled),
     #painelLateral .btnAlterarGaveta:active:not(:disabled) {
       background: #e0f2fe !important;
       color: #0f2f66 !important;
@@ -5891,21 +5977,45 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       transform: none !important;
     }
 
-    #painelLateral #btnSubstituir,
+    #painelLateral .acoes .principal {
+      background: #1d4ed8 !important;
+      color: #ffffff !important;
+      border-color: rgba(37, 99, 235, .64) !important;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, .18) !important;
+    }
+
+    #painelLateral #btnRenomear {
+      background: #e0f2fe !important;
+      color: #075985 !important;
+      border-color: rgba(56, 189, 248, .58) !important;
+    }
+
+    #painelLateral #btnSubstituir {
+      background: #fffbeb !important;
+      color: #92400e !important;
+      border-color: rgba(245, 158, 11, .62) !important;
+    }
+
     #painelLateral #btnMesclar {
-      background: #fff7ed !important;
-      color: #7c2d12 !important;
-      border-color: rgba(251, 146, 60, .52) !important;
+      background: #eef2ff !important;
+      color: #3730a3 !important;
+      border-color: rgba(129, 140, 248, .62) !important;
     }
 
     #painelLateral #btnSubstituir:hover:not(:disabled),
-    #painelLateral #btnSubstituir:focus-visible:not(:disabled),
+    #painelLateral #btnSubstituir:focus-visible:not(:disabled) {
+      background: #fef3c7 !important;
+      color: #78350f !important;
+      border-color: rgba(245, 158, 11, .72) !important;
+      box-shadow: 0 8px 18px rgba(146, 64, 14, .09) !important;
+    }
+
     #painelLateral #btnMesclar:hover:not(:disabled),
     #painelLateral #btnMesclar:focus-visible:not(:disabled) {
-      background: #fffbeb !important;
-      color: #78350f !important;
-      border-color: rgba(245, 158, 11, .60) !important;
-      box-shadow: 0 8px 18px rgba(146, 64, 14, .09) !important;
+      background: #e0e7ff !important;
+      color: #312e81 !important;
+      border-color: rgba(99, 102, 241, .72) !important;
+      box-shadow: 0 8px 18px rgba(67, 56, 202, .09) !important;
     }
 
     #painelLateral #btnArquivar {
@@ -5936,7 +6046,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       box-shadow: 0 8px 18px rgba(6, 95, 70, .08) !important;
     }
 
-    #painelLateral .painelAcoes button:disabled,
+    #painelLateral .acoes button:disabled,
     #painelLateral .btnAlterarGaveta:disabled {
       opacity: .60;
       cursor: not-allowed;

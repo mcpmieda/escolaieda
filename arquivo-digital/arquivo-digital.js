@@ -293,6 +293,10 @@
       return opcoesGavetaCarregadas;
     }
 
+    function nomeArquivoSemExtensaoVisual(nome) {
+      return (nome || "").toString().replace(/\.pdf$/i, "");
+    }
+
     function mensagemGavetasSharePointIndisponiveis() {
       return "As gavetas reais do SharePoint não foram carregadas. Edição indisponível.";
     }
@@ -590,7 +594,7 @@
 
         return `
           <div class="nomeParecido">
-            <strong>${escaparHtml(item.doc.nome)}</strong>
+            <strong>${escaparHtml(nomeArquivoSemExtensaoVisual(item.doc.nome))}</strong>
             <span class="${classe}">${status}</span>
             <small>Possível semelhança pelo nome. Confira antes de substituir, renomear ou mesclar.</small>
           </div>
@@ -2571,13 +2575,13 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             <div class="duplicidadeColunas">
               <div class="duplicidadeArquivo">
                 <span class="${tagA}">${statusA}</span>
-                <strong>${textoSeguroCentral(par.a.nome)}</strong>
+                <strong>${textoSeguroCentral(nomeArquivoSemExtensaoVisual(par.a.nome))}</strong>
                 <button data-acao-duplicidade="abrir" data-id="${idA}" data-status="${statusValorA}">Abrir no painel</button>
               </div>
 
               <div class="duplicidadeArquivo">
                 <span class="${tagB}">${statusB}</span>
-                <strong>${textoSeguroCentral(par.b.nome)}</strong>
+                <strong>${textoSeguroCentral(nomeArquivoSemExtensaoVisual(par.b.nome))}</strong>
                 <button data-acao-duplicidade="abrir" data-id="${idB}" data-status="${statusValorB}">Abrir no painel</button>
               </div>
             </div>
@@ -2703,7 +2707,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     }
 
     function adicionarDetalheHistoricoCard(lista, rotulo, valor) {
-      const limpo = limparTextoHistoricoCard(valor);
+      const limpo = nomeArquivoSemExtensaoVisual(limparTextoHistoricoCard(valor));
       if (limpo) {
         lista.push({ rotulo, valor: limpo });
       }
@@ -2842,6 +2846,19 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       if (texto.toUpperCase() === "MESCLOU") return "MESCLOU";
       return texto;
     }
+
+    function classeHistoricoPainel(acao) {
+      const normalizada = normalizarTexto(formatarAcaoHistorico(acao || ""));
+      if (normalizada.includes("visualizou") || normalizada.includes("abriu")) return "historicoAcaoVisualizou";
+      if (normalizada.includes("enviou") || normalizada.includes("adicionou")) return "historicoAcaoEnviou";
+      if (normalizada.includes("renomeou")) return "historicoAcaoRenomeou";
+      if (normalizada.includes("substituiu")) return "historicoAcaoSubstituiu";
+      if (normalizada.includes("mescl")) return "historicoAcaoMesclou";
+      if (normalizada.includes("lixeira")) return "historicoAcaoLixeira";
+      if (normalizada.includes("restaur")) return "historicoAcaoRestaurado";
+      if (normalizada.includes("anotacao")) return "historicoAcaoAnotacao";
+      return "historicoAcaoNeutra";
+    }
     async function carregarHistoricoDocumento(documento) {
       const caixa = document.getElementById("historicoArquivo");
       if (!caixa) return;
@@ -2915,7 +2932,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
           if (item.acao === "ANOTACAO" || item.tipo === "anotacaoAtual") {
             return `
-              <div class="itemHistorico anotacaoEvento">
+              <div class="itemHistorico anotacaoEvento historicoAcaoAnotacao">
                 <strong>${esc(item.tipo === "anotacaoAtual" ? "ANOTAÇÃO ATUAL" : "ANOTAÇÃO")}</strong><br>
                 <span>${esc(dataFormatada)}</span><br>
                 <span>${usuario}${email}</span>
@@ -2928,9 +2945,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             ? `${usuario}${email}`.replace(/^\s+-\s+/, "")
             : "Usuário não informado";
           const historicoFormatado = montarHistoricoFormatado(item.acao, item.observacao || "", esc);
+          const classeAcao = classeHistoricoPainel(item.acao);
 
           return `
-            <div class="itemHistorico">
+            <div class="itemHistorico ${classeAcao}">
               <div class="cabecalhoHistoricoCard">
                 <strong class="acaoHistoricoCard">${esc(formatarAcaoHistorico(item.acao))}</strong>
                 <span class="dataHistoricoCard">${esc(dataFormatada)}</span>
@@ -4129,19 +4147,23 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           </div>
         `;
       }).join("") + (versoes.length > 2 ? `
-        <button class="btnAlternarVersoes" type="button" onclick="alternarTodasVersoesSharePoint()">
+        <button class="btnAlternarVersoes" type="button" onclick="event.preventDefault(); event.stopPropagation(); alternarTodasVersoesSharePoint(event)">
           ${versoesSharePointExpandido ? "Recolher" : "Ver todas"}
         </button>
       ` : "");
 
       caixa.querySelectorAll(".btnVersaoSharePoint[data-version-id]").forEach(botao => {
-        botao.addEventListener("click", () => {
+        botao.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
           visualizarVersaoSharePoint(botao.dataset.versionId);
         });
       });
     }
 
-    window.alternarTodasVersoesSharePoint = function () {
+    window.alternarTodasVersoesSharePoint = function (event) {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
       versoesSharePointExpandido = !versoesSharePointExpandido;
       renderizarVersoesSharePoint();
     };
@@ -4232,13 +4254,15 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       documentoSelecionado = documento;
 
-      document.getElementById("painelTitulo").textContent = documento.nome;
-      document.getElementById("painelNome").textContent = documento.nome;
+      document.getElementById("painelTitulo").textContent = nomeArquivoSemExtensaoVisual(documento.nome);
+      document.getElementById("painelNome").textContent = nomeArquivoSemExtensaoVisual(documento.nome);
       const painelId = document.getElementById("painelId");
       if (painelId) painelId.textContent = documento.id || "";
       const painelCaminho = document.getElementById("painelCaminho");
       if (painelCaminho) painelCaminho.textContent = documento.caminho || "";
-      document.getElementById("painelStatus").textContent = documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
+      const painelStatus = document.getElementById("painelStatus");
+      painelStatus.textContent = documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
+      painelStatus.className = documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo";
       const painelGaveta = document.getElementById("painelGaveta");
       if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(documento.gaveta);
 
@@ -5181,7 +5205,7 @@ function renderizarDocumentos(listaArquivos) {
         const li = document.createElement("li");
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
-            <strong>${escaparHtml(item.nome)}</strong>
+            <strong>${escaparHtml(nomeArquivoSemExtensaoVisual(item.nome))}</strong>
             ${seloGavetaHtml(item.gaveta)}
             <span>Clique para ver detalhes, histórico e ações</span>
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoHistorico(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
