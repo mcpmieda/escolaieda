@@ -5951,6 +5951,117 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       overflow-wrap: anywhere;
     }
 
+    /* INICIO_AJUSTES_V1_PAINEL_UPLOAD_DUPLICIDADES_20260601 */
+    #painelLateral > .painelTopo {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 6px 12px;
+    }
+
+    #painelLateral > .painelTopo #painelTitulo {
+      max-width: 100%;
+      letter-spacing: 0;
+    }
+
+    #painelLateral > .painelTopo .btnFechar {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      justify-self: end;
+    }
+
+    .painelTituloChips {
+      grid-column: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+    }
+
+    .statusPainel,
+    .chipPainelGaveta {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      min-height: 23px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .statusPainelAtivo {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .statusPainelLixeira {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .chipPainelGaveta {
+      background: #e0f2fe;
+      color: #075985;
+      border: 1px solid #7dd3fc;
+    }
+
+    #painelLateral > .painelTopo .seloNomeRepetido {
+      min-height: 23px;
+      margin: 0;
+      background: #fef3c7;
+      border-color: #fcd34d;
+      color: #92400e;
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:nth-of-type(3) {
+      border-color: rgba(14, 116, 144, .28);
+      background: linear-gradient(135deg, #ecfeff, #ffffff);
+      box-shadow: 0 8px 18px rgba(8, 145, 178, .055);
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:nth-of-type(3) strong {
+      color: #075985;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:nth-of-type(3) #painelGaveta {
+      display: block;
+      color: #0f172a;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .nomesParecidosBox {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      border-left-color: #cbd5e1;
+    }
+
+    .nomesParecidosBox.comNomesParecidos {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      border-left-color: #f97316;
+    }
+
+    .nomesParecidosBox.comNomesParecidos h3 {
+      color: #9a3412;
+    }
+
+    .avisoArquivoGrande {
+      background: #dbeafe !important;
+      color: #1d4ed8 !important;
+    }
+    /* FIM_AJUSTES_V1_PAINEL_UPLOAD_DUPLICIDADES_20260601 */
+
     @media (max-width: 560px) {
       #painelLateral > .painelTopo {
         min-height: 58px;
@@ -5959,7 +6070,7 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
       #painelLateral > .painelTopo #painelTitulo {
         font-size: 14px;
-        max-width: calc(100% - 44px);
+        max-width: 100%;
       }
 
       #painelLateral > .painelTopo .btnFechar {

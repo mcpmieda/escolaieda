@@ -162,8 +162,8 @@
 
         <div class="centralUploadGrade">
           <div class="campoUpload">
-            <strong>Arquivos PDF</strong>
-            <button id="btnSelecionarArquivoUpload" class="secundario btnUploadSecundario" onclick="escolherArquivosCentralUpload()">Selecione o arquivo</button>
+            <strong>ARQUIVOS DO ALUNO</strong>
+            <button id="btnSelecionarArquivoUpload" class="secundario btnUploadSecundario" onclick="escolherArquivosCentralUpload()">Selecione os arquivos</button>
             <small id="contadorArquivosUpload">0 arquivo(s) selecionado(s)</small>
           </div>
 
@@ -179,7 +179,7 @@
         </div>
 
         <ul id="listaArquivosUpload" class="listaArquivosUpload">
-          <li>Nenhum PDF selecionado.</li>
+          <li>Nenhum arquivo selecionado.</li>
         </ul>
 
         <div class="progressoUpload">
@@ -191,14 +191,14 @@
             <div id="barraProgressoUpload" class="barraProgressoUpload"></div>
           </div>
           <div class="detalhesProgressoUpload">
-            <span id="detalheUpload">Selecione os PDFs para enviar.</span>
+            <span id="detalheUpload">Selecione os arquivos do aluno para enviar.</span>
             <span id="arquivoAtualUpload"></span>
           </div>
         </div>
 
         <div class="centralUploadAcoes">
-          <button id="btnConfirmarUploadCentral" class="principal" onclick="confirmarUploadCentral()">Enviar PDF(s)</button>
-          <button id="btnEnviarMaisUploadCentral" class="secundario btnUploadSecundario" style="display:none" onclick="prepararNovoEnvioCentralUpload()">Enviar mais PDFs</button>
+          <button id="btnConfirmarUploadCentral" class="principal" onclick="confirmarUploadCentral()">Enviar arquivo(s)</button>
+          <button id="btnEnviarMaisUploadCentral" class="secundario btnUploadSecundario" style="display:none" onclick="prepararNovoEnvioCentralUpload()">Enviar mais arquivos</button>
           <button id="btnConcluirUploadCentral" class="principal" style="display:none" onclick="concluirFecharCentralUpload()">Fechar</button>
           <button id="btnLimparSelecaoUpload" class="secundario btnUploadSecundario" onclick="limparCentralUpload()">Limpar seleção</button>
         </div>
@@ -316,6 +316,7 @@
   <aside id="painelLateral" class="painelLateral">
     <div class="painelTopo">
       <h2 id="painelTitulo">Arquivo</h2>
+      <div id="painelTituloChips" class="painelTituloChips"></div>
       <button id="btnFecharPainelLateral" class="btnFechar">X</button>
     </div>
 
@@ -337,7 +338,7 @@
       </div>
 
       <div class="acoes">
-        <button class="principal" onclick="abrirPdfSelecionado()">ABRIR PDF</button>
+        <button class="principal" onclick="abrirPdfSelecionado()">ABRIR ARQUIVO</button>
         <button id="btnRenomear" onclick="prepararRenomear()">Renomear</button>
         <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
         <button id="btnArquivar" onclick="prepararArquivar()">Mover para Lixeira</button>

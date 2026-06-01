@@ -640,10 +640,12 @@
       const parecidos = buscarNomesParecidos(documento);
 
       if (!parecidos.length) {
+        caixa.classList.remove("comNomesParecidos");
         caixa.innerHTML = "<p>Nenhum nome parecido encontrado.</p>";
         return;
       }
 
+      caixa.classList.add("comNomesParecidos");
       caixa.innerHTML = parecidos.map(item => {
         const status = item.doc.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
         const classe = item.doc.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
@@ -2741,6 +2743,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         /^Arquivo substituido por uma nova versao\.\s*Motivo:\s*/i,
         /^Documento aberto pelo botão ABRIR PDF no painel lateral\.\s*/i,
         /^Documento aberto pelo botão Abrir PDF no painel lateral\.\s*/i,
+        /^Documento aberto pelo botão ABRIR ARQUIVO no painel lateral\.\s*/i,
         /^Documento aberto pelo sistema Arquivo Digital\.\s*/i,
         /^Motivo:\s*/i
       ];
@@ -4318,9 +4321,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       document.getElementById("painelTitulo").textContent = nomeArquivoVisualLimpo(documento.nome);
       const painelNome = document.getElementById("painelNome");
-      painelNome.textContent = nomeArquivoVisualLimpo(documento.nome);
+      painelNome.textContent = documento.nome || "";
       painelNome.parentElement?.querySelector(".seloNomeRepetido")?.remove();
-      painelNome.insertAdjacentHTML("afterend", seloNomeRepetidoHtml(documento, [...documentosAtivos, ...documentosLixeira]));
       const painelId = document.getElementById("painelId");
       if (painelId) painelId.textContent = documento.id || "";
       const painelCaminho = document.getElementById("painelCaminho");
@@ -4330,6 +4332,14 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       painelStatus.className = documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo";
       const painelGaveta = document.getElementById("painelGaveta");
       if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(documento.gaveta);
+      const painelTituloChips = document.getElementById("painelTituloChips");
+      if (painelTituloChips) {
+        painelTituloChips.innerHTML = `
+          <span class="${documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo"}">${documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo"}</span>
+          <span class="chipPainelGaveta">${escaparHtml(gavetaOuPadrao(documento.gaveta))}</span>
+          ${seloNomeRepetidoHtml(documento, [...documentosAtivos, ...documentosLixeira])}
+        `;
+      }
 
       const estaArquivado = documento.status === "ARQUIVADO";
       document.getElementById("btnRenomear").style.display = estaArquivado ? "none" : "inline-block";
@@ -4466,7 +4476,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const linkPdf = documentoAberto.link || "";
 
       if (!linkPdf) {
-        mostrarMensagemPainel("Não foi possível localizar o link deste PDF.", "erro");
+        mostrarMensagemPainel("Não foi possível localizar o link deste arquivo.", "erro");
         return;
       }
 
@@ -4478,14 +4488,14 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         window.location.href = linkPdf;
       }
 
-      mostrarMensagemPainel("PDF aberto. Registrando acesso no histórico...");
+      mostrarMensagemPainel("Arquivo aberto. Registrando acesso no histórico...");
 
       setTimeout(async () => {
         try {
           await registrarHistorico(
             documentoAberto,
             "VISUALIZOU",
-            "Documento aberto pelo botão Abrir PDF no painel lateral."
+            "Documento aberto pelo botão ABRIR ARQUIVO no painel lateral."
           );
 
           if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
@@ -4495,7 +4505,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           logger.error(erro);
 
           if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
-            mostrarMensagemPainel("PDF aberto, mas não foi possível registrar no histórico agora.", "erro");
+            mostrarMensagemPainel("Arquivo aberto, mas não foi possível registrar no histórico agora.", "erro");
           }
         }
       }, 0);
@@ -4623,7 +4633,7 @@ window.abrirSeletorNovoDocumento = function () {
       document.getElementById("gavetaUpload").innerHTML = opcoesGavetaHtml();
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
-      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os arquivos do aluno para enviar.", "");
       renderizarListaCentralUpload();
     };
 
@@ -4661,7 +4671,7 @@ window.abrirSeletorNovoDocumento = function () {
       uploadTeveErro = false;
       document.getElementById("motivoUpload").value = "";
       document.getElementById("gavetaUpload").value = "";
-      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os arquivos do aluno para enviar.", "");
       renderizarListaCentralUpload();
       atualizarAcoesCentralUpload();
       document.getElementById("centralUpload")?.classList.remove("aberta");
@@ -4675,7 +4685,7 @@ window.abrirSeletorNovoDocumento = function () {
       document.getElementById("motivoUpload").value = "";
       document.getElementById("gavetaUpload").value = "";
       document.getElementById("inputNovoDocumento").value = "";
-      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os arquivos do aluno para enviar.", "");
       renderizarListaCentralUpload();
       atualizarAcoesCentralUpload();
     }
@@ -4794,11 +4804,6 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      if (!uploadConcluidoComSucesso && !uploadTeveErro && centralUploadTemRascunho()) {
-        const limpar = confirm("Você selecionou arquivos que ainda não foram enviados. Deseja limpar a seleção?");
-        if (!limpar) return;
-      }
-
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
       uploadConcluidoComSucesso = false;
@@ -4806,7 +4811,7 @@ window.abrirSeletorNovoDocumento = function () {
       ocultarConfirmacaoFecharUpload();
       document.getElementById("motivoUpload").value = "";
       document.getElementById("gavetaUpload").value = "";
-      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os PDFs para enviar.", "");
+      atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os arquivos do aluno para enviar.", "");
       renderizarListaCentralUpload();
       atualizarAcoesCentralUpload();
     };
@@ -4842,7 +4847,7 @@ window.abrirSeletorNovoDocumento = function () {
       contador.textContent = `${arquivosCentralUpload.length} arquivo(s) selecionado(s)`;
 
       if (!arquivosCentralUpload.length) {
-        lista.innerHTML = "<li>Nenhum PDF selecionado.</li>";
+        lista.innerHTML = "<li>Nenhum arquivo selecionado.</li>";
         atualizarAcoesCentralUpload();
         return;
       }
@@ -4857,8 +4862,8 @@ window.abrirSeletorNovoDocumento = function () {
           <strong>${escaparHtml(arquivo.name)}</strong>
           <span>${escaparHtml(formatarTamanhoUpload(arquivo.size))}</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
-          ${nomeRepetido ? "<small class=\"avisoNomeRepetido\">Nome já existe — será enviado com nome livre</small>" : ""}
-          ${arquivoGrande ? "<small class=\"avisoNomeRepetido\">Arquivo grande — será enviado em blocos</small>" : ""}
+          ${nomeRepetido ? "<small class=\"avisoNomeRepetido\">Nome já existe — será enviado com duplicidade — Confira na Central após envio</small>" : ""}
+          ${arquivoGrande ? "<small class=\"avisoNomeRepetido avisoArquivoGrande\">Arquivo grande — será enviado em blocos</small><small class=\"avisoNomeRepetido avisoArquivoGrande\">Confira se o arquivo chegou com todas as páginas</small>" : ""}
         </li>
       `;
       }).join("");
@@ -5165,7 +5170,7 @@ window.abrirSeletorNovoDocumento = function () {
       const motivo = (document.getElementById("motivoUpload").value || "").trim();
 
       if (!arquivosCentralUpload.length) {
-        mostrarMensagem("Selecione pelo menos um arquivo PDF.", "erro");
+        mostrarMensagem("Selecione pelo menos um arquivo do aluno.", "erro");
         return;
       }
 
@@ -5188,24 +5193,13 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      const arquivosGrandes = arquivosCentralUpload.filter(arquivo => (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES);
-      if (arquivosGrandes.length) {
-        const maiorArquivo = arquivosGrandes.reduce((maior, atual) => ((atual.size || 0) > (maior.size || 0) ? atual : maior), arquivosGrandes[0]);
-        const continuar = confirm(
-          `${arquivosGrandes.length} arquivo(s) acima de ${formatarTamanhoUpload(LIMITE_UPLOAD_SIMPLES_BYTES)} serão enviados em blocos.\n\n` +
-          `Maior arquivo: ${maiorArquivo.name} (${formatarTamanhoUpload(maiorArquivo.size)}).\n\n` +
-          "Se a internet oscilar, o envio pode falhar. Deseja continuar?"
-        );
-        if (!continuar) return;
-      }
-
       try {
         uploadEmAndamento = true;
         uploadConcluidoComSucesso = false;
         uploadTeveErro = false;
         atualizarAcoesCentralUpload();
         document.getElementById("btnFecharCentralUpload")?.classList.add("desativado");
-        mostrarMensagem("Enviando PDF(s). Aguarde...");
+        mostrarMensagem("Enviando arquivo(s). Aguarde...");
         atualizarProgressoUpload(0, "Preparando envio", `Enviando 0 de ${arquivosCentralUpload.length} arquivos`, "");
 
         const ocupados = criarConjuntoNomesUploadOcupados();
@@ -5266,7 +5260,7 @@ window.abrirSeletorNovoDocumento = function () {
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
         atualizarAcoesCentralUpload();
-        mostrarMensagem("Não foi possível enviar os PDF(s). Tente novamente.", "erro");
+        mostrarMensagem("Não foi possível enviar os arquivo(s). Tente novamente.", "erro");
       } finally {
         uploadEmAndamento = false;
         atualizarAcoesCentralUpload();
@@ -5744,7 +5738,8 @@ function renderizarDocumentos(listaArquivos) {
       if (
         painelCentral &&
         painelCentral.classList.contains("aberto") &&
-        !painelCentral.contains(event.target) &&
+        !(painelCentral.contains(event.target) || caminhoClique.includes(painelCentral)) &&
+        !(painel && (painel.contains(event.target) || caminhoClique.includes(painel))) &&
         !event.target.closest("#centralDuplicidades")
       ) {
         fecharPainelCentralDuplicidades();
