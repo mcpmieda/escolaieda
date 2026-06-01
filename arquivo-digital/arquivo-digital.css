@@ -1984,7 +1984,7 @@ ul {
     }
 
 
-    body.detalhesReduzidos .itemArquivo > span:not(.seloGaveta):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
+    body.detalhesReduzidos .itemArquivo > span:not(.seloGaveta):not(.seloNomeRepetido):not(.statusRecenteArquivo):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
       display: none;
     }
 
@@ -4836,7 +4836,7 @@ body.modoCompacto {
       line-height: 1.18;
     }
 
-    body.detalhesReduzidos button.itemArquivo > span:not(.seloGaveta):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
+    body.detalhesReduzidos button.itemArquivo > span:not(.seloGaveta):not(.seloNomeRepetido):not(.statusRecenteArquivo):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
       display: none;
     }
 
@@ -6053,6 +6053,40 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       transform: none !important;
     }
     /* FIM_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527 */
+
+/* INICIO_COMPLEMENTO_NOMES_REPETIDOS_20260601 */
+    .seloNomeRepetido {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 20px;
+      margin: 1px 0 0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      color: #92400e !important;
+      font-size: 11px !important;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0;
+      box-shadow: none;
+    }
+
+    #painelLateral .campoInfo .seloNomeRepetido,
+    .nomeParecido .seloNomeRepetido,
+    .duplicidadeArquivo .seloNomeRepetido {
+      margin-top: 6px;
+    }
+
+    button.itemArquivo:hover:not(:disabled) .seloNomeRepetido,
+    button.itemArquivo:focus-visible:not(:disabled) .seloNomeRepetido {
+      color: #78350f !important;
+      border-color: #fbbf24;
+      background: #fef3c7;
+    }
+/* FIM_COMPLEMENTO_NOMES_REPETIDOS_20260601 */
 
 /* INICIO_ETAPA3_MOBILE_CENTRAIS_20260531 */
     @media (max-width: 760px) {

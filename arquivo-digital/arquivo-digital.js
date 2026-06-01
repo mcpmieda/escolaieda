@@ -321,6 +321,38 @@
       return (nome || "").toString().replace(/\.pdf$/i, "");
     }
 
+    function nomeArquivoVisualLimpo(nome) {
+      return nomeArquivoSemExtensaoVisual(nome).replace(/\s+\((?:[2-9]|\d{2,})\)$/i, "").trim();
+    }
+
+    function chaveNomeArquivoVisualLimpo(nome) {
+      return normalizarTexto(nomeArquivoVisualLimpo(nome)).replace(/\s+/g, " ").trim();
+    }
+
+    function criarMapaNomesVisuaisRepetidos(lista) {
+      const contagem = new Map();
+
+      (lista || []).forEach(doc => {
+        const chave = chaveNomeArquivoVisualLimpo(doc?.nome || "");
+        if (!chave) return;
+        contagem.set(chave, (contagem.get(chave) || 0) + 1);
+      });
+
+      return contagem;
+    }
+
+    function temNomeVisualRepetido(documento, lista) {
+      const chave = chaveNomeArquivoVisualLimpo(documento?.nome || "");
+      if (!chave) return false;
+      return (criarMapaNomesVisuaisRepetidos(lista).get(chave) || 0) > 1;
+    }
+
+    function seloNomeRepetidoHtml(documento, lista) {
+      return temNomeVisualRepetido(documento, lista)
+        ? "<span class=\"seloNomeRepetido\">Nome repetido</span>"
+        : "";
+    }
+
     function mensagemGavetasSharePointIndisponiveis() {
       return "As gavetas reais do SharePoint não foram carregadas. Edição indisponível.";
     }
@@ -618,7 +650,8 @@
 
         return `
           <div class="nomeParecido">
-            <strong>${escaparHtml(nomeArquivoSemExtensaoVisual(item.doc.nome))}</strong>
+            <strong>${escaparHtml(nomeArquivoVisualLimpo(item.doc.nome))}</strong>
+            ${seloNomeRepetidoHtml(item.doc, documentosAtivos)}
             <span class="${classe}">${status}</span>
             <small>Possível semelhança pelo nome. Confira antes de substituir, renomear ou mesclar.</small>
           </div>
@@ -2605,13 +2638,15 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             <div class="duplicidadeColunas">
               <div class="duplicidadeArquivo">
                 <span class="${tagA}">${statusA}</span>
-                <strong>${textoSeguroCentral(nomeArquivoSemExtensaoVisual(par.a.nome))}</strong>
+                <strong>${textoSeguroCentral(nomeArquivoVisualLimpo(par.a.nome))}</strong>
+                ${seloNomeRepetidoHtml(par.a, [...documentosAtivos, ...documentosLixeira])}
                 <button data-acao-duplicidade="abrir" data-id="${idA}" data-status="${statusValorA}">Abrir no painel</button>
               </div>
 
               <div class="duplicidadeArquivo">
                 <span class="${tagB}">${statusB}</span>
-                <strong>${textoSeguroCentral(nomeArquivoSemExtensaoVisual(par.b.nome))}</strong>
+                <strong>${textoSeguroCentral(nomeArquivoVisualLimpo(par.b.nome))}</strong>
+                ${seloNomeRepetidoHtml(par.b, [...documentosAtivos, ...documentosLixeira])}
                 <button data-acao-duplicidade="abrir" data-id="${idB}" data-status="${statusValorB}">Abrir no painel</button>
               </div>
             </div>
@@ -2737,7 +2772,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     }
 
     function adicionarDetalheHistoricoCard(lista, rotulo, valor) {
-      const limpo = nomeArquivoSemExtensaoVisual(limparTextoHistoricoCard(valor));
+      const limpo = nomeArquivoVisualLimpo(limparTextoHistoricoCard(valor));
       if (limpo) {
         lista.push({ rotulo, valor: limpo });
       }
@@ -4292,8 +4327,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       documentoSelecionado = documento;
 
-      document.getElementById("painelTitulo").textContent = nomeArquivoSemExtensaoVisual(documento.nome);
-      document.getElementById("painelNome").textContent = nomeArquivoSemExtensaoVisual(documento.nome);
+      document.getElementById("painelTitulo").textContent = nomeArquivoVisualLimpo(documento.nome);
+      const painelNome = document.getElementById("painelNome");
+      painelNome.textContent = nomeArquivoVisualLimpo(documento.nome);
+      painelNome.parentElement?.querySelector(".seloNomeRepetido")?.remove();
+      painelNome.insertAdjacentHTML("afterend", seloNomeRepetidoHtml(documento, [...documentosAtivos, ...documentosLixeira]));
       const painelId = document.getElementById("painelId");
       if (painelId) painelId.textContent = documento.id || "";
       const painelCaminho = document.getElementById("painelCaminho");
@@ -5240,6 +5278,8 @@ function renderizarDocumentos(listaArquivos) {
       const contador = document.getElementById("contadorResultados");
       const movimentacoesRecentes = obterUltimasMovimentacoesPorArquivo(20);
       const termoBusca = normalizarTexto(document.getElementById("campoBusca").value);
+      const baseRepetidos = modoListaAtual === "recentes" ? [...documentosAtivos, ...documentosLixeira] : listaArquivos;
+      const mapaNomesRepetidos = criarMapaNomesVisuaisRepetidos(baseRepetidos);
 
       const totalFiltrado = listaArquivos.length;
       const listaExibida = modoListaAtual === "recentes" && !termoBusca
@@ -5270,12 +5310,14 @@ function renderizarDocumentos(listaArquivos) {
           : null);
         const statusRecente = item.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
         const classeStatusRecente = item.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
+        const nomeRepetido = (mapaNomesRepetidos.get(chaveNomeArquivoVisualLimpo(item.nome || "")) || 0) > 1;
 
         const li = document.createElement("li");
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
-            <strong>${escaparHtml(nomeArquivoSemExtensaoVisual(item.nome))}</strong>
+            <strong>${escaparHtml(nomeArquivoVisualLimpo(item.nome))}</strong>
             ${seloGavetaHtml(item.gaveta)}
+            ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome repetido</span>" : ""}
             ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
             <span>Clique para ver detalhes, histórico e ações</span>
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
