@@ -1442,38 +1442,24 @@ ul {
       border-left-color: #b45309;
     }
 
-    #painelStatus.statusPainel {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      min-height: 24px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 850;
-      line-height: 1;
-    }
-
-    #painelStatus.statusPainelAtivo {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
-    }
-
-    #painelStatus.statusPainelLixeira {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
     .nomesParecidosBox {
-      background: #fffbeb;
-      border-color: #fde68a;
-      border-left: 4px solid #f59e0b;
+      background: #ffffff;
+      border-color: #e2e8f0;
+      border-left: 4px solid #cbd5e1;
     }
 
     .nomesParecidosBox h3 {
-      color: #92400e;
+      color: #0f2f66;
+    }
+
+    .nomesParecidosBox.comNomesParecidos {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      border-left-color: #f97316;
+    }
+
+    .nomesParecidosBox.comNomesParecidos h3 {
+      color: #9a3412;
     }
 
     .painelConteudo > h3,
@@ -4296,8 +4282,8 @@ body.modoCompacto {
 /* INICIO_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
     @media (min-width: 1500px) {
       body.visualModernoFase1A .card {
-        width: min(96vw, 1760px);
-        max-width: 1760px;
+        width: min(92vw, 1320px);
+        max-width: 1320px;
       }
 
       body.visualModernoResumoDestaque .dashboardTopo {
@@ -4320,8 +4306,8 @@ body.modoCompacto {
 
     @media (min-width: 1800px) {
       body.visualModernoFase1A .card {
-        width: min(97vw, 1840px);
-        max-width: 1840px;
+        width: min(90vw, 1380px);
+        max-width: 1380px;
       }
     }
 
@@ -4470,16 +4456,30 @@ body.modoCompacto {
 
     .dashboardAcoes .cardHistoricoGeral span {
       margin-bottom: 5px;
-      font-size: 11px;
+      color: #0f2f66;
+      font-size: 15px;
+      font-weight: 950;
+      line-height: 1.15;
+      text-transform: none;
     }
 
     .dashboardAcoes .cardHistoricoGeral strong {
-      font-size: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #0f2f66;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
       line-height: 1;
     }
 
     .dashboardAcoes .cardHistoricoGeral small {
-      margin-top: 6px;
+      margin-top: 0;
       font-size: 12px;
       line-height: 1.25;
     }
@@ -4512,7 +4512,7 @@ body.modoCompacto {
     }
 
     body.visualModernoResumoDestaque .dashboardContadores {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
@@ -5980,18 +5980,26 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
     }
 
     .statusPainel,
-    .chipPainelGaveta {
+    .chipPainelGaveta,
+    .painelTituloChips .seloNomeRepetido,
+    .chipsArquivo .tagAtivo,
+    .chipsArquivo .tagArquivado,
+    .chipsArquivo .seloNomeRepetido {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       width: fit-content;
       max-width: 100%;
-      min-height: 23px;
-      padding: 4px 9px;
+      min-height: 24px;
+      padding: 0 9px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 850;
       line-height: 1;
+      letter-spacing: 0;
       overflow-wrap: anywhere;
+      white-space: nowrap;
+      box-sizing: border-box;
     }
 
     .statusPainelAtivo {
@@ -6013,47 +6021,42 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
     }
 
     #painelLateral > .painelTopo .seloNomeRepetido {
-      min-height: 23px;
       margin: 0;
       background: #fef3c7;
       border-color: #fcd34d;
       color: #92400e;
     }
 
-    #painelLateral .painelConteudo > .campoInfo:nth-of-type(3) {
+    .chipsArquivo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 7px 0 8px;
+    }
+
+    .chipsArquivo .seloNomeRepetido {
+      margin: 0;
+    }
+
+    #painelLateral .painelConteudo > .campoInfo:nth-of-type(2) {
       border-color: rgba(14, 116, 144, .28);
       background: linear-gradient(135deg, #ecfeff, #ffffff);
       box-shadow: 0 8px 18px rgba(8, 145, 178, .055);
     }
 
-    #painelLateral .painelConteudo > .campoInfo:nth-of-type(3) strong {
+    #painelLateral .painelConteudo > .campoInfo:nth-of-type(2) strong {
       color: #075985;
       text-transform: uppercase;
       font-size: 12px;
       letter-spacing: 0;
     }
 
-    #painelLateral .painelConteudo > .campoInfo:nth-of-type(3) #painelGaveta {
+    #painelLateral .painelConteudo > .campoInfo:nth-of-type(2) #painelGaveta {
       display: block;
       color: #0f172a;
       font-size: 15px;
       font-weight: 900;
-    }
-
-    .nomesParecidosBox {
-      background: #ffffff;
-      border-color: #e2e8f0;
-      border-left-color: #cbd5e1;
-    }
-
-    .nomesParecidosBox.comNomesParecidos {
-      background: #fff7ed;
-      border-color: #fed7aa;
-      border-left-color: #f97316;
-    }
-
-    .nomesParecidosBox.comNomesParecidos h3 {
-      color: #9a3412;
     }
 
     .avisoArquivoGrande {
@@ -6276,11 +6279,11 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       justify-content: center;
       width: fit-content;
       max-width: 100%;
-      min-height: 22px;
+      min-height: 24px;
       margin: 0;
-      padding: 0 8px;
+      padding: 0 9px;
       border-radius: 999px;
-      font-size: 10.5px !important;
+      font-size: 12px !important;
       font-weight: 800;
       line-height: 1;
       letter-spacing: 0;
@@ -6338,7 +6341,6 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
     }
 
     #painelLateral .campoInfo .seloNomeRepetido,
-    .nomeParecido .seloNomeRepetido,
     .duplicidadeArquivo .seloNomeRepetido {
       margin: 6px 0 8px;
     }

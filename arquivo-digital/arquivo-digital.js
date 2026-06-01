@@ -653,8 +653,10 @@
         return `
           <div class="nomeParecido">
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.doc.nome))}</strong>
-            ${seloNomeRepetidoHtml(item.doc, documentosAtivos)}
-            <span class="${classe}">${status}</span>
+            <div class="chipsArquivo">
+              <span class="${classe}">${status}</span>
+              ${seloNomeRepetidoHtml(item.doc, documentosAtivos)}
+            </div>
             <small>Possível semelhança pelo nome. Confira antes de substituir, renomear ou mesclar.</small>
           </div>
         `;
@@ -1571,7 +1573,7 @@ atualizarCardParesIgnorados();
         window.ordemHistoricoGeralAtual = "desc";
       }
 
-      abrirPainelDashboard("Histórico geral", `
+      abrirPainelDashboard("Central de histórico", `
         <div class="filtroHistoricoGeral" onclick="event.stopPropagation()">
           <div class="topoFiltroHistoricoGeral">
             <strong>Filtrar alterações</strong>
@@ -1877,7 +1879,7 @@ window.verMaisHistoricoGeral = function (event) {
       sincronizarCamposFiltroHistoricoGeral();
 
       if (!historicoCarregado.length) {
-        caixa.innerHTML = "<p>Histórico geral ainda não carregado. Aguarde alguns segundos e tente novamente.</p>";
+        caixa.innerHTML = "<p>Central de histórico ainda não carregada. Aguarde alguns segundos e tente novamente.</p>";
         return;
       }
 
@@ -4327,17 +4329,14 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       if (painelId) painelId.textContent = documento.id || "";
       const painelCaminho = document.getElementById("painelCaminho");
       if (painelCaminho) painelCaminho.textContent = documento.caminho || "";
-      const painelStatus = document.getElementById("painelStatus");
-      painelStatus.textContent = documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
-      painelStatus.className = documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo";
       const painelGaveta = document.getElementById("painelGaveta");
       if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(documento.gaveta);
       const painelTituloChips = document.getElementById("painelTituloChips");
       if (painelTituloChips) {
         painelTituloChips.innerHTML = `
           <span class="${documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo"}">${documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo"}</span>
-          <span class="chipPainelGaveta">${escaparHtml(gavetaOuPadrao(documento.gaveta))}</span>
           ${seloNomeRepetidoHtml(documento, [...documentosAtivos, ...documentosLixeira])}
+          <span class="chipPainelGaveta">${escaparHtml(gavetaOuPadrao(documento.gaveta))}</span>
         `;
       }
 
