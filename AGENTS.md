@@ -2309,3 +2309,46 @@ Estado:
 - Diagnóstico de sobras concluído.
 - Tag de fechamento desta rodada: `ponto-seguro-notificacoes-hover-2026-06-01-ok`.
 
+
+---
+
+## 18.13. Ajustes UX pós-teste de 01/06/2026
+
+Resumo curto da rodada:
+
+- Notificações globais foram consolidadas para aparecer no topo fixo da viewport.
+- Mensagens de ações do painel lateral passaram a usar canal global único; `#mensagemPainel` foi mantido, mas não deve duplicar mensagem embaixo.
+- Central de Upload agora oculta o botão vermelho `Enviar PDF(s)` após envio processado e mostra ações coerentes como `Enviar mais PDFs` e `Fechar`.
+- Cards de documentos passaram a agrupar chips em `.metadadosArquivo`, com chips lado a lado e quebra apenas quando faltar espaço.
+- Chips foram padronizados em altura, padding, fonte e cores:
+  - Ativo: verde;
+  - Lixeira: rosa/vermelho claro;
+  - Gaveta: azul discreto;
+  - Nome igual: amarelo discreto.
+- Texto visual `Nome repetido` foi trocado por `Nome igual`.
+- `Nome igual` permanece cálculo visual do frontend, derivado dos nomes atuais; não criar coluna SharePoint para isso sem fase própria e autorização.
+- Dashboard de ações foi ajustado para manter Central de Duplicidades e Histórico Geral como cards irmãos, com mesma proporção no desktop e empilhamento apenas no mobile.
+- Central de Duplicidades só deve usar visual de alerta quando tiver `.comAlerta`; com zero casos deve ficar `.discreta`, neutra/positiva.
+
+Commits relevantes:
+
+- `057bd56` — Ajustar notificacoes cards dashboard e upload.
+- `f0cbc03` — Corrigir notificacoes chips e dashboard.
+- `956ccc8` — Padronizar dashboard chips e nome igual.
+
+Relatórios relevantes:
+
+- `diagnosticos/relatorio-pacote-ajustes-ux-notificacoes-cards-upload-2026-06-01.md`
+- `diagnosticos/relatorio-correcao-pos-teste-ux-2026-06-01.md`
+- `diagnosticos/relatorio-diagnostico-dashboard-chips-nome-igual-2026-06-01.md`
+
+Regras permanentes adicionadas:
+
+- Não voltar notificações globais para `bottom`; `#mensagemSistema` deve ficar fixo no topo visível da viewport.
+- Para ações do painel lateral, evitar exibir a mesma mensagem em `mostrarMensagem()` e `mostrarMensagemPainel()` ao mesmo tempo.
+- Não recriar chips como `display:block`, `width:100%` ou filhos sem agrupamento quando fizerem parte dos metadados do card.
+- Manter `.metadadosArquivo` como agrupador visual dos chips dos cards.
+- A classe interna `seloNomeRepetido` pode permanecer por compatibilidade, mas o texto visível deve ser `Nome igual`.
+- `Nome igual` não é dado oficial salvo no SharePoint; recalcular no frontend após mudanças de lista/nome/status.
+- Ao ajustar dashboard, preferir corrigir o bloco final responsável por `.dashboardAcoes`; evitar novo CSS apenas para vencer camadas antigas.
+
