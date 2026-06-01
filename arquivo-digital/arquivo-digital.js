@@ -138,8 +138,8 @@
 
     function ordenarPorModificacaoMaisRecente(lista) {
       return [...(lista || [])].sort((a, b) => {
-        const dataA = new Date(a.modificado || a.dataModificacao || 0).getTime() || 0;
-        const dataB = new Date(b.modificado || b.dataModificacao || 0).getTime() || 0;
+        const dataA = new Date(a.dataRecente || a.modificado || a.dataModificacao || 0).getTime() || 0;
+        const dataB = new Date(b.dataRecente || b.modificado || b.dataModificacao || 0).getTime() || 0;
 
         if (dataA !== dataB) {
           return dataB - dataA;
@@ -1992,7 +1992,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     function aplicarListaAtual() {
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
-        : documentosAtivos;
+        : modoListaAtual === "recentes"
+          ? montarDocumentosRecentesComHistorico()
+          : documentosAtivos;
 
       atualizarBotoesModoLista();
       renderizarGavetasAtivos();
@@ -5263,17 +5265,20 @@ function renderizarDocumentos(listaArquivos) {
         const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
         const chaveId = item.id ? `id:${item.id}` : "";
         const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
-        const movimento = modoListaAtual !== "na Lixeira"
+        const movimento = item.movimentoRecente || (modoListaAtual !== "na Lixeira"
           ? movimentacoesRecentes.get(chaveId) || movimentacoesRecentes.get(chaveNome)
-          : null;
+          : null);
+        const statusRecente = item.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
+        const classeStatusRecente = item.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
 
         const li = document.createElement("li");
         li.innerHTML = `
           <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
             <strong>${escaparHtml(nomeArquivoSemExtensaoVisual(item.nome))}</strong>
             ${seloGavetaHtml(item.gaveta)}
+            ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
             <span>Clique para ver detalhes, histórico e ações</span>
-            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoHistorico(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
+            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${escaparHtml(formatarData(item.modificado))}</span>` : ""}
           </button>
         `;
@@ -5306,6 +5311,73 @@ function renderizarDocumentos(listaArquivos) {
         });
 
       return mapa;
+    }
+
+    function acaoHistoricoRelevanteRecentes(acao) {
+      const texto = normalizarTexto(formatarAcaoHistorico(acao || ""));
+      return [
+        "foi para lixeira",
+        "restaurado",
+        "restaurou",
+        "renomeou",
+        "substituiu",
+        "mesclado",
+        "mesclou",
+        "enviou",
+        "visualizou",
+        "abriu"
+      ].some(parte => texto.includes(parte));
+    }
+
+    function formatarAcaoRecente(acao) {
+      const texto = (acao || "").toString().trim().toUpperCase();
+      if (texto === "RESTAUROU") return "RESTAURADO";
+      return formatarAcaoHistorico(acao || "MOVIMENTOU");
+    }
+
+    function montarDocumentosRecentesComHistorico() {
+      if (!historicoCarregado.length) {
+        return documentosAtivos;
+      }
+
+      const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
+      const porId = new Map();
+      const porNome = new Map();
+
+      todosDocumentos.forEach(doc => {
+        if (doc.id) porId.set(doc.id, doc);
+        const nome = normalizarTexto(nomeArquivoSemExtensaoVisual(doc.nome || ""));
+        if (nome && !porNome.has(nome)) porNome.set(nome, doc);
+      });
+
+      const recentes = [];
+      const vistos = new Set();
+
+      historicoCarregado
+        .filter(item => item && item.DATA_HORA && acaoHistoricoRelevanteRecentes(item.ACAO))
+        .sort((a, b) => new Date(b.DATA_HORA || 0) - new Date(a.DATA_HORA || 0))
+        .forEach(item => {
+          const documento = (item.ARQUIVO_ID && porId.get(item.ARQUIVO_ID)) ||
+            porNome.get(normalizarTexto(nomeArquivoSemExtensaoVisual(item.ARQUIVO || "")));
+
+          if (!documento) return;
+
+          const chave = documento.id || normalizarTexto(documento.nome || "");
+          if (!chave || vistos.has(chave)) return;
+
+          vistos.add(chave);
+          recentes.push({
+            ...documento,
+            dataRecente: item.DATA_HORA,
+            movimentoRecente: item
+          });
+        });
+
+      if (!recentes.length) {
+        return documentosAtivos;
+      }
+
+      return recentes;
     }
 
     function obterIdsDuplicidadePendente() {
