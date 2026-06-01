@@ -5810,11 +5810,11 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
     #mensagemSistema.mensagem.erroBox,
     #mensagemPainel.mensagemPainel,
     #mensagemPainel.mensagemPainel.erroPainel {
-      right: 50% !important;
-      left: auto !important;
+      left: 50% !important;
+      right: auto !important;
       width: min(560px, calc(100vw - 32px)) !important;
       max-width: min(560px, calc(100vw - 32px)) !important;
-      transform: translateX(50%);
+      transform: translateX(-50%);
       justify-content: flex-start;
       pointer-events: none;
     }
