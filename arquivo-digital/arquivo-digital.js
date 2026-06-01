@@ -5414,8 +5414,10 @@ function renderizarDocumentos(listaArquivos) {
       const contas = msalInstance.getAllAccounts();
       const usuario = contas[0];
 
+      const nomeUsuarioConectado = usuario?.name || "Usuário conectado";
+
       document.getElementById("status").textContent = usuario
-        ? "Usuário conectado"
+        ? `Usuário conectado: ${nomeUsuarioConectado}`
         : "Usuário não conectado";
 
       document.getElementById("btnEntrar").style.display = usuario ? "none" : "inline-block";
@@ -5427,11 +5429,6 @@ function renderizarDocumentos(listaArquivos) {
         modoListaAtual = preferenciasSistema.guiaInicial || "recentes";
         const areaUsuario = document.getElementById("usuario");
         areaUsuario.textContent = "";
-        const nomeUsuario = document.createElement("span");
-        nomeUsuario.textContent = usuario.name || "Usuário conectado";
-        const emailUsuario = document.createElement("small");
-        emailUsuario.textContent = usuario.username || "";
-        areaUsuario.append(nomeUsuario, emailUsuario);
 
         document.getElementById("status").textContent = "Verificando acesso...";
 
@@ -5446,7 +5443,7 @@ function renderizarDocumentos(listaArquivos) {
 
           acessoArquivoDigitalPermitido = true;
           ocultarTelaAcessoRestrito();
-          document.getElementById("status").textContent = "Usuário conectado";
+          document.getElementById("status").textContent = `Usuário conectado: ${nomeUsuarioConectado}`;
           liberarBlindagemVisualPreLogin();
           document.getElementById("btnAbrirConfiguracoesTopo").style.display = "inline-block";
           document.getElementById("areaSistema").style.display = "block";

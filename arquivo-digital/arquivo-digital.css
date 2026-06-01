@@ -80,7 +80,7 @@
     }
 
     #usuario.info {
-      display: flex;
+      display: none;
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
@@ -4353,6 +4353,198 @@ body.modoCompacto {
       }
     }
 /* FIM_AJUSTE_VISUAL_CONTADORES_DASHBOARD_RC1_20260531 */
+
+/* INICIO_ETAPA1_TELA_INICIAL_MOBILE_20260531 */
+    body.visualModernoFase1A .cabecalhoAcoes #status {
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    body.visualModernoResumoDestaque .dashboardContadores {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
+    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
+    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
+      min-height: 82px !important;
+      padding: 11px 14px 11px 56px !important;
+    }
+
+    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades::before,
+    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades::before,
+    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral::before {
+      left: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 11px;
+    }
+
+    body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades::after,
+    body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades::after,
+    body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral::after {
+      left: 21px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .dashboardAcoes .centralDuplicidadesTopo {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dashboardAcoes .acoesCentralDuplicidades {
+      justify-self: end;
+    }
+
+    .dashboardAcoes .acoesCentralDuplicidades button {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
+      min-height: 46px;
+      padding: 12px 14px 12px 42px;
+      background-image: url("assets/icones/pesquisa.svg");
+      background-repeat: no-repeat;
+      background-position: 14px center;
+      background-size: 17px 17px;
+    }
+
+    @media (max-width: 900px) {
+      body.visualModernoResumoDestaque .dashboardContadores {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body.visualModernoFase1A .card {
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      body.visualModernoFase1A .cabecalhoSistema {
+        margin: -12px -12px 10px;
+        border-radius: 0 0 20px 20px;
+      }
+
+      body.visualModernoFase1A .cabecalhoAcoes {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        justify-items: end;
+        align-items: center;
+      }
+
+      body.visualModernoFase1A .cabecalhoAcoes #status {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+
+      body.visualModernoFase1A .cabecalhoAcoes button,
+      body.visualModernoFase1A #btnAbrirConfiguracoesTopo.btnCabecalhoAcao,
+      body.visualModernoFase1A #btnSair.btnCabecalhoSair {
+        width: auto;
+        min-width: 42px;
+        max-width: 170px;
+        padding-left: 10px;
+        padding-right: 10px;
+        justify-self: end;
+      }
+
+      body.visualModernoResumoDestaque .dashboardSecaoTopo {
+        margin: 7px 0 4px;
+        padding-top: 6px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardSecaoTopo h2 {
+        font-size: 13px;
+        margin: 0;
+      }
+
+      body.visualModernoResumoDestaque .dashboardContadores,
+      body.visualModernoResumoDestaque .dashboardAcoes {
+        gap: 7px;
+        margin: 5px 0 8px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
+      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
+        min-height: 58px !important;
+        padding: 7px 9px 7px 44px !important;
+      }
+
+      body.visualModernoResumoDestaque .dashboardContadores > .cardDash::before,
+      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados::before {
+        left: 10px;
+        width: 25px;
+        height: 25px;
+        border-radius: 9px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardContadores > .cardDash::after,
+      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados::after {
+        left: 16px;
+        width: 13px;
+        height: 13px;
+      }
+
+      .dashboardContadores > .cardDash span,
+      .dashboardContadores > .cardDash small {
+        font-size: 10px;
+      }
+
+      .dashboardContadores > .cardDash strong {
+        font-size: 20px;
+      }
+
+      body.visualModernoResumoDestaque .dashboardAcoes > #centralDuplicidades,
+      body.visualModernoResumoDestaque .dashboardAcoes > .centralDuplicidades,
+      body.visualModernoResumoDestaque .dashboardAcoes > .cardHistoricoGeral {
+        min-height: 72px !important;
+        padding: 9px 10px 9px 46px !important;
+      }
+
+      .dashboardAcoes .centralDuplicidadesTopo {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 7px;
+      }
+
+      .dashboardAcoes .centralDuplicidadesTopo p,
+      .dashboardAcoes .cardHistoricoGeral small {
+        display: none;
+      }
+
+      .dashboardAcoes .centralDuplicidadesTopo h2 {
+        font-size: 13px;
+      }
+
+      .dashboardAcoes .resumoCentralDuplicidades {
+        font-size: 11px;
+      }
+
+      body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo {
+        margin-top: 6px;
+      }
+
+      body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #campoBusca {
+        min-height: 48px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body.visualModernoFase1A .btnCabecalhoAcao span {
+        max-width: 118px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
+      body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
+        padding-right: 7px !important;
+      }
+    }
+/* FIM_ETAPA1_TELA_INICIAL_MOBILE_20260531 */
 
 /* INICIO_CARD_DOCUMENTO_OFICIAL_FASE5B_20260527
        Bloco oficial final dos cards de documento.
