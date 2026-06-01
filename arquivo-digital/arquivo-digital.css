@@ -5859,13 +5859,15 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
     #mensagemSistema.mensagem,
     #mensagemSistema.mensagem.erroBox {
-      top: 14px !important;
+      top: auto !important;
+      bottom: 24px !important;
       z-index: 100000 !important;
     }
 
     #mensagemPainel.mensagemPainel,
     #mensagemPainel.mensagemPainel.erroPainel {
-      top: 74px !important;
+      top: auto !important;
+      bottom: 88px !important;
       z-index: 99999 !important;
     }
 
@@ -5883,7 +5885,8 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
 
       #mensagemPainel.mensagemPainel,
       #mensagemPainel.mensagemPainel.erroPainel {
-        top: 72px !important;
+        top: auto !important;
+        bottom: 82px !important;
       }
     }
 
