@@ -152,6 +152,39 @@ const regrasDashboardProtegidas = seletoresCss.filter(item =>
   item.seletor.includes(".dashboard.dashboardContadores") ||
   item.seletor.includes(".dashboard.dashboardAcoes")
 );
+const coletarUrlsExternas = (...fontes) => {
+  const urls = new Set();
+  const regex = /https?:\/\/[^\s"'<>),;]+/g;
+
+  for (const fonte of fontes) {
+    for (const match of fonte.matchAll(regex)) {
+      urls.add(match[0]);
+    }
+  }
+
+  return [...urls].sort();
+};
+const urlsExternas = coletarUrlsExternas(html, css, js);
+const dominiosExternos = [...new Set(urlsExternas.map(url => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}).filter(Boolean))].sort();
+const importsExternosJs = [...js.matchAll(/\bimport\s*(?:\(|[^;]*?\bfrom\s*)["'](https?:\/\/[^"']+)["']/g)]
+  .map(match => match[1])
+  .sort();
+const scriptsExternosHtml = [...html.matchAll(/<script\b[^>]*\bsrc=["'](https?:\/\/[^"']+)["'][^>]*>/gi)]
+  .map(match => match[1])
+  .sort();
+const linksExternosHtml = [...html.matchAll(/<link\b[^>]*\bhref=["'](https?:\/\/[^"']+)["'][^>]*>/gi)]
+  .map(match => match[1])
+  .sort();
+const totalMetaCsp = (html.match(/http-equiv=["']Content-Security-Policy["']/gi) || []).length;
+const totalStyleAttributes = (html.match(/\bstyle\s*=/gi) || []).length;
+const usaMsalExterno = importsExternosJs.some(url => /msal-browser/i.test(url));
+const usaPdfLibExterno = importsExternosJs.some(url => /pdf-lib/i.test(url));
 const contarHandlersInline = (fonte) => ({
   onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
   onchange: (fonte.match(/\bonchange\s*=/g) || []).length,
@@ -239,3 +272,4 @@ if (!paineisSemAria.length && !botoesFecharSemLabel && !camposSemNomeAcessivel.l
   console.log("- Painéis principais, botões de fechar e campos prioritários com nomes acessíveis diagnosticados.");
 }
 console.log(`- Diagnostico CSS gradual: seletores=${seletoresCss.length}; seletores duplicados=${seletoresDuplicadosCss.length}; regras .dashboard genericas=${regrasDashboardGenericas.length}; regras dashboard protegidas=${regrasDashboardProtegidas.length}.`);
+console.log(`- Diagnostico CSP/CDN/SRI gradual: imports externos JS=${importsExternosJs.length}; scripts externos HTML=${scriptsExternosHtml.length}; links externos HTML=${linksExternosHtml.length}; dominios externos=${dominiosExternos.join(", ") || "nenhum"}; meta CSP=${totalMetaCsp}; style attributes=${totalStyleAttributes}; MSAL externo=${usaMsalExterno ? "sim" : "nao"}; pdf-lib externo=${usaPdfLibExterno ? "sim" : "nao"}.`);
