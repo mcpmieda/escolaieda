@@ -322,16 +322,16 @@
       <div class="campoInfo">
         <strong>Localização física</strong>
         <span id="painelGaveta"></span>
-        <button class="btnAlterarGaveta" onclick="prepararAlterarGaveta()">Alterar gaveta</button>
+        <button id="btnPrepararAlterarGaveta" class="btnAlterarGaveta">Alterar gaveta</button>
       </div>
 
       <div class="acoes">
-        <button class="principal" onclick="abrirPdfSelecionado()">ABRIR ARQUIVO</button>
-        <button id="btnRenomear" onclick="prepararRenomear()">Renomear</button>
-        <button id="btnSubstituir" onclick="prepararSubstituir()">Substituir</button>
-        <button id="btnArquivar" onclick="prepararArquivar()">Mover para Lixeira</button>
-        <button id="btnRestaurar" onclick="prepararRestaurar()" style="display:none">Restaurar</button>
-        <button id="btnMesclar" onclick="prepararMesclar()">Mesclar</button>
+        <button id="btnAbrirArquivoPainel" class="principal">ABRIR ARQUIVO</button>
+        <button id="btnRenomear">Renomear</button>
+        <button id="btnSubstituir">Substituir</button>
+        <button id="btnArquivar">Mover para Lixeira</button>
+        <button id="btnRestaurar" style="display:none">Restaurar</button>
+        <button id="btnMesclar">Mesclar</button>
       </div>
 
       <div id="mensagemPainel" class="mensagemPainel" aria-live="polite" aria-atomic="true"></div>
@@ -341,8 +341,8 @@
         <input id="novoNomeArquivo" type="text" placeholder="Novo nome do arquivo">
         <small>O sistema adiciona .pdf automaticamente se você não digitar.</small>
         <div class="linhaBotoes">
-          <button id="btnConfirmarRenomear" onclick="confirmarRenomear()">Confirmar renomeação</button>
-          <button class="secundario" onclick="cancelarRenomear()">Cancelar</button>
+          <button id="btnConfirmarRenomear">Confirmar renomeação</button>
+          <button id="btnCancelarRenomear" class="secundario">Cancelar</button>
         </div>
       </div>
 
@@ -352,8 +352,8 @@
         <input id="arquivoSubstituto" type="file" accept="application/pdf,.pdf">
         <small>As versões anteriores deverão continuar disponíveis no histórico do arquivo.</small>
         <div class="linhaBotoes">
-          <button id="btnConfirmarSubstituir" onclick="confirmarSubstituir()">Confirmar substituição</button>
-          <button class="secundario" onclick="cancelarSubstituir()">Cancelar</button>
+          <button id="btnConfirmarSubstituir">Confirmar substituição</button>
+          <button id="btnCancelarSubstituir" class="secundario">Cancelar</button>
         </div>
       </div>
 
@@ -362,8 +362,8 @@
         <p>O documento será enviado para a <strong>Lixeira</strong> interna do sistema. Ele não será excluído.</p>
         <textarea id="motivoArquivar" placeholder="Informe o motivo para enviar à Lixeira..."></textarea>
         <div class="linhaBotoes">
-          <button id="btnConfirmarArquivar" onclick="confirmarArquivar()">Confirmar envio para Lixeira</button>
-          <button class="secundario" onclick="cancelarArquivar()">Cancelar</button>
+          <button id="btnConfirmarArquivar">Confirmar envio para Lixeira</button>
+          <button id="btnCancelarArquivar" class="secundario">Cancelar</button>
         </div>
       </div>
 
@@ -372,8 +372,8 @@
         <p>O documento será restaurado da <strong>Lixeira</strong> para a lista principal de documentos ativos.</p>
         <textarea id="motivoRestaurar" placeholder="Informe o motivo para restaurar da Lixeira..."></textarea>
         <div class="linhaBotoes">
-          <button id="btnConfirmarRestaurar" onclick="confirmarRestaurar()">Confirmar restauração</button>
-          <button class="secundario" onclick="cancelarRestaurar()">Cancelar</button>
+          <button id="btnConfirmarRestaurar">Confirmar restauração</button>
+          <button id="btnCancelarRestaurar" class="secundario">Cancelar</button>
         </div>
       </div>
 
@@ -382,23 +382,23 @@
         <select id="novaGavetaDocumento"></select>
         <textarea id="motivoAlterarGaveta" placeholder="Informe o motivo da alteração de gaveta..."></textarea>
         <div class="linhaBotoes">
-          <button id="btnConfirmarAlterarGaveta" onclick="confirmarAlterarGaveta()">Salvar gaveta</button>
-          <button class="secundario" onclick="cancelarAlterarGaveta()">Cancelar</button>
+          <button id="btnConfirmarAlterarGaveta">Salvar gaveta</button>
+          <button id="btnCancelarAlterarGaveta" class="secundario">Cancelar</button>
         </div>
       </div>
 
       <div id="boxMesclar" class="formAcao alertaAcao">
         <h3>Mesclar arquivos</h3>
         <p>Escolha um PDF do computador. As páginas dele serão adicionadas ao final do arquivo atual.</p>
-        <input id="arquivoLocalMesclar" type="file" accept="application/pdf,.pdf" onchange="selecionarArquivoLocalMesclar(this)" style="display:none">
-        <button class="secundario" onclick="escolherArquivoLocalMesclar()">Escolher PDF do computador</button>
+        <input id="arquivoLocalMesclar" type="file" accept="application/pdf,.pdf" style="display:none">
+        <button id="btnEscolherArquivoMesclar" class="secundario">Escolher PDF do computador</button>
         <div id="arquivoSelecionadoMesclar" class="arquivoSelecionadoMesclar">Nenhum PDF selecionado.</div>
         <textarea id="motivoMesclar" placeholder="Informe o motivo da mesclagem..."></textarea>
         <small>O nome do arquivo atual será mantido e as versões anteriores deverão continuar disponíveis.</small>
         <div id="statusMesclar" class="statusMesclar"></div>
         <div class="linhaBotoes">
-          <button id="btnConfirmarMesclar" onclick="confirmarMesclar()">Confirmar mesclagem</button>
-          <button class="secundario" onclick="cancelarMesclar()">Cancelar</button>
+          <button id="btnConfirmarMesclar">Confirmar mesclagem</button>
+          <button id="btnCancelarMesclar" class="secundario">Cancelar</button>
         </div>
       </div>
 
@@ -407,7 +407,7 @@
         <textarea id="campoAnotacao" placeholder="Digite observações sobre este arquivo..."></textarea>
         <div class="linhaAnotacao">
           <small id="statusAnotacao">Selecione um arquivo.</small>
-          <button class="btnSalvar" onclick="salvarAnotacaoManual()">Salvar agora</button>
+          <button id="btnSalvarAnotacaoPainel" class="btnSalvar">Salvar agora</button>
         </div>
       </div>
 

@@ -5760,6 +5760,27 @@ function renderizarDocumentos(listaArquivos) {
       aoClicar("btnFecharPainelCentralDuplicidades", fecharPainelCentralDuplicidades);
       aoClicar("btnFecharPainelDashboard", window.fecharPainelDashboard);
       aoClicar("btnFecharPainelLateral", fecharPainel);
+      aoClicar("btnAbrirArquivoPainel", window.abrirPdfSelecionado);
+      aoClicar("btnRenomear", window.prepararRenomear);
+      aoClicar("btnSubstituir", window.prepararSubstituir);
+      aoClicar("btnArquivar", window.prepararArquivar);
+      aoClicar("btnRestaurar", window.prepararRestaurar);
+      aoClicar("btnMesclar", window.prepararMesclar);
+      aoClicar("btnConfirmarRenomear", window.confirmarRenomear);
+      aoClicar("btnCancelarRenomear", window.cancelarRenomear);
+      aoClicar("btnConfirmarSubstituir", window.confirmarSubstituir);
+      aoClicar("btnCancelarSubstituir", window.cancelarSubstituir);
+      aoClicar("btnConfirmarArquivar", window.confirmarArquivar);
+      aoClicar("btnCancelarArquivar", window.cancelarArquivar);
+      aoClicar("btnConfirmarRestaurar", window.confirmarRestaurar);
+      aoClicar("btnCancelarRestaurar", window.cancelarRestaurar);
+      aoClicar("btnPrepararAlterarGaveta", window.prepararAlterarGaveta);
+      aoClicar("btnConfirmarAlterarGaveta", window.confirmarAlterarGaveta);
+      aoClicar("btnCancelarAlterarGaveta", window.cancelarAlterarGaveta);
+      aoClicar("btnEscolherArquivoMesclar", window.escolherArquivoLocalMesclar);
+      aoClicar("btnConfirmarMesclar", window.confirmarMesclar);
+      aoClicar("btnCancelarMesclar", window.cancelarMesclar);
+      aoClicar("btnSalvarAnotacaoPainel", window.salvarAnotacaoManual);
       aoClicar("btnVerRecentes", window.mostrarDocumentosRecentes);
       aoClicar("btnVerAtivos", window.mostrarDocumentosAtivos);
       aoClicar("btnVerLixeira", window.mostrarDocumentosLixeira);
@@ -5769,6 +5790,9 @@ function renderizarDocumentos(listaArquivos) {
       });
 
       document.getElementById("campoBusca")?.addEventListener("input", window.filtrarDocumentosDebounced);
+      document.getElementById("arquivoLocalMesclar")?.addEventListener("change", (event) => {
+        window.selecionarArquivoLocalMesclar(event.target);
+      });
 
       const cardDuplicidades = document.getElementById("centralDuplicidades");
       cardDuplicidades?.addEventListener("click", window.alternarCentralDuplicidades);
