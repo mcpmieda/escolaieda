@@ -263,7 +263,7 @@
       font-size: 20px;
     }
 
-    .dashboard:not(.dashboardAcoes) {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) {
       display: grid;
       grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 12px;
@@ -2119,12 +2119,12 @@ ul {
 
     /* CSS_RESPONSIVIDADE_FASE4 */
     @media (max-width: 1100px) {
-      .dashboard:not(.dashboardAcoes) {
+      .dashboard:not(.dashboardAcoes):not(.dashboardContadores) {
         grid-template-columns: repeat(3, minmax(150px, 1fr));
       }
 
       .cardDash.largo,
-      .dashboard:not(.dashboardAcoes) .centralDuplicidades {
+      .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidades {
         grid-column: span 3;
       }
 
@@ -2501,8 +2501,8 @@ body.modoCompacto {
       margin: 6px 0 8px;
     }
 
-    body.modoCompacto .dashboard:not(.dashboardAcoes) .cardDash,
-    body.modoCompacto .dashboard:not(.dashboardAcoes) .centralDuplicidades {
+    body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .cardDash,
+    body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidades {
       padding: 8px 9px;
       min-height: 54px;
     }
@@ -2565,14 +2565,14 @@ body.modoCompacto {
 
 
     /* UX_FINAL_CURTO_20260526 */
-    .dashboard:not(.dashboardAcoes) {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) {
       grid-template-columns: repeat(5, minmax(130px, 1fr));
       align-items: stretch;
       margin-bottom: 8px;
     }
 
     .cardDash,
-    .dashboard:not(.dashboardAcoes) .centralDuplicidades {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidades {
       min-height: 58px;
       padding: 9px 11px;
       display: grid;
@@ -2658,12 +2658,12 @@ body.modoCompacto {
       font-weight: 700;
     }
 
-    body.modoCompacto .dashboard:not(.dashboardAcoes) {
+    body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) {
       grid-template-columns: repeat(5, minmax(110px, 1fr));
     }
 
     body.modoCompacto .cardDash,
-    body.modoCompacto .dashboard:not(.dashboardAcoes) .centralDuplicidades {
+    body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidades {
       min-height: 48px;
       padding: 7px 8px;
     }
@@ -2708,8 +2708,8 @@ body.modoCompacto {
       align-items: stretch;
     }
 
-    .dashboard:not(.dashboardAcoes) > .cardDash,
-    .dashboard:not(.dashboardAcoes) > .centralDuplicidades {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .cardDash,
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .centralDuplicidades {
       min-height: 74px;
       box-sizing: border-box;
       display: grid;
@@ -2717,19 +2717,19 @@ body.modoCompacto {
       grid-template-rows: auto;
     }
 
-    .dashboard:not(.dashboardAcoes) .centralDuplicidades {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidades {
       gap: 3px;
     }
 
-    .dashboard:not(.dashboardAcoes) .centralDuplicidadesTopo {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidadesTopo {
       margin-bottom: 2px;
     }
 
-    .dashboard:not(.dashboardAcoes) .acoesCentralDuplicidades {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .acoesCentralDuplicidades {
       min-height: 24px;
     }
 
-    .dashboard:not(.dashboardAcoes) .resumoCentralDuplicidades {
+    .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .resumoCentralDuplicidades {
       display: -webkit-box;
       margin: 0;
       overflow: hidden;
@@ -2762,8 +2762,8 @@ body.modoCompacto {
       margin-top: 3px;
     }
 
-    body.modoCompacto .dashboard:not(.dashboardAcoes) > .cardDash,
-    body.modoCompacto .dashboard:not(.dashboardAcoes) > .centralDuplicidades {
+    body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .cardDash,
+    body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .centralDuplicidades {
       min-height: 64px;
     }
 
@@ -2773,8 +2773,8 @@ body.modoCompacto {
         grid-template-columns: 1fr;
       }
 
-      .dashboard:not(.dashboardAcoes) > .cardDash,
-      .dashboard:not(.dashboardAcoes) > .centralDuplicidades {
+      .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .cardDash,
+      .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .centralDuplicidades {
         min-height: 68px;
       }
     }
@@ -6519,4 +6519,31 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   }
 }
 /* FIM_AJUSTE_FINAL_V1_DASHBOARD_IRMAOS_20260601 */
+/* INICIO_AJUSTE_DEFINITIVO_CONTADORES_3COL_V1_20260601
+   Correção final: contadores não devem herdar grades antigas genéricas de .dashboard.
+   Desktop/notebook: 3 colunas iguais. Mobile: 1 coluna.
+*/
+.dashboard.dashboardContadores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 10px;
+  align-items: stretch;
+  grid-auto-rows: 1fr;
+}
+
+.dashboard.dashboardContadores > .cardDash {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  grid-column: auto;
+}
+
+@media (max-width: 760px) {
+  .dashboard.dashboardContadores {
+    grid-template-columns: 1fr;
+  }
+}
+/* FIM_AJUSTE_DEFINITIVO_CONTADORES_3COL_V1_20260601 */
 
