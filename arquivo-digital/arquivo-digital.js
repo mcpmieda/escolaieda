@@ -3596,6 +3596,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         const token = await obterToken();
         const driveItem = await obterDriveItemDoDocumento(documentoSelecionado);
         const driveId = driveItem.parentReference?.driveId || documentoSelecionado.driveId;
+        const conteudoSubstituto = await prepararPdfSubstitutoComTituloArquivo(arquivo, documentoSelecionado.nome);
 
         const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItem.id}/content`;
 
@@ -3603,13 +3604,28 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": arquivo.type || "application/pdf"
+            "Content-Type": "application/pdf"
           },
-          body: arquivo
+          body: conteudoSubstituto
         });
 
         if (!resposta.ok) {
           throw new Error(await resposta.text());
+        }
+
+        const driveItemAtualizado = await resposta.json().catch(() => ({}));
+        if (driveItemAtualizado.name) {
+          documentoSelecionado.nome = driveItemAtualizado.name;
+        }
+        if (driveItemAtualizado.webUrl) {
+          documentoSelecionado.link = driveItemAtualizado.webUrl;
+          documentoSelecionado.driveWebUrl = driveItemAtualizado.webUrl;
+        }
+        if (driveItemAtualizado.id) {
+          documentoSelecionado.driveItemId = driveItemAtualizado.id;
+        }
+        if (driveItemAtualizado.parentReference?.driveId) {
+          documentoSelecionado.driveId = driveItemAtualizado.parentReference.driveId;
         }
 
         await registrarHistorico(
@@ -3751,6 +3767,26 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       return modulo.PDFDocument;
+    }
+
+    async function prepararPdfSubstitutoComTituloArquivo(arquivo, nomeArquivoReal) {
+      const nomeTitulo = (nomeArquivoReal || arquivo?.name || "arquivo.pdf").toString().trim();
+
+      if (!arquivo || !nomeTitulo) {
+        return arquivo;
+      }
+
+      try {
+        const PDFDocument = await carregarPdfLibSobDemanda();
+        const bytesOriginais = await arquivo.arrayBuffer();
+        const pdf = await PDFDocument.load(bytesOriginais, { ignoreEncryption: true });
+        pdf.setTitle(nomeTitulo);
+        const bytesAtualizados = await pdf.save();
+        return new Blob([bytesAtualizados], { type: "application/pdf" });
+      } catch (erro) {
+        logger.warn("Nao foi possivel ajustar o titulo interno do PDF substituto. Enviando arquivo original.", erro);
+        return arquivo;
+      }
     }
 
     async function criarPdfMescladoComArquivoLocal(documentoAtual, arquivoLocal, token) {
