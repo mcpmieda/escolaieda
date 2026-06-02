@@ -34,9 +34,9 @@
       </div>
       <div class="cabecalhoAcoes">
         <p id="status">Verificando login...</p>
-        <button id="btnEntrar" class="btnCabecalhoAcao btnCabecalhoEntrar" onclick="entrar()"><span class="iconeBotao iconeEntrar" aria-hidden="true">↗</span><span>Entrar com Microsoft</span></button>
-        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo btnCabecalhoAcao" style="display:none" onclick="alternarCentralConfiguracoes()"><img class="iconeBotao" src="assets/icones/configuracoes.svg" alt="" aria-hidden="true"><span>Configurações</span></button>
-        <button id="btnSair" class="btnCabecalhoAcao btnCabecalhoSair" style="display:none" onclick="sair()"><img class="iconeBotao" src="assets/icones/sair.svg" alt="" aria-hidden="true"><span>Sair</span></button>
+        <button id="btnEntrar" class="btnCabecalhoAcao btnCabecalhoEntrar"><span class="iconeBotao iconeEntrar" aria-hidden="true">↗</span><span>Entrar com Microsoft</span></button>
+        <button id="btnAbrirConfiguracoesTopo" class="secundario btnConfiguracoesTopo btnCabecalhoAcao" style="display:none"><img class="iconeBotao" src="assets/icones/configuracoes.svg" alt="" aria-hidden="true"><span>Configurações</span></button>
+        <button id="btnSair" class="btnCabecalhoAcao btnCabecalhoSair" style="display:none"><img class="iconeBotao" src="assets/icones/sair.svg" alt="" aria-hidden="true"><span>Sair</span></button>
       </div>
     </header>
 
@@ -47,8 +47,8 @@
         <p>Este ambiente é exclusivo para o grupo GRUPO DA SECRETARIA - ARQUIVO DIGITAL.</p>
         <p>Se você precisa acessar, solicite autorização à gestão escolar.</p>
         <div class="acoesAcessoRestrito">
-          <button type="button" onclick="sair()">Sair</button>
-          <button type="button" class="secundario" onclick="tentarNovamenteAcessoArquivoDigital()">Tentar novamente</button>
+          <button id="btnSairAcessoRestrito" type="button">Sair</button>
+          <button id="btnTentarNovamenteAcessoRestrito" type="button" class="secundario">Tentar novamente</button>
         </div>
         <small id="statusAcessoRestrito" class="statusAcessoRestrito"></small>
       </section>
@@ -62,17 +62,17 @@
           <strong>Adicionar documentos ao arquivo</strong>
           <small>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</small>
         </div>
-        <button class="btnNovoDocumento btnNovoDocumentoHero" onclick="alternarCentralUploadHero()">
+        <button id="btnNovoDocumentoHero" class="btnNovoDocumento btnNovoDocumentoHero">
           <img class="iconeBotao" src="assets/icones/upload.svg" alt="" aria-hidden="true">
           <span>Enviar novo PDF</span>
         </button>
-        <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none" onchange="receberArquivosCentralUpload(this)">
+        <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none">
       </div>
 
       <section id="centralConfiguracoes" class="centralConfiguracoes" aria-label="Central de Configurações">
         <div class="centralConfiguracoesTopo">
           <h2>Central de Configurações</h2>
-          <button class="btnFechar" onclick="alternarCentralConfiguracoes()" aria-label="Fechar Central de Configurações">X</button>
+          <button id="btnFecharCentralConfiguracoes" class="btnFechar" aria-label="Fechar Central de Configurações">X</button>
         </div>
         <div class="gradeConfiguracoes">
           <label>Recentes exibidos
@@ -133,7 +133,7 @@
           <strong>Cadastrar nova gaveta</strong>
           <div class="linhaCadastroGaveta">
             <input id="novaGavetaConfiguracao" type="text" placeholder="Ex.: Gaveta 35">
-            <button class="secundario" onclick="cadastrarNovaGaveta()">Cadastrar gaveta</button>
+            <button id="btnCadastrarNovaGaveta" class="secundario">Cadastrar gaveta</button>
           </div>
           <small id="statusCadastroGaveta">A nova gaveta será adicionada à coluna GAVETA do SharePoint, se houver permissão.</small>
           <div id="listaGavetasConfiguracao" class="listaGavetasConfiguracao"></div>
@@ -146,7 +146,7 @@
             <h2>Central de Upload</h2>
             <p>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</p>
           </div>
-          <button id="btnFecharCentralUpload" class="btnFechar btnFecharUpload" onclick="fecharCentralUpload()" aria-label="Fechar Central de Upload">X</button>
+          <button id="btnFecharCentralUpload" class="btnFechar btnFecharUpload" aria-label="Fechar Central de Upload">X</button>
         </div>
 
         <div id="confirmacaoFecharUpload" class="confirmacaoFecharUpload">
@@ -155,15 +155,15 @@
             <span>Deseja sair mesmo assim?</span>
           </div>
           <div class="confirmacaoFecharUploadAcoes">
-            <button class="principal btnConfirmacaoFecharUpload btnContinuarUpload" onclick="continuarCentralUpload()">Continuar enviando</button>
-            <button class="secundario btnConfirmacaoFecharUpload btnSairUpload" onclick="sairSemEnviarCentralUpload()">Sair sem enviar</button>
+            <button id="btnContinuarUpload" class="principal btnConfirmacaoFecharUpload btnContinuarUpload">Continuar enviando</button>
+            <button id="btnSairUpload" class="secundario btnConfirmacaoFecharUpload btnSairUpload">Sair sem enviar</button>
           </div>
         </div>
 
         <div class="centralUploadGrade">
           <div class="campoUpload">
             <strong>ARQUIVOS DO ALUNO</strong>
-            <button id="btnSelecionarArquivoUpload" class="secundario btnUploadSecundario" onclick="escolherArquivosCentralUpload()">Selecione os arquivos</button>
+            <button id="btnSelecionarArquivoUpload" class="secundario btnUploadSecundario">Selecione os arquivos</button>
             <small id="contadorArquivosUpload">0 arquivo(s) selecionado(s)</small>
           </div>
 
@@ -197,10 +197,10 @@
         </div>
 
         <div class="centralUploadAcoes">
-          <button id="btnConfirmarUploadCentral" class="principal" onclick="confirmarUploadCentral()">Enviar arquivo(s)</button>
-          <button id="btnEnviarMaisUploadCentral" class="secundario btnUploadSecundario" style="display:none" onclick="prepararNovoEnvioCentralUpload()">Enviar mais arquivos</button>
-          <button id="btnConcluirUploadCentral" class="principal" style="display:none" onclick="concluirFecharCentralUpload()">Fechar</button>
-          <button id="btnLimparSelecaoUpload" class="secundario btnUploadSecundario" onclick="limparCentralUpload()">Limpar seleção</button>
+          <button id="btnConfirmarUploadCentral" class="principal">Enviar arquivo(s)</button>
+          <button id="btnEnviarMaisUploadCentral" class="secundario btnUploadSecundario" style="display:none">Enviar mais arquivos</button>
+          <button id="btnConcluirUploadCentral" class="principal" style="display:none">Fechar</button>
+          <button id="btnLimparSelecaoUpload" class="secundario btnUploadSecundario">Limpar seleção</button>
         </div>
       </section>
 
@@ -231,14 +231,14 @@
       </div>
 
       <div class="dashboard dashboardAcoes">
-        <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0" onclick="alternarCentralDuplicidades()">
+        <div id="centralDuplicidades" class="cardDash centralDuplicidades discreta" role="button" tabindex="0">
           <div class="cardAcaoCabecalho">
             <h2 class="cardAcaoTitulo">Central de duplicidades</h2>
           </div>
           <div id="resumoCentralDuplicidades" class="resumoCentralDuplicidades">Aguardando análise...</div>
         </div>
 
-        <button class="cardDash cardHistoricoGeral" type="button" onclick="abrirHistoricoGeral()">
+        <button id="btnAbrirHistoricoGeral" class="cardDash cardHistoricoGeral" type="button">
           <span class="cardAcaoCabecalho">
             <span class="cardAcaoTitulo">Central de histórico</span>
           </span>
@@ -260,7 +260,6 @@
             class="busca"
             type="text"
             placeholder="Digite o nome do aluno ou parte do nome..."
-            oninput="filtrarDocumentosDebounced()"
           >
         </div>
       </div>

@@ -115,22 +115,20 @@ for (const id of idsObrigatorios) {
   conferir(regex.test(html), `ID principal nao encontrado no HTML: ${id}.`);
 }
 
-const handlersInline = [
-  "entrar()",
-  "sair()",
-  "receberArquivosCentralUpload(this)",
-  "confirmarUploadCentral()",
-  "filtrarDocumentosDebounced()",
-  "confirmarMesclar()",
-  "salvarAnotacaoManual()"
-];
-
-for (const chamada of handlersInline) {
-  conferir(html.includes(chamada), `Handler inline esperado nao encontrado: ${chamada}.`);
-}
-
 const totalInnerHtml = (js.match(/\binnerHTML\s*=/g) || []).length;
 const totalHtmlInternoConfiavel = (js.match(/\bhtmlInternoConfiavel\b/g) || []).length;
+const contarHandlersInline = (fonte) => ({
+  onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
+  onchange: (fonte.match(/\bonchange\s*=/g) || []).length,
+  oninput: (fonte.match(/\boninput\s*=/g) || []).length,
+  onkeydown: (fonte.match(/\bonkeydown\s*=/g) || []).length,
+  onkeyup: (fonte.match(/\bonkeyup\s*=/g) || []).length,
+  onsubmit: (fonte.match(/\bonsubmit\s*=/g) || []).length
+});
+const handlersHtml = contarHandlersInline(html);
+const handlersJs = contarHandlersInline(js);
+const totalHandlersInline = Object.values(handlersHtml).reduce((total, valor) => total + valor, 0) +
+  Object.values(handlersJs).reduce((total, valor) => total + valor, 0);
 
 if (erros.length) {
   console.error("Validacao do Arquivo Digital falhou:");
@@ -146,3 +144,4 @@ console.log("- CSS critico de pre-login preservado.");
 console.log("- JavaScript sem tags <script> e com sintaxe valida.");
 console.log("- Globais e IDs principais encontrados.");
 console.log(`- Diagnostico XSS gradual: ${totalInnerHtml} atribuicao(oes) innerHTML; ${totalHtmlInternoConfiavel} referencia(s) a htmlInternoConfiavel.`);
+console.log(`- Diagnostico handlers inline gradual: ${totalHandlersInline} total; HTML onclick=${handlersHtml.onclick}, onchange=${handlersHtml.onchange}, oninput=${handlersHtml.oninput}; JS onclick=${handlersJs.onclick}, onchange=${handlersJs.onchange}, oninput=${handlersJs.oninput}.`);

@@ -41,6 +41,7 @@
     let filtrosAvancados = filtrosAvancadosPadrao();
     let preferenciasSistema = carregarPreferenciasSistema();
     let camadaHistoricoMobileAtiva = false;
+    let eventosFixosInicializados = false;
     const operacoesCriticasEmAndamento = new Set();
 
     const msalConfig = {
@@ -5744,17 +5745,55 @@ function renderizarDocumentos(listaArquivos) {
     window.filtrarDocumentos = filtrarDocumentos;
     window.filtrarDocumentosDebounced = filtrarDocumentosDebounced;
 
-    document.getElementById("btnFecharPainelCentralDuplicidades")?.addEventListener("click", fecharPainelCentralDuplicidades);
-    document.getElementById("btnFecharPainelDashboard")?.addEventListener("click", window.fecharPainelDashboard);
-    document.getElementById("btnFecharPainelLateral")?.addEventListener("click", fecharPainel);
-    document.getElementById("centralDuplicidades")?.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      alternarCentralDuplicidades();
-    });
-    document.getElementById("btnVerRecentes")?.addEventListener("click", window.mostrarDocumentosRecentes);
-    document.getElementById("btnVerAtivos")?.addEventListener("click", window.mostrarDocumentosAtivos);
-    document.getElementById("btnVerLixeira")?.addEventListener("click", window.mostrarDocumentosLixeira);
+    function inicializarEventosFixos() {
+      if (eventosFixosInicializados) return;
+      eventosFixosInicializados = true;
+
+      const aoClicar = (id, manipulador) => {
+        const elemento = document.getElementById(id);
+        if (elemento && typeof manipulador === "function") {
+          elemento.addEventListener("click", manipulador);
+        }
+      };
+
+      aoClicar("btnEntrar", window.entrar);
+      aoClicar("btnSair", window.sair);
+      aoClicar("btnSairAcessoRestrito", window.sair);
+      aoClicar("btnTentarNovamenteAcessoRestrito", window.tentarNovamenteAcessoArquivoDigital);
+      aoClicar("btnAbrirConfiguracoesTopo", window.alternarCentralConfiguracoes);
+      aoClicar("btnFecharCentralConfiguracoes", window.alternarCentralConfiguracoes);
+      aoClicar("btnCadastrarNovaGaveta", window.cadastrarNovaGaveta);
+      aoClicar("btnNovoDocumentoHero", window.alternarCentralUploadHero);
+      aoClicar("btnFecharCentralUpload", window.fecharCentralUpload);
+      aoClicar("btnContinuarUpload", window.continuarCentralUpload);
+      aoClicar("btnSairUpload", window.sairSemEnviarCentralUpload);
+      aoClicar("btnSelecionarArquivoUpload", window.escolherArquivosCentralUpload);
+      aoClicar("btnConfirmarUploadCentral", window.confirmarUploadCentral);
+      aoClicar("btnEnviarMaisUploadCentral", window.prepararNovoEnvioCentralUpload);
+      aoClicar("btnConcluirUploadCentral", window.concluirFecharCentralUpload);
+      aoClicar("btnLimparSelecaoUpload", window.limparCentralUpload);
+      aoClicar("btnAbrirHistoricoGeral", window.abrirHistoricoGeral);
+      aoClicar("btnFecharPainelCentralDuplicidades", fecharPainelCentralDuplicidades);
+      aoClicar("btnFecharPainelDashboard", window.fecharPainelDashboard);
+      aoClicar("btnFecharPainelLateral", fecharPainel);
+      aoClicar("btnVerRecentes", window.mostrarDocumentosRecentes);
+      aoClicar("btnVerAtivos", window.mostrarDocumentosAtivos);
+      aoClicar("btnVerLixeira", window.mostrarDocumentosLixeira);
+
+      document.getElementById("inputNovoDocumento")?.addEventListener("change", (event) => {
+        window.receberArquivosCentralUpload(event.target);
+      });
+
+      document.getElementById("campoBusca")?.addEventListener("input", window.filtrarDocumentosDebounced);
+
+      const cardDuplicidades = document.getElementById("centralDuplicidades");
+      cardDuplicidades?.addEventListener("click", window.alternarCentralDuplicidades);
+      cardDuplicidades?.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        window.alternarCentralDuplicidades();
+      });
+    }
 
     function fecharCamadaAbertaPorVoltar() {
       const centralUpload = document.getElementById("centralUpload");
@@ -5917,6 +5956,7 @@ function renderizarDocumentos(listaArquivos) {
         ajustarAlturaAnotacao();
       }
     });
+    inicializarEventosFixos();
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
 
