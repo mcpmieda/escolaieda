@@ -80,6 +80,7 @@ const globaisObrigatorios = [
   "mostrarDocumentosAtivos",
   "mostrarDocumentosLixeira",
   "filtrarDocumentos",
+  "filtrarDocumentosDebounced",
   "selecionarDocumento",
   "fecharPainel",
   "abrirPdfSelecionado",
@@ -119,7 +120,7 @@ const handlersInline = [
   "sair()",
   "receberArquivosCentralUpload(this)",
   "confirmarUploadCentral()",
-  "filtrarDocumentos()",
+  "filtrarDocumentosDebounced()",
   "confirmarMesclar()",
   "salvarAnotacaoManual()"
 ];

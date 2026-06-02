@@ -22,6 +22,7 @@
     let anotacaoAtualEtag = "";
     let timerSalvarAnotacao = null;
     let timerMensagemPainel = null;
+    let timerBuscaDocumentos = null;
     let anotacaoUltimoTextoSalvo = "";
     let arquivoLocalMesclar = null;
     let mesclagemEmAndamento = false;
@@ -691,6 +692,37 @@
 
       campo.style.height = "auto";
       campo.style.height = Math.min(campo.scrollHeight, 260) + "px";
+    }
+
+    async function validarArquivoPdfBasico(arquivo) {
+      if (!arquivo) {
+        return { valido: false, mensagem: "Selecione um arquivo PDF." };
+      }
+
+      const nome = (arquivo.name || "").toString();
+      if (!nome.toLowerCase().endsWith(".pdf")) {
+        return { valido: false, mensagem: "Selecione somente arquivo PDF." };
+      }
+
+      if (arquivo.type && arquivo.type !== "application/pdf") {
+        return { valido: false, mensagem: "O arquivo selecionado não parece ser um PDF." };
+      }
+
+      if (!arquivo.size || arquivo.size <= 0) {
+        return { valido: false, mensagem: "O PDF selecionado está vazio." };
+      }
+
+      try {
+        const cabecalho = await arquivo.slice(0, 4).text();
+        if (cabecalho !== "%PDF") {
+          return { valido: false, mensagem: "O arquivo selecionado não tem assinatura de PDF válida." };
+        }
+      } catch (erro) {
+        logger.warn("Nao foi possivel validar a assinatura do PDF.", erro);
+        return { valido: false, mensagem: "Não foi possível validar este PDF. Escolha outro arquivo." };
+      }
+
+      return { valido: true, mensagem: "" };
     }
     async function obterToken() {
       const conta = msalInstance.getAllAccounts()[0];
@@ -3470,8 +3502,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         return;
       }
 
-      if (!arquivo.name.toLowerCase().endsWith(".pdf")) {
-        mostrarMensagemPainel("Selecione somente arquivo PDF.", "erro");
+      const validacaoPdf = await validarArquivoPdfBasico(arquivo);
+      if (!validacaoPdf.valido) {
+        mostrarMensagemPainel(validacaoPdf.mensagem, "erro");
         return;
       }
 
@@ -3574,7 +3607,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("statusMesclar").textContent = "";
     };
 
-    window.selecionarArquivoLocalMesclar = function (input) {
+    window.selecionarArquivoLocalMesclar = async function (input) {
       const arquivo = input?.files && input.files[0];
       arquivoLocalMesclar = null;
 
@@ -3583,10 +3616,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         return;
       }
 
-      if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
+      const validacaoPdf = await validarArquivoPdfBasico(arquivo);
+      if (!validacaoPdf.valido) {
         input.value = "";
-        document.getElementById("arquivoSelecionadoMesclar").textContent = "Escolha um arquivo em PDF.";
-        mostrarMensagemPainel("Escolha um arquivo em PDF.", "erro");
+        document.getElementById("arquivoSelecionadoMesclar").textContent = validacaoPdf.mensagem;
+        mostrarMensagemPainel(validacaoPdf.mensagem, "erro");
         return;
       }
 
@@ -5116,8 +5150,9 @@ window.abrirSeletorNovoDocumento = function () {
     }
 
     async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, onEtapa = () => {}) {
-      if (arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")) {
-        throw new Error(`Arquivo ignorado porque não é PDF: ${arquivo.name}`);
+      const validacaoPdf = await validarArquivoPdfBasico(arquivo);
+      if (!validacaoPdf.valido) {
+        throw new Error(`Arquivo ignorado porque não é PDF real: ${arquivo.name}. ${validacaoPdf.mensagem}`);
       }
 
       onEtapa("Preparando envio");
@@ -5212,12 +5247,16 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      const invalidos = arquivosCentralUpload.filter(arquivo =>
-        arquivo.type !== "application/pdf" && !arquivo.name.toLowerCase().endsWith(".pdf")
-      );
+      const invalidos = [];
+      for (const arquivo of arquivosCentralUpload) {
+        const validacaoPdf = await validarArquivoPdfBasico(arquivo);
+        if (!validacaoPdf.valido) {
+          invalidos.push({ arquivo, validacaoPdf });
+        }
+      }
 
       if (invalidos.length) {
-        mostrarMensagem("Remova os arquivos que nao sao PDF antes de enviar.", "erro");
+        mostrarMensagem(`Remova os arquivos que nao sao PDF valido antes de enviar. Primeiro problema: ${invalidos[0].arquivo.name}`, "erro");
         return;
       }
 
@@ -5694,11 +5733,24 @@ function renderizarDocumentos(listaArquivos) {
       await msalInstance.logoutRedirect({ account: conta });
     };
 
+    function filtrarDocumentosDebounced() {
+      clearTimeout(timerBuscaDocumentos);
+      timerBuscaDocumentos = setTimeout(() => {
+        filtrarDocumentos();
+      }, 220);
+    }
+
     window.filtrarDocumentos = filtrarDocumentos;
+    window.filtrarDocumentosDebounced = filtrarDocumentosDebounced;
 
     document.getElementById("btnFecharPainelCentralDuplicidades")?.addEventListener("click", fecharPainelCentralDuplicidades);
     document.getElementById("btnFecharPainelDashboard")?.addEventListener("click", window.fecharPainelDashboard);
     document.getElementById("btnFecharPainelLateral")?.addEventListener("click", fecharPainel);
+    document.getElementById("centralDuplicidades")?.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      alternarCentralDuplicidades();
+    });
     document.getElementById("btnVerRecentes")?.addEventListener("click", window.mostrarDocumentosRecentes);
     document.getElementById("btnVerAtivos")?.addEventListener("click", window.mostrarDocumentosAtivos);
     document.getElementById("btnVerLixeira")?.addEventListener("click", window.mostrarDocumentosLixeira);
@@ -5859,14 +5911,11 @@ function renderizarDocumentos(listaArquivos) {
       }
     });
 
-    setInterval(() => {
-      const campo = document.getElementById("campoAnotacao");
-      const painelAberto = document.getElementById("painelLateral")?.classList.contains("aberto");
-
-      if (campo && painelAberto) {
+    document.addEventListener("focusin", (evento) => {
+      if (evento.target && evento.target.id === "campoAnotacao") {
         ajustarAlturaAnotacao();
       }
-    }, 800);
+    });
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
 

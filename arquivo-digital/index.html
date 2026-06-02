@@ -22,7 +22,7 @@
 
 </head>
 <body class="estadoPreLogin visualModernoFase1A visualModernoResumoDestaque visualModernoAbasDoc visualModernoCampoBusca visualModernoGavetas">
-  <div id="mensagemSistema" class="mensagem"></div>
+  <div id="mensagemSistema" class="mensagem" aria-live="polite" aria-atomic="true"></div>
   <div class="card">
     <header class="cabecalhoSistema">
       <div class="cabecalhoMarca">
@@ -72,7 +72,7 @@
       <section id="centralConfiguracoes" class="centralConfiguracoes" aria-label="Central de Configurações">
         <div class="centralConfiguracoesTopo">
           <h2>Central de Configurações</h2>
-          <button class="btnFechar" onclick="alternarCentralConfiguracoes()">X</button>
+          <button class="btnFechar" onclick="alternarCentralConfiguracoes()" aria-label="Fechar Central de Configurações">X</button>
         </div>
         <div class="gradeConfiguracoes">
           <label>Recentes exibidos
@@ -146,7 +146,7 @@
             <h2>Central de Upload</h2>
             <p>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</p>
           </div>
-          <button id="btnFecharCentralUpload" class="btnFechar btnFecharUpload" onclick="fecharCentralUpload()">X</button>
+          <button id="btnFecharCentralUpload" class="btnFechar btnFecharUpload" onclick="fecharCentralUpload()" aria-label="Fechar Central de Upload">X</button>
         </div>
 
         <div id="confirmacaoFecharUpload" class="confirmacaoFecharUpload">
@@ -260,7 +260,7 @@
             class="busca"
             type="text"
             placeholder="Digite o nome do aluno ou parte do nome..."
-            oninput="filtrarDocumentos()"
+            oninput="filtrarDocumentosDebounced()"
           >
         </div>
       </div>
@@ -283,7 +283,7 @@
   <aside id="painelCentralDuplicidades" class="painelLateral painelCentralDuplicidades">
     <div class="painelTopo">
       <h2>Central de duplicidades</h2>
-      <button id="btnFecharPainelCentralDuplicidades" class="btnFechar">X</button>
+      <button id="btnFecharPainelCentralDuplicidades" class="btnFechar" aria-label="Fechar Central de Duplicidades">X</button>
     </div>
 
     <div class="painelConteudo">
@@ -302,7 +302,7 @@
   <aside id="painelDashboard" class="painelLateral painelDashboard">
     <div class="painelTopo">
       <h2 id="painelDashboardTitulo">Detalhes</h2>
-      <button id="btnFecharPainelDashboard" class="btnFechar">X</button>
+      <button id="btnFecharPainelDashboard" class="btnFechar" aria-label="Fechar painel de detalhes">X</button>
     </div>
     <div id="painelDashboardConteudo" class="painelConteudo"></div>
   </aside>
@@ -311,7 +311,7 @@
     <div class="painelTopo">
       <h2 id="painelTitulo">Arquivo</h2>
       <div id="painelTituloChips" class="painelTituloChips"></div>
-      <button id="btnFecharPainelLateral" class="btnFechar">X</button>
+      <button id="btnFecharPainelLateral" class="btnFechar" aria-label="Fechar painel lateral">X</button>
     </div>
 
     <div class="painelConteudo">
@@ -335,7 +335,7 @@
         <button id="btnMesclar" onclick="prepararMesclar()">Mesclar</button>
       </div>
 
-      <div id="mensagemPainel" class="mensagemPainel"></div>
+      <div id="mensagemPainel" class="mensagemPainel" aria-live="polite" aria-atomic="true"></div>
 
       <div id="boxRenomear" class="formAcao">
         <h3>Renomear arquivo</h3>
