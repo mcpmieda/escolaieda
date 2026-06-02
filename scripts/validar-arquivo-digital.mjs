@@ -185,6 +185,29 @@ const totalMetaCsp = (html.match(/http-equiv=["']Content-Security-Policy["']/gi)
 const totalStyleAttributes = (html.match(/\bstyle\s*=/gi) || []).length;
 const usaMsalExterno = importsExternosJs.some(url => /msal-browser/i.test(url));
 const usaPdfLibExterno = importsExternosJs.some(url => /pdf-lib/i.test(url));
+const matchScopesLogin = js.match(/scopes\s*:\s*\[([^\]]*)\]/);
+const scopesLogin = matchScopesLogin
+  ? [...matchScopesLogin[1].matchAll(/["']([^"']+)["']/g)].map(match => match[1]).sort()
+  : [];
+const chavesConfigObrigatorias = [
+  "clientId",
+  "tenantId",
+  "redirectUri",
+  "siteId",
+  "documentosAtivosListId",
+  "historicoAcessosListId",
+  "anotacoesArquivosListId",
+  "documentosAtivosRootPath"
+];
+const chavesConfigPresentes = chavesConfigObrigatorias.filter(chave =>
+  new RegExp(`\\b${chave}\\s*:\\s*["']`).test(js)
+);
+const alertasSistemaListIdPresente = /9abdb5fc-c009-4a59-9f91-03677b001b56|alertasSistemaListId/.test(js);
+const chamadasGraphAproximadas = (js.match(/https:\/\/graph\.microsoft\.com\/v1\.0/g) || []).length;
+const usaGraphListas = /\/sites\/\$\{CONFIG\.siteId\}\/lists\//.test(js);
+const usaGraphDrives = /\/drives\/\$\{[^}]+\}\/items\//.test(js) || /\/drives\/\$\{[^}]+\}\/root/.test(js);
+const usaGraphVersoes = /\/versions\b/.test(js);
+const usaGraphUpload = /createUploadSession|\/content`/.test(js);
 const contarHandlersInline = (fonte) => ({
   onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
   onchange: (fonte.match(/\bonchange\s*=/g) || []).length,
@@ -273,3 +296,4 @@ if (!paineisSemAria.length && !botoesFecharSemLabel && !camposSemNomeAcessivel.l
 }
 console.log(`- Diagnostico CSS gradual: seletores=${seletoresCss.length}; seletores duplicados=${seletoresDuplicadosCss.length}; regras .dashboard genericas=${regrasDashboardGenericas.length}; regras dashboard protegidas=${regrasDashboardProtegidas.length}.`);
 console.log(`- Diagnostico CSP/CDN/SRI gradual: imports externos JS=${importsExternosJs.length}; scripts externos HTML=${scriptsExternosHtml.length}; links externos HTML=${linksExternosHtml.length}; dominios externos=${dominiosExternos.join(", ") || "nenhum"}; meta CSP=${totalMetaCsp}; style attributes=${totalStyleAttributes}; MSAL externo=${usaMsalExterno ? "sim" : "nao"}; pdf-lib externo=${usaPdfLibExterno ? "sim" : "nao"}.`);
+console.log(`- Diagnostico SharePoint/permissoes gradual: scopes=${scopesLogin.join(", ") || "nao encontrados"}; CONFIG obrigatorio=${chavesConfigPresentes.length}/${chavesConfigObrigatorias.length}; ALERTAS_SISTEMA id=${alertasSistemaListIdPresente ? "sim" : "nao"}; Graph chamadas aproximadas=${chamadasGraphAproximadas}; listas=${usaGraphListas ? "sim" : "nao"}; drives=${usaGraphDrives ? "sim" : "nao"}; versoes=${usaGraphVersoes ? "sim" : "nao"}; upload/conteudo=${usaGraphUpload ? "sim" : "nao"}.`);
