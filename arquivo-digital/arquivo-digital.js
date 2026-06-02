@@ -2295,7 +2295,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       caixa.innerHTML = `
         <div class="duplicidadeIgnoradaTopo">
           <span>${paresDuplicidadesIgnoradosDetalhes.length} par(es) ignorado(s)</span>
-          <button onclick="desfazerTodosParesPessoasDiferentesCentral()">Desfazer todos</button>
+          <button type="button" data-acao-duplicidade="desfazer-todos">Desfazer todos</button>
         </div>
       ` + paresDuplicidadesIgnoradosDetalhes.map(item => `
         <div class="duplicidadeIgnorada">
@@ -2303,7 +2303,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             <strong>${textoSeguroCentral(item.nomeA)}</strong>
             <span>${textoSeguroCentral(item.nomeB)}</span>
           </div>
-          <button onclick='desfazerPessoasDiferentesCentral(${JSON.stringify(item.itemId)}, ${JSON.stringify(item.chave)})'>Desfazer</button>
+          <button type="button" data-acao-duplicidade="desfazer-pessoas-diferentes" data-item-id="${atributoSeguroCentral(item.itemId)}" data-chave="${atributoSeguroCentral(item.chave)}">Desfazer</button>
         </div>
       `).join("");
     }
@@ -2725,22 +2725,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }).join("");
       duplicidadesCarregando = false;
     };
-
-    document.addEventListener("click", function (evento) {
-      const botao = evento.target.closest("[data-acao-duplicidade]");
-      if (!botao || !botao.closest("#listaCentralDuplicidades")) return;
-
-      const acao = botao.dataset.acaoDuplicidade;
-
-      if (acao === "abrir") {
-        window.abrirArquivoDaCentral(botao.dataset.id || "", botao.dataset.status || "");
-        return;
-      }
-
-      if (acao === "pessoas-diferentes") {
-        window.marcarPessoasDiferentesCentral(botao.dataset.idA || "", botao.dataset.idB || "");
-      }
-    });
 
     window.abrirArquivoDaCentral = async function (id, status) {
       const todos = [...documentosAtivos, ...documentosLixeira];
@@ -5792,6 +5776,35 @@ function renderizarDocumentos(listaArquivos) {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
         window.alternarCentralDuplicidades();
+      });
+
+      document.getElementById("painelCentralDuplicidades")?.addEventListener("click", (event) => {
+        const botao = event.target.closest("[data-acao-duplicidade]");
+        if (!botao) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const acao = botao.dataset.acaoDuplicidade;
+
+        if (acao === "abrir") {
+          window.abrirArquivoDaCentral(botao.dataset.id || "", botao.dataset.status || "");
+          return;
+        }
+
+        if (acao === "pessoas-diferentes") {
+          window.marcarPessoasDiferentesCentral(botao.dataset.idA || "", botao.dataset.idB || "");
+          return;
+        }
+
+        if (acao === "desfazer-pessoas-diferentes") {
+          window.desfazerPessoasDiferentesCentral(botao.dataset.itemId || "", botao.dataset.chave || "");
+          return;
+        }
+
+        if (acao === "desfazer-todos") {
+          window.desfazerTodosParesPessoasDiferentesCentral();
+        }
       });
 
       document.getElementById("listaGavetasAtivos")?.addEventListener("click", (event) => {
