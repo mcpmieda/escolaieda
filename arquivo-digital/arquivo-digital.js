@@ -2011,6 +2011,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       tituloEl.textContent = titulo || "Detalhes";
       if (opcoes.htmlInternoConfiavel === true) {
+        // Segurança: usar apenas com HTML fixo/controlado pelo sistema; dados externos devem ser escapados antes.
         conteudo.innerHTML = conteudoHtml || "";
       } else {
         conteudo.textContent = conteudoHtml || "";
@@ -5549,7 +5550,7 @@ function renderizarDocumentos(listaArquivos) {
       if (temBusca) {
         icone = "🔎";
         titulo = "Nenhum resultado para esta busca.";
-        texto = `Não encontrei documentos com “${escaparHtml(termo)}”.`;
+        texto = `Não encontrei documentos com “${termo}”.`;
         dica = "Tente pesquisar por parte do nome, matrícula, ano ou palavra-chave.";
       } else if (modoListaAtual === "na Lixeira") {
         icone = "🗑️";
@@ -5559,7 +5560,7 @@ function renderizarDocumentos(listaArquivos) {
       } else if (modoListaAtual === "ativos" && nomeGaveta) {
         icone = "🗂️";
         titulo = "Esta gaveta ainda não possui documentos.";
-        texto = `A gaveta “${escaparHtml(nomeGaveta)}” não tem documentos vinculados no momento.`;
+        texto = `A gaveta “${nomeGaveta}” não tem documentos vinculados no momento.`;
         dica = "Escolha outra gaveta ou envie um novo PDF para esta categoria.";
       } else if (modoListaAtual === "ativos") {
         icone = "🗃️";
@@ -5576,11 +5577,11 @@ function renderizarDocumentos(listaArquivos) {
       return `
         <li class="estadoVazioDocumentos">
           <div class="estadoVazioDocumentosCard">
-            <div class="estadoVazioDocumentosIcone" aria-hidden="true">${icone}</div>
+            <div class="estadoVazioDocumentosIcone" aria-hidden="true">${escaparHtml(icone)}</div>
             <div>
-              <p class="estadoVazioDocumentosTitulo">${titulo}</p>
-              <p class="estadoVazioDocumentosTexto">${texto}</p>
-              <span class="estadoVazioDocumentosDica">${dica}</span>
+              <p class="estadoVazioDocumentosTitulo">${escaparHtml(titulo)}</p>
+              <p class="estadoVazioDocumentosTexto">${escaparHtml(texto)}</p>
+              <span class="estadoVazioDocumentosDica">${escaparHtml(dica)}</span>
             </div>
           </div>
         </li>

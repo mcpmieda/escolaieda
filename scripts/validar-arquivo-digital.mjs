@@ -129,6 +129,9 @@ for (const chamada of handlersInline) {
   conferir(html.includes(chamada), `Handler inline esperado nao encontrado: ${chamada}.`);
 }
 
+const totalInnerHtml = (js.match(/\binnerHTML\s*=/g) || []).length;
+const totalHtmlInternoConfiavel = (js.match(/\bhtmlInternoConfiavel\b/g) || []).length;
+
 if (erros.length) {
   console.error("Validacao do Arquivo Digital falhou:");
   for (const erro of erros) {
@@ -142,3 +145,4 @@ console.log("- Estrutura HTML/CSS/JS separada OK.");
 console.log("- CSS critico de pre-login preservado.");
 console.log("- JavaScript sem tags <script> e com sintaxe valida.");
 console.log("- Globais e IDs principais encontrados.");
+console.log(`- Diagnostico XSS gradual: ${totalInnerHtml} atribuicao(oes) innerHTML; ${totalHtmlInternoConfiavel} referencia(s) a htmlInternoConfiavel.`);
