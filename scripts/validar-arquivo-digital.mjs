@@ -129,6 +129,10 @@ const handlersHtml = contarHandlersInline(html);
 const handlersJs = contarHandlersInline(js);
 const totalHandlersInline = Object.values(handlersHtml).reduce((total, valor) => total + valor, 0) +
   Object.values(handlersJs).reduce((total, valor) => total + valor, 0);
+const formatarHandlersInline = (handlers) =>
+  Object.entries(handlers)
+    .map(([nome, total]) => `${nome}=${total}`)
+    .join(", ");
 
 if (erros.length) {
   console.error("Validacao do Arquivo Digital falhou:");
@@ -144,4 +148,7 @@ console.log("- CSS critico de pre-login preservado.");
 console.log("- JavaScript sem tags <script> e com sintaxe valida.");
 console.log("- Globais e IDs principais encontrados.");
 console.log(`- Diagnostico XSS gradual: ${totalInnerHtml} atribuicao(oes) innerHTML; ${totalHtmlInternoConfiavel} referencia(s) a htmlInternoConfiavel.`);
-console.log(`- Diagnostico handlers inline gradual: ${totalHandlersInline} total; HTML onclick=${handlersHtml.onclick}, onchange=${handlersHtml.onchange}, oninput=${handlersHtml.oninput}; JS onclick=${handlersJs.onclick}, onchange=${handlersJs.onchange}, oninput=${handlersJs.oninput}.`);
+console.log(`- Diagnostico handlers inline gradual: ${totalHandlersInline} total; HTML ${formatarHandlersInline(handlersHtml)}; JS ${formatarHandlersInline(handlersJs)}.`);
+if (totalHandlersInline === 0) {
+  console.log("- Nenhum handler inline encontrado.");
+}

@@ -4245,8 +4245,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         const ehAtual = indiceReal === 0;
 
         const botao = ehAtual
-          ? `<button class="btnVersaoSharePoint" type="button" onclick="window.open(window.versaoDownloadDocumentoAtual?.linkAtual || '#', '_blank')">Visualizar versão atual</button>`
-          : `<button class="btnVersaoSharePoint" type="button" data-version-id="${escaparHtml(numero)}">Visualizar versão</button>`;
+          ? `<button class="btnVersaoSharePoint" type="button" data-acao-versao="abrir" data-url-versao="${escaparHtml(window.versaoDownloadDocumentoAtual?.linkAtual || "#")}">Visualizar versão atual</button>`
+          : `<button class="btnVersaoSharePoint" type="button" data-acao-versao="abrir" data-version-id="${escaparHtml(numero)}">Visualizar versão</button>`;
 
         return `
           <div class="itemVersao">
@@ -4259,18 +4259,20 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           </div>
         `;
       }).join("") + (versoes.length > 2 ? `
-        <button class="btnAlternarVersoes" type="button" onclick="event.preventDefault(); event.stopPropagation(); alternarTodasVersoesSharePoint(event)">
+        <button class="btnAlternarVersoes" type="button" data-acao-versao="alternar-todas">
           ${versoesSharePointExpandido ? "Recolher" : "Ver todas"}
         </button>
       ` : "");
+    }
 
-      caixa.querySelectorAll(".btnVersaoSharePoint[data-version-id]").forEach(botao => {
-        botao.addEventListener("click", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          visualizarVersaoSharePoint(botao.dataset.versionId);
-        });
-      });
+    function abrirUrlVersaoSharePoint(url) {
+      const urlVersao = typeof url === "string" ? url.trim() : "";
+      if (!urlVersao || urlVersao === "#") {
+        mostrarMensagemPainel("Esta versão não está disponível.", "erro");
+        return;
+      }
+
+      window.open(urlVersao, "_blank", "noopener,noreferrer");
     }
 
     window.alternarTodasVersoesSharePoint = function (event) {
@@ -5363,7 +5365,7 @@ function renderizarDocumentos(listaArquivos) {
 
         const li = document.createElement("li");
         li.innerHTML = `
-          <button class="itemArquivo" onclick="selecionarDocumento(${indiceOriginal})">
+          <button class="itemArquivo" data-indice-documento="${indiceOriginal}">
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.nome))}</strong>
             <span class="metadadosArquivo">
               ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
@@ -5792,6 +5794,42 @@ function renderizarDocumentos(listaArquivos) {
       document.getElementById("campoBusca")?.addEventListener("input", window.filtrarDocumentosDebounced);
       document.getElementById("arquivoLocalMesclar")?.addEventListener("change", (event) => {
         window.selecionarArquivoLocalMesclar(event.target);
+      });
+
+      document.getElementById("listaDocumentos")?.addEventListener("click", (event) => {
+        const itemArquivo = event.target.closest(".itemArquivo[data-indice-documento]");
+        if (!itemArquivo) return;
+
+        event.preventDefault();
+
+        const indice = Number(itemArquivo.dataset.indiceDocumento);
+        if (!Number.isInteger(indice)) return;
+
+        window.selecionarDocumento(indice);
+      });
+
+      document.getElementById("versoesSharePoint")?.addEventListener("click", (event) => {
+        const botao = event.target.closest("[data-acao-versao]");
+        if (!botao) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const acao = botao.dataset.acaoVersao;
+
+        if (acao === "abrir") {
+          if (botao.dataset.urlVersao) {
+            abrirUrlVersaoSharePoint(botao.dataset.urlVersao);
+            return;
+          }
+
+          window.visualizarVersaoSharePoint(botao.dataset.versionId);
+          return;
+        }
+
+        if (acao === "alternar-todas") {
+          window.alternarTodasVersoesSharePoint(event);
+        }
       });
 
       const cardDuplicidades = document.getElementById("centralDuplicidades");
