@@ -42,6 +42,7 @@
     let preferenciasSistema = carregarPreferenciasSistema();
     let camadaHistoricoMobileAtiva = false;
     let eventosFixosInicializados = false;
+    const focoAnteriorPorCamada = new Map();
     const operacoesCriticasEmAndamento = new Set();
 
     const msalConfig = {
@@ -308,6 +309,63 @@
         document.getElementById("centralConfiguracoes")?.classList.contains("aberta") ||
         document.getElementById("centralUpload")?.classList.contains("aberta")
       );
+    }
+
+    function elementoFocavelVisivel(elemento) {
+      if (!elemento || typeof elemento.focus !== "function") return false;
+      if (elemento.disabled || elemento.getAttribute("aria-hidden") === "true") return false;
+      return Boolean(elemento.offsetParent || elemento.getClientRects().length);
+    }
+
+    function guardarFocoAnteriorCamada(idCamada) {
+      const elementoAtivo = document.activeElement;
+      if (elementoFocavelVisivel(elementoAtivo)) {
+        focoAnteriorPorCamada.set(idCamada, elementoAtivo);
+      }
+    }
+
+    function restaurarFocoAnteriorCamada(idCamada) {
+      const elemento = focoAnteriorPorCamada.get(idCamada);
+      focoAnteriorPorCamada.delete(idCamada);
+
+      if (elementoFocavelVisivel(elemento) && document.contains(elemento)) {
+        elemento.focus({ preventScroll: true });
+      }
+    }
+
+    function focarElementoInicialCamada(idCamada, seletorPreferencial = "[tabindex='-1']") {
+      const camada = document.getElementById(idCamada);
+      if (!camada) return;
+
+      const focoPreferencial = camada.querySelector(seletorPreferencial);
+      const focoFallback = camada.querySelector("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])");
+      const alvo = elementoFocavelVisivel(focoPreferencial) ? focoPreferencial : focoFallback;
+
+      if (alvo) {
+        setTimeout(() => alvo.focus({ preventScroll: true }), 0);
+      }
+    }
+
+    function marcarCamadaAbertaAcessivel(idCamada, seletorFoco) {
+      const camada = document.getElementById(idCamada);
+      if (!camada) return;
+
+      if (camada.getAttribute("aria-hidden") !== "false") {
+        guardarFocoAnteriorCamada(idCamada);
+      }
+      camada.setAttribute("aria-hidden", "false");
+      focarElementoInicialCamada(idCamada, seletorFoco);
+    }
+
+    function marcarCamadaFechadaAcessivel(idCamada, restaurarFoco = true) {
+      if (restaurarFoco) {
+        restaurarFocoAnteriorCamada(idCamada);
+      }
+
+      const camada = document.getElementById(idCamada);
+      if (camada) {
+        camada.setAttribute("aria-hidden", "true");
+      }
     }
 
     function registrarCamadaHistoricoMobile() {
@@ -832,6 +890,11 @@
       document.getElementById("painelCentralDuplicidades")?.classList.remove("aberto");
       document.getElementById("painelDashboard")?.classList.remove("aberto");
       document.getElementById("painelLateral")?.classList.remove("aberto");
+      marcarCamadaFechadaAcessivel("centralConfiguracoes", false);
+      marcarCamadaFechadaAcessivel("centralUpload", false);
+      marcarCamadaFechadaAcessivel("painelCentralDuplicidades", false);
+      marcarCamadaFechadaAcessivel("painelDashboard", false);
+      marcarCamadaFechadaAcessivel("painelLateral", false);
     }
 
     function liberarBlindagemVisualPreLogin() {
@@ -1133,11 +1196,18 @@ atualizarCardParesIgnorados();
     window.alternarCentralConfiguracoes = function () {
       const central = document.getElementById("centralConfiguracoes");
       if (!central) return;
-      central.classList.toggle("aberta");
-      if (central.classList.contains("aberta")) {
+
+      const vaiAbrir = !central.classList.contains("aberta");
+      if (vaiAbrir) {
+        central.classList.add("aberta");
+        marcarCamadaAbertaAcessivel("centralConfiguracoes", "#centralConfiguracoesTitulo");
         central.scrollTop = 0;
         registrarCamadaHistoricoMobile();
+      } else {
+        central.classList.remove("aberta");
+        marcarCamadaFechadaAcessivel("centralConfiguracoes");
       }
+
       atualizarControlesPreferencias();
     };
 
@@ -2019,11 +2089,13 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
       conteudo.scrollTop = 0;
       painel.classList.add("aberto");
+      marcarCamadaAbertaAcessivel("painelDashboard", "#painelDashboardTitulo");
       registrarCamadaHistoricoMobile();
     }
 
     window.fecharPainelDashboard = function () {
       document.getElementById("painelDashboard")?.classList.remove("aberto");
+      marcarCamadaFechadaAcessivel("painelDashboard");
     };
 
     window.abrirRelatoriosAdministrativos = function () {
@@ -2619,6 +2691,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       centralDuplicidadesAberta = true;
       aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
       document.getElementById("painelCentralDuplicidades")?.classList.add("aberto");
+      marcarCamadaAbertaAcessivel("painelCentralDuplicidades", "#painelCentralDuplicidadesTitulo");
       registrarCamadaHistoricoMobile();
 
       if (!centralDuplicidadesAnalisada && !duplicidadesCarregando) {
@@ -2630,12 +2703,14 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       centralDuplicidadesAberta = false;
       aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
       document.getElementById("painelCentralDuplicidades")?.classList.remove("aberto");
+      marcarCamadaFechadaAcessivel("painelCentralDuplicidades");
     };
 
     window.abrirParesIgnoradosDashboard = function () {
       centralDuplicidadesAberta = true;
       aplicarEstadoVisualCentralDuplicidades(totalParesCentralDuplicidades);
       document.getElementById("painelCentralDuplicidades")?.classList.add("aberto");
+      marcarCamadaAbertaAcessivel("painelCentralDuplicidades", "#painelCentralDuplicidadesTitulo");
       registrarCamadaHistoricoMobile();
 
       const detalhes = document.querySelector(".paresIgnoradosDuplicidade");
@@ -4396,6 +4471,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("btnMesclar").style.display = estaArquivado ? "none" : "inline-block";
 
       document.getElementById("painelLateral").classList.add("aberto");
+      marcarCamadaAbertaAcessivel("painelLateral", "#painelTitulo");
       registrarCamadaHistoricoMobile();
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
@@ -4491,6 +4567,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       document.getElementById("painelLateral").classList.remove("aberto");
+      marcarCamadaFechadaAcessivel("painelLateral");
       document.getElementById("boxRenomear").style.display = "none";
       document.getElementById("novoNomeArquivo").value = "";
       document.getElementById("boxSubstituir").style.display = "none";
@@ -4679,6 +4756,7 @@ window.abrirSeletorNovoDocumento = function () {
       const central = document.getElementById("centralUpload");
       if (!central) return;
       central.classList.add("aberta");
+      marcarCamadaAbertaAcessivel("centralUpload", "#centralUploadTitulo");
       registrarCamadaHistoricoMobile();
       document.getElementById("gavetaUpload").innerHTML = opcoesGavetaHtml();
       uploadConcluidoComSucesso = false;
@@ -4725,6 +4803,7 @@ window.abrirSeletorNovoDocumento = function () {
       renderizarListaCentralUpload();
       atualizarAcoesCentralUpload();
       document.getElementById("centralUpload")?.classList.remove("aberta");
+      marcarCamadaFechadaAcessivel("centralUpload");
     }
 
     function prepararCentralUploadParaNovoEnvio() {
@@ -4752,6 +4831,7 @@ window.abrirSeletorNovoDocumento = function () {
       }
 
       caixa.style.display = "flex";
+      document.getElementById("btnContinuarUpload")?.focus({ preventScroll: true });
       return false;
     }
 
@@ -4824,6 +4904,7 @@ window.abrirSeletorNovoDocumento = function () {
         }
 
         central.classList.remove("aberta");
+        marcarCamadaFechadaAcessivel("centralUpload");
         return;
       }
 
@@ -5935,6 +6016,7 @@ function renderizarDocumentos(listaArquivos) {
       const centralConfiguracoes = document.getElementById("centralConfiguracoes");
       if (centralConfiguracoes?.classList.contains("aberta")) {
         centralConfiguracoes.classList.remove("aberta");
+        marcarCamadaFechadaAcessivel("centralConfiguracoes");
         return true;
       }
 
@@ -6022,6 +6104,14 @@ function renderizarDocumentos(listaArquivos) {
         if (centralUpload && centralUpload.classList.contains("aberta")) {
           event.preventDefault();
           fecharCentralUpload();
+          return;
+        }
+
+        const centralConfiguracoes = document.getElementById("centralConfiguracoes");
+        if (centralConfiguracoes && centralConfiguracoes.classList.contains("aberta")) {
+          event.preventDefault();
+          centralConfiguracoes.classList.remove("aberta");
+          marcarCamadaFechadaAcessivel("centralConfiguracoes");
           return;
         }
 

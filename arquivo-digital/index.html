@@ -42,8 +42,8 @@
 
     <div id="usuario" class="info"></div>
 
-      <section id="telaAcessoRestrito" class="telaAcessoRestrito" aria-label="Acesso restrito">
-        <h2>Acesso restrito à Secretaria.</h2>
+      <section id="telaAcessoRestrito" class="telaAcessoRestrito" aria-labelledby="tituloAcessoRestrito">
+        <h2 id="tituloAcessoRestrito" tabindex="-1">Acesso restrito à Secretaria.</h2>
         <p>Este ambiente é exclusivo para o grupo GRUPO DA SECRETARIA - ARQUIVO DIGITAL.</p>
         <p>Se você precisa acessar, solicite autorização à gestão escolar.</p>
         <div class="acoesAcessoRestrito">
@@ -53,7 +53,7 @@
         <small id="statusAcessoRestrito" class="statusAcessoRestrito"></small>
       </section>
 
-      <div id="areaSistema" style="display:none">
+      <div id="areaSistema" role="main" aria-labelledby="tituloListaDocumentos" style="display:none">
             <div class="areaUploadNovo areaUploadHero">
         <div class="areaUploadIcone" aria-hidden="true">
           <img src="assets/icones/nuvem-upload.svg" alt="">
@@ -69,9 +69,9 @@
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none">
       </div>
 
-      <section id="centralConfiguracoes" class="centralConfiguracoes" aria-label="Central de Configurações">
+      <section id="centralConfiguracoes" class="centralConfiguracoes" role="dialog" aria-labelledby="centralConfiguracoesTitulo" aria-modal="false" aria-hidden="true">
         <div class="centralConfiguracoesTopo">
-          <h2>Central de Configurações</h2>
+          <h2 id="centralConfiguracoesTitulo" tabindex="-1">Central de Configurações</h2>
           <button id="btnFecharCentralConfiguracoes" class="btnFechar" aria-label="Fechar Central de Configurações">X</button>
         </div>
         <div class="gradeConfiguracoes">
@@ -132,7 +132,7 @@
         <div class="cadastroGavetaBox">
           <strong>Cadastrar nova gaveta</strong>
           <div class="linhaCadastroGaveta">
-            <input id="novaGavetaConfiguracao" type="text" placeholder="Ex.: Gaveta 35">
+            <input id="novaGavetaConfiguracao" type="text" placeholder="Ex.: Gaveta 35" aria-label="Nome da nova gaveta">
             <button id="btnCadastrarNovaGaveta" class="secundario">Cadastrar gaveta</button>
           </div>
           <small id="statusCadastroGaveta">A nova gaveta será adicionada à coluna GAVETA do SharePoint, se houver permissão.</small>
@@ -140,10 +140,10 @@
         </div>
       </section>
 
-      <section id="centralUpload" class="centralUpload" aria-label="Central de Upload">
+      <section id="centralUpload" class="centralUpload" role="dialog" aria-labelledby="centralUploadTitulo" aria-modal="false" aria-hidden="true">
         <div class="centralUploadTopo">
           <div>
-            <h2>Central de Upload</h2>
+            <h2 id="centralUploadTitulo" tabindex="-1">Central de Upload</h2>
             <p>Selecione PDFs, informe a gaveta física e registre o motivo antes de enviar.</p>
           </div>
           <button id="btnFecharCentralUpload" class="btnFechar btnFecharUpload" aria-label="Fechar Central de Upload">X</button>
@@ -169,12 +169,12 @@
 
           <div class="campoUpload">
             <strong>Gaveta física</strong>
-            <select id="gavetaUpload"></select>
+            <select id="gavetaUpload" aria-label="Gaveta física do upload"></select>
           </div>
 
           <div class="campoUpload campoUploadMotivo">
             <strong>Motivo do upload</strong>
-            <textarea id="motivoUpload" placeholder="Informe o motivo para registrar no histórico"></textarea>
+            <textarea id="motivoUpload" placeholder="Informe o motivo para registrar no histórico" aria-label="Motivo do upload"></textarea>
           </div>
         </div>
 
@@ -260,6 +260,7 @@
             class="busca"
             type="text"
             placeholder="Digite o nome do aluno ou parte do nome..."
+            aria-labelledby="tituloListaDocumentos"
           >
         </div>
       </div>
@@ -279,9 +280,9 @@
     </div>
   </div>
 
-  <aside id="painelCentralDuplicidades" class="painelLateral painelCentralDuplicidades">
+  <aside id="painelCentralDuplicidades" class="painelLateral painelCentralDuplicidades" role="dialog" aria-labelledby="painelCentralDuplicidadesTitulo" aria-modal="false" aria-hidden="true">
     <div class="painelTopo">
-      <h2>Central de duplicidades</h2>
+      <h2 id="painelCentralDuplicidadesTitulo" tabindex="-1">Central de duplicidades</h2>
       <button id="btnFecharPainelCentralDuplicidades" class="btnFechar" aria-label="Fechar Central de Duplicidades">X</button>
     </div>
 
@@ -298,17 +299,17 @@
     </div>
   </aside>
 
-  <aside id="painelDashboard" class="painelLateral painelDashboard">
+  <aside id="painelDashboard" class="painelLateral painelDashboard" role="dialog" aria-labelledby="painelDashboardTitulo" aria-modal="false" aria-hidden="true">
     <div class="painelTopo">
-      <h2 id="painelDashboardTitulo">Detalhes</h2>
+      <h2 id="painelDashboardTitulo" tabindex="-1">Detalhes</h2>
       <button id="btnFecharPainelDashboard" class="btnFechar" aria-label="Fechar painel de detalhes">X</button>
     </div>
     <div id="painelDashboardConteudo" class="painelConteudo"></div>
   </aside>
 
-  <aside id="painelLateral" class="painelLateral">
+  <aside id="painelLateral" class="painelLateral" role="dialog" aria-labelledby="painelTitulo" aria-modal="false" aria-hidden="true">
     <div class="painelTopo">
-      <h2 id="painelTitulo">Arquivo</h2>
+      <h2 id="painelTitulo" tabindex="-1">Arquivo</h2>
       <div id="painelTituloChips" class="painelTituloChips"></div>
       <button id="btnFecharPainelLateral" class="btnFechar" aria-label="Fechar painel lateral">X</button>
     </div>
@@ -338,7 +339,7 @@
 
       <div id="boxRenomear" class="formAcao">
         <h3>Renomear arquivo</h3>
-        <input id="novoNomeArquivo" type="text" placeholder="Novo nome do arquivo">
+        <input id="novoNomeArquivo" type="text" placeholder="Novo nome do arquivo" aria-label="Novo nome do arquivo">
         <small>O sistema adiciona .pdf automaticamente se você não digitar.</small>
         <div class="linhaBotoes">
           <button id="btnConfirmarRenomear">Confirmar renomeação</button>
@@ -349,7 +350,7 @@
       <div id="boxSubstituir" class="formAcao alertaAcao">
         <h3>Substituir arquivo</h3>
         <p>Escolha um PDF mais atual. O sistema manterá o mesmo nome do arquivo atual e substituirá apenas o conteúdo.</p>
-        <input id="arquivoSubstituto" type="file" accept="application/pdf,.pdf">
+        <input id="arquivoSubstituto" type="file" accept="application/pdf,.pdf" aria-label="Arquivo PDF substituto">
         <small>As versões anteriores deverão continuar disponíveis no histórico do arquivo.</small>
         <div class="linhaBotoes">
           <button id="btnConfirmarSubstituir">Confirmar substituição</button>
@@ -360,7 +361,7 @@
       <div id="boxArquivar" class="formAcao alertaAcao">
         <h3>Mover documento para Lixeira</h3>
         <p>O documento será enviado para a <strong>Lixeira</strong> interna do sistema. Ele não será excluído.</p>
-        <textarea id="motivoArquivar" placeholder="Informe o motivo para enviar à Lixeira..."></textarea>
+        <textarea id="motivoArquivar" placeholder="Informe o motivo para enviar à Lixeira..." aria-label="Motivo para enviar à Lixeira"></textarea>
         <div class="linhaBotoes">
           <button id="btnConfirmarArquivar">Confirmar envio para Lixeira</button>
           <button id="btnCancelarArquivar" class="secundario">Cancelar</button>
@@ -370,7 +371,7 @@
       <div id="boxRestaurar" class="formAcao alertaAcao">
         <h3>Restaurar da Lixeira</h3>
         <p>O documento será restaurado da <strong>Lixeira</strong> para a lista principal de documentos ativos.</p>
-        <textarea id="motivoRestaurar" placeholder="Informe o motivo para restaurar da Lixeira..."></textarea>
+        <textarea id="motivoRestaurar" placeholder="Informe o motivo para restaurar da Lixeira..." aria-label="Motivo para restaurar da Lixeira"></textarea>
         <div class="linhaBotoes">
           <button id="btnConfirmarRestaurar">Confirmar restauração</button>
           <button id="btnCancelarRestaurar" class="secundario">Cancelar</button>
@@ -379,8 +380,8 @@
 
       <div id="boxAlterarGaveta" class="formAcao">
         <h3>Alterar gaveta</h3>
-        <select id="novaGavetaDocumento"></select>
-        <textarea id="motivoAlterarGaveta" placeholder="Informe o motivo da alteração de gaveta..."></textarea>
+        <select id="novaGavetaDocumento" aria-label="Nova gaveta do documento"></select>
+        <textarea id="motivoAlterarGaveta" placeholder="Informe o motivo da alteração de gaveta..." aria-label="Motivo da alteração de gaveta"></textarea>
         <div class="linhaBotoes">
           <button id="btnConfirmarAlterarGaveta">Salvar gaveta</button>
           <button id="btnCancelarAlterarGaveta" class="secundario">Cancelar</button>
@@ -390,10 +391,10 @@
       <div id="boxMesclar" class="formAcao alertaAcao">
         <h3>Mesclar arquivos</h3>
         <p>Escolha um PDF do computador. As páginas dele serão adicionadas ao final do arquivo atual.</p>
-        <input id="arquivoLocalMesclar" type="file" accept="application/pdf,.pdf" style="display:none">
+        <input id="arquivoLocalMesclar" type="file" accept="application/pdf,.pdf" aria-label="PDF local para mesclar" style="display:none">
         <button id="btnEscolherArquivoMesclar" class="secundario">Escolher PDF do computador</button>
         <div id="arquivoSelecionadoMesclar" class="arquivoSelecionadoMesclar">Nenhum PDF selecionado.</div>
-        <textarea id="motivoMesclar" placeholder="Informe o motivo da mesclagem..."></textarea>
+        <textarea id="motivoMesclar" placeholder="Informe o motivo da mesclagem..." aria-label="Motivo da mesclagem"></textarea>
         <small>O nome do arquivo atual será mantido e as versões anteriores deverão continuar disponíveis.</small>
         <div id="statusMesclar" class="statusMesclar"></div>
         <div class="linhaBotoes">
@@ -404,7 +405,7 @@
 
       <div class="anotacaoBox">
         <h3>Anotações do arquivo</h3>
-        <textarea id="campoAnotacao" placeholder="Digite observações sobre este arquivo..."></textarea>
+        <textarea id="campoAnotacao" placeholder="Digite observações sobre este arquivo..." aria-label="Anotações do arquivo" aria-describedby="statusAnotacao"></textarea>
         <div class="linhaAnotacao">
           <small id="statusAnotacao">Selecione um arquivo.</small>
           <button id="btnSalvarAnotacaoPainel" class="btnSalvar">Salvar agora</button>

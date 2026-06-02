@@ -133,6 +133,53 @@ const formatarHandlersInline = (handlers) =>
   Object.entries(handlers)
     .map(([nome, total]) => `${nome}=${total}`)
     .join(", ");
+const elementoPorId = (id) => {
+  const regex = new RegExp(`<[^>]+\\bid=["']${id}["'][^>]*>`, "i");
+  return html.match(regex)?.[0] || "";
+};
+const temAtributo = (elemento, atributo) => new RegExp(`\\b${atributo}\\s*=`, "i").test(elemento);
+const paineisA11y = [
+  "painelLateral",
+  "painelCentralDuplicidades",
+  "painelDashboard",
+  "centralUpload",
+  "centralConfiguracoes"
+];
+const paineisSemAria = paineisA11y.filter(id => {
+  const elemento = elementoPorId(id);
+  return !elemento || !temAtributo(elemento, "role") || !temAtributo(elemento, "aria-labelledby") || !temAtributo(elemento, "aria-hidden");
+});
+const botoesFechar = html.match(/<button\b[^>]*class=["'][^"']*\bbtnFechar\b[^"']*["'][^>]*>/gi) || [];
+const botoesFecharSemLabel = botoesFechar.filter(botao => !temAtributo(botao, "aria-label")).length;
+const camposA11y = [
+  "campoBusca",
+  "gavetaUpload",
+  "motivoUpload",
+  "configLimiteRecentes",
+  "configOrdemRecentes",
+  "configOrdemLixeira",
+  "configGuiaInicial",
+  "configModoVisual",
+  "configDetalhesCards",
+  "configDuplicidadesAuto",
+  "configLimiteRelatorios",
+  "novaGavetaConfiguracao",
+  "campoAnotacao",
+  "novoNomeArquivo",
+  "arquivoSubstituto",
+  "motivoArquivar",
+  "motivoRestaurar",
+  "novaGavetaDocumento",
+  "motivoAlterarGaveta",
+  "arquivoLocalMesclar",
+  "motivoMesclar"
+];
+const campoTemLabelVisual = (id) => new RegExp(`<label\\b[^>]*>[\\s\\S]*\\bid=["']${id}["'][\\s\\S]*?<\\/label>`, "i").test(html) ||
+  new RegExp(`<label\\b[^>]*\\bfor=["']${id}["'][^>]*>`, "i").test(html);
+const camposSemNomeAcessivel = camposA11y.filter(id => {
+  const elemento = elementoPorId(id);
+  return !elemento || (!temAtributo(elemento, "aria-label") && !temAtributo(elemento, "aria-labelledby") && !campoTemLabelVisual(id));
+});
 
 if (erros.length) {
   console.error("Validacao do Arquivo Digital falhou:");
@@ -151,4 +198,8 @@ console.log(`- Diagnostico XSS gradual: ${totalInnerHtml} atribuicao(oes) innerH
 console.log(`- Diagnostico handlers inline gradual: ${totalHandlersInline} total; HTML ${formatarHandlersInline(handlersHtml)}; JS ${formatarHandlersInline(handlersJs)}.`);
 if (totalHandlersInline === 0) {
   console.log("- Nenhum handler inline encontrado.");
+}
+console.log(`- Diagnostico acessibilidade gradual: paineis sem ARIA esperada=${paineisSemAria.length}; botoes X sem aria-label=${botoesFecharSemLabel}; campos prioritarios sem nome acessivel=${camposSemNomeAcessivel.length}.`);
+if (!paineisSemAria.length && !botoesFecharSemLabel && !camposSemNomeAcessivel.length) {
+  console.log("- Painéis principais, botões de fechar e campos prioritários com nomes acessíveis diagnosticados.");
 }
