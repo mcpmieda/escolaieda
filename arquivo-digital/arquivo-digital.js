@@ -44,6 +44,8 @@
     let eventosFixosInicializados = false;
     const focoAnteriorPorCamada = new Map();
     const operacoesCriticasEmAndamento = new Set();
+    const LIMITE_CACHE_NORMALIZAR_TEXTO = 3000;
+    const cacheNormalizarTexto = new Map();
 
     const msalConfig = {
       auth: {
@@ -91,13 +93,45 @@
       return "Evento interno registrado.";
     }
 
+    function agoraPerformance() {
+      return window.performance?.now ? window.performance.now() : Date.now();
+    }
+
+    function medirTempoPerformance(nome, funcao) {
+      const inicio = agoraPerformance();
+      const resultado = funcao();
+      const duracao = agoraPerformance() - inicio;
+      if (MODO_DIAGNOSTICO) logger.info(`[performance] ${nome}: ${duracao.toFixed(1)}ms`);
+      return resultado;
+    }
+
+    async function medirTempoPerformanceAsync(nome, funcao) {
+      const inicio = agoraPerformance();
+      const resultado = await funcao();
+      const duracao = agoraPerformance() - inicio;
+      if (MODO_DIAGNOSTICO) logger.info(`[performance] ${nome}: ${duracao.toFixed(1)}ms`);
+      return resultado;
+    }
+
     function normalizarTexto(texto) {
-      return (texto || "")
-        .toString()
+      const chave = (texto || "").toString();
+
+      if (cacheNormalizarTexto.has(chave)) {
+        return cacheNormalizarTexto.get(chave);
+      }
+
+      const normalizado = chave
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .trim();
+
+      if (cacheNormalizarTexto.size >= LIMITE_CACHE_NORMALIZAR_TEXTO) {
+        cacheNormalizarTexto.delete(cacheNormalizarTexto.keys().next().value);
+      }
+
+      cacheNormalizarTexto.set(chave, normalizado);
+      return normalizado;
     }
 
     function sanitizarNomeArquivo(nome) {
@@ -5456,6 +5490,10 @@ function renderizarDocumentos(listaArquivos) {
       const termoBusca = normalizarTexto(document.getElementById("campoBusca").value);
       const baseRepetidos = modoListaAtual === "recentes" ? [...documentosAtivos, ...documentosLixeira] : listaArquivos;
       const mapaNomesRepetidos = criarMapaNomesVisuaisRepetidos(baseRepetidos);
+      const indiceDocumentoPorId = new Map();
+      documentosCarregados.forEach((doc, indice) => {
+        if (doc?.id) indiceDocumentoPorId.set(doc.id, indice);
+      });
 
       const totalFiltrado = listaArquivos.length;
       const listaExibida = modoListaAtual === "recentes" && !termoBusca
@@ -5478,7 +5516,9 @@ function renderizarDocumentos(listaArquivos) {
       lista.innerHTML = "";
 
       listaExibida.forEach(item => {
-        const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
+        const indiceOriginal = indiceDocumentoPorId.has(item.id)
+          ? indiceDocumentoPorId.get(item.id)
+          : -1;
         const idArquivo = obterIdArquivoDocumento(item);
         const chaveId = idArquivo ? `id:${idArquivo}` : "";
         const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
@@ -5506,6 +5546,43 @@ function renderizarDocumentos(listaArquivos) {
         lista.appendChild(li);
       });
     }
+
+    window.gerarDiagnosticoPerformanceArquivoDigital = function () {
+      const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
+      const inicioNormalizacao = agoraPerformance();
+      medirTempoPerformance("diagnostico.normalizar-nomes-documentos", () => {
+        todosDocumentos.forEach(doc => normalizarTexto(doc?.nome || ""));
+      });
+      const tempoNormalizacaoMs = agoraPerformance() - inicioNormalizacao;
+
+      const totalDocumentosDuplicidades = documentosAtivos.filter(doc => doc && doc.nome && doc.id).length;
+      const paresExaustivosEstimados = totalDocumentosDuplicidades > 1
+        ? (totalDocumentosDuplicidades * (totalDocumentosDuplicidades - 1)) / 2
+        : 0;
+
+      const resumo = {
+        documentosAtivos: documentosAtivos.length,
+        documentosLixeira: documentosLixeira.length,
+        documentosCarregados: documentosCarregados.length,
+        historicoCarregado: historicoCarregado.length,
+        anotacoesCarregadas: anotacoesCarregadas.length,
+        cacheNormalizarTexto: cacheNormalizarTexto.size,
+        duplicidades: {
+          documentosAtivosComNomeEId: totalDocumentosDuplicidades,
+          paresExaustivosEstimados,
+          limiteAnaliseExaustiva: LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA,
+          usaIndice: totalDocumentosDuplicidades > LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA,
+          cacheAssinaturaAtiva: Boolean(cacheParesDuplicidades.assinatura)
+        },
+        medicaoLocal: {
+          normalizarNomesDocumentosMs: Number(tempoNormalizacaoMs.toFixed(1))
+        },
+        observacao: "Diagnostico local: nao chama SharePoint e nao altera dados de documentos."
+      };
+
+      if (MODO_DIAGNOSTICO) logger.info("Diagnostico de performance do Arquivo Digital", resumo);
+      return resumo;
+    };
 
     function obterUltimasMovimentacoesPorArquivo(limite = 20) {
       const vistos = new Set();
