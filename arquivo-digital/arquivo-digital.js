@@ -3345,6 +3345,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     window.salvarAnotacaoManual = async function () {
       clearTimeout(timerSalvarAnotacao);
       anotacaoUltimoTextoSalvo = "";
+      const operacao = iniciarOperacaoCritica("salvar-anotacao", "btnSalvarAnotacaoPainel", "O salvamento da anotação já está em andamento. Aguarde terminar.");
+      if (!operacao) return;
 
       try {
         atualizarStatusAnotacao("Salvando...");
@@ -3358,6 +3360,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           atualizarStatusAnotacao("Não foi possível salvar a anotação.");
           mostrarMensagemPainel("Não foi possível salvar a anotação. Tente novamente.", "erro");
         }
+      } finally {
+        finalizarOperacaoCritica(operacao);
       }
     };
 
@@ -4607,6 +4611,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         return;
       }
 
+      const operacao = iniciarOperacaoCritica("abrir-pdf", "btnAbrirArquivoPainel", "A abertura do arquivo já foi iniciada. Aguarde.");
+      if (!operacao) return;
+
       const aba = window.open("", "_blank");
 
       if (aba) {
@@ -4634,6 +4641,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           if (documentoSelecionado && documentoSelecionado.id === documentoAberto.id) {
             mostrarMensagemPainel("Arquivo aberto, mas não foi possível registrar no histórico agora.", "erro");
           }
+        } finally {
+          finalizarOperacaoCritica(operacao);
         }
       }, 0);
     };
