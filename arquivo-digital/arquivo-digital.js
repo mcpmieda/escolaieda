@@ -33,6 +33,7 @@
     let anotacaoUltimoTextoSalvo = "";
     let arquivoLocalMesclar = null;
     let mesclagemEmAndamento = false;
+    let painelDocumentoTokenAtual = 0;
     let pdfLibPromise = null;
     let dadosApoioCarregando = false;
     let dadosApoioCarregados = false;
@@ -52,6 +53,8 @@
     const focoAnteriorPorCamada = new Map();
     const operacoesCriticasEmAndamento = new Set();
     const LIMITE_CACHE_NORMALIZAR_TEXTO = 3000;
+    const TEMPO_LIMITE_GRAPH_MS = 30000;
+    const LIMITE_MESCLAGEM_LOCAL_BYTES = 50 * 1024 * 1024;
     const cacheNormalizarTexto = new Map();
 
     const msalConfig = {
@@ -716,14 +719,16 @@
         .slice(0, 8);
     }
 
-    function carregarNomesParecidos(documento) {
+    function carregarNomesParecidos(documento, tokenPainel = painelDocumentoTokenAtual) {
       const caixa = document.getElementById("nomesParecidosArquivo");
 
-      if (!caixa) {
+      if (!caixa || !painelAindaMostraDocumento(documento, tokenPainel)) {
         return;
       }
 
       const parecidos = buscarNomesParecidos(documento);
+
+      if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
 
       if (!parecidos.length) {
         caixa.classList.remove("comNomesParecidos");
@@ -735,6 +740,7 @@
       const temNomeParecidoReal = parecidos.some(item =>
         chaveNomeArquivoVisualLimpo(item.doc.nome || "") !== chaveDocumento
       );
+      if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
       caixa.classList.toggle("comNomesParecidos", temNomeParecidoReal);
       const mapaNomesAtivos = criarMapaNomesVisuaisRepetidos(documentosAtivos);
       caixa.innerHTML = parecidos.map(item => {
@@ -877,6 +883,16 @@
       }
 
       throw new Error(texto || `Falha ao verificar permissao no SharePoint. HTTP ${resposta.status}`);
+    }
+
+    function painelAindaMostraDocumento(documento, tokenPainel) {
+      if (!documento || !documentoSelecionado) return false;
+      const mesmoToken = tokenPainel === undefined || tokenPainel === painelDocumentoTokenAtual;
+      const mesmoDocumento = documentoSelecionado.id === documento.id;
+      const arquivoAtual = obterIdArquivoDocumento(documentoSelecionado);
+      const arquivoEsperado = obterIdArquivoDocumento(documento);
+      const mesmoArquivo = !arquivoAtual || !arquivoEsperado || arquivoAtual === arquivoEsperado;
+      return mesmoToken && mesmoDocumento && mesmoArquivo;
     }
 
     function mostrarTelaAcessoRestrito(mensagemExtra = "") {
@@ -1028,12 +1044,23 @@
       const podeRepetirMetodo = metodo === "GET" || permitirRetryEscrita;
       const totalTentativas = Math.max(1, Number(config.tentativas || 3));
       const atrasoBaseMs = Math.max(200, Number(config.atrasoBaseMs || 700));
+      const timeoutMs = Math.max(1000, Number(config.timeoutMs || TEMPO_LIMITE_GRAPH_MS));
       const statusRepetiveis = new Set([429, 500, 502, 503, 504]);
       let ultimoErro = null;
 
       for (let tentativa = 1; tentativa <= totalTentativas; tentativa++) {
+        let controladorTimeout = null;
+        let timerTimeout = null;
+        const opcoesFetch = { ...opcoes };
+
+        if (!opcoesFetch.signal && typeof AbortController !== "undefined") {
+          controladorTimeout = new AbortController();
+          opcoesFetch.signal = controladorTimeout.signal;
+          timerTimeout = setTimeout(() => controladorTimeout.abort(), timeoutMs);
+        }
+
         try {
-          const resposta = await fetch(url, opcoes);
+          const resposta = await fetch(url, opcoesFetch);
 
           if (resposta.ok) {
             return resposta;
@@ -1058,12 +1085,17 @@
 
           const deveRepetir = podeRepetirMetodo && tentativa < totalTentativas;
           if (!deveRepetir) {
+            if (erro?.name === "AbortError") {
+              throw new Error("Tempo limite ao chamar o Microsoft Graph. Verifique sua conexão e tente novamente.");
+            }
             throw erro;
           }
 
           const atraso = Math.min(6000, atrasoBaseMs * Math.pow(2, tentativa - 1));
           logger.warn(`Falha temporaria no Graph. Nova tentativa ${tentativa + 1}/${totalTentativas} em ${atraso}ms.`, erro);
           await aguardar(atraso);
+        } finally {
+          if (timerTimeout) clearTimeout(timerTimeout);
         }
       }
 
@@ -3063,9 +3095,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       if (normalizada.includes("anotacao")) return "historicoAcaoAnotacao";
       return "historicoAcaoNeutra";
     }
-    async function carregarHistoricoDocumento(documento) {
+    async function carregarHistoricoDocumento(documento, tokenPainel = painelDocumentoTokenAtual) {
       const caixa = document.getElementById("historicoArquivo");
-      if (!caixa) return;
+      if (!caixa || !painelAindaMostraDocumento(documento, tokenPainel)) return;
 
       caixa.innerHTML = montarCarregamentoVisual("Carregando histórico", "Buscando os registros deste documento.", "🕘");
 
@@ -3080,6 +3112,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const chaveTexto = (valor) => normalizarTexto(valor || "").replace(/\s+/g, " ").trim();
 
       const renderizarHistoricoDoCache = () => {
+        if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
         const anotacoesJaMostradas = new Set();
 
         const entradasHistorico = (historicoCarregado || [])
@@ -3123,6 +3156,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
         const entradas = [...entradasHistorico, ...entradasAnotacao]
           .sort((a, b) => new Date(b.data || 0) - new Date(a.data || 0));
+
+        if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
 
         if (!entradas.length) {
           caixa.innerHTML = "<p>Nenhum histórico registrado para este arquivo.</p>";
@@ -3177,12 +3212,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
               await carregarDadosDeApoio();
             }
 
-            if (documentoSelecionado && documentoSelecionado.id === documento.id) {
-              carregarHistoricoDocumento(documento);
+            if (painelAindaMostraDocumento(documento, tokenPainel)) {
+              carregarHistoricoDocumento(documento, tokenPainel);
             }
           } catch (erro) {
             logger.error(erro);
-            if (documentoSelecionado && documentoSelecionado.id === documento.id) {
+            if (painelAindaMostraDocumento(documento, tokenPainel)) {
               caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
             }
           }
@@ -3192,14 +3227,18 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       try {
+        if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
         renderizarHistoricoDoCache();
       } catch (erro) {
         logger.error(erro);
-        caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
+        if (painelAindaMostraDocumento(documento, tokenPainel)) {
+          caixa.innerHTML = "<p class='textoErro'>Não foi possível carregar o histórico.</p>";
+        }
       }
     }
-    async function carregarAnotacaoDocumento(documento) {
+    async function carregarAnotacaoDocumento(documento, tokenPainel = painelDocumentoTokenAtual) {
       const textarea = document.getElementById("campoAnotacao");
+      if (!textarea || !painelAindaMostraDocumento(documento, tokenPainel)) return;
       textarea.value = "";
       anotacaoAtualItemId = null;
       anotacaoAtualEtag = "";
@@ -3208,11 +3247,15 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       try {
         const item = anotacoesCarregadas.find(x => anotacaoPertenceAoDocumento(x, documento));
 
+        if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
+
         if (item) {
           anotacaoAtualItemId = item.ID;
           anotacaoAtualEtag = item.ETAG || "";
           textarea.value = item.ANOTACAO || "";
-          atualizarStatusAnotacao(`Última atualização: ${formatarData(item.DATA_ATUALIZACAO)} - ${item.ATUALIZADO_POR || ""}`);
+          const dataAtualizacao = formatarData(item.DATA_ATUALIZACAO);
+          const usuarioAtualizacao = item.ATUALIZADO_POR || "";
+          atualizarStatusAnotacao(`Última atualização: ${dataAtualizacao} - ${usuarioAtualizacao}`);
         } else {
           anotacaoUltimoTextoSalvo = "";
           atualizarStatusAnotacao("Nenhuma anotação salva ainda.");
@@ -3220,7 +3263,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       } catch (erro) {
         logger.error(erro);
-        atualizarStatusAnotacao("Não foi possível carregar a anotação.");
+        if (painelAindaMostraDocumento(documento, tokenPainel)) {
+          atualizarStatusAnotacao("Não foi possível carregar a anotação.");
+        }
       }
     }
 
@@ -3822,6 +3867,29 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       return pdfFinal.save();
     }
 
+    function obterTamanhoDocumentoBytes(documento) {
+      const candidatos = [
+        documento?.size,
+        documento?.tamanho,
+        documento?.tamanhoBytes,
+        documento?.fileSize,
+        documento?.fileSizeBytes
+      ];
+
+      const tamanho = candidatos
+        .map(valor => Number(valor))
+        .find(valor => Number.isFinite(valor) && valor > 0);
+
+      return tamanho || 0;
+    }
+
+    function mesclagemLocalExcedeLimite(documento, arquivoLocal) {
+      const tamanhoAtual = obterTamanhoDocumentoBytes(documento);
+      const tamanhoLocal = Number(arquivoLocal?.size || 0);
+      const tamanhoTotalConhecido = tamanhoAtual + tamanhoLocal;
+      return tamanhoTotalConhecido > LIMITE_MESCLAGEM_LOCAL_BYTES;
+    }
+
     window.confirmarMesclar = async function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
@@ -3843,6 +3911,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       if (!motivo) {
         mostrarMensagemPainel("Informe o motivo para continuar.", "erro");
+        return;
+      }
+
+      if (mesclagemLocalExcedeLimite(documentoSelecionado, arquivo)) {
+        mostrarMensagemPainel("Os PDFs somados são grandes demais para mesclar com segurança no navegador. Use um arquivo menor ou faça a mesclagem fora do sistema antes de enviar.", "erro");
         return;
       }
 
@@ -4409,10 +4482,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       versoesSharePointExpandido = !versoesSharePointExpandido;
       renderizarVersoesSharePoint();
     };
-    async function carregarVersoesSharePointDocumento(documento) {
+    async function carregarVersoesSharePointDocumento(documento, tokenPainel = painelDocumentoTokenAtual) {
       const caixa = document.getElementById("versoesSharePoint");
 
-      if (!caixa) return;
+      if (!caixa || !painelAindaMostraDocumento(documento, tokenPainel)) return;
 
       window.versaoDownloadDocumentoAtual = null;
       versoesSharePointCarregadas = [];
@@ -4425,8 +4498,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       const documentoVersoesId = documento.id || "";
       const versoesAindaDoDocumentoAtual = () =>
-        !documentoVersoesId ||
-        (documentoSelecionado && documentoSelecionado.id === documentoVersoesId);
+        painelAindaMostraDocumento(documento, tokenPainel) &&
+        (!documentoVersoesId || documentoSelecionado.id === documentoVersoesId);
 
       caixa.innerHTML = montarCarregamentoVisual("Carregando versões", "Consultando versões disponíveis para este arquivo.", "🧾");
 
@@ -4547,18 +4620,17 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       /* INICIO_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
       const documentoDoPainel = documento;
       const painel = document.getElementById("painelLateral");
-      const tokenCarregamentoPainel = `${documentoDoPainel.id || ""}-${Date.now()}`;
+      const tokenCarregamentoPainel = ++painelDocumentoTokenAtual;
       if (painel) painel.dataset.carregamentoPainel = tokenCarregamentoPainel;
 
-      const painelAindaMostraDocumento = () =>
+      const painelLocalAindaMostraDocumento = () =>
         painel &&
-        painel.dataset.carregamentoPainel === tokenCarregamentoPainel &&
-        documentoSelecionado &&
-        documentoSelecionado.id === documentoDoPainel.id;
+        Number(painel.dataset.carregamentoPainel) === tokenCarregamentoPainel &&
+        painelAindaMostraDocumento(documentoDoPainel, tokenCarregamentoPainel);
 
       const carregarBlocoPainel = (nomeBloco, tarefa, atraso = 0) => {
         setTimeout(async () => {
-          if (!painelAindaMostraDocumento()) return;
+          if (!painelLocalAindaMostraDocumento()) return;
 
           try {
             await tarefa();
@@ -4587,16 +4659,17 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       anotacaoUltimoTextoSalvo = "";
       atualizarStatusAnotacao("Carregando anotacao...");
 
-      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel), 0);
+      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel, tokenCarregamentoPainel), 0);
 
-      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel), 40);
+      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel, tokenCarregamentoPainel), 40);
 
       carregarBlocoPainel("anotacao", async () => {
-        await carregarAnotacaoDocumento(documentoDoPainel);
+        await carregarAnotacaoDocumento(documentoDoPainel, tokenCarregamentoPainel);
+        if (!painelLocalAindaMostraDocumento()) return;
         ajustarAlturaAnotacao();
       }, 80);
 
-      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel), 120);
+      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel, tokenCarregamentoPainel), 120);
       /* FIM_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
     }
 
@@ -4619,6 +4692,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         }
       }
 
+      painelDocumentoTokenAtual++;
       document.getElementById("painelLateral").classList.remove("aberto");
       marcarCamadaFechadaAcessivel("painelLateral");
       document.getElementById("boxRenomear").style.display = "none";
@@ -5505,7 +5579,7 @@ function renderizarDocumentos(listaArquivos) {
               ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome igual</span>" : ""}
             </span>
             <span>Clique para ver detalhes, histórico e ações</span>
-            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${formatarData(movimento.DATA_HORA)}</span>` : ""}
+            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${escaparHtml(formatarData(movimento.DATA_HORA))}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${escaparHtml(formatarData(item.modificado))}</span>` : ""}
           </button>
         `;

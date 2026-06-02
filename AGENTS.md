@@ -2362,3 +2362,24 @@ Regras permanentes adicionadas:
 - `Nome igual` não é dado oficial salvo no SharePoint; recalcular no frontend após mudanças de lista/nome/status.
 - Ao ajustar dashboard, preferir corrigir o bloco final responsável por `.dashboardAcoes`; evitar novo CSS apenas para vencer camadas antigas.
 
+
+---
+
+## 18.14. Fechamento complementar V2.12 em 02/06/2026
+
+Resumo:
+
+- V2 fechada após auditorias complementares, com ajustes pontuais pós-auditoria.
+- Texto de acesso restrito alinhado à validação real por permissão SharePoint/Graph.
+- Painel lateral protegido contra respostas assíncronas obsoletas por token de abertura.
+- `fetchGraphComRetry` com timeout seguro para chamadas Graph centrais.
+- Mesclagem local de PDFs com limite defensivo de memória no navegador.
+- Escapes HTML pontuais reforçados e testes/validador atualizados.
+- Relatório final: `diagnosticos/relatorio-v2-12-fechamento-pos-auditorias-2026-06-02.md`.
+
+Regra permanente:
+
+- Não iniciar V3 sem novo plano explícito.
+- Próximas mudanças devem ser bug real, auditoria pontual ou V3 planejada.
+- Não reabrir refatoração grande da V2 sem diagnóstico específico e autorização.
+

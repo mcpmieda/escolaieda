@@ -238,4 +238,34 @@ testar("Validador oficial continua presente e cobre handlers inline", () => {
   assert.match(validador, /Diagnostico handlers inline gradual/, "Validador deve imprimir diagnostico de handlers inline.");
 });
 
+testar("V2.12 mantem acesso restrito alinhado a permissao SharePoint", () => {
+  assert.match(html, /usu[aá]rios autorizados no SharePoint da Secretaria/i, "Tela restrita deve falar em usuarios autorizados no SharePoint.");
+  assert.match(html, /grupo da Secretaria respons[aá]vel pelo Arquivo Digital/i, "Tela restrita deve orientar inclusao no grupo responsavel.");
+  assert.doesNotMatch(html, /exclusivo para o grupo GRUPO DA SECRETARIA - ARQUIVO DIGITAL/i, "Tela restrita nao deve prometer validacao direta de grupo.");
+
+  const permissao = blocoFuncao("verificarPermissaoArquivoDigital");
+  assert.match(permissao, /lists\/\$\{CONFIG\.documentosAtivosListId\}\/items\?\$top=1/, "Permissao deve continuar baseada em leitura real no SharePoint.");
+});
+
+testar("V2.12 controla respostas obsoletas do painel lateral", () => {
+  assert.match(js, /let painelDocumentoTokenAtual\s*=\s*0/, "Token central do painel deve existir.");
+  assert.match(js, /function painelAindaMostraDocumento\b/, "Guarda central do painel deve existir.");
+
+  const abrirPainel = blocoFuncao("abrirDocumentoNoPainel");
+  assert.match(abrirPainel, /\+\+painelDocumentoTokenAtual/, "Abrir painel deve gerar novo token.");
+  assert.match(abrirPainel, /painelLocalAindaMostraDocumento/, "Carregamentos do painel devem conferir token local.");
+  assert.match(abrirPainel, /carregarHistoricoDocumento\(documentoDoPainel,\s*tokenCarregamentoPainel\)/, "Historico deve receber token do painel.");
+  assert.match(abrirPainel, /carregarAnotacaoDocumento\(documentoDoPainel,\s*tokenCarregamentoPainel\)/, "Anotacao deve receber token do painel.");
+  assert.match(abrirPainel, /carregarVersoesSharePointDocumento\(documentoDoPainel,\s*tokenCarregamentoPainel\)/, "Versoes devem receber token do painel.");
+});
+
+testar("V2.12 mantem timeout Graph e limite de mesclagem local", () => {
+  assert.match(js, /const TEMPO_LIMITE_GRAPH_MS\s*=\s*30000/, "Timeout Graph de 30s deve existir.");
+  assert.match(blocoFuncao("fetchGraphComRetry"), /AbortController/, "fetchGraphComRetry deve usar AbortController quando disponivel.");
+  assert.match(blocoFuncao("fetchGraphComRetry"), /Tempo limite ao chamar o Microsoft Graph/, "Timeout Graph deve ter mensagem amigavel.");
+
+  assert.match(js, /const LIMITE_MESCLAGEM_LOCAL_BYTES\s*=\s*50\s*\*\s*1024\s*\*\s*1024/, "Limite defensivo de mesclagem local deve existir.");
+  assert.match(blocoFuncao("confirmarMesclar"), /mesclagemLocalExcedeLimite\(documentoSelecionado,\s*arquivo\)/, "confirmarMesclar deve bloquear PDFs grandes antes da mesclagem.");
+});
+
 console.log("Testes de regressao do Arquivo Digital concluidos com sucesso.");
