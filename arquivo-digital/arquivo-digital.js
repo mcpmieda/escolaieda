@@ -1587,7 +1587,7 @@ atualizarCardParesIgnorados();
         const rotuloGaveta = gaveta === "Gaveta nao informada" ? "Sem gaveta" : gaveta;
 
         return `
-          <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" title="${escaparHtml(gaveta)}" aria-label="${escaparHtml(gaveta)}" onclick='filtrarPorGaveta(${JSON.stringify(gaveta)})'>
+          <button class="gavetaCard ${filtroGavetaAtual === gaveta ? "ativo" : ""}" type="button" title="${escaparHtml(gaveta)}" aria-label="${escaparHtml(gaveta)}" data-gaveta="${escaparHtml(gaveta)}">
             <span>${escaparHtml(rotuloGaveta)}</span>
             <strong>${total}</strong>
           </button>
@@ -1647,31 +1647,31 @@ atualizarCardParesIgnorados();
       }
 
       abrirPainelDashboard("Central de histórico", `
-        <div class="filtroHistoricoGeral" onclick="event.stopPropagation()">
+        <div class="filtroHistoricoGeral">
           <div class="topoFiltroHistoricoGeral">
             <strong>Filtrar alterações</strong>
             <small id="resumoFiltroHistoricoGeral">Mostrando histórico completo.</small>
           </div>
 
           <div class="linhaBotoesFiltroHistoricoGeral">
-            <button class="botaoFiltroHistoricoGeral ativo" type="button" data-filtro-historico="todos" onclick="filtrarHistoricoGeralPeriodo('todos', event)">Tudo</button>
-            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="hoje" onclick="filtrarHistoricoGeralPeriodo('hoje', event)">Hoje</button>
-            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="7dias" onclick="filtrarHistoricoGeralPeriodo('7dias', event)">7 dias</button>
-            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="30dias" onclick="filtrarHistoricoGeralPeriodo('30dias', event)">30 dias</button>
-            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="personalizado" onclick="filtrarHistoricoGeralPeriodo('personalizado', event)">Personalizado</button>
+            <button class="botaoFiltroHistoricoGeral ativo" type="button" data-filtro-historico="todos">Tudo</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="hoje">Hoje</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="7dias">7 dias</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="30dias">30 dias</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="personalizado">Personalizado</button>
           </div>
 
           <div id="camposFiltroHistoricoPersonalizado" class="camposFiltroHistoricoPersonalizado">
-            <label>De <input id="filtroHistoricoInicio" type="date" onclick="event.stopPropagation()"></label>
-            <label>Até <input id="filtroHistoricoFim" type="date" onclick="event.stopPropagation()"></label>
-            <button class="botaoAplicarFiltroHistorico" type="button" onclick="aplicarFiltroHistoricoGeralPersonalizado(event)">Aplicar</button>
+            <label>De <input id="filtroHistoricoInicio" type="date"></label>
+            <label>Até <input id="filtroHistoricoFim" type="date"></label>
+            <button class="botaoAplicarFiltroHistorico" type="button" data-acao-historico="aplicar-personalizado">Aplicar</button>
           </div>
 
           <div class="linhaBuscaHistoricoGeral">
-            <input id="buscaHistoricoGeral" class="buscaHistoricoGeral" type="search" placeholder="Buscar por arquivo, usuário, ação, gaveta ou motivo..." autocomplete="off" onclick="event.stopPropagation()" oninput="atualizarBuscaHistoricoGeral(event)">
+            <input id="buscaHistoricoGeral" class="buscaHistoricoGeral" type="search" placeholder="Buscar por arquivo, usuário, ação, gaveta ou motivo..." autocomplete="off">
             <div class="botoesOrdemHistoricoGeral" title="Ordenar histórico">
-              <button class="botaoOrdemHistoricoGeral ativo" type="button" data-ordem-historico="desc" onclick="alterarOrdemHistoricoGeral('desc', event)" title="Mais recentes primeiro">↓</button>
-              <button class="botaoOrdemHistoricoGeral" type="button" data-ordem-historico="asc" onclick="alterarOrdemHistoricoGeral('asc', event)" title="Mais antigos primeiro">↑</button>
+              <button class="botaoOrdemHistoricoGeral ativo" type="button" data-ordem-historico="desc" title="Mais recentes primeiro">↓</button>
+              <button class="botaoOrdemHistoricoGeral" type="button" data-ordem-historico="asc" title="Mais antigos primeiro">↑</button>
             </div>
           </div>
         </div>
@@ -1998,7 +1998,7 @@ window.verMaisHistoricoGeral = function (event) {
       }).join("");
 
       const botaoMais = filtrados.length > exibidos.length ? `
-        <button class="secundario btnVerMaisHistoricoGeral" type="button" onclick="verMaisHistoricoGeral(event)">Ver mais</button>
+        <button class="secundario btnVerMaisHistoricoGeral" type="button" data-acao-historico="ver-mais">Ver mais</button>
       ` : "";
 
       caixa.innerHTML = itensHtml + botaoMais;
@@ -5792,6 +5792,43 @@ function renderizarDocumentos(listaArquivos) {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
         window.alternarCentralDuplicidades();
+      });
+
+      document.getElementById("listaGavetasAtivos")?.addEventListener("click", (event) => {
+        const botaoGaveta = event.target.closest("[data-gaveta]");
+        if (!botaoGaveta) return;
+        window.filtrarPorGaveta(botaoGaveta.dataset.gaveta || "");
+      });
+
+      const painelDashboard = document.getElementById("painelDashboard");
+      painelDashboard?.addEventListener("click", (event) => {
+        const filtro = event.target.closest("[data-filtro-historico]");
+        if (filtro) {
+          window.filtrarHistoricoGeralPeriodo(filtro.dataset.filtroHistorico || "todos", event);
+          return;
+        }
+
+        const ordem = event.target.closest("[data-ordem-historico]");
+        if (ordem) {
+          window.alterarOrdemHistoricoGeral(ordem.dataset.ordemHistorico || "desc", event);
+          return;
+        }
+
+        const acao = event.target.closest("[data-acao-historico]");
+        if (acao?.dataset.acaoHistorico === "aplicar-personalizado") {
+          window.aplicarFiltroHistoricoGeralPersonalizado(event);
+          return;
+        }
+
+        if (acao?.dataset.acaoHistorico === "ver-mais") {
+          window.verMaisHistoricoGeral(event);
+        }
+      });
+
+      painelDashboard?.addEventListener("input", (event) => {
+        if (event.target?.id === "buscaHistoricoGeral") {
+          window.atualizarBuscaHistoricoGeral(event);
+        }
       });
     }
 
