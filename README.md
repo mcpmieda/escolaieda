@@ -1,159 +1,110 @@
-# Escola Iêda MCPM
+# Escola Ieda MCPM
 
-Repositório do site público e dos sistemas digitais da Escola Municipal Professora Iêda Alves de Oliveira MCPM.
+Repositorio do site publico e dos sistemas digitais da Escola Municipal Professora Ieda Alves de Oliveira MCPM.
 
-O projeto é publicado pelo GitHub Pages no domínio `https://escolaieda.com/` e reúne a página institucional da escola, páginas públicas de calendário e equipe, portais em teste e o sistema interno Arquivo Digital Escolar.
+O projeto e publicado pelo GitHub Pages no dominio `https://escolaieda.com/`. Ele reune a pagina inicial da escola, paginas institucionais, portais em teste e o sistema interno Arquivo Digital Escolar.
 
-## Características do repositório
+## Visao Geral
 
-- Site institucional estático em HTML, CSS e JavaScript.
-- Publicação via GitHub Pages com domínio personalizado definido em `CNAME`.
-- Páginas públicas organizadas em `site-institucional/`.
-- Portais experimentais em `portais/`, com redirecionamentos antigos preservados.
-- Sistema sensível `arquivo-digital/` isolado da organização institucional.
-- Imagens de professores otimizadas sem alterar nomes nem caminhos públicos.
-- Pastas locais de trabalho, como `backups_locais/` e `diagnosticos/`, ficam fora do Git.
+- `index.html` e a home publica do site.
+- `site-institucional/` concentra paginas publicas da escola, como professores e calendario escolar.
+- `institucional/` e a area institucional/secretaria em teste.
+- `portais/` guarda areas experimentais para aluno, professor e direcao.
+- `arquivo-digital/` e uma aplicacao separada, sensivel, integrada ao Microsoft 365, SharePoint e Microsoft Graph.
+- `imagens/` contem apenas imagens usadas pelas paginas publicas atuais.
+- `scripts/` contem validadores e testes do Arquivo Digital.
+- `AGENTS.md` preserva o contexto operacional detalhado do Arquivo Digital e nao deve ser apagado.
 
-## Estrutura principal
+## Estrutura
 
 ```text
 escolaieda/
-├─ index.html                    # Home pública do site escolaieda.com
-├─ CNAME                         # Domínio personalizado do GitHub Pages
-├─ AGENTS.md                     # Guia operacional do Arquivo Digital Escolar
-├─ README.md                     # Visão geral e organização do repositório
+├─ index.html
+├─ CNAME
+├─ README.md
+├─ AGENTS.md
 │
-├─ institucional/                # Área institucional/secretaria em teste
+├─ institucional/
 │  └─ index.html
 │
-├─ site-institucional/           # Páginas públicas institucionais
+├─ site-institucional/
 │  ├─ professores.html
-│  ├─ calendario.html
-│  └─ README.md
+│  └─ calendario.html
 │
-├─ arquivo-digital/              # Sistema Arquivo Digital Escolar
+├─ arquivo-digital/
 │  ├─ index.html
 │  ├─ arquivo-digital.css
 │  ├─ arquivo-digital.js
-│  └─ arquivo-digital-utils.js
+│  ├─ arquivo-digital-utils.js
+│  └─ assets/
 │
-├─ portais/                      # Portais de teste ou áreas futuras
+├─ portais/
 │  ├─ aluno/
 │  ├─ professor/
 │  └─ direcao/
 │
-├─ aluno/                        # Redirecionamento antigo para portais/aluno
-├─ professor/                    # Redirecionamento antigo para portais/professor
-├─ direcao/                      # Redirecionamento antigo para portais/direcao
+├─ aluno/
+├─ professor/
+├─ direcao/
 │
-├─ professores.html              # Redirecionamento para site-institucional/professores.html
-├─ calendario.html               # Redirecionamento para site-institucional/calendario.html
-├─ imagens/                      # Imagens usadas pelas páginas atuais
-├─ arquivos/                     # Arquivos públicos ou auxiliares
+├─ professores.html
+├─ calendario.html
+├─ imagens/
+├─ scripts/
 ├─ fundo_logo_ieda.jpg
 └─ logo_escola.png
 ```
 
-## Áreas do site
+## Paginas Publicas
 
-### Home pública
+A home apresenta a escola, informa o contato e direciona visitantes para calendario, professores e area institucional.
 
-A home em `index.html` apresenta a escola, atalhos públicos, contato e entrada para perfis. Os links de professores e calendário apontam para `site-institucional/`.
+As paginas antigas `professores.html` e `calendario.html` continuam na raiz apenas como redirecionamentos para preservar links ja divulgados. O conteudo real dessas paginas fica em:
 
-### Área institucional
+- `site-institucional/professores.html`
+- `site-institucional/calendario.html`
 
-A área `institucional/` é a rota de teste para secretaria/administração. Os perfis `secretaria`, `secretario`, `institucional`, `admin` e `administrador` já redirecionam para `/institucional/`.
+## Portais
 
-### Site institucional
+As pastas `aluno/`, `professor/` e `direcao/` mantem redirecionamentos de compatibilidade. As paginas de teste ficam em:
 
-A pasta `site-institucional/` concentra páginas públicas da escola:
+- `portais/aluno/`
+- `portais/professor/`
+- `portais/direcao/`
 
-- `professores.html`: equipe gestora, coordenação e professores.
-- `calendario.html`: calendário escolar e arquivo de calendário.
+## Arquivo Digital
 
-Os caminhos antigos `/professores.html` e `/calendario.html` continuam existindo como redirecionamentos para preservar links já divulgados.
+`arquivo-digital/` e o sistema de gestao de documentos escolares em PDF. Ele possui login Microsoft, integracao com SharePoint/Graph, upload, historico, anotacoes, gavetas, lixeira, duplicidades, substituicao, mesclagem e validacoes automatizadas.
 
-### Portais
+Essa pasta nao deve ser reorganizada junto com o site institucional. Qualquer alteracao nela deve seguir o `AGENTS.md` e rodar as validacoes proprias.
 
-Os portais `aluno`, `professor` e `direcao` estão organizados em `portais/`. As pastas antigas na raiz continuam como redirecionamentos.
+## Imagens e Arquivos
 
-### Arquivo Digital Escolar
+O repositorio foi limpo para remover arquivos e imagens publicas sem referencia nas paginas atuais. As fotos de professores permanecem em `imagens/professores/` com os nomes usados pelo site institucional.
 
-`arquivo-digital/` é uma aplicação separada e sensível, integrada ao Microsoft 365, SharePoint e Microsoft Graph. Ela organiza documentos escolares em PDF, com upload, histórico, anotações, gavetas, lixeira, duplicidades, substituição e mesclagem.
+Relatorios de diagnostico e backups locais devem ficar fora do Git, conforme `.gitignore`.
 
-Regra permanente: não mover nem reorganizar `arquivo-digital/` sem fase própria, diagnóstico específico e validações do `AGENTS.md`.
+## Validacoes
 
-## Estado da organização
-
-### Fase 1 — Portais de teste
-
-Concluída.
-
-- `portais/aluno/`, `portais/professor/` e `portais/direcao/` criados.
-- `/aluno/`, `/professor/` e `/direcao/` preservados como redirecionamentos.
-
-### Fase 1.1 — Rota institucional
-
-Concluída.
-
-- `institucional/index.html` criado.
-- Perfis institucionais ativados na home para `/institucional/`.
-
-### Fase 2 — Páginas institucionais públicas
-
-Concluída.
-
-- `professores.html` movido para `site-institucional/professores.html`.
-- `calendario.html` movido para `site-institucional/calendario.html`.
-- Arquivos antigos da raiz transformados em redirecionamentos.
-- Links públicos da home atualizados.
-
-### Fase 3 — Otimização de imagens de professores
-
-Concluída.
-
-- Fotos JPG/JPEG de `imagens/professores/` recomprimidas e limitadas a dimensão máxima de 1200px quando necessário.
-- Nomes e extensões foram preservados.
-- PNGs foram preservados sem conversão automática.
-- Backup local e relatório foram gerados em pastas ignoradas pelo Git.
-
-### Fase 4 — Imagens e arquivos públicos em assets
-
-Futura.
-
-- Organizar imagens em `assets/`, atualizando caminhos com cuidado.
-- Exige validação visual posterior porque pode afetar fundo, logo, favicon, calendário e fotos.
-- Não executar automaticamente sem novo plano.
-
-### Fase 5 — Arquivo Digital
-
-Bloqueada por enquanto.
-
-- Não mover `arquivo-digital/`.
-- Qualquer organização interna deve ser planejada separadamente.
-
-## Regras de manutenção
-
-- Não alterar `arquivo-digital/` durante organização institucional.
-- Manter redirecionamentos quando uma página pública mudar de caminho.
-- Fazer mudanças grandes em fases pequenas e testáveis.
-- Otimizar imagens com backup e relatório antes/depois.
-- Não criar tags sem pedido explícito.
-- Evitar `git add .`; adicionar apenas arquivos da fase.
-
-## Validações recomendadas
+Para conferir o estado geral:
 
 ```powershell
 git status --short
 git diff --check
+```
+
+Para conferir o Arquivo Digital:
+
+```powershell
 node scripts/validar-arquivo-digital.mjs
 node scripts/testes-regressao-arquivo-digital.mjs
 node scripts/testes-utils-arquivo-digital.mjs
 ```
 
-Para mudanças fora do Arquivo Digital, conferir também:
+## Regras de Manutencao
 
-- links da home;
-- redirecionamentos antigos;
-- caminhos internos de imagens nas páginas movidas;
-- renderização visual das fotos otimizadas.
+- Nao apagar `AGENTS.md`.
+- Nao mover `arquivo-digital/` sem planejamento especifico.
+- Preservar redirecionamentos publicos antigos quando uma pagina mudar de caminho.
+- Evitar commitar arquivos temporarios, relatorios locais ou backups.
+- Preferir alteracoes pequenas, testaveis e com `git diff --check` antes do commit.
