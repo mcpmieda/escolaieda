@@ -974,6 +974,34 @@
 
 atualizarCardParesIgnorados();
     }
+
+    function normalizarIdArquivo(valor) {
+      return (valor || "").toString().trim();
+    }
+
+    function obterIdArquivoDocumento(documento) {
+      if (!documento) return "";
+      return normalizarIdArquivo(
+        documento.id ||
+        documento.uniqueId ||
+        documento.UniqueId ||
+        documento.ARQUIVO_ID ||
+        ""
+      );
+    }
+
+    function historicoPertenceAoDocumento(itemHistorico, documento) {
+      const idHistorico = normalizarIdArquivo(itemHistorico?.ARQUIVO_ID);
+      const idDocumento = obterIdArquivoDocumento(documento);
+      return Boolean(idHistorico && idDocumento && idHistorico === idDocumento);
+    }
+
+    function anotacaoPertenceAoDocumento(itemAnotacao, documento) {
+      const idAnotacao = normalizarIdArquivo(itemAnotacao?.ARQUIVO_ID);
+      const idDocumento = obterIdArquivoDocumento(documento);
+      return Boolean(idAnotacao && idDocumento && idAnotacao === idDocumento);
+    }
+
     async function carregarDadosDeApoio() {
       if (dadosApoioCarregando) return;
       dadosApoioCarregando = true;
@@ -2695,6 +2723,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     async function registrarHistorico(documento, acao, observacao = "") {
       const token = await obterToken();
       const conta = msalInstance.getAllAccounts()[0];
+      const arquivoId = obterIdArquivoDocumento(documento);
 
       const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items`;
 
@@ -2705,7 +2734,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           ACAO: acao,
           USUARIO_NOME: conta?.name || "",
           DATA_HORA: new Date().toISOString(),
-          ARQUIVO_ID: documento.id || "",
+          ARQUIVO_ID: arquivoId,
           OBSERVACAO: observacao
         }
       };
@@ -2733,7 +2762,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         ACAO: acao,
         USUARIO_NOME: conta?.name || "",
         DATA_HORA: new Date().toISOString(),
-        ARQUIVO_ID: documento.id || "",
+        ARQUIVO_ID: arquivoId,
         OBSERVACAO: observacao
       });
 
@@ -2943,20 +2972,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         .replaceAll("'", "&#039;");
 
       const chaveTexto = (valor) => normalizarTexto(valor || "").replace(/\s+/g, " ").trim();
-      const idDocumentoHistorico = (documento.id || "").toString();
-      const nomeDocumentoHistorico = normalizarTexto(nomeArquivoSemExtensaoVisual(documento.nome || ""));
 
       const renderizarHistoricoDoCache = () => {
         const anotacoesJaMostradas = new Set();
 
         const entradasHistorico = (historicoCarregado || [])
-          .filter(item => {
-            if (!item) return false;
-            if (idDocumentoHistorico && item.ARQUIVO_ID === idDocumentoHistorico) return true;
-
-            const nomeHistorico = normalizarTexto(nomeArquivoSemExtensaoVisual(item.ARQUIVO || ""));
-            return Boolean(nomeDocumentoHistorico && nomeHistorico && nomeHistorico === nomeDocumentoHistorico);
-          })
+          .filter(item => historicoPertenceAoDocumento(item, documento))
           .map(item => ({
             tipo: "historico",
             acao: item.ACAO || "",
@@ -2980,7 +3001,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           });
 
         const entradasAnotacao = (anotacoesCarregadas || [])
-          .filter(item => item && item.ARQUIVO_ID === documento.id && (item.ANOTACAO || "").trim())
+          .filter(item => anotacaoPertenceAoDocumento(item, documento) && (item.ANOTACAO || "").trim())
           .filter(item => {
             const chave = chaveTexto(item.ANOTACAO || "");
             return chave && !anotacoesJaMostradas.has(chave);
@@ -3079,7 +3100,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       atualizarStatusAnotacao("Carregando anotação...");
 
       try {
-        const item = anotacoesCarregadas.find(x => x.ARQUIVO_ID === documento.id);
+        const item = anotacoesCarregadas.find(x => anotacaoPertenceAoDocumento(x, documento));
 
         if (item) {
           anotacaoAtualItemId = item.ID;
@@ -3109,10 +3130,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const agora = new Date().toISOString();
       const atualizadoPor = conta?.name || conta?.username || "";
       const textoTentado = texto;
+      const arquivoId = obterIdArquivoDocumento(documentoSelecionado);
 
       const campos = {
         Title: documentoSelecionado.nome,
-        ARQUIVO_ID: documentoSelecionado.id || "",
+        ARQUIVO_ID: arquivoId,
         ANOTACAO: texto,
         ATUALIZADO_POR: atualizadoPor,
         DATA_ATUALIZACAO: agora
@@ -3158,6 +3180,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         const itemLocal = anotacoesCarregadas.find(x => String(x.ID) === String(anotacaoAtualItemId));
         if (itemLocal) {
           if (novoEtag) itemLocal.ETAG = novoEtag;
+          itemLocal.ARQUIVO = documentoSelecionado.nome;
+          itemLocal.ARQUIVO_ID = arquivoId;
           itemLocal.ANOTACAO = texto;
           itemLocal.ATUALIZADO_POR = atualizadoPor;
           itemLocal.DATA_ATUALIZACAO = agora;
@@ -3188,7 +3212,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           ID: novoItem.id,
           ETAG: anotacaoAtualEtag,
           ARQUIVO: documentoSelecionado.nome,
-          ARQUIVO_ID: documentoSelecionado.id || "",
+          ARQUIVO_ID: arquivoId,
           ANOTACAO: texto,
           ATUALIZADO_POR: atualizadoPor,
           DATA_ATUALIZACAO: agora
@@ -4100,11 +4124,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         aplicarListaAtual();
       }
 
-      let indice = documentosCarregados.findIndex(doc => doc.id === id);
-
-      if (indice < 0 && nome) {
-        indice = documentosCarregados.findIndex(doc => normalizarTexto(doc.nome) === normalizarTexto(nome));
-      }
+      let indice = documentosCarregados.findIndex(doc => obterIdArquivoDocumento(doc) === id);
 
       if (indice >= 0) {
         await selecionarDocumento(indice);
@@ -5306,10 +5326,11 @@ function renderizarDocumentos(listaArquivos) {
 
       listaExibida.forEach(item => {
         const indiceOriginal = documentosCarregados.findIndex(doc => doc.id === item.id);
-        const chaveId = item.id ? `id:${item.id}` : "";
+        const idArquivo = obterIdArquivoDocumento(item);
+        const chaveId = idArquivo ? `id:${idArquivo}` : "";
         const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
         const movimento = item.movimentoRecente || (modoListaAtual !== "na Lixeira"
-          ? movimentacoesRecentes.get(chaveId) || movimentacoesRecentes.get(chaveNome)
+          ? movimentacoesRecentes.get(chaveId)
           : null);
         const statusRecente = item.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
         const classeStatusRecente = item.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
@@ -5338,23 +5359,17 @@ function renderizarDocumentos(listaArquivos) {
       const mapa = new Map();
 
       historicoCarregado
-        .filter(item => item && item.DATA_HORA && (item.ARQUIVO_ID || item.ARQUIVO))
+        .filter(item => item && item.DATA_HORA && item.ARQUIVO_ID)
         .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
         .forEach(item => {
           if (vistos.size >= limite) return;
 
-          const chave = item.ARQUIVO_ID
-            ? `id:${item.ARQUIVO_ID}`
-            : `nome:${normalizarTexto(item.ARQUIVO || "")}`;
+          const chave = `id:${normalizarIdArquivo(item.ARQUIVO_ID)}`;
 
           if (!chave || vistos.has(chave)) return;
 
           vistos.add(chave);
           mapa.set(chave, item);
-
-          if (item.ARQUIVO) {
-            mapa.set(`nome:${normalizarTexto(item.ARQUIVO)}`, item);
-          }
         });
 
       return mapa;
@@ -5389,12 +5404,10 @@ function renderizarDocumentos(listaArquivos) {
 
       const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
       const porId = new Map();
-      const porNome = new Map();
 
       todosDocumentos.forEach(doc => {
-        if (doc.id) porId.set(doc.id, doc);
-        const nome = normalizarTexto(nomeArquivoSemExtensaoVisual(doc.nome || ""));
-        if (nome && !porNome.has(nome)) porNome.set(nome, doc);
+        const idDocumento = obterIdArquivoDocumento(doc);
+        if (idDocumento) porId.set(idDocumento, doc);
       });
 
       const recentes = [];
@@ -5404,12 +5417,13 @@ function renderizarDocumentos(listaArquivos) {
         .filter(item => item && item.DATA_HORA && acaoHistoricoRelevanteRecentes(item.ACAO))
         .sort((a, b) => new Date(b.DATA_HORA || 0) - new Date(a.DATA_HORA || 0))
         .forEach(item => {
-          const documento = (item.ARQUIVO_ID && porId.get(item.ARQUIVO_ID)) ||
-            porNome.get(normalizarTexto(nomeArquivoSemExtensaoVisual(item.ARQUIVO || "")));
+          const documento = normalizarIdArquivo(item.ARQUIVO_ID)
+            ? porId.get(normalizarIdArquivo(item.ARQUIVO_ID))
+            : null;
 
           if (!documento) return;
 
-          const chave = documento.id || normalizarTexto(documento.nome || "");
+          const chave = obterIdArquivoDocumento(documento);
           if (!chave || vistos.has(chave)) return;
 
           vistos.add(chave);
@@ -5436,13 +5450,13 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     function documentoTemAnotacao(doc) {
-      return anotacoesCarregadas.some(item => item.ARQUIVO_ID === doc.id && (item.ANOTACAO || "").trim());
+      return anotacoesCarregadas.some(item => anotacaoPertenceAoDocumento(item, doc) && (item.ANOTACAO || "").trim());
     }
 
     function documentoEnviadoRecentemente(doc) {
       const limite = Date.now() - (30 * 24 * 60 * 60 * 1000);
       return historicoCarregado.some(item =>
-        item.ARQUIVO_ID === doc.id &&
+        historicoPertenceAoDocumento(item, doc) &&
         normalizarTexto(item.ACAO || "") === "enviou" &&
         (new Date(item.DATA_HORA).getTime() || 0) >= limite
       );
