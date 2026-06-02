@@ -6367,3 +6367,156 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       }
     }
 /* FIM_ETAPA3_MOBILE_CENTRAIS_20260531 */
+/* AJUSTE_FINAL_V1_DASHBOARD_IRMAOS_20260601
+   Regras finais escopadas para a V1:
+   - Contadores sempre em 3 colunas no PC/notebook.
+   - Central de Duplicidades e Central de histórico sempre em 2 colunas no PC/notebook.
+   - Títulos dos dois cards de ação com mesma fonte, cor e marcador vertical.
+   - Sem botões internos nos cards de ação.
+*/
+.dashboard.dashboardContadores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 10px;
+  align-items: stretch;
+  margin: 7px 0 12px;
+}
+
+.dashboard.dashboardContadores > .cardDash {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  grid-column: auto;
+  box-sizing: border-box;
+}
+
+.dashboard.dashboardAcoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 12px;
+  align-items: stretch;
+  grid-auto-rows: 1fr;
+  margin: 7px 0 16px;
+}
+
+.dashboard.dashboardAcoes > .cardDash,
+.dashboard.dashboardAcoes > #centralDuplicidades,
+.dashboard.dashboardAcoes > .cardHistoricoGeral {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  grid-column: auto;
+  box-sizing: border-box;
+  min-height: 88px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  display: grid;
+  align-content: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard.dashboardAcoes > .cardHistoricoGeral {
+  appearance: none;
+  border: 1px solid #99f6e4;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+  color: #0f2f66;
+  box-shadow: 0 2px 10px rgba(15, 118, 110, .05);
+  font: inherit;
+}
+
+.dashboard.dashboardAcoes > #centralDuplicidades.discreta {
+  border-color: #bbf7d0;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.dashboard.dashboardAcoes > #centralDuplicidades.comAlerta {
+  border-color: #fdba74;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+}
+
+.dashboard.dashboardAcoes .cardAcaoCabecalho,
+.dashboard.dashboardAcoes .centralDuplicidadesTopo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0 0 8px;
+}
+
+.dashboard.dashboardAcoes .cardHistoricoGeral .cardAcaoCabecalho {
+  margin-bottom: 0;
+}
+
+.dashboard.dashboardAcoes .cardAcaoTitulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: #0f2f66;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.dashboard.dashboardAcoes .cardAcaoTitulo::before {
+  content: "";
+  width: 5px;
+  height: 18px;
+  border-radius: 999px;
+  background: #0f766e;
+  flex: 0 0 auto;
+}
+
+.dashboard.dashboardAcoes #centralDuplicidades.comAlerta .cardAcaoTitulo::before {
+  background: #f97316;
+}
+
+.dashboard.dashboardAcoes .cardAcaoDescricao,
+.dashboard.dashboardAcoes .cardAcaoBotao,
+.dashboard.dashboardAcoes .acoesCentralDuplicidades {
+  display: none;
+}
+
+.dashboard.dashboardAcoes .resumoCentralDuplicidades {
+  margin: 0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.28;
+}
+
+.dashboard.dashboardAcoes #centralDuplicidades.comAlerta .resumoCentralDuplicidades {
+  color: #7c2d12;
+}
+
+.dashboard.dashboardAcoes > .cardHistoricoGeral:hover:not(:disabled),
+.dashboard.dashboardAcoes > #centralDuplicidades:hover {
+  transform: none;
+  box-shadow: 0 7px 18px rgba(15, 47, 102, .08);
+}
+
+@media (min-width: 761px) {
+  .dashboard.dashboardContadores {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard.dashboardAcoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard.dashboardContadores,
+  .dashboard.dashboardAcoes {
+    grid-template-columns: 1fr;
+  }
+}
+/* FIM_AJUSTE_FINAL_V1_DASHBOARD_IRMAOS_20260601 */
+

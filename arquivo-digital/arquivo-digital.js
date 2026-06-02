@@ -5855,3 +5855,4 @@ function renderizarDocumentos(listaArquivos) {
     }, 800);
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
+
