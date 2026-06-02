@@ -1,4 +1,11 @@
     import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
+    import {
+      escaparHtml,
+      limparNomeArquivoPdf,
+      nomeArquivoSemExtensaoVisual,
+      nomeArquivoVisualLimpo,
+      sanitizarNomeArquivo
+    } from "./arquivo-digital-utils.js";
 
     const CONFIG = {
       clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
@@ -132,20 +139,6 @@
 
       cacheNormalizarTexto.set(chave, normalizado);
       return normalizado;
-    }
-
-    function sanitizarNomeArquivo(nome) {
-      let limpo = (nome || "")
-        .toString()
-        .replace(/[\\/:*?"<>|]+/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (!limpo.toLowerCase().endsWith(".pdf")) {
-        limpo += ".pdf";
-      }
-
-      return limpo;
     }
 
     function ordenarLixeiraMaisRecentes(lista) {
@@ -409,14 +402,6 @@
 
       history.pushState({ arquivoDigitalCamada: true }, "", window.location.href);
       camadaHistoricoMobileAtiva = true;
-    }
-
-    function nomeArquivoSemExtensaoVisual(nome) {
-      return (nome || "").toString().replace(/\.pdf$/i, "");
-    }
-
-    function nomeArquivoVisualLimpo(nome) {
-      return nomeArquivoSemExtensaoVisual(nome).replace(/\s+\((?:[2-9]|\d{2,})\)$/i, "").trim();
     }
 
     function chaveNomeArquivoVisualLimpo(nome) {
@@ -972,12 +957,6 @@
     }
     function atualizarStatusAnotacao(texto) {
       document.getElementById("statusAnotacao").textContent = texto;
-    }
-
-    function escaparHtml(valor) {
-      const div = document.createElement("div");
-      div.textContent = (valor || "").toString();
-      return div.innerHTML;
     }
 
     function iniciarOperacaoCritica(chave, botaoId, mensagem = "A operação já está em andamento. Aguarde terminar.") {
@@ -4741,19 +4720,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const dados = await resposta.json();
       driveDocumentosAtivosId = dados.id;
       return driveDocumentosAtivosId;
-    }
-
-    function limparNomeArquivoPdf(nomeOriginal) {
-      let nome = (nomeOriginal || "DOCUMENTO.pdf")
-        .replace(/[\\/:*?"<>|]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      if (!nome.toLowerCase().endsWith(".pdf")) {
-        nome += ".pdf";
-      }
-
-      return nome.toUpperCase();
     }
 
     function separarNomePdf(nome) {

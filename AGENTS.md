@@ -795,6 +795,7 @@ Set-Location "$env:USERPROFILE\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda"; $tmp
 ```powershell
 node scripts/validar-arquivo-digital.mjs
 node scripts/testes-regressao-arquivo-digital.mjs
+node scripts/testes-utils-arquivo-digital.mjs
 node --check arquivo-digital/arquivo-digital.js
 git diff --check
 ```
