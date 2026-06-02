@@ -9,7 +9,8 @@ const raiz = path.resolve(__dirname, "..");
 const arquivos = {
   html: path.join(raiz, "arquivo-digital", "index.html"),
   css: path.join(raiz, "arquivo-digital", "arquivo-digital.css"),
-  js: path.join(raiz, "arquivo-digital", "arquivo-digital.js")
+  js: path.join(raiz, "arquivo-digital", "arquivo-digital.js"),
+  regressao: path.join(raiz, "scripts", "testes-regressao-arquivo-digital.mjs")
 };
 
 const erros = [];
@@ -208,6 +209,7 @@ const usaGraphListas = /\/sites\/\$\{CONFIG\.siteId\}\/lists\//.test(js);
 const usaGraphDrives = /\/drives\/\$\{[^}]+\}\/items\//.test(js) || /\/drives\/\$\{[^}]+\}\/root/.test(js);
 const usaGraphVersoes = /\/versions\b/.test(js);
 const usaGraphUpload = /createUploadSession|\/content`/.test(js);
+const scriptRegressaoExiste = existsSync(arquivos.regressao);
 const contarHandlersInline = (fonte) => ({
   onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
   onchange: (fonte.match(/\bonchange\s*=/g) || []).length,
@@ -297,3 +299,4 @@ if (!paineisSemAria.length && !botoesFecharSemLabel && !camposSemNomeAcessivel.l
 console.log(`- Diagnostico CSS gradual: seletores=${seletoresCss.length}; seletores duplicados=${seletoresDuplicadosCss.length}; regras .dashboard genericas=${regrasDashboardGenericas.length}; regras dashboard protegidas=${regrasDashboardProtegidas.length}.`);
 console.log(`- Diagnostico CSP/CDN/SRI gradual: imports externos JS=${importsExternosJs.length}; scripts externos HTML=${scriptsExternosHtml.length}; links externos HTML=${linksExternosHtml.length}; dominios externos=${dominiosExternos.join(", ") || "nenhum"}; meta CSP=${totalMetaCsp}; style attributes=${totalStyleAttributes}; MSAL externo=${usaMsalExterno ? "sim" : "nao"}; pdf-lib externo=${usaPdfLibExterno ? "sim" : "nao"}.`);
 console.log(`- Diagnostico SharePoint/permissoes gradual: scopes=${scopesLogin.join(", ") || "nao encontrados"}; CONFIG obrigatorio=${chavesConfigPresentes.length}/${chavesConfigObrigatorias.length}; ALERTAS_SISTEMA id=${alertasSistemaListIdPresente ? "sim" : "nao"}; Graph chamadas aproximadas=${chamadasGraphAproximadas}; listas=${usaGraphListas ? "sim" : "nao"}; drives=${usaGraphDrives ? "sim" : "nao"}; versoes=${usaGraphVersoes ? "sim" : "nao"}; upload/conteudo=${usaGraphUpload ? "sim" : "nao"}.`);
+console.log(`- Diagnostico testes gradual: script de regressao=${scriptRegressaoExiste ? "sim" : "nao"}; comando recomendado=node scripts/testes-regressao-arquivo-digital.mjs.`);

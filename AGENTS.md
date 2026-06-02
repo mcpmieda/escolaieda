@@ -790,7 +790,16 @@ git tag --points-at HEAD
 Set-Location "$env:USERPROFILE\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda"; $tmp = Join-Path $env:TEMP "NOME_DO_PASSO.ps1"; Get-Content -Raw "$env:USERPROFILE\Downloads\NOME_DO_ARQUIVO.txt" | Set-Content -Path $tmp -Encoding UTF8; & $tmp
 ```
 
-## 14.3. Publicar alteração aprovada
+## 14.3. Validacoes recomendadas
+
+```powershell
+node scripts/validar-arquivo-digital.mjs
+node scripts/testes-regressao-arquivo-digital.mjs
+node --check arquivo-digital/arquivo-digital.js
+git diff --check
+```
+
+## 14.4. Publicar alteração aprovada
 
 Publicar somente depois de teste/confirmação do usuário ou autorização explícita.
 
@@ -810,7 +819,7 @@ git commit -m "Atualizar AGENTS"
 git push
 ```
 
-## 14.4. Criar tag
+## 14.5. Criar tag
 
 Criar tag somente quando o usuário aprovar o ponto seguro ou autorizar explicitamente.
 
