@@ -6380,6 +6380,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   width: 100%;
   gap: 10px;
   align-items: stretch;
+  grid-auto-rows: 1fr;
   margin: 7px 0 12px;
 }
 
@@ -6398,6 +6399,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   width: 100%;
   min-width: 0;
   max-width: none;
+  margin: 0;
   grid-column: auto;
   box-sizing: border-box;
 }
@@ -6530,31 +6532,4 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   }
 }
 /* FIM_AJUSTE_FINAL_V1_DASHBOARD_IRMAOS_20260601 */
-/* INICIO_AJUSTE_DEFINITIVO_CONTADORES_3COL_V1_20260601
-   Correção final: contadores não devem herdar grades antigas genéricas de .dashboard.
-   Desktop/notebook: 3 colunas iguais. Mobile: 1 coluna.
-*/
-.dashboard.dashboardContadores {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  width: 100%;
-  gap: 10px;
-  align-items: stretch;
-  grid-auto-rows: 1fr;
-}
-
-.dashboard.dashboardContadores > .cardDash {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  margin: 0;
-  grid-column: auto;
-}
-
-@media (max-width: 760px) {
-  .dashboard.dashboardContadores {
-    grid-template-columns: 1fr;
-  }
-}
-/* FIM_AJUSTE_DEFINITIVO_CONTADORES_3COL_V1_20260601 */
 

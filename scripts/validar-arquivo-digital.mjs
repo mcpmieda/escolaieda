@@ -117,6 +117,41 @@ for (const id of idsObrigatorios) {
 
 const totalInnerHtml = (js.match(/\binnerHTML\s*=/g) || []).length;
 const totalHtmlInternoConfiavel = (js.match(/\bhtmlInternoConfiavel\b/g) || []).length;
+const obterSeletoresCss = (fonte) => {
+  const seletores = [];
+  const regex = /([^{}@][^{}]*)\{/g;
+  let match;
+
+  while ((match = regex.exec(fonte))) {
+    const bloco = match[1].trim();
+    if (!bloco || bloco.includes("from ") || bloco.includes("to ")) continue;
+
+    const linha = fonte.slice(0, match.index).split(/\r?\n/).length;
+    bloco
+      .split(",")
+      .map(seletor => seletor.trim())
+      .filter(Boolean)
+      .forEach(seletor => seletores.push({ seletor, linha }));
+  }
+
+  return seletores;
+};
+const seletoresCss = obterSeletoresCss(css);
+const ocorrenciasSeletoresCss = new Map();
+for (const item of seletoresCss) {
+  if (!ocorrenciasSeletoresCss.has(item.seletor)) ocorrenciasSeletoresCss.set(item.seletor, []);
+  ocorrenciasSeletoresCss.get(item.seletor).push(item.linha);
+}
+const seletoresDuplicadosCss = [...ocorrenciasSeletoresCss.entries()].filter(([, linhas]) => linhas.length > 1);
+const regrasDashboardGenericas = seletoresCss.filter(item =>
+  item.seletor === ".dashboard" ||
+  /^\.dashboard\s*[,{>]/.test(item.seletor)
+);
+const regrasDashboardProtegidas = seletoresCss.filter(item =>
+  item.seletor.includes(".dashboard:not(.dashboardAcoes):not(.dashboardContadores)") ||
+  item.seletor.includes(".dashboard.dashboardContadores") ||
+  item.seletor.includes(".dashboard.dashboardAcoes")
+);
 const contarHandlersInline = (fonte) => ({
   onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
   onchange: (fonte.match(/\bonchange\s*=/g) || []).length,
@@ -203,3 +238,4 @@ console.log(`- Diagnostico acessibilidade gradual: paineis sem ARIA esperada=${p
 if (!paineisSemAria.length && !botoesFecharSemLabel && !camposSemNomeAcessivel.length) {
   console.log("- Painéis principais, botões de fechar e campos prioritários com nomes acessíveis diagnosticados.");
 }
+console.log(`- Diagnostico CSS gradual: seletores=${seletoresCss.length}; seletores duplicados=${seletoresDuplicadosCss.length}; regras .dashboard genericas=${regrasDashboardGenericas.length}; regras dashboard protegidas=${regrasDashboardProtegidas.length}.`);
