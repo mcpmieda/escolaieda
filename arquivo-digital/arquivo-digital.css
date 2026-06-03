@@ -878,7 +878,17 @@ ul {
       color: #92400e;
     }
 
+    .statusUploadAviso small {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+
     .statusUploadErro small {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .statusUploadErroReal small {
       background: #fee2e2;
       color: #991b1b;
     }
@@ -1586,7 +1596,17 @@ ul {
       background: #fffbeb !important;
     }
 
+    .statusUploadAviso {
+      border-color: #fdba74 !important;
+      background: #fff7ed !important;
+    }
+
     .statusUploadErro {
+      border-color: #fca5a5 !important;
+      background: #fef2f2 !important;
+    }
+
+    .statusUploadErroReal {
       border-color: #fca5a5 !important;
       background: #fef2f2 !important;
     }

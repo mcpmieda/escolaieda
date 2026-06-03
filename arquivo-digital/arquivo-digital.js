@@ -4963,9 +4963,15 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     let uploadConcluidoComSucesso = false;
     let uploadTeveErro = false;
     let statusArquivosUpload = [];
+    let resultadosArquivosUpload = [];
     const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
     const TAMANHO_BLOCO_UPLOAD_SESSION_BYTES = 5 * 1024 * 1024;
     const MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD = 2;
+    const STATUS_UPLOAD_ENVIADO = "Enviado";
+    const STATUS_UPLOAD_AVISO = "Enviado — não reenviar";
+    const STATUS_UPLOAD_NAO_ENVIADO = "Não enviado";
+    const STATUS_UPLOAD_REPROCESSAVEIS = new Set(["Pendente", STATUS_UPLOAD_NAO_ENVIADO]);
+    const STATUS_UPLOAD_NAO_REENVIAR = new Set([STATUS_UPLOAD_ENVIADO, STATUS_UPLOAD_AVISO, "Conflito"]);
 
     function formatarTamanhoUpload(bytes) {
       const tamanho = Number(bytes) || 0;
@@ -5003,11 +5009,14 @@ window.abrirSeletorNovoDocumento = function () {
       const btnConcluir = document.getElementById("btnConcluirUploadCentral");
       const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
       const envioProcessado = uploadConcluidoComSucesso || uploadTeveErro;
-      const podeEnviar = arquivosCentralUpload.length > 0 && !uploadEmAndamento && !envioProcessado;
+      const temReprocessavel = arquivosCentralUpload.some((_, indice) =>
+        STATUS_UPLOAD_REPROCESSAVEIS.has(textoStatusUpload(statusArquivosUpload[indice]))
+      );
+      const podeEnviar = arquivosCentralUpload.length > 0 && !uploadEmAndamento && temReprocessavel;
 
       if (btnConfirmar) {
         btnConfirmar.style.display = podeEnviar ? "inline-block" : "none";
-        btnConfirmar.disabled = uploadEmAndamento;
+        btnConfirmar.disabled = uploadEmAndamento || !podeEnviar;
       }
 
       if (btnConcluir) {
@@ -5022,6 +5031,7 @@ window.abrirSeletorNovoDocumento = function () {
     function descartarCentralUpload() {
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
+      resultadosArquivosUpload = [];
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
       document.getElementById("motivoUpload").value = "";
@@ -5036,6 +5046,7 @@ window.abrirSeletorNovoDocumento = function () {
     function prepararCentralUploadParaNovoEnvio() {
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
+      resultadosArquivosUpload = [];
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
       document.getElementById("motivoUpload").value = "";
@@ -5147,8 +5158,8 @@ window.abrirSeletorNovoDocumento = function () {
     window.receberArquivosCentralUpload = function (input) {
       arquivosCentralUpload = Array.from(input?.files || []);
       statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
-      uploadConcluidoComSucesso = false;
-      uploadTeveErro = false;
+      resultadosArquivosUpload = arquivosCentralUpload.map(() => null);
+      resetarEstadoAoSelecionarArquivosUpload();
       ocultarConfirmacaoFecharUpload();
       input.value = "";
       abrirCentralUpload();
@@ -5164,6 +5175,7 @@ window.abrirSeletorNovoDocumento = function () {
 
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
+      resultadosArquivosUpload = [];
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
       ocultarConfirmacaoFecharUpload();
@@ -5176,6 +5188,20 @@ window.abrirSeletorNovoDocumento = function () {
 
     function textoStatusUpload(status) {
       return status || "Pendente";
+    }
+
+    function resetarEstadoAoSelecionarArquivosUpload() {
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      const uploadRealEmAndamento = uploadEmAndamento && document.getElementById("btnFecharCentralUpload")?.classList.contains("desativado");
+      if (!uploadRealEmAndamento) uploadEmAndamento = false;
+    }
+
+    function classeStatusUpload(status) {
+      const texto = textoStatusUpload(status);
+      if (texto === STATUS_UPLOAD_AVISO) return "Aviso";
+      if (texto === STATUS_UPLOAD_NAO_ENVIADO) return "ErroReal";
+      return escaparHtml(texto).replace(/\s+/g, "");
     }
 
     function analisarNomesSelecionadosUpload() {
@@ -5216,7 +5242,7 @@ window.abrirSeletorNovoDocumento = function () {
         const nomeRepetido = analiseNomes[indice]?.nomeRepetido;
         const arquivoGrande = analiseNomes[indice]?.arquivoGrande;
         return `
-        <li class="statusUpload${escaparHtml(textoStatusUpload(statusArquivosUpload[indice])).replace(/\s+/g, "")}${nomeRepetido ? " uploadNomeRepetido" : ""}${arquivoGrande ? " uploadNomeRepetido" : ""}">
+        <li class="statusUpload${classeStatusUpload(statusArquivosUpload[indice])}${nomeRepetido ? " uploadNomeRepetido" : ""}${arquivoGrande ? " uploadNomeRepetido" : ""}">
           <strong>${escaparHtml(arquivo.name)}</strong>
           <span>${escaparHtml(formatarTamanhoUpload(arquivo.size))}</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
@@ -5302,6 +5328,116 @@ window.abrirSeletorNovoDocumento = function () {
         link: campos.FileRef ? "https://eduieda.sharepoint.com" + campos.FileRef : "",
         modificado: campos.Modified || "",
         gaveta: campos.GAVETA || ""
+      };
+    }
+
+    async function carregarDocumentoPorDriveItem(driveId, driveItemId, token) {
+      if (!driveId || !driveItemId) return null;
+      const listItemId = await obterListItemIdDoDriveItem(driveId, driveItemId, token);
+      return carregarDocumentoPorListItemId(listItemId, token);
+    }
+
+    async function carregarDocumentoPorNomeFinal(driveId, nomeFinal, token) {
+      if (!driveId || !nomeFinal) return null;
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodeURIComponent(nomeFinal)}:/listItem?$select=id`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!resposta.ok) return null;
+      const item = await resposta.json();
+      if (!item?.id) return null;
+      return carregarDocumentoPorListItemId(item.id, token);
+    }
+
+    async function localizarArquivoCriadoUpload(resultado, contexto = {}) {
+      const token = contexto.token || await obterToken();
+      const driveId = resultado?.driveId || contexto.driveId || await obterDriveDocumentosAtivos();
+
+      if (resultado?.listItemId) {
+        try {
+          return await carregarDocumentoPorListItemId(resultado.listItemId, token);
+        } catch (erro) {
+          logger.warn("Nao foi possivel localizar upload parcial por listItemId.", erro);
+        }
+      }
+
+      if (resultado?.driveItemId) {
+        try {
+          return await carregarDocumentoPorDriveItem(driveId, resultado.driveItemId, token);
+        } catch (erro) {
+          logger.warn("Nao foi possivel localizar upload parcial por driveItemId.", erro);
+        }
+      }
+
+      if (resultado?.nomeFinal) {
+        try {
+          const documento = await carregarDocumentoPorNomeFinal(driveId, resultado.nomeFinal, token);
+          if (documento) return documento;
+        } catch (erro) {
+          logger.warn("Nao foi possivel localizar upload parcial por nomeFinal.", erro);
+        }
+
+        const nomeNormalizado = normalizarTexto(resultado.nomeFinal);
+        return documentosAtivos.find(doc => normalizarTexto(doc.nome) === nomeNormalizado) || null;
+      }
+
+      return null;
+    }
+
+    function historicoEquivalenteJaRegistrado(documento, acao, observacao) {
+      const arquivoId = obterIdArquivoDocumento(documento);
+      return historicoCarregado.some(item =>
+        String(item.ARQUIVO_ID || "") === String(arquivoId || "") &&
+        String(item.ACAO || "").toUpperCase() === String(acao || "").toUpperCase() &&
+        String(item.OBSERVACAO || "") === String(observacao || "")
+      );
+    }
+
+    async function repararUploadParcial(resultado, contexto = {}) {
+      const token = contexto.token || await obterToken();
+      const driveId = resultado?.driveId || contexto.driveId || await obterDriveDocumentosAtivos();
+      const documento = await localizarArquivoCriadoUpload(resultado, { ...contexto, token, driveId });
+
+      if (!documento) {
+        return {
+          status: STATUS_UPLOAD_NAO_ENVIADO,
+          arquivoExiste: false,
+          documento: null,
+          pendencias: ["arquivo-nao-localizado"]
+        };
+      }
+
+      const pendencias = [];
+      const gavetaEsperada = (contexto.gaveta || "").trim();
+      if (gavetaEsperada && chaveComparacaoGaveta(documento.gaveta) !== chaveComparacaoGaveta(gavetaEsperada)) {
+        let gavetaAtualizada = false;
+        for (let tentativa = 0; tentativa < 2 && !gavetaAtualizada; tentativa++) {
+          try {
+            await atualizarGavetaItemSharePoint(documento.listItemId, gavetaEsperada, token);
+            documento.gaveta = gavetaEsperada;
+            gavetaAtualizada = true;
+          } catch (erro) {
+            logger.warn("Nao foi possivel reparar gaveta do upload parcial.", erro);
+          }
+        }
+        if (!gavetaAtualizada) pendencias.push("gaveta");
+      }
+
+      if (contexto.observacaoEnvio && !historicoEquivalenteJaRegistrado(documento, "ENVIOU", contexto.observacaoEnvio)) {
+        try {
+          await registrarHistorico(documento, "ENVIOU", contexto.observacaoEnvio);
+        } catch (erro) {
+          logger.warn("Nao foi possivel reparar historico do upload parcial.", erro);
+          pendencias.push("historico");
+        }
+      }
+
+      return {
+        status: pendencias.length ? STATUS_UPLOAD_AVISO : STATUS_UPLOAD_ENVIADO,
+        arquivoExiste: true,
+        documento,
+        pendencias
       };
     }
 
@@ -5460,6 +5596,13 @@ window.abrirSeletorNovoDocumento = function () {
       const nomeFoiAjustado = normalizarTexto(nomeFinal) !== normalizarTexto(nomeSolicitado);
       const usarUploadSession = (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES;
       let driveItem;
+      let arquivoCriado = false;
+      let driveItemId = "";
+      let listItemId = "";
+      let caminho = "";
+      const observacaoEnvio = nomeFoiAjustado
+        ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
+        : `${motivo} Gaveta: ${gaveta}.`;
 
       if (usarUploadSession) {
         onEtapa("Criando upload session");
@@ -5485,43 +5628,93 @@ window.abrirSeletorNovoDocumento = function () {
         driveItem = await respostaUpload.json();
       }
 
+      arquivoCriado = true;
+      driveItemId = driveItem?.id || "";
+      caminho = driveItem?.parentReference?.path ? `${driveItem.parentReference.path}/${nomeFinal}` : "";
+
       try {
-        const listItemId = await obterListItemIdDoDriveItem(driveId, driveItem.id, token);
+        listItemId = await obterListItemIdDoDriveItem(driveId, driveItemId, token);
         onEtapa("Salvando gaveta");
         await atualizarGavetaItemSharePoint(listItemId, gaveta, token);
         const documentoNovo = await carregarDocumentoPorListItemId(listItemId, token);
-
-        const observacaoEnvio = nomeFoiAjustado
-          ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
-          : `${motivo} Gaveta: ${gaveta}.`;
 
         onEtapa("Registrando no histórico");
         await registrarHistorico(documentoNovo, "ENVIOU", observacaoEnvio);
       } catch (erroConclusao) {
         const erroParcial = new Error(`Arquivo enviado como ${nomeFinal}, mas houve falha ao salvar gaveta ou histórico. Verifique o SharePoint antes de reenviar.`);
         erroParcial.uploadParcial = true;
+        erroParcial.arquivoCriado = arquivoCriado;
+        erroParcial.nomeFinal = nomeFinal;
+        erroParcial.driveItemId = driveItemId;
+        erroParcial.driveId = driveId;
+        erroParcial.listItemId = listItemId;
+        erroParcial.caminho = caminho;
+        erroParcial.nomeSolicitado = nomeSolicitado;
+        erroParcial.nomeFoiAjustado = nomeFoiAjustado;
+        erroParcial.observacaoEnvio = observacaoEnvio;
+        erroParcial.mensagemUsuario = "Arquivo enviado. Não reenviar. O sistema tentará concluir os ajustes internos.";
         erroParcial.causaOriginal = erroConclusao;
         throw erroParcial;
       }
 
-      return { nomeSolicitado, nomeFinal, nomeFoiAjustado };
+      return { arquivoCriado, nomeSolicitado, nomeFinal, nomeFoiAjustado, driveId, driveItemId, listItemId, caminho, observacaoEnvio };
+    }
+
+    function reconciliarStatusUploadComDocumentosAtivos() {
+      const nomesAtivos = new Set((documentosAtivos || []).map(doc => normalizarTexto(doc.nome)));
+
+      resultadosArquivosUpload = resultadosArquivosUpload.map((resultado, indice) => {
+        if (!resultado) return resultado;
+        const statusAtual = textoStatusUpload(statusArquivosUpload[indice]);
+        const nomeFinal = resultado.nomeFinal || "";
+        const existeNaLista = nomeFinal && nomesAtivos.has(normalizarTexto(nomeFinal));
+
+        if (existeNaLista && (statusAtual === STATUS_UPLOAD_NAO_ENVIADO || statusAtual === STATUS_UPLOAD_AVISO)) {
+          const novoStatus = resultado.pendencias?.length ? STATUS_UPLOAD_AVISO : STATUS_UPLOAD_ENVIADO;
+          statusArquivosUpload[indice] = novoStatus;
+          return { ...resultado, status: novoStatus, arquivoExiste: true };
+        }
+
+        if (!existeNaLista && statusAtual === STATUS_UPLOAD_AVISO) {
+          statusArquivosUpload[indice] = STATUS_UPLOAD_NAO_ENVIADO;
+          return { ...resultado, status: STATUS_UPLOAD_NAO_ENVIADO, arquivoExiste: false };
+        }
+
+        return resultado;
+      });
+
+      renderizarListaCentralUpload();
+    }
+
+    function resumirStatusUpload() {
+      return statusArquivosUpload.reduce((resumo, status) => {
+        const texto = textoStatusUpload(status);
+        resumo.processados++;
+        if (texto === STATUS_UPLOAD_AVISO) resumo.avisos++;
+        else if (texto === STATUS_UPLOAD_NAO_ENVIADO) resumo.naoEnviados++;
+        else if (STATUS_UPLOAD_NAO_REENVIAR.has(texto)) resumo.enviados++;
+        return resumo;
+      }, { processados: 0, enviados: 0, avisos: 0, naoEnviados: 0 });
+    }
+
+    function formatarResumoFinalUpload(resumo) {
+      return `${resumo.processados} arquivo(s) processado(s). ${resumo.enviados} enviado(s), ${resumo.avisos} enviado(s) — não reenviar, ${resumo.naoEnviados} não enviado(s).`;
     }
 
     window.enviarNovoDocumento = async function (input) {
       arquivosCentralUpload = Array.from(input?.files || []);
+      statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
+      resultadosArquivosUpload = arquivosCentralUpload.map(() => null);
+      resetarEstadoAoSelecionarArquivosUpload();
       input.value = "";
       abrirCentralUpload();
       renderizarListaCentralUpload();
+      atualizarAcoesCentralUpload();
     };
 
     window.confirmarUploadCentral = async function () {
       if (uploadEmAndamento) {
         mostrarMensagem("O envio ja esta em andamento. Aguarde terminar.", "erro");
-        return;
-      }
-
-      if (uploadConcluidoComSucesso || uploadTeveErro) {
-        mostrarMensagem("Este envio ja foi processado. Clique em Concluir e fechar antes de iniciar outro envio.", "erro");
         return;
       }
 
@@ -5543,8 +5736,23 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
+      const indicesParaEnviar = arquivosCentralUpload
+        .map((arquivo, indice) => ({ arquivo, indice, status: textoStatusUpload(statusArquivosUpload[indice]) }))
+        .filter(item => STATUS_UPLOAD_REPROCESSAVEIS.has(item.status));
+
+      if (!indicesParaEnviar.length) {
+        mostrarMensagem("Os arquivos já enviados não serão reenviados para evitar duplicidade. Selecione novos arquivos ou limpe a seleção.", "erro");
+        atualizarAcoesCentralUpload();
+        return;
+      }
+
+      uploadEmAndamento = true;
+      uploadConcluidoComSucesso = false;
+      uploadTeveErro = false;
+      atualizarAcoesCentralUpload();
+
       const invalidos = [];
-      for (const arquivo of arquivosCentralUpload) {
+      for (const { arquivo } of indicesParaEnviar) {
         const validacaoPdf = await validarArquivoPdfBasico(arquivo);
         if (!validacaoPdf.valido) {
           invalidos.push({ arquivo, validacaoPdf });
@@ -5552,29 +5760,25 @@ window.abrirSeletorNovoDocumento = function () {
       }
 
       if (invalidos.length) {
+        uploadEmAndamento = false;
+        atualizarAcoesCentralUpload();
         mostrarMensagem(`Remova os arquivos que nao sao PDF valido antes de enviar. Primeiro problema: ${invalidos[0].arquivo.name}`, "erro");
         return;
       }
 
       try {
-        uploadEmAndamento = true;
-        uploadConcluidoComSucesso = false;
-        uploadTeveErro = false;
-        atualizarAcoesCentralUpload();
         document.getElementById("btnFecharCentralUpload")?.classList.add("desativado");
         mostrarMensagem("Enviando arquivo(s). Aguarde...");
-        atualizarProgressoUpload(0, "Preparando envio", `Enviando 0 de ${arquivosCentralUpload.length} arquivos`, "");
+        atualizarProgressoUpload(0, "Preparando envio", `Enviando 0 de ${indicesParaEnviar.length} arquivos`, "");
 
         const ocupados = criarConjuntoNomesUploadOcupados();
-        const resultados = [];
-        const erros = [];
-        const total = arquivosCentralUpload.length;
+        const total = indicesParaEnviar.length;
 
-        for (let indice = 0; indice < arquivosCentralUpload.length; indice++) {
-          const arquivo = arquivosCentralUpload[indice];
+        for (let posicao = 0; posicao < indicesParaEnviar.length; posicao++) {
+          const { arquivo, indice } = indicesParaEnviar[posicao];
           atualizarStatusArquivoUpload(indice, "Enviando");
-          const basePercentual = (indice / total) * 100;
-          atualizarProgressoUpload(basePercentual, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
+          const basePercentual = (posicao / total) * 100;
+          atualizarProgressoUpload(basePercentual, "Enviando arquivo", `Enviando ${posicao + 1} de ${total} arquivos`, arquivo.name);
 
           try {
             const resultado = await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, (etapa, progressoArquivo) => {
@@ -5584,23 +5788,48 @@ window.abrirSeletorNovoDocumento = function () {
                 : basePercentual;
               const detalheArquivo = progressoArquivo?.total
                 ? `${formatarTamanhoUpload(progressoArquivo.enviados)} de ${formatarTamanhoUpload(progressoArquivo.total)}`
-                : `Enviando ${indice + 1} de ${total} arquivos`;
+                : `Enviando ${posicao + 1} de ${total} arquivos`;
               atualizarProgressoUpload(percentualTotal, etapa, detalheArquivo, arquivo.name);
             });
-            resultados.push(resultado);
-            atualizarStatusArquivoUpload(indice, resultado.nomeFoiAjustado ? "Conflito" : "Enviado");
+            resultadosArquivosUpload[indice] = { ...resultado, status: STATUS_UPLOAD_ENVIADO };
+            atualizarStatusArquivoUpload(indice, STATUS_UPLOAD_ENVIADO);
           } catch (erroArquivo) {
             logger.error(erroArquivo);
-            erros.push({ arquivo: arquivo.name, erro: erroArquivo.message || String(erroArquivo) });
-            atualizarStatusArquivoUpload(indice, erroArquivo.uploadParcial ? "Parcial" : "Erro");
+            if (erroArquivo.uploadParcial || erroArquivo.arquivoCriado) {
+              const resultadoParcial = {
+                arquivoCriado: true,
+                nomeSolicitado: erroArquivo.nomeSolicitado || limparNomeArquivoPdf(arquivo.name),
+                nomeFinal: erroArquivo.nomeFinal || limparNomeArquivoPdf(arquivo.name),
+                nomeFoiAjustado: !!erroArquivo.nomeFoiAjustado,
+                driveId: erroArquivo.driveId || "",
+                driveItemId: erroArquivo.driveItemId || "",
+                listItemId: erroArquivo.listItemId || "",
+                caminho: erroArquivo.caminho || "",
+                observacaoEnvio: erroArquivo.observacaoEnvio || `${motivo} Gaveta: ${gaveta}.`,
+                status: STATUS_UPLOAD_AVISO,
+                pendencias: ["conclusao-pos-upload"]
+              };
+              const reparo = await repararUploadParcial(resultadoParcial, { gaveta, motivo, observacaoEnvio: resultadoParcial.observacaoEnvio });
+              resultadosArquivosUpload[indice] = { ...resultadoParcial, ...reparo };
+              atualizarStatusArquivoUpload(indice, reparo.arquivoExiste ? reparo.status : STATUS_UPLOAD_NAO_ENVIADO);
+            } else {
+              resultadosArquivosUpload[indice] = {
+                nomeSolicitado: limparNomeArquivoPdf(arquivo.name),
+                nomeFinal: "",
+                status: STATUS_UPLOAD_NAO_ENVIADO,
+                erro: erroArquivo.message || String(erroArquivo)
+              };
+              atualizarStatusArquivoUpload(indice, STATUS_UPLOAD_NAO_ENVIADO);
+            }
           }
 
-          atualizarProgressoUpload(((indice + 1) / total) * 100, "Enviando arquivo", `Enviando ${indice + 1} de ${total} arquivos`, arquivo.name);
+          atualizarProgressoUpload(((posicao + 1) / total) * 100, "Enviando arquivo", `Enviando ${posicao + 1} de ${total} arquivos`, arquivo.name);
         }
 
         atualizarProgressoUpload(100, "Atualizando lista", "Atualizando documentos e histórico.", "");
         await new Promise(resolve => setTimeout(resolve, 1200));
         await listarDocumentos();
+        reconciliarStatusUploadComDocumentosAtivos();
         if (typeof carregarDadosDeApoio === "function") {
           await carregarDadosDeApoio();
         }
@@ -5608,16 +5837,19 @@ window.abrirSeletorNovoDocumento = function () {
           await atualizarCentralDuplicidades();
         }
 
-        const ajustados = resultados.filter(item => item.nomeFoiAjustado).length;
-        const parciais = erros.filter(item => /Verifique o SharePoint antes de reenviar/i.test(item.erro || "")).length;
-        uploadTeveErro = erros.length > 0;
-        uploadConcluidoComSucesso = erros.length === 0;
-        atualizarProgressoUpload(100, erros.length ? "Concluído com erro" : "Concluído", `${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? ` ${parciais} pode(m) já existir no SharePoint.` : ""}`, "");
+        const resumo = resumirStatusUpload();
+        uploadTeveErro = resumo.naoEnviados > 0;
+        uploadConcluidoComSucesso = resumo.naoEnviados === 0;
+        const tituloResumo = resumo.naoEnviados
+          ? "Concluído com arquivos não enviados"
+          : resumo.avisos
+            ? "Concluído com avisos"
+            : "Concluído";
+        const textoResumo = formatarResumoFinalUpload(resumo);
+        atualizarProgressoUpload(100, tituloResumo, textoResumo, "");
         atualizarAcoesCentralUpload();
 
-        const mensagemConflito = ajustados ? " Revise nomes parecidos na Central de Duplicidades." : "";
-
-        mostrarMensagem(`${arquivosCentralUpload.length} arquivo(s) processado(s). ${resultados.length} enviado(s) com sucesso. ${erros.length} com erro.${parciais ? " Verifique o SharePoint antes de reenviar arquivo parcial." : ""}${mensagemConflito}`);
+        mostrarMensagem(textoResumo);
       } catch (erro) {
         logger.error(erro);
         uploadTeveErro = true;
@@ -6193,6 +6425,8 @@ function renderizarDocumentos(listaArquivos) {
       document.getElementById("inputNovoDocumento")?.addEventListener("change", (event) => {
         window.receberArquivosCentralUpload(event.target);
       });
+      document.getElementById("gavetaUpload")?.addEventListener("change", atualizarAcoesCentralUpload);
+      document.getElementById("motivoUpload")?.addEventListener("input", atualizarAcoesCentralUpload);
 
       document.getElementById("campoBusca")?.addEventListener("input", window.filtrarDocumentosDebounced);
       document.getElementById("arquivoLocalMesclar")?.addEventListener("change", (event) => {

@@ -268,4 +268,52 @@ testar("V2.12 mantem timeout Graph e limite de mesclagem local", () => {
   assert.match(blocoFuncao("confirmarMesclar"), /mesclagemLocalExcedeLimite\(documentoSelecionado,\s*arquivo\)/, "confirmarMesclar deve bloquear PDFs grandes antes da mesclagem.");
 });
 
+testar("Upload em massa diferencia aviso de erro real", () => {
+  assert.match(js, /const STATUS_UPLOAD_AVISO\s*=\s*["']Enviado — não reenviar["']/, "Status de aviso deve existir para arquivo criado com pendencia.");
+  assert.match(js, /const STATUS_UPLOAD_NAO_ENVIADO\s*=\s*["']Não enviado["']/, "Status Nao enviado deve existir para erro real.");
+  assert.match(css, /\.statusUploadAviso\b/, "CSS deve destacar aviso sem vermelho.");
+  assert.match(css, /\.statusUploadErroReal\b/, "CSS deve reservar vermelho para Nao enviado.");
+});
+
+testar("Upload parcial e reparo pos-upload nao contam como erro simples", () => {
+  const enviar = blocoFuncao("enviarArquivoPdfComMetadados");
+  assert.match(enviar, /erroParcial\.uploadParcial\s*=\s*true/, "Erro parcial deve ser marcado.");
+  assert.match(enviar, /erroParcial\.arquivoCriado\s*=\s*arquivoCriado/, "Erro parcial deve informar arquivo criado.");
+  assert.match(enviar, /erroParcial\.nomeFinal\s*=\s*nomeFinal/, "Erro parcial deve preservar nomeFinal.");
+  assert.match(enviar, /erroParcial\.driveItemId\s*=\s*driveItemId/, "Erro parcial deve preservar driveItemId.");
+  assert.match(enviar, /erroParcial\.listItemId\s*=\s*listItemId/, "Erro parcial deve preservar listItemId.");
+  assert.match(enviar, /Arquivo enviado\. Não reenviar/, "Mensagem ao usuario deve evitar reenvio.");
+
+  const confirmar = blocoFuncao("confirmarUploadCentral");
+  assert.match(confirmar, /erroArquivo\.uploadParcial\s*\|\|\s*erroArquivo\.arquivoCriado/, "Upload parcial deve seguir fluxo de reparo.");
+  assert.match(confirmar, /repararUploadParcial\s*\(/, "Confirmacao deve chamar reparo parcial.");
+  assert.doesNotMatch(confirmar, /erros\.push/, "Upload parcial nao deve voltar a ser contado como erro simples.");
+});
+
+testar("Upload em massa reconcilia lista e evita reenvio duplicado", () => {
+  assert.match(js, /async function repararUploadParcial\b/, "repararUploadParcial deve existir.");
+  assert.match(js, /function reconciliarStatusUploadComDocumentosAtivos\b/, "reconciliarStatusUploadComDocumentosAtivos deve existir.");
+  assert.match(blocoFuncao("confirmarUploadCentral"), /reconciliarStatusUploadComDocumentosAtivos\s*\(\)/, "confirmarUploadCentral deve reconciliar apos atualizar a lista.");
+  assert.match(blocoFuncao("confirmarUploadCentral"), /STATUS_UPLOAD_REPROCESSAVEIS\.has\(item\.status\)/, "Novo clique deve processar apenas pendentes ou nao enviados.");
+  assert.match(js, /STATUS_UPLOAD_NAO_REENVIAR\s*=\s*new Set\(\[STATUS_UPLOAD_ENVIADO,\s*STATUS_UPLOAD_AVISO/, "Estados enviados devem ser tratados como nao reenviar.");
+  assert.match(js, /Os arquivos já enviados não serão reenviados para evitar duplicidade/, "Mensagem deve orientar usuario leigo a nao reenviar.");
+});
+
+testar("Botao Enviar da Central usa listener fixo", () => {
+  const eventos = blocoFuncao("inicializarEventosFixos");
+  assert.match(eventos, /aoClicar\(["']btnConfirmarUploadCentral["'],\s*window\.confirmarUploadCentral\)/, "Botao Enviar deve ser ligado pelo inicializador fixo.");
+  assert.match(eventos, /inputNovoDocumento[^;]+addEventListener\(["']change["']/, "Selecao de arquivos deve seguir listener do inicializador.");
+  assert.match(eventos, /gavetaUpload[^;]+addEventListener\(["']change["'],\s*atualizarAcoesCentralUpload\)/, "Troca de gaveta deve atualizar acoes.");
+  assert.match(eventos, /motivoUpload[^;]+addEventListener\(["']input["'],\s*atualizarAcoesCentralUpload\)/, "Preenchimento de motivo deve atualizar acoes.");
+  assert.doesNotMatch(html, /\bonclick\s*=\s*["'][^"']*confirmarUploadCentral/i, "Nao deve haver handler inline novo para Enviar.");
+});
+
+testar("Selecao nova limpa estado antigo de upload", () => {
+  const reset = blocoFuncao("resetarEstadoAoSelecionarArquivosUpload");
+  assert.match(reset, /uploadConcluidoComSucesso\s*=\s*false/, "Selecao nova deve limpar sucesso anterior.");
+  assert.match(reset, /uploadTeveErro\s*=\s*false/, "Selecao nova deve limpar erro anterior.");
+  assert.match(reset, /uploadEmAndamento\s*=\s*false/, "Selecao nova deve liberar estado travado quando nao houver envio real.");
+  assert.match(blocoFuncao("receberArquivosCentralUpload"), /resetarEstadoAoSelecionarArquivosUpload\s*\(\)/, "Receber arquivos deve resetar estado antigo.");
+});
+
 console.log("Testes de regressao do Arquivo Digital concluidos com sucesso.");
