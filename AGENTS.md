@@ -336,7 +336,7 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 [x] V3.6 — Central de Duplicidades com teste de 6 mil e Web Worker se necessário
 [x] V3.7 — Histórico, anotações e alertas por demanda
 [x] V3.8 — Operação mensal segura da Secretaria
-[ ] V3.9 — Permissões avançadas e menor privilégio
+[x] V3.9 — Permissões avançadas e menor privilégio
 [ ] V3.10 — CSP real e dependências locais
 [ ] V3.11 — Modularização por domínio
 [ ] V3.12 — Testes avançados e auditoria visual
