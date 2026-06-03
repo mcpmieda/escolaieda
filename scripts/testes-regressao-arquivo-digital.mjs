@@ -299,6 +299,79 @@ testar("Upload em massa reconcilia lista e evita reenvio duplicado", () => {
   assert.match(js, /Os arquivos já enviados não serão reenviados para evitar duplicidade/, "Mensagem deve orientar usuario leigo a nao reenviar.");
 });
 
+testar("Upload usa analise congelada para aviso de possivel duplicidade", () => {
+  assert.match(js, /let analiseNomesCentralUpload\s*=\s*\[\]/, "Estado congelado da analise de nomes do upload deve existir.");
+  assert.match(js, /function calcularAnaliseNomesCentralUpload\b/, "Calculo dedicado da analise de nomes do upload deve existir.");
+
+  const calcular = blocoFuncao("calcularAnaliseNomesCentralUpload");
+  assert.match(calcular, /const ocupadosAntesEnvio\s*=\s*criarConjuntoNomesUploadOcupados\s*\(\)/, "Analise deve capturar os nomes ocupados antes do envio.");
+  assert.match(calcular, /nomeJaExistiaAntes/, "Analise deve marcar nome que ja existia antes do envio.");
+  assert.match(calcular, /repetidoNaSelecao/, "Analise deve marcar repeticao dentro da selecao.");
+  assert.match(calcular, /nomeFinalPrevisto/, "Analise deve calcular nome final previsto.");
+  assert.match(calcular, /nomeFoiAjustado/, "Analise deve marcar quando o nome final sera ajustado.");
+  assert.match(calcular, /STATUS_UPLOAD_NAO_REENVIAR\.has\(statusAtual\)/, "Arquivos ja enviados nao devem virar falso aviso ao recalcular.");
+
+  const renderizar = blocoFuncao("renderizarListaCentralUpload");
+  assert.match(renderizar, /analiseNomesCentralUpload/, "Renderizacao deve usar a analise congelada.");
+  assert.doesNotMatch(renderizar, /analisarNomesSelecionadosUpload\s*\(/, "Renderizacao nao deve recalcular aviso diretamente pela lista atualizada.");
+  assert.doesNotMatch(renderizar, /criarConjuntoNomesUploadOcupados\s*\(/, "Renderizacao nao deve depender diretamente de documentosAtivos atualizado.");
+
+  const receber = blocoFuncao("receberArquivosCentralUpload");
+  const enviarNovo = blocoFuncao("enviarNovoDocumento");
+  const confirmar = blocoFuncao("confirmarUploadCentral");
+  assert.match(receber, /calcularAnaliseNomesCentralUpload\s*\(\)/, "Receber arquivos deve atualizar a analise pelo estado atual pre-envio.");
+  assert.match(enviarNovo, /calcularAnaliseNomesCentralUpload\s*\(\)/, "Selecao via enviarNovoDocumento deve atualizar a analise pelo estado atual pre-envio.");
+  assert.match(confirmar, /calcularAnaliseNomesCentralUpload\s*\(\)/, "Confirmacao deve recalcular uma ultima vez antes de enviar.");
+  assert.ok(
+    confirmar.indexOf("calcularAnaliseNomesCentralUpload()") < confirmar.indexOf("await listarDocumentos()"),
+    "Analise deve ser congelada antes do listarDocumentos pos-upload."
+  );
+
+  assert.doesNotMatch(js, /Nome já existe — será enviado com duplicidade/, "Texto antigo de duplicidade nao deve existir.");
+  assert.match(js, /Possível duplicidade/, "Novo aviso deve falar em Possivel duplicidade.");
+  assert.match(js, /será salvo como \$\{nomeFinal\} para evitar substituição/, "Aviso de nome existente deve informar nome final previsto.");
+  assert.match(js, /Possível duplicidade na seleção/, "Aviso de repeticao na selecao deve existir.");
+});
+
+testar("Resumo final do upload nao mostra contagens zeradas", () => {
+  const formatarResultado = blocoFuncao("formatarResultadoFinalUpload");
+  const formatarResumo = blocoFuncao("formatarResumoFinalUpload");
+  const confirmar = blocoFuncao("confirmarUploadCentral");
+
+  assert.match(formatarResultado, /enviado\(s\) com sucesso/, "Resumo simples deve confirmar sucesso quando todos foram enviados.");
+  assert.match(formatarResultado, /precisam de atenção e não devem ser reenviados/, "Resumo com avisos deve orientar nao reenviar.");
+  assert.match(formatarResultado, /não foram enviados/, "Resumo com falhas deve informar arquivos nao enviados.");
+  assert.match(formatarResultado, /Nenhum arquivo foi enviado/, "Resumo deve cobrir caso em que nada foi enviado.");
+  assert.doesNotMatch(formatarResultado, /0 enviado\(s\) — não reenviar/, "Resumo nao deve exibir zero enviado com aviso.");
+  assert.doesNotMatch(formatarResultado, /0 não enviado\(s\)/, "Resumo nao deve exibir zero nao enviado.");
+  assert.doesNotMatch(formatarResultado, /0 precisam de atenção/, "Resumo nao deve exibir zero precisam de atencao.");
+  assert.doesNotMatch(formatarResultado, /0 não foram enviados/, "Resumo nao deve exibir zero nao foram enviados.");
+  assert.match(formatarResumo, /formatarResultadoFinalUpload\(resumo\)\.mensagem/, "formatarResumoFinalUpload deve usar a regra simplificada central.");
+  assert.match(confirmar, /formatarResultadoFinalUpload\(resumo\)/, "Titulo e mensagem final devem partir do mesmo resumo simplificado.");
+  assert.match(confirmar, /resultadoFinal\.titulo/, "Barra de progresso deve usar o titulo simplificado.");
+  assert.match(confirmar, /resultadoFinal\.mensagem/, "Mensagem global deve usar a mensagem simplificada.");
+});
+
+testar("Busca em Recentes usa documentos ativos quando ha termo", () => {
+  const aplicar = blocoFuncao("aplicarListaAtual");
+  const filtrar = blocoFuncao("filtrarDocumentos");
+  const renderizar = blocoFuncao("renderizarDocumentos");
+
+  assert.match(aplicar, /modoListaAtual === "recentes" && termoBusca\s*\?\s*documentosAtivos/, "Recentes com busca deve usar documentosAtivos como base.");
+  assert.match(aplicar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Recentes sem busca deve manter lista de recentes.");
+  assert.match(aplicar, /modoListaAtual === "na Lixeira"\s*\?\s*documentosLixeira/, "Lixeira deve manter documentosLixeira como base.");
+
+  assert.match(filtrar, /modoListaAtual === "recentes" && termo\s*\?\s*documentosAtivos/, "Filtro de Recentes com termo deve pesquisar todos os ativos.");
+  assert.match(filtrar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Filtro de Recentes sem termo deve usar recentes.");
+  assert.match(filtrar, /modoListaAtual === "na Lixeira"\s*\?\s*documentosLixeira/, "Filtro da Lixeira deve pesquisar somente a Lixeira.");
+  assert.match(renderizar, /modoListaAtual === "recentes" && !termoBusca[\s\S]*\.slice\(0,\s*preferenciasSistema\.limiteRecentes\)/, "Limite de recentes deve ser aplicado apenas quando nao ha busca.");
+  const inicioRamoRecentesComBusca = renderizar.indexOf(': modoListaAtual === "recentes"');
+  const fimRamoRecentesComBusca = renderizar.indexOf(': modoListaAtual === "na Lixeira"', inicioRamoRecentesComBusca);
+  assert.ok(inicioRamoRecentesComBusca > -1 && fimRamoRecentesComBusca > inicioRamoRecentesComBusca, "Ramo de Recentes com busca deve estar separado.");
+  const ramoRecentesComBusca = renderizar.slice(inicioRamoRecentesComBusca, fimRamoRecentesComBusca);
+  assert.doesNotMatch(ramoRecentesComBusca, /limiteRecentes/, "Recentes com busca nao deve limitar pelo limite de recentes.");
+});
+
 testar("Botao Enviar da Central usa listener fixo", () => {
   const eventos = blocoFuncao("inicializarEventosFixos");
   assert.match(eventos, /aoClicar\(["']btnConfirmarUploadCentral["'],\s*window\.confirmarUploadCentral\)/, "Botao Enviar deve ser ligado pelo inicializador fixo.");

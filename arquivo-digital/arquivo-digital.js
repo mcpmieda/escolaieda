@@ -2284,11 +2284,14 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     };
 
     function aplicarListaAtual() {
+      const termoBusca = normalizarTexto(document.getElementById("campoBusca")?.value || "");
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
-        : modoListaAtual === "recentes"
-          ? montarDocumentosRecentesComHistorico()
-          : documentosAtivos;
+        : modoListaAtual === "recentes" && termoBusca
+          ? documentosAtivos
+          : modoListaAtual === "recentes"
+            ? montarDocumentosRecentesComHistorico()
+            : documentosAtivos;
 
       atualizarBotoesModoLista();
       renderizarGavetasAtivos();
@@ -4964,6 +4967,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     let uploadTeveErro = false;
     let statusArquivosUpload = [];
     let resultadosArquivosUpload = [];
+    let analiseNomesCentralUpload = [];
     const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
     const TAMANHO_BLOCO_UPLOAD_SESSION_BYTES = 5 * 1024 * 1024;
     const MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD = 2;
@@ -5032,6 +5036,7 @@ window.abrirSeletorNovoDocumento = function () {
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
       resultadosArquivosUpload = [];
+      analiseNomesCentralUpload = [];
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
       document.getElementById("motivoUpload").value = "";
@@ -5047,6 +5052,7 @@ window.abrirSeletorNovoDocumento = function () {
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
       resultadosArquivosUpload = [];
+      analiseNomesCentralUpload = [];
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
       document.getElementById("motivoUpload").value = "";
@@ -5160,6 +5166,7 @@ window.abrirSeletorNovoDocumento = function () {
       statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
       resultadosArquivosUpload = arquivosCentralUpload.map(() => null);
       resetarEstadoAoSelecionarArquivosUpload();
+      calcularAnaliseNomesCentralUpload();
       ocultarConfirmacaoFecharUpload();
       input.value = "";
       abrirCentralUpload();
@@ -5176,6 +5183,7 @@ window.abrirSeletorNovoDocumento = function () {
       arquivosCentralUpload = [];
       statusArquivosUpload = [];
       resultadosArquivosUpload = [];
+      analiseNomesCentralUpload = [];
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
       ocultarConfirmacaoFecharUpload();
@@ -5204,23 +5212,56 @@ window.abrirSeletorNovoDocumento = function () {
       return escaparHtml(texto).replace(/\s+/g, "");
     }
 
-    function analisarNomesSelecionadosUpload() {
-      const ocupados = criarConjuntoNomesUploadOcupados();
+    function calcularAnaliseNomesCentralUpload() {
+      const ocupadosAntesEnvio = criarConjuntoNomesUploadOcupados();
+      const ocupadosDuranteAnalise = new Set(ocupadosAntesEnvio);
       const vistosNaSelecao = new Set();
 
-      return arquivosCentralUpload.map(arquivo => {
+      analiseNomesCentralUpload = arquivosCentralUpload.map((arquivo, indice) => {
         const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
         const chave = normalizarTexto(nomeSolicitado);
-        const repetidoExistente = ocupados.has(chave);
-        const repetidoNaSelecao = vistosNaSelecao.has(chave);
+        const statusAtual = textoStatusUpload(statusArquivosUpload[indice]);
+        const resultado = resultadosArquivosUpload[indice];
+        const jaEnviado = STATUS_UPLOAD_NAO_REENVIAR.has(statusAtual) && resultado?.nomeFinal;
+        const nomeJaExistiaAntes = !jaEnviado && ocupadosAntesEnvio.has(chave);
+        const repetidoNaSelecao = !jaEnviado && vistosNaSelecao.has(chave);
+        const nomeFinalPrevisto = jaEnviado
+          ? resultado.nomeFinal
+          : gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, ocupadosDuranteAnalise);
+        const nomeFoiAjustado = normalizarTexto(nomeFinalPrevisto) !== chave;
+
+        if (!jaEnviado) {
+          ocupadosDuranteAnalise.add(normalizarTexto(nomeFinalPrevisto));
+        }
         vistosNaSelecao.add(chave);
 
         return {
           nomeSolicitado,
-          nomeRepetido: repetidoExistente || repetidoNaSelecao,
+          nomeJaExistiaAntes,
+          repetidoNaSelecao,
+          nomeFinalPrevisto,
+          nomeFoiAjustado,
+          nomeRepetido: nomeJaExistiaAntes || repetidoNaSelecao,
           arquivoGrande: (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES
         };
       });
+
+      return analiseNomesCentralUpload;
+    }
+
+    function obterAvisoNomeUpload(analise) {
+      if (!analise?.nomeRepetido) return "";
+
+      if (analise.nomeJaExistiaAntes) {
+        const nomeFinal = analise.nomeFinalPrevisto || analise.nomeSolicitado;
+        return `Possível duplicidade — será salvo como ${nomeFinal} para evitar substituição. Confira na Central após o envio.`;
+      }
+
+      if (analise.repetidoNaSelecao) {
+        return "Possível duplicidade na seleção — um dos arquivos será salvo com numeração.";
+      }
+
+      return "";
     }
 
     function renderizarListaCentralUpload() {
@@ -5236,17 +5277,21 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
-      const analiseNomes = analisarNomesSelecionadosUpload();
+      const analiseNomes = analiseNomesCentralUpload.length === arquivosCentralUpload.length
+        ? analiseNomesCentralUpload
+        : calcularAnaliseNomesCentralUpload();
 
       lista.innerHTML = arquivosCentralUpload.map((arquivo, indice) => {
-        const nomeRepetido = analiseNomes[indice]?.nomeRepetido;
-        const arquivoGrande = analiseNomes[indice]?.arquivoGrande;
+        const analise = analiseNomes[indice] || {};
+        const avisoNome = obterAvisoNomeUpload(analise);
+        const nomeRepetido = !!avisoNome;
+        const arquivoGrande = analise.arquivoGrande;
         return `
         <li class="statusUpload${classeStatusUpload(statusArquivosUpload[indice])}${nomeRepetido ? " uploadNomeRepetido" : ""}${arquivoGrande ? " uploadNomeRepetido" : ""}">
           <strong>${escaparHtml(arquivo.name)}</strong>
           <span>${escaparHtml(formatarTamanhoUpload(arquivo.size))}</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
-          ${nomeRepetido ? "<small class=\"avisoNomeRepetido\">Nome já existe — será enviado com duplicidade — Confira na Central após envio</small>" : ""}
+          ${avisoNome ? `<small class="avisoNomeRepetido">${escaparHtml(avisoNome)}</small>` : ""}
           ${arquivoGrande ? "<small class=\"avisoNomeRepetido avisoArquivoGrande\">Arquivo grande — será enviado em blocos</small><small class=\"avisoNomeRepetido avisoArquivoGrande\">Confira se o arquivo chegou com todas as páginas</small>" : ""}
         </li>
       `;
@@ -5697,8 +5742,33 @@ window.abrirSeletorNovoDocumento = function () {
       }, { processados: 0, enviados: 0, avisos: 0, naoEnviados: 0 });
     }
 
+    function formatarResultadoFinalUpload(resumo) {
+      const enviadosTotal = resumo.enviados + resumo.avisos;
+
+      if (resumo.naoEnviados > 0) {
+        return {
+          titulo: "Concluído com arquivos não enviados",
+          mensagem: enviadosTotal > 0
+            ? `${enviadosTotal} arquivo(s) enviado(s). ${resumo.naoEnviados} não foram enviados. Revise os itens em vermelho.`
+            : "Nenhum arquivo foi enviado. Revise os itens em vermelho."
+        };
+      }
+
+      if (resumo.avisos > 0) {
+        return {
+          titulo: "Concluído com atenção",
+          mensagem: `${enviadosTotal} arquivo(s) enviado(s). ${resumo.avisos} precisam de atenção e não devem ser reenviados.`
+        };
+      }
+
+      return {
+        titulo: "Concluído",
+        mensagem: `${enviadosTotal} arquivo(s) enviado(s) com sucesso.`
+      };
+    }
+
     function formatarResumoFinalUpload(resumo) {
-      return `${resumo.processados} arquivo(s) processado(s). ${resumo.enviados} enviado(s), ${resumo.avisos} enviado(s) — não reenviar, ${resumo.naoEnviados} não enviado(s).`;
+      return formatarResultadoFinalUpload(resumo).mensagem;
     }
 
     window.enviarNovoDocumento = async function (input) {
@@ -5706,6 +5776,7 @@ window.abrirSeletorNovoDocumento = function () {
       statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
       resultadosArquivosUpload = arquivosCentralUpload.map(() => null);
       resetarEstadoAoSelecionarArquivosUpload();
+      calcularAnaliseNomesCentralUpload();
       input.value = "";
       abrirCentralUpload();
       renderizarListaCentralUpload();
@@ -5749,6 +5820,7 @@ window.abrirSeletorNovoDocumento = function () {
       uploadEmAndamento = true;
       uploadConcluidoComSucesso = false;
       uploadTeveErro = false;
+      calcularAnaliseNomesCentralUpload();
       atualizarAcoesCentralUpload();
 
       const invalidos = [];
@@ -5840,16 +5912,11 @@ window.abrirSeletorNovoDocumento = function () {
         const resumo = resumirStatusUpload();
         uploadTeveErro = resumo.naoEnviados > 0;
         uploadConcluidoComSucesso = resumo.naoEnviados === 0;
-        const tituloResumo = resumo.naoEnviados
-          ? "Concluído com arquivos não enviados"
-          : resumo.avisos
-            ? "Concluído com avisos"
-            : "Concluído";
-        const textoResumo = formatarResumoFinalUpload(resumo);
-        atualizarProgressoUpload(100, tituloResumo, textoResumo, "");
+        const resultadoFinal = formatarResultadoFinalUpload(resumo);
+        atualizarProgressoUpload(100, resultadoFinal.titulo, resultadoFinal.mensagem, "");
         atualizarAcoesCentralUpload();
 
-        mostrarMensagem(textoResumo);
+        mostrarMensagem(resultadoFinal.mensagem);
       } catch (erro) {
         logger.error(erro);
         uploadTeveErro = true;
@@ -6138,6 +6205,13 @@ function renderizarDocumentos(listaArquivos) {
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
       quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
+      documentosCarregados = modoListaAtual === "na Lixeira"
+        ? documentosLixeira
+        : modoListaAtual === "recentes" && termo
+          ? documentosAtivos
+          : modoListaAtual === "recentes"
+            ? montarDocumentosRecentesComHistorico()
+            : documentosAtivos;
 
       if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual) {
         document.getElementById("contadorResultados").textContent = `${documentosAtivos.length} documento(s) ativo(s) disponivel(is)`;
