@@ -335,7 +335,7 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 [x] V3.5 — Busca preparada para 6 mil arquivos
 [x] V3.6 — Central de Duplicidades com teste de 6 mil e Web Worker se necessário
 [x] V3.7 — Histórico, anotações e alertas por demanda
-[ ] V3.8 — Operação mensal segura da Secretaria
+[x] V3.8 — Operação mensal segura da Secretaria
 [ ] V3.9 — Permissões avançadas e menor privilégio
 [ ] V3.10 — CSP real e dependências locais
 [ ] V3.11 — Modularização por domínio
