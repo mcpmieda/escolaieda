@@ -346,7 +346,7 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 ### Checklist V4
 
 ```text
-[ ] V4.0 — Reset automático seguro pré-carga dos 6 mil arquivos
+[x] V4.0 — Reset automático seguro pré-carga dos 6 mil arquivos
 ```
 
 Regra V4.0:

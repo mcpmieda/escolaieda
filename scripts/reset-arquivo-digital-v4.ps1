@@ -221,7 +221,7 @@ function Remover-ArquivosParaLixeira {
     }
 
     try {
-      Remove-PnPFile -ServerRelativeUrl $caminho -Recycle -Force
+      Remove-PnPFile -ServerRelativeUrl $caminho -Recycle -Force | Out-Null
       $removidos++
     } catch {
       $Falhas.Add([pscustomobject]@{ Tipo = "arquivo"; ID = $item.Id; Caminho = $caminho; Erro = $_.Exception.Message }) | Out-Null
@@ -245,7 +245,7 @@ function Remover-ItensListaParaLixeira {
     Write-Progress -Activity "Enviando itens de $Lista para Lixeira do SharePoint" -Status "$($i + 1) de $total" -PercentComplete ((($i + 1) / [Math]::Max($total, 1)) * 100)
 
     try {
-      Remove-PnPListItem -List $Lista -Identity $item.Id -Recycle -Force
+      Remove-PnPListItem -List $Lista -Identity $item.Id -Recycle -Force | Out-Null
       $removidos++
     } catch {
       $Falhas.Add([pscustomobject]@{ Tipo = "lista"; Lista = $Lista; ID = $item.Id; Caminho = ""; Erro = $_.Exception.Message }) | Out-Null
