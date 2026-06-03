@@ -6,6 +6,11 @@
       nomeArquivoVisualLimpo,
       sanitizarNomeArquivo
     } from "./arquivo-digital-utils.js";
+    import {
+      filtroCampoIgual,
+      filtroCamposIguais,
+      montarUrlItensLista
+    } from "./arquivo-digital-graph-client.js";
 
     const CONFIG = {
       clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
@@ -1155,10 +1160,6 @@ atualizarCardParesIgnorados();
       return Boolean(idAnotacao && idDocumento && idAnotacao === idDocumento);
     }
 
-    function valorFiltroOData(valor) {
-      return (valor || "").toString().replace(/'/g, "''");
-    }
-
     function atualizarCacheHistoricoDocumento(itensDocumento) {
       const idsNovos = new Set(itensDocumento.map(item => String(item.ID || "")));
       historicoCarregado = historicoCarregado.filter(item => !idsNovos.has(String(item.ID || "")));
@@ -1198,15 +1199,23 @@ atualizarCardParesIgnorados();
     }
 
     async function carregarHistoricoPorArquivoId(arquivoId, token) {
-      const filtro = encodeURIComponent(`fields/ARQUIVO_ID eq '${valorFiltroOData(arquivoId)}'`);
-      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$filter=${filtro}&$top=100`;
+      const url = montarUrlItensLista(
+        CONFIG.siteId,
+        CONFIG.historicoAcessosListId,
+        ["Title", "USUARIO_EMAIL", "ACAO", "USUARIO_NOME", "DATA_HORA", "ARQUIVO_ID", "OBSERVACAO"],
+        { filtro: filtroCampoIgual("ARQUIVO_ID", arquivoId), top: 100 }
+      );
       const itens = await buscarTodosItens(url, token);
       return itens.map(mapearItemHistorico);
     }
 
     async function carregarAnotacaoPorArquivoId(arquivoId, token) {
-      const filtro = encodeURIComponent(`fields/ARQUIVO_ID eq '${valorFiltroOData(arquivoId)}'`);
-      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$filter=${filtro}&$top=1`;
+      const url = montarUrlItensLista(
+        CONFIG.siteId,
+        CONFIG.anotacoesArquivosListId,
+        ["Title", "ARQUIVO_ID", "ANOTACAO", "ATUALIZADO_POR", "DATA_ATUALIZACAO"],
+        { filtro: filtroCampoIgual("ARQUIVO_ID", arquivoId), top: 1 }
+      );
       const itens = await buscarTodosItens(url, token);
       return itens.length ? mapearItemAnotacao(itens[0]) : null;
     }
@@ -2344,8 +2353,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       try {
         const token = await obterToken();
         const alertasSistemaListId = "9abdb5fc-c009-4a59-9f91-03677b001b56";
-        const filtro = encodeURIComponent("fields/STATUS eq 'IGNORADO' and fields/TIPO_ALERTA eq 'DUPLICADO'");
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${alertasSistemaListId}/items?$expand=fields($select=Title,ARQUIVO_ID,TIPO_ALERTA,STATUS,DATA_ALERTA,OBSERVACAO)&$filter=${filtro}&$top=200`;
+        const url = montarUrlItensLista(
+          CONFIG.siteId,
+          alertasSistemaListId,
+          ["Title", "ARQUIVO_ID", "TIPO_ALERTA", "STATUS", "DATA_ALERTA", "OBSERVACAO"],
+          { filtro: filtroCamposIguais({ STATUS: "IGNORADO", TIPO_ALERTA: "DUPLICADO" }), top: 200 }
+        );
 
         const resposta = await fetch(url, {
           headers: {

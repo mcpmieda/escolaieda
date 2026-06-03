@@ -338,7 +338,7 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 [x] V3.8 — Operação mensal segura da Secretaria
 [x] V3.9 — Permissões avançadas e menor privilégio
 [x] V3.10 — CSP real e dependências locais
-[ ] V3.11 — Modularização por domínio
+[x] V3.11 — Modularização por domínio
 [ ] V3.12 — Testes avançados e auditoria visual
 [ ] V3.13 — Polimento final V3 e tag de fechamento
 ```
