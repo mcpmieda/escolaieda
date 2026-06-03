@@ -331,7 +331,7 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 [x] V3.1 — Auditoria real SharePoint/PnP para 6 mil+ arquivos
 [x] V3.2 — Preparação SharePoint para mais de 5 mil itens
 [x] V3.3 — Limpeza CSS profunda: hovers antigos, X de fechar, botões de opção e notificações
-[ ] V3.4 — Lista com paginação visual/virtualização segura
+[x] V3.4 — Lista com paginação visual/virtualização segura
 [ ] V3.5 — Busca preparada para 6 mil arquivos
 [ ] V3.6 — Central de Duplicidades com teste de 6 mil e Web Worker se necessário
 [ ] V3.7 — Histórico, anotações e alertas por demanda

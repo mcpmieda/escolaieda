@@ -2257,6 +2257,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     const LIMITE_GRUPO_DUPLICIDADE = 80;
     const LIMITE_GRUPO_DUPLICIDADE_EXATA = 120;
     const LIMITE_PARES_CANDIDATOS_DUPLICIDADE = 12000;
+    const TAMANHO_PAGINA_DOCUMENTOS = 100;
+    let quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
+    let documentosFiltradosAtuais = [];
     const termosComunsDuplicidade = new Set([
       "aluno", "aluna", "arquivo", "arquivos", "digital", "documento", "documentos",
       "escola", "escolar", "historico", "matricula", "declaracao", "comprovante",
@@ -5523,6 +5526,22 @@ window.abrirSeletorNovoDocumento = function () {
       }
     };
 
+function atualizarBotaoCarregarMaisDocumentos(totalLista, totalExibido) {
+      const botao = document.getElementById("btnCarregarMaisDocumentos");
+      if (!botao) return;
+
+      const temMais = totalLista > totalExibido;
+      botao.hidden = !temMais;
+      botao.textContent = temMais
+        ? `Carregar mais (${totalExibido} de ${totalLista})`
+        : "Carregar mais";
+    }
+
+    window.carregarMaisDocumentos = function () {
+      quantidadeDocumentosVisiveis += TAMANHO_PAGINA_DOCUMENTOS;
+      renderizarDocumentos(documentosFiltradosAtuais);
+    };
+
 function renderizarDocumentos(listaArquivos) {
       const lista = document.getElementById("listaDocumentos");
       const contador = document.getElementById("contadorResultados");
@@ -5535,8 +5554,7 @@ function renderizarDocumentos(listaArquivos) {
         if (doc?.id) indiceDocumentoPorId.set(doc.id, indice);
       });
 
-      const totalFiltrado = listaArquivos.length;
-      const listaExibida = modoListaAtual === "recentes" && !termoBusca
+      const listaOrdenada = modoListaAtual === "recentes" && !termoBusca
         ? ordenarPorModificacao(listaArquivos, preferenciasSistema.ordemRecentes).slice(0, preferenciasSistema.limiteRecentes)
         : modoListaAtual === "recentes"
           ? ordenarPorModificacao(listaArquivos, preferenciasSistema.ordemRecentes)
@@ -5544,11 +5562,16 @@ function renderizarDocumentos(listaArquivos) {
           ? ordenarPorModificacao(listaArquivos, preferenciasSistema.ordemLixeira)
         : listaArquivos;
 
-      contador.textContent = modoListaAtual === "recentes" && !termoBusca
-        ? `${listaExibida.length} documento(s) recente(s) exibido(s)`
-        : `${listaExibida.length} resultado(s) encontrado(s)`;
+      const totalFiltrado = listaOrdenada.length;
+      const listaExibida = listaOrdenada.slice(0, quantidadeDocumentosVisiveis);
 
-      if (!listaExibida.length) {
+      contador.textContent = modoListaAtual === "recentes" && !termoBusca
+        ? `${listaExibida.length} de ${totalFiltrado} documento(s) recente(s) exibido(s)`
+        : `${listaExibida.length} de ${totalFiltrado} resultado(s) exibido(s)`;
+
+      atualizarBotaoCarregarMaisDocumentos(totalFiltrado, listaExibida.length);
+
+      if (!totalFiltrado) {
         lista.innerHTML = montarEstadoVazioDocumentos();
         return;
       }
@@ -5749,10 +5772,12 @@ function renderizarDocumentos(listaArquivos) {
 
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
+      quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
 
       if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual) {
         document.getElementById("contadorResultados").textContent = `${documentosAtivos.length} documento(s) ativo(s) disponivel(is)`;
         document.getElementById("listaDocumentos").innerHTML = "<li class=\"mensagemListaVazia\">Selecione uma gaveta para listar os documentos ou use a busca acima.</li>";
+        atualizarBotaoCarregarMaisDocumentos(0, 0);
         atualizarBotoesFiltros();
         return;
       }
@@ -5762,6 +5787,7 @@ function renderizarDocumentos(listaArquivos) {
       );
 
       const filtrados = aplicarFiltrosAvancados(filtradosBusca);
+      documentosFiltradosAtuais = filtrados;
       atualizarBotoesFiltros();
       renderizarDocumentos(filtrados);
     }
@@ -6026,6 +6052,7 @@ function renderizarDocumentos(listaArquivos) {
       aoClicar("btnConfirmarMesclar", window.confirmarMesclar);
       aoClicar("btnCancelarMesclar", window.cancelarMesclar);
       aoClicar("btnSalvarAnotacaoPainel", window.salvarAnotacaoManual);
+      aoClicar("btnCarregarMaisDocumentos", window.carregarMaisDocumentos);
       aoClicar("btnVerRecentes", window.mostrarDocumentosRecentes);
       aoClicar("btnVerAtivos", window.mostrarDocumentosAtivos);
       aoClicar("btnVerLixeira", window.mostrarDocumentosLixeira);

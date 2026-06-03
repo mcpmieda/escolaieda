@@ -171,13 +171,13 @@
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
+    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -4743,6 +4743,28 @@ body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #camp
 
     #listaDocumentos li {
       margin: 0;
+    }
+
+    .btnCarregarMaisDocumentos {
+      display: block;
+      width: min(280px, 100%);
+      margin: 14px auto 0;
+      border: 1px solid rgba(37, 99, 235, .28);
+      background: #ffffff;
+      color: #0f2f66;
+      box-shadow: 0 6px 16px rgba(15, 47, 102, .08);
+    }
+
+    .btnCarregarMaisDocumentos[hidden] {
+      display: none;
+    }
+
+    .btnCarregarMaisDocumentos:hover:not(:disabled),
+    .btnCarregarMaisDocumentos:focus-visible:not(:disabled) {
+      background: #eff6ff;
+      border-color: rgba(37, 99, 235, .42);
+      color: #0f2f66;
+      transform: none;
     }
 
     button.itemArquivo {
