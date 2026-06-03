@@ -5641,6 +5641,18 @@ function renderizarDocumentos(listaArquivos) {
           .length;
       });
       const tempoBuscaSimuladaMs = agoraPerformance() - inicioBuscaSimulada;
+      const simuladosDuplicidades = Array.from({ length: 6000 }, (_, indice) => {
+        const grupo = Math.floor(indice / 2);
+        return {
+          id: `simulado-${indice + 1}`,
+          nome: `ALUNO ESCALA ${String(grupo + 1).padStart(4, "0")}.pdf`
+        };
+      });
+      const inicioDuplicidadesSimulada = agoraPerformance();
+      const paresDuplicidadesSimulados = medirTempoPerformance("diagnostico.duplicidades-6000-indexado", () =>
+        gerarParesDuplicidadesIndexado(simuladosDuplicidades)
+      );
+      const tempoDuplicidadesSimuladaMs = agoraPerformance() - inicioDuplicidadesSimulada;
 
       const totalDocumentosDuplicidades = documentosAtivos.filter(doc => doc && doc.nome && doc.id).length;
       const paresExaustivosEstimados = totalDocumentosDuplicidades > 1
@@ -5664,7 +5676,9 @@ function renderizarDocumentos(listaArquivos) {
         medicaoLocal: {
           normalizarNomesDocumentosMs: Number(tempoNormalizacaoMs.toFixed(1)),
           buscar6000DocumentosMs: Number(tempoBuscaSimuladaMs.toFixed(1)),
-          buscar6000DocumentosResultados: totalBuscaSimulada
+          buscar6000DocumentosResultados: totalBuscaSimulada,
+          duplicidades6000IndexadoMs: Number(tempoDuplicidadesSimuladaMs.toFixed(1)),
+          duplicidades6000ParesRetornados: paresDuplicidadesSimulados.length
         },
         observacao: "Diagnostico local: nao chama SharePoint e nao altera dados de documentos."
       };

@@ -333,7 +333,7 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 [x] V3.3 — Limpeza CSS profunda: hovers antigos, X de fechar, botões de opção e notificações
 [x] V3.4 — Lista com paginação visual/virtualização segura
 [x] V3.5 — Busca preparada para 6 mil arquivos
-[ ] V3.6 — Central de Duplicidades com teste de 6 mil e Web Worker se necessário
+[x] V3.6 — Central de Duplicidades com teste de 6 mil e Web Worker se necessário
 [ ] V3.7 — Histórico, anotações e alertas por demanda
 [ ] V3.8 — Operação mensal segura da Secretaria
 [ ] V3.9 — Permissões avançadas e menor privilégio
