@@ -343,6 +343,21 @@ Ao concluir uma etapa, atualizar este checklist trocando `[ ]` por `[x]`, sem re
 [x] V3.13 — Polimento final V3 e tag de fechamento
 ```
 
+### Checklist V4
+
+```text
+[ ] V4.0 — Reset automático seguro pré-carga dos 6 mil arquivos
+```
+
+Regra V4.0:
+
+```text
+O usuário autorizou o reset real para preparar a entrada dos 6 mil+ arquivos.
+Executar somente com backup/exportação antes, envio para Lixeira do SharePoint por padrão, relatório antes/depois e sem apagar estrutura, permissões, colunas, listas ou gavetas.
+Script principal: scripts/reset-arquivo-digital-v4.ps1
+Guia: scripts/USO-RESET-ARQUIVO-DIGITAL-V4.md
+```
+
 ---
 
 ## 11. Comandos prontos para o Codex executar a V3 completa
