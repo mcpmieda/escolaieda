@@ -293,10 +293,15 @@ testar("Upload parcial e reparo pos-upload nao contam como erro simples", () => 
 testar("Upload em massa reconcilia lista e evita reenvio duplicado", () => {
   assert.match(js, /async function repararUploadParcial\b/, "repararUploadParcial deve existir.");
   assert.match(js, /function reconciliarStatusUploadComDocumentosAtivos\b/, "reconciliarStatusUploadComDocumentosAtivos deve existir.");
+  const reconciliar = blocoFuncao("reconciliarStatusUploadComDocumentosAtivos");
   assert.match(blocoFuncao("confirmarUploadCentral"), /reconciliarStatusUploadComDocumentosAtivos\s*\(\)/, "confirmarUploadCentral deve reconciliar apos atualizar a lista.");
   assert.match(blocoFuncao("confirmarUploadCentral"), /STATUS_UPLOAD_REPROCESSAVEIS\.has\(item\.status\)/, "Novo clique deve processar apenas pendentes ou nao enviados.");
   assert.match(js, /STATUS_UPLOAD_NAO_REENVIAR\s*=\s*new Set\(\[STATUS_UPLOAD_ENVIADO,\s*STATUS_UPLOAD_AVISO/, "Estados enviados devem ser tratados como nao reenviar.");
   assert.match(js, /Os arquivos já enviados não serão reenviados para evitar duplicidade/, "Mensagem deve orientar usuario leigo a nao reenviar.");
+  assert.match(reconciliar, /temEvidenciaArquivoCriado/, "Reconciliacao deve reconhecer evidencias de arquivo criado.");
+  assert.match(reconciliar, /resultado\.arquivoExiste\s*\|\|\s*resultado\.documento\s*\|\|\s*resultado\.driveItemId\s*\|\|\s*resultado\.listItemId/, "Reconciliacao deve considerar arquivoExiste, documento, driveItemId e listItemId.");
+  assert.match(reconciliar, /statusArquivosUpload\[indice\]\s*=\s*STATUS_UPLOAD_AVISO/, "Upload com evidencia de criacao nao deve ser liberado para reenvio por atraso da lista.");
+  assert.match(reconciliar, /confirmar-listagem-sharepoint/, "Pendencia deve orientar conferencia quando a lista ainda nao refletiu o upload.");
 });
 
 testar("Upload usa analise congelada para aviso de possivel duplicidade", () => {

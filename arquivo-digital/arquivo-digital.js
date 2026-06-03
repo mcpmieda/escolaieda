@@ -5713,11 +5713,22 @@ window.abrirSeletorNovoDocumento = function () {
         const statusAtual = textoStatusUpload(statusArquivosUpload[indice]);
         const nomeFinal = resultado.nomeFinal || "";
         const existeNaLista = nomeFinal && nomesAtivos.has(normalizarTexto(nomeFinal));
+        const temEvidenciaArquivoCriado = !!(resultado.arquivoExiste || resultado.documento || resultado.driveItemId || resultado.listItemId);
 
         if (existeNaLista && (statusAtual === STATUS_UPLOAD_NAO_ENVIADO || statusAtual === STATUS_UPLOAD_AVISO)) {
           const novoStatus = resultado.pendencias?.length ? STATUS_UPLOAD_AVISO : STATUS_UPLOAD_ENVIADO;
           statusArquivosUpload[indice] = novoStatus;
           return { ...resultado, status: novoStatus, arquivoExiste: true };
+        }
+
+        if (!existeNaLista && statusAtual === STATUS_UPLOAD_AVISO && temEvidenciaArquivoCriado) {
+          statusArquivosUpload[indice] = STATUS_UPLOAD_AVISO;
+          return {
+            ...resultado,
+            status: STATUS_UPLOAD_AVISO,
+            arquivoExiste: true,
+            pendencias: resultado.pendencias?.length ? resultado.pendencias : ["confirmar-listagem-sharepoint"]
+          };
         }
 
         if (!existeNaLista && statusAtual === STATUS_UPLOAD_AVISO) {
