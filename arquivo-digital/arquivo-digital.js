@@ -1155,6 +1155,62 @@ atualizarCardParesIgnorados();
       return Boolean(idAnotacao && idDocumento && idAnotacao === idDocumento);
     }
 
+    function valorFiltroOData(valor) {
+      return (valor || "").toString().replace(/'/g, "''");
+    }
+
+    function atualizarCacheHistoricoDocumento(itensDocumento) {
+      const idsNovos = new Set(itensDocumento.map(item => String(item.ID || "")));
+      historicoCarregado = historicoCarregado.filter(item => !idsNovos.has(String(item.ID || "")));
+      historicoCarregado.push(...itensDocumento);
+    }
+
+    function atualizarCacheAnotacaoDocumento(itemAnotacao, arquivoId) {
+      anotacoesCarregadas = anotacoesCarregadas.filter(item =>
+        normalizarIdArquivo(item.ARQUIVO_ID) !== normalizarIdArquivo(arquivoId)
+      );
+      if (itemAnotacao) anotacoesCarregadas.push(itemAnotacao);
+    }
+
+    function mapearItemHistorico(item) {
+      return {
+        ID: item.id,
+        ARQUIVO: item.fields?.Title || "",
+        USUARIO_EMAIL: item.fields?.USUARIO_EMAIL || "",
+        ACAO: item.fields?.ACAO || "",
+        USUARIO_NOME: item.fields?.USUARIO_NOME || "",
+        DATA_HORA: item.fields?.DATA_HORA || "",
+        ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
+        OBSERVACAO: item.fields?.OBSERVACAO || ""
+      };
+    }
+
+    function mapearItemAnotacao(item) {
+      return {
+        ID: item.id,
+        ETAG: item["@odata.etag"] || item.eTag || "",
+        ARQUIVO: item.fields?.Title || "",
+        ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
+        ANOTACAO: item.fields?.ANOTACAO || "",
+        ATUALIZADO_POR: item.fields?.ATUALIZADO_POR || "",
+        DATA_ATUALIZACAO: item.fields?.DATA_ATUALIZACAO || ""
+      };
+    }
+
+    async function carregarHistoricoPorArquivoId(arquivoId, token) {
+      const filtro = encodeURIComponent(`fields/ARQUIVO_ID eq '${valorFiltroOData(arquivoId)}'`);
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$filter=${filtro}&$top=100`;
+      const itens = await buscarTodosItens(url, token);
+      return itens.map(mapearItemHistorico);
+    }
+
+    async function carregarAnotacaoPorArquivoId(arquivoId, token) {
+      const filtro = encodeURIComponent(`fields/ARQUIVO_ID eq '${valorFiltroOData(arquivoId)}'`);
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$filter=${filtro}&$top=1`;
+      const itens = await buscarTodosItens(url, token);
+      return itens.length ? mapearItemAnotacao(itens[0]) : null;
+    }
+
     async function carregarDadosDeApoio() {
       if (dadosApoioCarregando) return;
       dadosApoioCarregando = true;
@@ -1165,30 +1221,13 @@ atualizarCardParesIgnorados();
 
         const itensHistorico = await buscarTodosItens(urlHistorico, token);
 
-        historicoCarregado = itensHistorico.map(item => ({
-          ID: item.id,
-          ARQUIVO: item.fields?.Title || "",
-          USUARIO_EMAIL: item.fields?.USUARIO_EMAIL || "",
-          ACAO: item.fields?.ACAO || "",
-          USUARIO_NOME: item.fields?.USUARIO_NOME || "",
-          DATA_HORA: item.fields?.DATA_HORA || "",
-          ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
-          OBSERVACAO: item.fields?.OBSERVACAO || ""
-        }));
+        historicoCarregado = itensHistorico.map(mapearItemHistorico);
 
         const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
 
         const itensAnotacoes = await buscarTodosItens(urlAnotacoes, token);
 
-        anotacoesCarregadas = itensAnotacoes.map(item => ({
-          ID: item.id,
-          ETAG: item["@odata.etag"] || item.eTag || "",
-          ARQUIVO: item.fields?.Title || "",
-          ARQUIVO_ID: item.fields?.ARQUIVO_ID || "",
-          ANOTACAO: item.fields?.ANOTACAO || "",
-          ATUALIZADO_POR: item.fields?.ATUALIZADO_POR || "",
-          DATA_ATUALIZACAO: item.fields?.DATA_ATUALIZACAO || ""
-        }));
+        anotacoesCarregadas = itensAnotacoes.map(mapearItemAnotacao);
 
         dadosApoioCarregados = true;
         atualizarDashboard();
@@ -1810,6 +1849,12 @@ atualizarCardParesIgnorados();
 
       sincronizarCamposFiltroHistoricoGeral();
       renderizarHistoricoGeral();
+      if (!dadosApoioCarregados && !dadosApoioCarregando) {
+        agendarTarefaSegundoPlano(async () => {
+          await carregarDadosDeApoio();
+          renderizarHistoricoGeral();
+        }, 80);
+      }
     };
 window.verMaisHistoricoGeral = function (event) {
       if (event) {
@@ -2161,6 +2206,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       secao.classList.toggle("aberta");
       if (secao.classList.contains("aberta")) {
         renderizarRelatoriosAdministrativos();
+        if (!dadosApoioCarregados && !dadosApoioCarregando) {
+          agendarTarefaSegundoPlano(async () => {
+            await carregarDadosDeApoio();
+            renderizarRelatoriosAdministrativos();
+          }, 80);
+        }
         secao.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     };
@@ -2293,7 +2344,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       try {
         const token = await obterToken();
         const alertasSistemaListId = "9abdb5fc-c009-4a59-9f91-03677b001b56";
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${alertasSistemaListId}/items?$expand=fields($select=Title,ARQUIVO_ID,TIPO_ALERTA,STATUS,DATA_ALERTA,OBSERVACAO)&$top=999`;
+        const filtro = encodeURIComponent("fields/STATUS eq 'IGNORADO' and fields/TIPO_ALERTA eq 'DUPLICADO'");
+        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${alertasSistemaListId}/items?$expand=fields($select=Title,ARQUIVO_ID,TIPO_ALERTA,STATUS,DATA_ALERTA,OBSERVACAO)&$filter=${filtro}&$top=200`;
 
         const resposta = await fetch(url, {
           headers: {
@@ -2313,7 +2365,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             itemId: item.id,
             fields: item.fields || {}
           }))
-          .filter(item => item.fields.STATUS === "IGNORADO" && item.fields.ARQUIVO_ID && item.fields.ARQUIVO_ID.includes("|"));
+          .filter(item => item.fields.ARQUIVO_ID && item.fields.ARQUIVO_ID.includes("|"));
 
         paresDuplicidadesIgnorados = new Set(
           ignorados.map(item => item.fields.ARQUIVO_ID)
@@ -3214,6 +3266,26 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         }).join("");
       };
 
+      const arquivoId = obterIdArquivoDocumento(documento);
+      if (arquivoId) {
+        try {
+          const token = await obterToken();
+          const [historicoDocumento, anotacaoDocumento] = await Promise.all([
+            carregarHistoricoPorArquivoId(arquivoId, token),
+            carregarAnotacaoPorArquivoId(arquivoId, token)
+          ]);
+
+          atualizarCacheHistoricoDocumento(historicoDocumento);
+          atualizarCacheAnotacaoDocumento(anotacaoDocumento, arquivoId);
+
+          if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
+          renderizarHistoricoDoCache();
+          return;
+        } catch (erroConsultaDireta) {
+          logger.warn("Consulta direta do histórico falhou; usando cache global.", erroConsultaDireta);
+        }
+      }
+
       if (!dadosApoioCarregados) {
         caixa.innerHTML = montarCarregamentoVisual("Histórico em segundo plano", "Os dados estão sendo preparados. Tente novamente em alguns instantes.", "⏱️");
 
@@ -3260,7 +3332,16 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       atualizarStatusAnotacao("Carregando anotação...");
 
       try {
-        const item = anotacoesCarregadas.find(x => anotacaoPertenceAoDocumento(x, documento));
+        const arquivoId = obterIdArquivoDocumento(documento);
+        let item = null;
+
+        if (arquivoId) {
+          const token = await obterToken();
+          item = await carregarAnotacaoPorArquivoId(arquivoId, token);
+          atualizarCacheAnotacaoDocumento(item, arquivoId);
+        } else {
+          item = anotacoesCarregadas.find(x => anotacaoPertenceAoDocumento(x, documento));
+        }
 
         if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
 
@@ -3321,7 +3402,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
         if (!resposta.ok) {
           if (resposta.status === 412) {
-            await carregarDadosDeApoio();
             await carregarAnotacaoDocumento(documentoSelecionado);
 
             const campoAnotacao = document.getElementById("campoAnotacao");
@@ -6009,7 +6089,6 @@ function renderizarDocumentos(listaArquivos) {
 
           await carregarOpcoesGavetaSharePoint(token);
           await listarDocumentos();
-          agendarTarefaSegundoPlano(carregarDadosDeApoio, 120);
         } catch (erro) {
           logger.error(erro);
           mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");
