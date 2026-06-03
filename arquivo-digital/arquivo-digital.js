@@ -187,6 +187,18 @@
       return direcao === "asc" ? ordenada.reverse() : ordenada;
     }
 
+    function atualizarIndiceBuscaDocumento(doc) {
+      if (!doc) return doc;
+
+      const nome = (doc.nome || "").toString();
+      if (doc.nomeBuscaOrigem !== nome) {
+        doc.nomeBuscaOrigem = nome;
+        doc.nomeBusca = normalizarTexto(nome);
+      }
+
+      return doc;
+    }
+
     function preferenciasPadraoSistema() {
       return {
         limiteRecentes: 20,
@@ -5614,9 +5626,21 @@ function renderizarDocumentos(listaArquivos) {
       const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
       const inicioNormalizacao = agoraPerformance();
       medirTempoPerformance("diagnostico.normalizar-nomes-documentos", () => {
-        todosDocumentos.forEach(doc => normalizarTexto(doc?.nome || ""));
+        todosDocumentos.forEach(atualizarIndiceBuscaDocumento);
       });
       const tempoNormalizacaoMs = agoraPerformance() - inicioNormalizacao;
+      const simuladosBusca = Array.from({ length: 6000 }, (_, indice) => ({
+        nome: `ALUNO TESTE ESCALA ${String(indice + 1).padStart(4, "0")}.pdf`
+      }));
+      const inicioBuscaSimulada = agoraPerformance();
+      const totalBuscaSimulada = medirTempoPerformance("diagnostico.buscar-6000-documentos", () => {
+        const termoSimulado = normalizarTexto("aluno teste escala 59");
+        return simuladosBusca
+          .map(atualizarIndiceBuscaDocumento)
+          .filter(doc => doc.nomeBusca.includes(termoSimulado))
+          .length;
+      });
+      const tempoBuscaSimuladaMs = agoraPerformance() - inicioBuscaSimulada;
 
       const totalDocumentosDuplicidades = documentosAtivos.filter(doc => doc && doc.nome && doc.id).length;
       const paresExaustivosEstimados = totalDocumentosDuplicidades > 1
@@ -5638,7 +5662,9 @@ function renderizarDocumentos(listaArquivos) {
           cacheAssinaturaAtiva: Boolean(cacheParesDuplicidades.assinatura)
         },
         medicaoLocal: {
-          normalizarNomesDocumentosMs: Number(tempoNormalizacaoMs.toFixed(1))
+          normalizarNomesDocumentosMs: Number(tempoNormalizacaoMs.toFixed(1)),
+          buscar6000DocumentosMs: Number(tempoBuscaSimuladaMs.toFixed(1)),
+          buscar6000DocumentosResultados: totalBuscaSimulada
         },
         observacao: "Diagnostico local: nao chama SharePoint e nao altera dados de documentos."
       };
@@ -5782,9 +5808,10 @@ function renderizarDocumentos(listaArquivos) {
         return;
       }
 
-      const filtradosBusca = documentosCarregados.filter(doc =>
-        !termo || normalizarTexto(doc.nome).includes(termo)
-      );
+      const filtradosBusca = documentosCarregados.filter(doc => {
+        if (!termo) return true;
+        return atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes(termo);
+      });
 
       const filtrados = aplicarFiltrosAvancados(filtradosBusca);
       documentosFiltradosAtuais = filtrados;
@@ -5883,7 +5910,7 @@ function renderizarDocumentos(listaArquivos) {
           const pasta = item.fields.FileDirRef || "";
           const status = pasta === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS` ? "ARQUIVADO" : "ATIVO";
 
-          return {
+          return atualizarIndiceBuscaDocumento({
             nome,
             caminho,
             fileDirRef: pasta,
@@ -5895,7 +5922,7 @@ function renderizarDocumentos(listaArquivos) {
             link: "https://eduieda.sharepoint.com" + caminho,
             modificado: item.fields?.Modified || item.lastModifiedDateTime || "",
             gaveta: item.fields?.GAVETA || ""
-          };
+          });
         };
 
         documentosAtivos = arquivos
