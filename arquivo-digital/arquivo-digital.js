@@ -2308,14 +2308,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     };
 
     function aplicarListaAtual() {
-      const termoBusca = normalizarTexto(document.getElementById("campoBusca")?.value || "");
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
-        : modoListaAtual === "recentes" && termoBusca
-          ? documentosAtivos
-          : modoListaAtual === "recentes"
-            ? montarDocumentosRecentesComHistorico()
-            : documentosAtivos;
+        : modoListaAtual === "recentes"
+          ? montarDocumentosRecentesComHistorico()
+          : documentosAtivos;
 
       atualizarBotoesModoLista();
       renderizarGavetasAtivos();
@@ -3151,6 +3148,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           detalhes,
           "Enviado como",
           extrairCampoHistoricoCard(textoOriginal, /Enviado automaticamente como:\s*(.*?)(?:,\s*para evitar|\.|$)/i)
+        );
+
+        adicionarDetalheHistoricoCard(
+          detalhes,
+          "Conferência automática",
+          extrairCampoHistoricoCard(textoOriginal, /Confer[eê]ncia autom[aá]tica:\s*(.*)$/i)
         );
       } else if (acaoNormalizada === "MESCLOU" || acaoNormalizada === "MESCLADO") {
         adicionarDetalheHistoricoCard(
@@ -6817,19 +6820,7 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     function acaoHistoricoRelevanteRecentes(acao) {
-      const texto = normalizarTexto(formatarAcaoHistorico(acao || ""));
-      return [
-        "foi para lixeira",
-        "restaurado",
-        "restaurou",
-        "renomeou",
-        "substituiu",
-        "mesclado",
-        "mesclou",
-        "enviou",
-        "visualizou",
-        "abriu"
-      ].some(parte => texto.includes(parte));
+      return Boolean(normalizarTexto(acao || ""));
     }
 
     function formatarAcaoRecente(acao) {
@@ -6839,8 +6830,8 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     function montarDocumentosRecentesComHistorico() {
-      if (!historicoCarregado.length) {
-        return documentosAtivos;
+      if (!dadosApoioCarregados || !historicoCarregado.length) {
+        return [];
       }
 
       const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
@@ -6874,10 +6865,6 @@ function renderizarDocumentos(listaArquivos) {
             movimentoRecente: item
           });
         });
-
-      if (!recentes.length) {
-        return documentosAtivos;
-      }
 
       return recentes;
     }
@@ -6921,13 +6908,27 @@ function renderizarDocumentos(listaArquivos) {
     function filtrarDocumentos() {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
       quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
+
+      if (modoListaAtual === "recentes" && !dadosApoioCarregados) {
+        documentosCarregados = [];
+        documentosFiltradosAtuais = [];
+        document.getElementById("contadorResultados").textContent = "Carregando alterações recentes...";
+        document.getElementById("listaDocumentos").innerHTML = montarCarregamentoVisual(
+          "Carregando alterações recentes",
+          "Consultando o histórico do Arquivo Digital.",
+          "⏱️",
+          "li"
+        );
+        atualizarBotaoCarregarMaisDocumentos(0, 0);
+        atualizarBotoesFiltros();
+        return;
+      }
+
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
-        : modoListaAtual === "recentes" && termo
-          ? documentosAtivos
-          : modoListaAtual === "recentes"
-            ? montarDocumentosRecentesComHistorico()
-            : documentosAtivos;
+        : modoListaAtual === "recentes"
+          ? montarDocumentosRecentesComHistorico()
+          : documentosAtivos;
 
       if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual) {
         document.getElementById("contadorResultados").textContent = `${documentosAtivos.length} documento(s) ativo(s) disponivel(is)`;
@@ -7127,6 +7128,7 @@ function renderizarDocumentos(listaArquivos) {
 
           await carregarOpcoesGavetaSharePoint(token);
           await listarDocumentos();
+          agendarTarefaSegundoPlano(() => carregarDadosDeApoio());
         } catch (erro) {
           logger.error(erro);
           mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");

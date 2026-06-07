@@ -302,6 +302,8 @@ testar("Upload faz conferencia leve de tamanho sem baixar PDF", () => {
   assert.match(enviar, /conferenciaTamanho\.ok \? STATUS_UPLOAD_ENVIADO : STATUS_UPLOAD_AVISO/, "Falha de conferencia deve virar atencao e bloquear reenvio.");
   assert.match(enviar, /Conferência automática: tamanho confirmado/, "Historico deve registrar conferencia confirmada.");
   assert.match(enviar, /tamanho não confirmado\. Não reenviar sem revisar/, "Historico deve orientar contra reenvio cego.");
+  assert.match(blocoFuncao("montarHistoricoFormatado"), /"Conferência automática"/, "Historico visual deve exibir a conferencia automatica.");
+  assert.match(blocoFuncao("montarHistoricoFormatado"), /Confer\[eê\]ncia autom\[aá\]tica/, "Historico visual deve extrair o resultado da conferencia.");
   assert.match(blocoFuncao("formatarResultadoFinalUpload"), /conferência automática não confirmou o tamanho\. Não reenviar sem revisar/, "Mensagem final deve explicar a falha de conferencia.");
   assert.doesNotMatch(js, /Confira se o arquivo chegou com todas as páginas/, "Texto de conferencia manual de paginas deve ser removido.");
   assert.match(js, /Arquivo grande — conferência automática de envio será feita ao final/, "Arquivo grande deve informar conferencia automatica.");
@@ -489,18 +491,27 @@ testar("Resumo final do upload nao mostra contagens zeradas", () => {
   assert.match(confirmar, /resultadoFinal\.mensagem/, "Mensagem global deve usar a mensagem simplificada.");
 });
 
-testar("Busca em Recentes usa documentos ativos quando ha termo", () => {
+testar("Recentes usa o historico em carga, acoes e busca", () => {
   const aplicar = blocoFuncao("aplicarListaAtual");
   const filtrar = blocoFuncao("filtrarDocumentos");
+  const montarRecentes = blocoFuncao("montarDocumentosRecentesComHistorico");
+  const acaoRelevante = blocoFuncao("acaoHistoricoRelevanteRecentes");
+  const atualizar = blocoFuncao("atualizarTela");
   const renderizar = blocoFuncao("renderizarDocumentos");
 
-  assert.match(aplicar, /modoListaAtual === "recentes" && termoBusca\s*\?\s*documentosAtivos/, "Recentes com busca deve usar documentosAtivos como base.");
-  assert.match(aplicar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Recentes sem busca deve manter lista de recentes.");
+  assert.match(aplicar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Recentes deve sempre partir do historico.");
+  assert.doesNotMatch(aplicar, /modoListaAtual === "recentes" && termoBusca/, "Busca nao deve trocar Recentes por todos os ativos.");
   assert.match(aplicar, /modoListaAtual === "na Lixeira"\s*\?\s*documentosLixeira/, "Lixeira deve manter documentosLixeira como base.");
 
-  assert.match(filtrar, /modoListaAtual === "recentes" && termo\s*\?\s*documentosAtivos/, "Filtro de Recentes com termo deve pesquisar todos os ativos.");
-  assert.match(filtrar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Filtro de Recentes sem termo deve usar recentes.");
+  assert.match(filtrar, /modoListaAtual === "recentes" && !dadosApoioCarregados/, "Recentes deve mostrar carregamento enquanto o historico nao estiver pronto.");
+  assert.match(filtrar, /Carregando alterações recentes/, "Estado provisorio deve explicar a carga do historico.");
+  assert.match(filtrar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Filtro de Recentes deve sempre usar recentes.");
+  assert.doesNotMatch(filtrar, /modoListaAtual === "recentes" && termo\s*\?\s*documentosAtivos/, "Busca nao deve pesquisar fora dos recentes.");
   assert.match(filtrar, /modoListaAtual === "na Lixeira"\s*\?\s*documentosLixeira/, "Filtro da Lixeira deve pesquisar somente a Lixeira.");
+  assert.match(montarRecentes, /!dadosApoioCarregados/, "Recentes nao deve simular historico com data de modificacao.");
+  assert.doesNotMatch(montarRecentes, /return documentosAtivos/, "Ausencia de historico nao deve retornar todos os ativos.");
+  assert.match(acaoRelevante, /Boolean\(normalizarTexto\(acao \|\| ""\)\)/, "Toda acao valida do historico deve contar em Recentes.");
+  assert.match(atualizar, /await listarDocumentos\(\);\s*agendarTarefaSegundoPlano\(\(\) => carregarDadosDeApoio\(\)\)/, "Historico deve carregar automaticamente apos os documentos.");
   assert.match(renderizar, /modoListaAtual === "recentes" && !termoBusca[\s\S]*\.slice\(0,\s*preferenciasSistema\.limiteRecentes\)/, "Limite de recentes deve ser aplicado apenas quando nao ha busca.");
   const inicioRamoRecentesComBusca = renderizar.indexOf(': modoListaAtual === "recentes"');
   const fimRamoRecentesComBusca = renderizar.indexOf(': modoListaAtual === "na Lixeira"', inicioRamoRecentesComBusca);
