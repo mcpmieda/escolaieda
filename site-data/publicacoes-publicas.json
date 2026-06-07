@@ -9,6 +9,16 @@
       "destaque": true,
       "dataInicial": null,
       "dataFinal": null
+    },
+    {
+      "titulo": "TESTE2",
+      "resumo": "OLÁ",
+      "conteudo": "OI",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null
     }
   ]
 }
