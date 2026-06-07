@@ -592,6 +592,7 @@
         <a href="/site-institucional/professores.html" class="menu-botao">Professores</a>
         <a href="/site-institucional/calendario.html" class="menu-botao">Calendário Escolar</a>
         <a href="#contato" class="menu-botao">Contato</a>
+        <a href="/admin/" class="menu-botao">Área Restrita</a>
       </div>
     </nav>
   </div>
@@ -682,7 +683,7 @@
         <p>Um espaço institucional pensado para centralizar conteúdos relevantes da escola.</p>
       </div>
 
-      <div class="grid">
+      <div class="grid" data-publicacoes-site>
         <div class="card">
           <h3>Avisos</h3>
           <p>Comunicados importantes à comunidade escolar poderão ser publicados aqui de forma clara e acessível.</p>
@@ -753,15 +754,12 @@
     /* não redirecionam enquanto a página não for criada.  */
     /* ================================================== */
     const ROTAS_PORTAL_ATIVAS = Object.freeze({
-      aluno:'/aluno/',
-      professor:'/professor/',
-      professores:'/professor/',
-      direcao:'/direcao/',
-      secretaria:'/institucional/',
-      secretario:'/institucional/',
-      institucional:'/institucional/',
-      admin:'/institucional/',
-      administrador:'/institucional/'
+      secretaria:'/admin/',
+      secretario:'/admin/',
+      institucional:'/admin/',
+      admin:'/admin/',
+      administrador:'/admin/',
+      direcao:'/admin/'
     });
 
     const ROTAS_PORTAL_FUTURAS = Object.freeze({});
@@ -904,6 +902,7 @@
 
       loginEmAndamento = true;
       definirEstadoBotaoLogin(botao, true);
+      sessionStorage.setItem("escolaIedaDestinoLogin", "/admin/");
 
       msalInstance.loginRedirect(loginRequest).catch((erro) => {
         console.error("Erro ao iniciar login Microsoft:", erro);
@@ -956,6 +955,12 @@
         .then((response) => {
           if(response && response.account){
             msalInstance.setActiveAccount(response.account);
+            const destinoLogin = sessionStorage.getItem("escolaIedaDestinoLogin");
+            if(destinoLogin){
+              sessionStorage.removeItem("escolaIedaDestinoLogin");
+              window.location.href = destinoLogin;
+              return;
+            }
             redirecionarPorPerfil(response.idTokenClaims);
           }
         })
@@ -965,5 +970,6 @@
         });
     }
   </script>
+  <script src="/site-data/publicacoes-site.js"></script>
 </body>
 </html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo | Escola Iêda MCPM</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0f3d5e">
+  <link rel="icon" type="image/png" href="../imagens/favicon.png">
+  <link rel="stylesheet" href="admin.css">
+  <script type="module" src="admin.js"></script>
+</head>
+<body>
+  <main class="appShell">
+    <section class="loginView" id="loginView">
+      <div class="loginPanel">
+        <img src="../logo_escola.png" alt="Escola Iêda MCPM" class="loginLogo">
+        <h1>Sistema Escola Iêda</h1>
+        <p id="loginStatus">Entre com a conta Microsoft autorizada para acessar o painel administrativo.</p>
+        <button class="primaryButton" id="btnEntrar" type="button">Entrar com Microsoft</button>
+      </div>
+    </section>
+
+    <section class="restrictedView hidden" id="restrictedView">
+      <div class="loginPanel">
+        <img src="../logo_escola.png" alt="Escola Iêda MCPM" class="loginLogo">
+        <h1>Acesso restrito</h1>
+        <p>Sua conta Microsoft foi reconhecida, mas não possui autorização para acessar o painel administrativo.</p>
+        <button class="secondaryButton" id="btnTrocarConta" type="button">Entrar com outra conta</button>
+      </div>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard">
+      <aside class="sidebar">
+        <div class="brandBlock">
+          <img src="../logo_escola.png" alt="" class="brandLogo">
+          <div>
+            <strong>Sistema Escola Iêda</strong>
+            <span id="usuarioAtual">Painel Administrativo</span>
+          </div>
+        </div>
+        <nav class="sideNav" aria-label="Módulos internos">
+          <button class="navItem active" type="button" data-view="inicio">Início</button>
+          <button class="navItem" type="button" data-view="publicacoes">Publicações</button>
+          <button class="navItem" type="button" data-view="ponto">Livro de Ponto</button>
+          <button class="navItem" type="button" data-view="configuracoes">Configurações</button>
+        </nav>
+        <button class="secondaryButton fullButton" id="btnSair" type="button">Sair</button>
+      </aside>
+
+      <div class="content">
+        <header class="contentHeader">
+          <div>
+            <h1 id="tituloView">Painel Administrativo</h1>
+            <p id="statusSistema">Ambiente restrito à Secretaria.</p>
+          </div>
+          <button class="primaryButton" id="btnAtualizar" type="button">Atualizar</button>
+        </header>
+
+        <section class="view active" id="view-inicio">
+          <div class="moduleGrid">
+            <a class="moduleCard" href="../arquivo-digital/">
+              <span>Arquivo Digital</span>
+              <strong>Abrir sistema existente</strong>
+              <small>Fluxo aprovado preservado integralmente.</small>
+            </a>
+            <button class="moduleCard" type="button" data-view-target="ponto">
+              <span>Livro de Ponto</span>
+              <strong>Preparado para integração</strong>
+              <small>Estrutura reservada para o próximo módulo interno.</small>
+            </button>
+            <button class="moduleCard" type="button" data-view-target="publicacoes">
+              <span>Publicações do Site</span>
+              <strong>Gerenciar notícias e avisos</strong>
+              <small>Conteúdo administrável no Microsoft 365.</small>
+            </button>
+            <button class="moduleCard" type="button" data-view-target="configuracoes">
+              <span>Configurações Internas</span>
+              <strong>Governança e estrutura</strong>
+              <small>Provisionamento das listas institucionais.</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="view" id="view-publicacoes">
+          <div class="workGrid">
+            <form class="editorPanel" id="formPublicacao">
+              <input type="hidden" id="itemId">
+              <label>Título
+                <input id="campoTitulo" type="text" required maxlength="180">
+              </label>
+              <label>Resumo
+                <textarea id="campoResumo" rows="3" maxlength="500"></textarea>
+              </label>
+              <label>Conteúdo
+                <textarea id="campoConteudo" rows="8"></textarea>
+              </label>
+              <div class="formRow">
+                <label>Categoria
+                  <select id="campoCategoria">
+                    <option value="Aviso">Aviso</option>
+                    <option value="Notícia">Notícia</option>
+                    <option value="Banner">Banner</option>
+                    <option value="Destaque">Destaque</option>
+                    <option value="Enquete">Enquete</option>
+                  </select>
+                </label>
+                <label>Imagem
+                  <input id="campoImagem" type="url" placeholder="https://">
+                </label>
+              </div>
+              <div class="formRow">
+                <label>Data inicial
+                  <input id="campoDataInicial" type="date">
+                </label>
+                <label>Data final
+                  <input id="campoDataFinal" type="date">
+                </label>
+              </div>
+              <div class="toggles">
+                <label><input id="campoPublicado" type="checkbox"> Publicado</label>
+                <label><input id="campoDestaque" type="checkbox"> Destaque</label>
+              </div>
+              <div class="buttonRow">
+                <button class="primaryButton" type="submit">Salvar</button>
+                <button class="secondaryButton" id="btnRascunho" type="button">Salvar rascunho</button>
+                <button class="dangerButton" id="btnExcluir" type="button" disabled>Excluir</button>
+                <button class="ghostButton" id="btnLimpar" type="button">Limpar</button>
+              </div>
+            </form>
+
+            <div class="listPanel">
+              <div class="panelTitle">
+                <h2>Publicações</h2>
+                <span id="contadorPublicacoes">0 itens</span>
+              </div>
+              <div class="publicationList" id="listaPublicacoes"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-ponto">
+          <div class="emptyState">
+            <h2>Livro de Ponto</h2>
+            <p>Módulo reservado para integração futura, sem interferir no Arquivo Digital.</p>
+          </div>
+        </section>
+
+        <section class="view" id="view-configuracoes">
+          <div class="settingsGrid">
+            <div class="settingsPanel">
+              <h2>Estrutura Microsoft 365</h2>
+              <p>Cria apenas novas estruturas institucionais: publicações, enquetes, configurações e biblioteca de mídias.</p>
+              <button class="primaryButton" id="btnProvisionar" type="button">Preparar SharePoint</button>
+              <pre id="logProvisionamento" class="logBox">Aguardando ação.</pre>
+            </div>
+            <div class="settingsPanel">
+              <h2>Fonte pública</h2>
+              <p>Configure uma URL pública somente leitura para o site institucional consumir publicações sem login.</p>
+              <label>URL JSON pública
+                <input id="campoFontePublica" type="url" placeholder="https://.../publicacoes-publicas.json">
+              </label>
+              <button class="secondaryButton" id="btnSalvarFontePublica" type="button">Salvar configuração</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
