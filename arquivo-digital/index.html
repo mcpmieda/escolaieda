@@ -70,6 +70,17 @@
         <input id="inputNovoDocumento" type="file" accept="application/pdf,.pdf" multiple style="display:none">
       </div>
 
+      <div id="avisoSessaoUploadInterrompida" class="avisoSessaoUploadInterrompida avisoSessaoUploadGlobal" hidden>
+        <div>
+          <strong>Envio anterior pode ter sido interrompido.</strong>
+          <span id="detalheSessaoUploadInterrompida"></span>
+        </div>
+        <div class="avisoSessaoUploadAcoes">
+          <button id="btnVerificarSessaoUpload" class="principal">Verificar agora</button>
+          <button id="btnIgnorarSessaoUpload" class="secundario btnUploadSecundario">Ignorar este aviso</button>
+        </div>
+      </div>
+
       <section id="centralConfiguracoes" class="centralConfiguracoes" role="dialog" aria-labelledby="centralConfiguracoesTitulo" aria-modal="false" aria-hidden="true">
         <div class="centralConfiguracoesTopo">
           <h2 id="centralConfiguracoesTitulo" tabindex="-1">Central de Configurações</h2>
@@ -158,17 +169,6 @@
           <div class="confirmacaoFecharUploadAcoes">
             <button id="btnContinuarUpload" class="principal btnConfirmacaoFecharUpload btnContinuarUpload">Continuar enviando</button>
             <button id="btnSairUpload" class="secundario btnConfirmacaoFecharUpload btnSairUpload">Sair sem enviar</button>
-          </div>
-        </div>
-
-        <div id="avisoSessaoUploadInterrompida" class="avisoSessaoUploadInterrompida" hidden>
-          <div>
-            <strong>Envio anterior pode ter sido interrompido.</strong>
-            <span id="detalheSessaoUploadInterrompida"></span>
-          </div>
-          <div class="avisoSessaoUploadAcoes">
-            <button id="btnVerificarSessaoUpload" class="principal">Verificar agora</button>
-            <button id="btnIgnorarSessaoUpload" class="secundario btnUploadSecundario">Ignorar este aviso</button>
           </div>
         </div>
 

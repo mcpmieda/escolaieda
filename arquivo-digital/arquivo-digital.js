@@ -6384,6 +6384,7 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
+      abrirCentralUpload();
       atualizarProgressoUpload(0, "Verificando envio anterior", "Consultando somente metadados dos arquivos.", "");
       try {
         const documentosAtualizados = await listarDocumentos();

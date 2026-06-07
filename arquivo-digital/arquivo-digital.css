@@ -243,6 +243,7 @@
     body.estadoPreLogin #btnSair,
     body.estadoPreLogin #centralConfiguracoes,
     body.estadoPreLogin #centralUpload,
+    body.estadoPreLogin #avisoSessaoUploadInterrompida,
     body.estadoPreLogin .painelLateral {
       display: none !important;
     }
@@ -960,6 +961,11 @@ ul {
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+    }
+
+    .avisoSessaoUploadGlobal {
+      margin: -6px 0 18px;
+      box-shadow: 0 8px 20px rgba(124, 45, 18, 0.08);
     }
 
     .avisoSessaoUploadInterrompida[hidden],

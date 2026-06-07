@@ -79,6 +79,16 @@ function testar(nome, funcao) {
   }
 }
 
+async function testarAsync(nome, funcao) {
+  try {
+    await funcao();
+    console.log(`OK - ${nome}`);
+  } catch (erro) {
+    console.error(`FALHOU - ${nome}`);
+    throw erro;
+  }
+}
+
 testar("HTML mantem estrutura principal e script modular", () => {
   const idsPrincipais = [
     "areaSistema",
@@ -297,6 +307,45 @@ testar("Upload faz conferencia leve de tamanho sem baixar PDF", () => {
   assert.match(js, /Arquivo grande — conferência automática de envio será feita ao final/, "Arquivo grande deve informar conferencia automatica.");
 });
 
+await testarAsync("Conferencia de tamanho cobre sucesso, divergencia e falha real", async () => {
+  const origem = blocoFuncao("conferirTamanhoUpload").replace(/^function\s+/, "async function ");
+  const avisos = [];
+  let metadadoRemoto = { id: "item-1", size: 2048 };
+  let falharMetadado = false;
+  const obterMetadado = async () => {
+    if (falharMetadado) throw new Error("falha controlada");
+    return metadadoRemoto;
+  };
+  const loggerTeste = { warn: (...args) => avisos.push(args) };
+  const criarFuncao = new Function(
+    "obterMetadadoRemotoDriveItem",
+    "logger",
+    `${origem}; return conferirTamanhoUpload;`
+  );
+  const conferir = criarFuncao(obterMetadado, loggerTeste);
+
+  const sucesso = await conferir({ size: 1024 }, { id: "item-1", size: 1024 }, { driveId: "drive-1", token: "token" });
+  assert.equal(sucesso.ok, true);
+  assert.equal(sucesso.tamanhoLocalBytes, 1024);
+  assert.equal(sucesso.tamanhoRemotoBytes, 1024);
+  assert.equal(sucesso.pendencia, "");
+
+  const divergencia = await conferir({ size: 1024 }, { id: "item-1", size: 2048 }, { driveId: "drive-1", token: "token" });
+  assert.equal(divergencia.ok, false);
+  assert.equal(divergencia.pendencia, "conferencia-tamanho");
+
+  const fallback = await conferir({ size: 2048 }, { id: "item-1" }, { driveId: "drive-1", token: "token" });
+  assert.equal(fallback.ok, true);
+  assert.equal(fallback.tamanhoRemotoBytes, 2048);
+
+  falharMetadado = true;
+  const falha = await conferir({ size: 2048 }, { id: "item-1" }, { driveId: "drive-1", token: "token" });
+  assert.equal(falha.ok, false);
+  assert.equal(falha.tamanhoRemotoBytes, null);
+  assert.equal(falha.pendencia, "conferencia-tamanho");
+  assert.equal(avisos.length, 1);
+});
+
 testar("Sessao local protege lote interrompido somente com metadados", () => {
   const criar = blocoFuncao("criarSessaoUploadLocal");
   const salvar = blocoFuncao("salvarSessaoUploadLocal");
@@ -341,6 +390,21 @@ testar("Card de sessao interrompida ignora o upload ativo da aba atual", () => {
   assert.match(reenvio, /sessao\.idExecucaoAtual = idExecucaoUploadAtual/, "Reenvio manual deve vincular a sessao recuperada a execucao atual.");
   assert.match(blocoFuncao("apagarSessaoUploadLocal"), /localStorage\.removeItem\(CHAVE_SESSAO_UPLOAD_LOCAL\)/, "Sessao concluida deve continuar sendo apagada.");
   assert.match(blocoFuncao("lerSessaoUploadLocal"), /JSON\.parse[\s\S]*catch/, "localStorage corrompido deve continuar protegido.");
+});
+
+testar("Aviso de sessao interrompida aparece sem abrir a Central", () => {
+  const indiceHero = html.indexOf('id="btnNovoDocumentoHero"');
+  const indiceAviso = html.indexOf('id="avisoSessaoUploadInterrompida"');
+  const indiceCentral = html.indexOf('id="centralUpload"');
+  const verificar = blocoFuncao("verificarSessaoUploadInterrompida");
+  assert.ok(indiceHero > -1 && indiceAviso > indiceHero && indiceAviso < indiceCentral, "Card deve ficar na tela principal antes da Central de Upload.");
+  assert.match(css, /body\.estadoPreLogin #avisoSessaoUploadInterrompida/, "Card global deve permanecer oculto antes do login.");
+  assert.match(css, /\.avisoSessaoUploadGlobal\b/, "Card global deve ter estilo proprio e visivel.");
+  assert.match(verificar, /abrirCentralUpload\(\)/, "Verificar agora deve abrir a Central automaticamente.");
+  assert.ok(
+    verificar.indexOf("abrirCentralUpload()") < verificar.indexOf("await listarDocumentos()"),
+    "Central deve abrir antes da consulta da sessao interrompida."
+  );
 });
 
 testar("Upload parcial e reparo pos-upload nao contam como erro simples", () => {
