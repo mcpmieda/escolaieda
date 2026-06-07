@@ -260,6 +260,35 @@ function reconciliarUploadSimulado({ documentosAtivos, statusArquivos, resultado
   });
 }
 
+function verificarSessaoInterrompidaIndexada(itens, documentos) {
+  const porId = new Map(documentos.map(doc => [String(doc.listItemId || ""), doc]));
+  const porNome = new Map(documentos.map(doc => [normalizarTexto(doc.nome), doc]));
+  return itens.map(item => {
+    const documento = porId.get(String(item.listItemId || ""))
+      || porNome.get(normalizarTexto(item.nomeFinalReal || item.nomeFinalPrevisto));
+    if (!documento) return { ...item, status: "nao-encontrado" };
+    const tamanhoOk = Number(documento.size) === Number(item.tamanhoLocalBytes);
+    return { ...item, status: tamanhoOk ? "enviado" : "enviado-atencao" };
+  });
+}
+
+function selecionarReenvioNaoEncontradosIndexado(itens, arquivos) {
+  const candidatos = new Map();
+  itens.forEach((item, indice) => {
+    if (item.status !== "nao-encontrado") return;
+    const chave = `${normalizarTexto(item.nomeOriginal)}|${Number(item.tamanhoLocalBytes)}`;
+    if (!candidatos.has(chave)) candidatos.set(chave, []);
+    candidatos.get(chave).push(indice);
+  });
+  return arquivos.filter(arquivo => {
+    const chave = `${normalizarTexto(arquivo.name)}|${Number(arquivo.size)}`;
+    const fila = candidatos.get(chave);
+    if (!fila?.length) return false;
+    fila.shift();
+    return true;
+  });
+}
+
 function testar(nome, fn) {
   const inicio = performance.now();
   fn();
@@ -378,6 +407,32 @@ function testarMassa(quantidade) {
     assert.equal(statusArquivos[3], STATUS_UPLOAD_ENVIADO);
     assert.equal(reconciliados[0].arquivoExiste, true);
     assert.ok(reconciliados[1].pendencias.includes("confirmar-listagem-sharepoint"));
+  });
+
+  testar(`sessao interrompida indexada em ${quantidade} documentos`, () => {
+    const documentos = ativos.map((doc, indice) => ({ ...doc, listItemId: String(indice + 1), size: 1000 + indice }));
+    const itens = documentos.map((doc, indice) => ({
+      nomeOriginal: doc.nome,
+      nomeFinalPrevisto: doc.nome,
+      tamanhoLocalBytes: doc.size,
+      listItemId: doc.listItemId
+    }));
+    itens.push({ nomeOriginal: "AUSENTE.pdf", nomeFinalPrevisto: "AUSENTE.pdf", tamanhoLocalBytes: 99, listItemId: "" });
+    const resultado = verificarSessaoInterrompidaIndexada(itens, documentos);
+    assert.equal(resultado.at(-1).status, "nao-encontrado");
+    assert.ok(resultado.slice(0, -1).every(item => item.status === "enviado"));
+  });
+
+  testar(`reenvio indexado em ${quantidade} documentos`, () => {
+    const itens = ativos.map((doc, indice) => ({
+      nomeOriginal: doc.nome,
+      tamanhoLocalBytes: 2000 + indice,
+      status: indice % 3 === 0 ? "nao-encontrado" : "enviado"
+    }));
+    const arquivos = itens.map(item => ({ name: item.nomeOriginal, size: item.tamanhoLocalBytes }));
+    arquivos.push({ name: "FORA DO LOTE.pdf", size: 1 });
+    const selecionados = selecionarReenvioNaoEncontradosIndexado(itens, arquivos);
+    assert.equal(selecionados.length, itens.filter(item => item.status === "nao-encontrado").length);
   });
 }
 

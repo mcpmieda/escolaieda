@@ -945,6 +945,79 @@ ul {
       color: #7c2d12;
     }
 
+    .avisoSessaoUploadInterrompida,
+    .painelSessaoUploadInterrompida {
+      margin: 12px 0;
+      padding: 12px;
+      border: 1px solid #fdba74;
+      border-radius: 10px;
+      background: #fff7ed;
+      color: #7c2d12;
+    }
+
+    .avisoSessaoUploadInterrompida {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .avisoSessaoUploadInterrompida[hidden],
+    .painelSessaoUploadInterrompida[hidden] {
+      display: none;
+    }
+
+    .avisoSessaoUploadInterrompida strong,
+    .avisoSessaoUploadInterrompida span {
+      display: block;
+    }
+
+    .avisoSessaoUploadInterrompida span,
+    .painelSessaoUploadInterrompida p {
+      margin: 3px 0 0;
+      font-size: 12px;
+    }
+
+    .avisoSessaoUploadAcoes,
+    .painelSessaoUploadTopo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .painelSessaoUploadTopo h3 {
+      margin: 0;
+      color: #7c2d12;
+      font-size: 16px;
+    }
+
+    .gruposSessaoUploadInterrompida {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .grupoSessaoUpload {
+      padding: 10px;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .grupoSessaoUpload strong,
+    .grupoSessaoUpload small {
+      display: block;
+    }
+
+    .grupoSessaoUpload ul {
+      margin: 7px 0 0;
+      padding-left: 18px;
+      font-size: 12px;
+    }
+
     .confirmacaoFecharUpload strong,
     .confirmacaoFecharUpload span {
       display: block;

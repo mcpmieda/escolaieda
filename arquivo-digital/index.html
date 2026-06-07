@@ -161,6 +161,32 @@
           </div>
         </div>
 
+        <div id="avisoSessaoUploadInterrompida" class="avisoSessaoUploadInterrompida" hidden>
+          <div>
+            <strong>Envio anterior pode ter sido interrompido.</strong>
+            <span id="detalheSessaoUploadInterrompida"></span>
+          </div>
+          <div class="avisoSessaoUploadAcoes">
+            <button id="btnVerificarSessaoUpload" class="principal">Verificar agora</button>
+            <button id="btnIgnorarSessaoUpload" class="secundario btnUploadSecundario">Ignorar este aviso</button>
+          </div>
+        </div>
+
+        <div id="painelSessaoUploadInterrompida" class="painelSessaoUploadInterrompida" hidden>
+          <div class="painelSessaoUploadTopo">
+            <div>
+              <h3>Conferência de envio interrompido</h3>
+              <p id="resumoSessaoUploadInterrompida">Aguardando verificação.</p>
+            </div>
+            <button id="btnFecharPainelSessaoUpload" class="secundario btnUploadSecundario">Fechar</button>
+          </div>
+          <div id="gruposSessaoUploadInterrompida" class="gruposSessaoUploadInterrompida"></div>
+          <div class="avisoSessaoUploadAcoes">
+            <button id="btnSelecionarReenvioSessaoUpload" class="principal">Selecionar arquivos para reenviar não encontrados</button>
+            <button id="btnIgnorarSessaoUploadPainel" class="secundario btnUploadSecundario">Ignorar este aviso</button>
+          </div>
+        </div>
+
         <div class="centralUploadGrade">
           <div class="campoUpload">
             <strong>ARQUIVOS DO ALUNO</strong>
@@ -203,6 +229,7 @@
           <button id="btnConcluirUploadCentral" class="principal" style="display:none">Fechar</button>
           <button id="btnLimparSelecaoUpload" class="secundario btnUploadSecundario">Limpar seleção</button>
         </div>
+        <input id="inputReenvioSessaoUpload" type="file" accept="application/pdf,.pdf" multiple hidden>
       </section>
 
 <div class="dashboardTopo dashboardSecaoTopo">

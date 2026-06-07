@@ -5022,6 +5022,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     let statusArquivosUpload = [];
     let resultadosArquivosUpload = [];
     let analiseNomesCentralUpload = [];
+    let idSessaoUploadEmUso = "";
+    let indicesSessaoUploadPorArquivo = [];
+    let reenvioSessaoUploadAtivo = false;
     const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
     const TAMANHO_BLOCO_UPLOAD_SESSION_BYTES = 5 * 1024 * 1024;
     const MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD = 2;
@@ -5030,6 +5033,197 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     const STATUS_UPLOAD_NAO_ENVIADO = "Não enviado";
     const STATUS_UPLOAD_REPROCESSAVEIS = new Set(["Pendente", STATUS_UPLOAD_NAO_ENVIADO]);
     const STATUS_UPLOAD_NAO_REENVIAR = new Set([STATUS_UPLOAD_ENVIADO, STATUS_UPLOAD_AVISO, "Conflito"]);
+    const CHAVE_SESSAO_UPLOAD_LOCAL = "arquivoDigitalUploadSessaoAtual";
+    const STATUS_SESSAO_UPLOAD_RESOLVIDOS = new Set(["enviado", "ignorado", "concluido"]);
+    const LIMITE_ITENS_EXIBIDOS_SESSAO_UPLOAD = 20;
+
+    function lerSessaoUploadLocal() {
+      let texto = "";
+      try {
+        texto = localStorage.getItem(CHAVE_SESSAO_UPLOAD_LOCAL) || "";
+        if (!texto) return null;
+        const sessao = JSON.parse(texto);
+        if (!sessao || typeof sessao !== "object" || !Array.isArray(sessao.itens) || !sessao.idLote) {
+          localStorage.removeItem(CHAVE_SESSAO_UPLOAD_LOCAL);
+          return null;
+        }
+        return sessao;
+      } catch (erro) {
+        logger.warn("Sessao local de upload invalida foi ignorada.", erro);
+        if (texto) {
+          try {
+            localStorage.removeItem(CHAVE_SESSAO_UPLOAD_LOCAL);
+          } catch (erroLimpeza) {
+            logger.warn("Nao foi possivel limpar sessao local de upload invalida.", erroLimpeza);
+          }
+        }
+        return null;
+      }
+    }
+
+    function salvarSessaoUploadLocal(sessao) {
+      if (!sessao || !Array.isArray(sessao.itens)) return false;
+      try {
+        sessao.atualizadoEm = new Date().toISOString();
+        localStorage.setItem(CHAVE_SESSAO_UPLOAD_LOCAL, JSON.stringify(sessao));
+        return true;
+      } catch (erro) {
+        logger.warn("Nao foi possivel salvar a sessao local de upload.", erro);
+        return false;
+      }
+    }
+
+    function apagarSessaoUploadLocal(idLote = "") {
+      try {
+        const sessao = lerSessaoUploadLocal();
+        if (idLote && sessao?.idLote && sessao.idLote !== idLote) return false;
+        localStorage.removeItem(CHAVE_SESSAO_UPLOAD_LOCAL);
+        if (!idLote || idSessaoUploadEmUso === idLote) {
+          idSessaoUploadEmUso = "";
+          indicesSessaoUploadPorArquivo = [];
+          reenvioSessaoUploadAtivo = false;
+        }
+        renderizarAvisoSessaoUploadInterrompida();
+        return true;
+      } catch (erro) {
+        logger.warn("Nao foi possivel apagar a sessao local de upload.", erro);
+        return false;
+      }
+    }
+
+    function sessaoUploadTemPendencia(sessao) {
+      if (!sessao || sessao.statusLote === "concluido") return false;
+      return sessao.itens.some(item => !STATUS_SESSAO_UPLOAD_RESOLVIDOS.has(item.status));
+    }
+
+    function criarIdLoteUpload() {
+      if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+      return `upload-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function criarSessaoUploadLocal(gaveta, motivo, indicesParaEnviar) {
+      const agora = new Date().toISOString();
+      const idLote = criarIdLoteUpload();
+      const itens = indicesParaEnviar.map(({ arquivo, indice }, posicao) => {
+        const analise = analiseNomesCentralUpload[indice] || {};
+        return {
+          indice: posicao,
+          nomeOriginal: arquivo.name || "",
+          nomeFinalPrevisto: analise.nomeFinalPrevisto || limparNomeArquivoPdf(arquivo.name),
+          nomeFinalReal: "",
+          tamanhoLocalBytes: Number(arquivo.size || 0),
+          status: "pendente",
+          driveId: "",
+          driveItemId: "",
+          listItemId: "",
+          arquivoExiste: false,
+          tamanhoRemotoBytes: null,
+          conferenciaTamanhoOk: false,
+          pendencias: []
+        };
+      });
+      const sessao = {
+        idLote,
+        criadoEm: agora,
+        atualizadoEm: agora,
+        statusLote: "pendente",
+        gaveta,
+        motivo,
+        totalArquivos: itens.length,
+        itens
+      };
+      if (!salvarSessaoUploadLocal(sessao)) return null;
+      idSessaoUploadEmUso = idLote;
+      indicesSessaoUploadPorArquivo = [];
+      indicesParaEnviar.forEach(({ indice }, posicao) => {
+        indicesSessaoUploadPorArquivo[indice] = posicao;
+      });
+      renderizarAvisoSessaoUploadInterrompida();
+      return sessao;
+    }
+
+    function atualizarItemSessaoUpload(indiceArquivo, alteracoes = {}) {
+      const sessao = lerSessaoUploadLocal();
+      if (!sessao || sessao.idLote !== idSessaoUploadEmUso) return null;
+      const indiceItem = indicesSessaoUploadPorArquivo[indiceArquivo];
+      if (!Number.isInteger(indiceItem) || !sessao.itens[indiceItem]) return sessao;
+      sessao.itens[indiceItem] = {
+        ...sessao.itens[indiceItem],
+        ...alteracoes,
+        pendencias: Array.isArray(alteracoes.pendencias)
+          ? [...new Set(alteracoes.pendencias)]
+          : sessao.itens[indiceItem].pendencias
+      };
+      sessao.statusLote = sessao.itens.every(item => STATUS_SESSAO_UPLOAD_RESOLVIDOS.has(item.status))
+        ? "concluido"
+        : "enviando";
+      salvarSessaoUploadLocal(sessao);
+      renderizarAvisoSessaoUploadInterrompida();
+      return sessao;
+    }
+
+    function concluirOuManterSessaoUpload() {
+      const sessao = lerSessaoUploadLocal();
+      if (!sessao || sessao.idLote !== idSessaoUploadEmUso) return;
+      const resolvida = sessao.itens.every(item => STATUS_SESSAO_UPLOAD_RESOLVIDOS.has(item.status));
+      if (resolvida) {
+        apagarSessaoUploadLocal(sessao.idLote);
+        return;
+      }
+      sessao.statusLote = "interrompido";
+      salvarSessaoUploadLocal(sessao);
+      renderizarAvisoSessaoUploadInterrompida();
+    }
+
+    function formatarDataHoraSessaoUpload(valor) {
+      const data = new Date(valor);
+      return Number.isNaN(data.getTime()) ? "data não identificada" : data.toLocaleString("pt-BR");
+    }
+
+    function renderizarAvisoSessaoUploadInterrompida() {
+      const aviso = document.getElementById("avisoSessaoUploadInterrompida");
+      const detalhe = document.getElementById("detalheSessaoUploadInterrompida");
+      const painel = document.getElementById("painelSessaoUploadInterrompida");
+      if (!aviso || !detalhe) return;
+      const sessao = lerSessaoUploadLocal();
+      const pendente = sessaoUploadTemPendencia(sessao);
+      aviso.hidden = !pendente;
+      if (!pendente) {
+        if (painel) painel.hidden = true;
+        return;
+      }
+      detalhe.textContent = `Encontramos um envio iniciado em ${formatarDataHoraSessaoUpload(sessao.criadoEm)} com ${sessao.totalArquivos || sessao.itens.length} arquivo(s). Antes de enviar novamente, verifique quais arquivos chegaram ao sistema.`;
+    }
+
+    function montarGrupoSessaoUpload(titulo, itens) {
+      const exibidos = itens.slice(0, LIMITE_ITENS_EXIBIDOS_SESSAO_UPLOAD);
+      const restantes = Math.max(0, itens.length - exibidos.length);
+      return `
+        <section class="grupoSessaoUpload">
+          <strong>${escaparHtml(titulo)} (${itens.length})</strong>
+          ${exibidos.length ? `<ul>${exibidos.map(item => `<li>${escaparHtml(item.nomeFinalReal || item.nomeFinalPrevisto || item.nomeOriginal)}</li>`).join("")}</ul>` : "<small>Nenhum arquivo.</small>"}
+          ${restantes ? `<small>Mais ${restantes} item(ns) não exibido(s).</small>` : ""}
+        </section>
+      `;
+    }
+
+    function renderizarPainelSessaoUpload(sessao) {
+      const painel = document.getElementById("painelSessaoUploadInterrompida");
+      const resumo = document.getElementById("resumoSessaoUploadInterrompida");
+      const grupos = document.getElementById("gruposSessaoUploadInterrompida");
+      if (!painel || !resumo || !grupos || !sessao) return;
+      const encontrados = sessao.itens.filter(item => item.status === "enviado");
+      const atencao = sessao.itens.filter(item => item.status === "enviado-atencao");
+      const naoEncontrados = sessao.itens.filter(item => item.status === "nao-encontrado" || item.status === "nao-enviado");
+      resumo.textContent = `${sessao.itens.length} arquivo(s) no lote. ${encontrados.length} encontrado(s), ${atencao.length} precisa(m) de atenção e ${naoEncontrados.length} não encontrado(s).`;
+      grupos.innerHTML = [
+        montarGrupoSessaoUpload("Enviados encontrados", encontrados),
+        montarGrupoSessaoUpload("Enviados com atenção", atencao),
+        montarGrupoSessaoUpload("Não encontrados", naoEncontrados)
+      ].join("");
+      document.getElementById("btnSelecionarReenvioSessaoUpload")?.toggleAttribute("disabled", naoEncontrados.length === 0);
+      painel.hidden = false;
+    }
 
     function formatarTamanhoUpload(bytes) {
       const tamanho = Number(bytes) || 0;
@@ -5054,6 +5248,7 @@ window.abrirSeletorNovoDocumento = function () {
       uploadTeveErro = false;
       atualizarProgressoUpload(0, "Aguardando arquivos", "Selecione os arquivos do aluno para enviar.", "");
       renderizarListaCentralUpload();
+      renderizarAvisoSessaoUploadInterrompida();
     };
 
     function centralUploadTemRascunho() {
@@ -5216,6 +5411,9 @@ window.abrirSeletorNovoDocumento = function () {
     };
 
     window.receberArquivosCentralUpload = function (input) {
+      idSessaoUploadEmUso = "";
+      indicesSessaoUploadPorArquivo = [];
+      reenvioSessaoUploadAtivo = false;
       arquivosCentralUpload = Array.from(input?.files || []);
       statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
       resultadosArquivosUpload = arquivosCentralUpload.map(() => null);
@@ -5346,7 +5544,7 @@ window.abrirSeletorNovoDocumento = function () {
           <span>${escaparHtml(formatarTamanhoUpload(arquivo.size))}</span>
           <small>${escaparHtml(textoStatusUpload(statusArquivosUpload[indice]))}</small>
           ${avisoNome ? `<small class="avisoNomeRepetido">${escaparHtml(avisoNome)}</small>` : ""}
-          ${arquivoGrande ? "<small class=\"avisoNomeRepetido avisoArquivoGrande\">Arquivo grande — será enviado em blocos</small><small class=\"avisoNomeRepetido avisoArquivoGrande\">Confira se o arquivo chegou com todas as páginas</small>" : ""}
+          ${arquivoGrande ? "<small class=\"avisoNomeRepetido avisoArquivoGrande\">Arquivo grande — será enviado em blocos</small><small class=\"avisoNomeRepetido avisoArquivoGrande\">Arquivo grande — conferência automática de envio será feita ao final.</small>" : ""}
         </li>
       `;
       }).join("");
@@ -5385,6 +5583,57 @@ window.abrirSeletorNovoDocumento = function () {
 
       const dados = await resposta.json();
       return dados.id;
+    }
+
+    async function obterMetadadoRemotoDriveItem(driveId, driveItemId, token) {
+      if (!driveId || !driveItemId) throw new Error("Drive item não identificado para conferir o upload.");
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItemId}?$select=id,name,size,parentReference`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!resposta.ok) throw new Error(await resposta.text());
+      return resposta.json();
+    }
+
+    async function obterMetadadoDriveItemPorListItem(listItemId, token) {
+      if (!listItemId) return null;
+      const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${listItemId}/driveItem?$select=id,name,size,parentReference`;
+      const resposta = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!resposta.ok) throw new Error(await resposta.text());
+      return resposta.json();
+    }
+
+    async function conferirTamanhoUpload(arquivo, driveItem, contexto = {}) {
+      const tamanhoLocalBytes = Number(arquivo?.size);
+      let itemRemoto = driveItem || null;
+      let tamanhoRemotoBytes = itemRemoto?.size === undefined || itemRemoto?.size === null
+        ? NaN
+        : Number(itemRemoto.size);
+      if (!Number.isFinite(tamanhoRemotoBytes)) {
+        try {
+          itemRemoto = await obterMetadadoRemotoDriveItem(
+            contexto.driveId || itemRemoto?.parentReference?.driveId,
+            contexto.driveItemId || itemRemoto?.id,
+            contexto.token
+          );
+          tamanhoRemotoBytes = itemRemoto?.size === undefined || itemRemoto?.size === null
+            ? NaN
+            : Number(itemRemoto.size);
+        } catch (erro) {
+          logger.warn("Nao foi possivel confirmar o tamanho remoto do upload.", erro);
+        }
+      }
+      const tamanhoConfirmado = Number.isFinite(tamanhoLocalBytes) && Number.isFinite(tamanhoRemotoBytes);
+      const ok = tamanhoConfirmado && tamanhoLocalBytes === tamanhoRemotoBytes;
+      return {
+        ok,
+        tamanhoLocalBytes,
+        tamanhoRemotoBytes: Number.isFinite(tamanhoRemotoBytes) ? tamanhoRemotoBytes : null,
+        pendencia: ok ? "" : "conferencia-tamanho",
+        driveItem: itemRemoto
+      };
     }
 
     async function atualizarGavetaItemSharePoint(listItemId, gaveta, token) {
@@ -5507,7 +5756,7 @@ window.abrirSeletorNovoDocumento = function () {
         };
       }
 
-      const pendencias = [];
+      const pendencias = [...new Set((resultado?.pendencias || []).filter(item => item === "conferencia-tamanho"))];
       const gavetaEsperada = (contexto.gaveta || "").trim();
       if (gavetaEsperada && chaveComparacaoGaveta(documento.gaveta) !== chaveComparacaoGaveta(gavetaEsperada)) {
         let gavetaAtualizada = false;
@@ -5680,7 +5929,7 @@ window.abrirSeletorNovoDocumento = function () {
       return driveItemFinal;
     }
 
-    async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, onEtapa = () => {}) {
+    async function enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, onEtapa = () => {}, opcoes = {}) {
       const validacaoPdf = await validarArquivoPdfBasico(arquivo);
       if (!validacaoPdf.valido) {
         throw new Error(`Arquivo ignorado porque não é PDF real: ${arquivo.name}. ${validacaoPdf.mensagem}`);
@@ -5690,7 +5939,7 @@ window.abrirSeletorNovoDocumento = function () {
       const token = await obterToken();
       const driveId = await obterDriveDocumentosAtivos();
       const nomeSolicitado = limparNomeArquivoPdf(arquivo.name);
-      const nomeFinal = gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, ocupados);
+      const nomeFinal = opcoes.nomeFinalPrevisto || gerarNomeLivreUploadPdfComOcupados(nomeSolicitado, ocupados);
       ocupados.add(normalizarTexto(nomeFinal));
       const nomeFoiAjustado = normalizarTexto(nomeFinal) !== normalizarTexto(nomeSolicitado);
       const usarUploadSession = (arquivo.size || 0) > LIMITE_UPLOAD_SIMPLES_BYTES;
@@ -5699,9 +5948,8 @@ window.abrirSeletorNovoDocumento = function () {
       let driveItemId = "";
       let listItemId = "";
       let caminho = "";
-      const observacaoEnvio = nomeFoiAjustado
-        ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental.`
-        : `${motivo} Gaveta: ${gaveta}.`;
+      let conferenciaTamanho = null;
+      let observacaoEnvio = "";
 
       if (usarUploadSession) {
         onEtapa("Criando upload session");
@@ -5730,9 +5978,30 @@ window.abrirSeletorNovoDocumento = function () {
       arquivoCriado = true;
       driveItemId = driveItem?.id || "";
       caminho = driveItem?.parentReference?.path ? `${driveItem.parentReference.path}/${nomeFinal}` : "";
+      onEtapa("Conferindo tamanho", {
+        driveId,
+        driveItemId,
+        nomeFinal,
+        arquivoCriado: true
+      });
+      conferenciaTamanho = await conferirTamanhoUpload(arquivo, driveItem, { driveId, driveItemId, token });
+      const textoConferencia = conferenciaTamanho.ok
+        ? "Conferência automática: tamanho confirmado."
+        : "Conferência automática: tamanho não confirmado. Não reenviar sem revisar.";
+      observacaoEnvio = nomeFoiAjustado
+        ? `${motivo} Gaveta: ${gaveta}. Nome original: ${nomeSolicitado}. Enviado automaticamente como: ${nomeFinal}, para evitar substituicao acidental. ${textoConferencia}`
+        : `${motivo} Gaveta: ${gaveta}. ${textoConferencia}`;
 
       try {
         listItemId = await obterListItemIdDoDriveItem(driveId, driveItemId, token);
+        onEtapa("Arquivo criado", {
+          driveId,
+          driveItemId,
+          listItemId,
+          nomeFinal,
+          arquivoCriado: true,
+          conferenciaTamanho
+        });
         onEtapa("Salvando gaveta");
         await atualizarGavetaItemSharePoint(listItemId, gaveta, token);
         const documentoNovo = await carregarDocumentoPorListItemId(listItemId, token);
@@ -5751,12 +6020,31 @@ window.abrirSeletorNovoDocumento = function () {
         erroParcial.nomeSolicitado = nomeSolicitado;
         erroParcial.nomeFoiAjustado = nomeFoiAjustado;
         erroParcial.observacaoEnvio = observacaoEnvio;
+        erroParcial.conferenciaTamanho = conferenciaTamanho;
+        erroParcial.pendencias = conferenciaTamanho?.ok ? ["conclusao-pos-upload"] : ["conclusao-pos-upload", "conferencia-tamanho"];
         erroParcial.mensagemUsuario = "Arquivo enviado. Não reenviar. O sistema tentará concluir os ajustes internos.";
         erroParcial.causaOriginal = erroConclusao;
         throw erroParcial;
       }
 
-      return { arquivoCriado, nomeSolicitado, nomeFinal, nomeFoiAjustado, driveId, driveItemId, listItemId, caminho, observacaoEnvio };
+      const pendencias = conferenciaTamanho.ok ? [] : ["conferencia-tamanho"];
+      return {
+        arquivoCriado,
+        arquivoExiste: true,
+        nomeSolicitado,
+        nomeFinal,
+        nomeFoiAjustado,
+        driveId,
+        driveItemId,
+        listItemId,
+        caminho,
+        observacaoEnvio,
+        tamanhoLocalBytes: conferenciaTamanho.tamanhoLocalBytes,
+        tamanhoRemotoBytes: conferenciaTamanho.tamanhoRemotoBytes,
+        conferenciaTamanhoOk: conferenciaTamanho.ok,
+        pendencias,
+        status: conferenciaTamanho.ok ? STATUS_UPLOAD_ENVIADO : STATUS_UPLOAD_AVISO
+      };
     }
 
     function reconciliarStatusUploadComDocumentosAtivos() {
@@ -5807,7 +6095,7 @@ window.abrirSeletorNovoDocumento = function () {
       }, { processados: 0, enviados: 0, avisos: 0, naoEnviados: 0 });
     }
 
-    function formatarResultadoFinalUpload(resumo) {
+    function formatarResultadoFinalUpload(resumo, opcoes = {}) {
       const enviadosTotal = resumo.enviados + resumo.avisos;
 
       if (resumo.naoEnviados > 0) {
@@ -5822,7 +6110,9 @@ window.abrirSeletorNovoDocumento = function () {
       if (resumo.avisos > 0) {
         return {
           titulo: "Concluído com atenção",
-          mensagem: `${enviadosTotal} arquivo(s) enviado(s). ${resumo.avisos} precisam de atenção e não devem ser reenviados.`
+          mensagem: opcoes.temFalhaConferencia
+            ? `${enviadosTotal} arquivo(s) enviado(s). Arquivo enviado, mas a conferência automática não confirmou o tamanho. Não reenviar sem revisar.`
+            : `${enviadosTotal} arquivo(s) enviado(s). ${resumo.avisos} precisam de atenção e não devem ser reenviados.`
         };
       }
 
@@ -5837,6 +6127,9 @@ window.abrirSeletorNovoDocumento = function () {
     }
 
     window.enviarNovoDocumento = async function (input) {
+      idSessaoUploadEmUso = "";
+      indicesSessaoUploadPorArquivo = [];
+      reenvioSessaoUploadAtivo = false;
       arquivosCentralUpload = Array.from(input?.files || []);
       statusArquivosUpload = arquivosCentralUpload.map(() => "Pendente");
       resultadosArquivosUpload = arquivosCentralUpload.map(() => null);
@@ -5903,6 +6196,25 @@ window.abrirSeletorNovoDocumento = function () {
         return;
       }
 
+      const sessaoExistente = lerSessaoUploadLocal();
+      if (sessaoUploadTemPendencia(sessaoExistente) && sessaoExistente.idLote !== idSessaoUploadEmUso) {
+        uploadEmAndamento = false;
+        atualizarAcoesCentralUpload();
+        renderizarAvisoSessaoUploadInterrompida();
+        mostrarMensagem("Existe um envio anterior pendente. Verifique ou ignore esse aviso antes de iniciar outro lote.", "erro");
+        return;
+      }
+
+      if (!idSessaoUploadEmUso) {
+        const sessaoCriada = criarSessaoUploadLocal(gaveta, motivo, indicesParaEnviar);
+        if (!sessaoCriada) {
+          uploadEmAndamento = false;
+          atualizarAcoesCentralUpload();
+          mostrarMensagem("Não foi possível criar a proteção local do envio. O lote não foi iniciado.", "erro");
+          return;
+        }
+      }
+
       try {
         document.getElementById("btnFecharCentralUpload")?.classList.add("desativado");
         mostrarMensagem("Enviando arquivo(s). Aguarde...");
@@ -5914,10 +6226,16 @@ window.abrirSeletorNovoDocumento = function () {
         for (let posicao = 0; posicao < indicesParaEnviar.length; posicao++) {
           const { arquivo, indice } = indicesParaEnviar[posicao];
           atualizarStatusArquivoUpload(indice, "Enviando");
+          atualizarItemSessaoUpload(indice, { status: "enviando" });
           const basePercentual = (posicao / total) * 100;
           atualizarProgressoUpload(basePercentual, "Enviando arquivo", `Enviando ${posicao + 1} de ${total} arquivos`, arquivo.name);
 
           try {
+            const indiceItemSessao = indicesSessaoUploadPorArquivo[indice];
+            const sessaoAtual = lerSessaoUploadLocal();
+            const nomeFinalPrevisto = sessaoAtual?.idLote === idSessaoUploadEmUso
+              ? sessaoAtual.itens[indiceItemSessao]?.nomeFinalPrevisto
+              : "";
             const resultado = await enviarArquivoPdfComMetadados(arquivo, gaveta, motivo, ocupados, (etapa, progressoArquivo) => {
               const percentualArquivo = Number(progressoArquivo?.percentual);
               const percentualTotal = Number.isFinite(percentualArquivo)
@@ -5927,9 +6245,32 @@ window.abrirSeletorNovoDocumento = function () {
                 ? `${formatarTamanhoUpload(progressoArquivo.enviados)} de ${formatarTamanhoUpload(progressoArquivo.total)}`
                 : `Enviando ${posicao + 1} de ${total} arquivos`;
               atualizarProgressoUpload(percentualTotal, etapa, detalheArquivo, arquivo.name);
+              if (progressoArquivo?.arquivoCriado) {
+                atualizarItemSessaoUpload(indice, {
+                  nomeFinalReal: progressoArquivo.nomeFinal || nomeFinalPrevisto,
+                  driveId: progressoArquivo.driveId || "",
+                  driveItemId: progressoArquivo.driveItemId || "",
+                  listItemId: progressoArquivo.listItemId || "",
+                  arquivoExiste: true,
+                  tamanhoRemotoBytes: progressoArquivo.conferenciaTamanho?.tamanhoRemotoBytes ?? null,
+                  conferenciaTamanhoOk: !!progressoArquivo.conferenciaTamanho?.ok,
+                  pendencias: progressoArquivo.conferenciaTamanho?.ok ? [] : ["conferencia-tamanho"]
+                });
+              }
+            }, { nomeFinalPrevisto });
+            resultadosArquivosUpload[indice] = resultado;
+            atualizarStatusArquivoUpload(indice, resultado.status);
+            atualizarItemSessaoUpload(indice, {
+              status: resultado.status === STATUS_UPLOAD_ENVIADO ? "enviado" : "enviado-atencao",
+              nomeFinalReal: resultado.nomeFinal,
+              driveId: resultado.driveId,
+              driveItemId: resultado.driveItemId,
+              listItemId: resultado.listItemId,
+              arquivoExiste: true,
+              tamanhoRemotoBytes: resultado.tamanhoRemotoBytes,
+              conferenciaTamanhoOk: resultado.conferenciaTamanhoOk,
+              pendencias: resultado.pendencias
             });
-            resultadosArquivosUpload[indice] = { ...resultado, status: STATUS_UPLOAD_ENVIADO };
-            atualizarStatusArquivoUpload(indice, STATUS_UPLOAD_ENVIADO);
           } catch (erroArquivo) {
             logger.error(erroArquivo);
             if (erroArquivo.uploadParcial || erroArquivo.arquivoCriado) {
@@ -5944,11 +6285,25 @@ window.abrirSeletorNovoDocumento = function () {
                 caminho: erroArquivo.caminho || "",
                 observacaoEnvio: erroArquivo.observacaoEnvio || `${motivo} Gaveta: ${gaveta}.`,
                 status: STATUS_UPLOAD_AVISO,
-                pendencias: ["conclusao-pos-upload"]
+                tamanhoLocalBytes: Number(arquivo.size || 0),
+                tamanhoRemotoBytes: erroArquivo.conferenciaTamanho?.tamanhoRemotoBytes ?? null,
+                conferenciaTamanhoOk: !!erroArquivo.conferenciaTamanho?.ok,
+                pendencias: erroArquivo.pendencias || ["conclusao-pos-upload", "conferencia-tamanho"]
               };
               const reparo = await repararUploadParcial(resultadoParcial, { gaveta, motivo, observacaoEnvio: resultadoParcial.observacaoEnvio });
               resultadosArquivosUpload[indice] = { ...resultadoParcial, ...reparo };
               atualizarStatusArquivoUpload(indice, reparo.arquivoExiste ? reparo.status : STATUS_UPLOAD_NAO_ENVIADO);
+              atualizarItemSessaoUpload(indice, {
+                status: reparo.arquivoExiste ? "enviado-atencao" : "nao-enviado",
+                nomeFinalReal: resultadoParcial.nomeFinal,
+                driveId: resultadoParcial.driveId,
+                driveItemId: resultadoParcial.driveItemId,
+                listItemId: resultadoParcial.listItemId,
+                arquivoExiste: reparo.arquivoExiste,
+                tamanhoRemotoBytes: resultadoParcial.tamanhoRemotoBytes,
+                conferenciaTamanhoOk: resultadoParcial.conferenciaTamanhoOk,
+                pendencias: reparo.pendencias
+              });
             } else {
               resultadosArquivosUpload[indice] = {
                 nomeSolicitado: limparNomeArquivoPdf(arquivo.name),
@@ -5957,6 +6312,11 @@ window.abrirSeletorNovoDocumento = function () {
                 erro: erroArquivo.message || String(erroArquivo)
               };
               atualizarStatusArquivoUpload(indice, STATUS_UPLOAD_NAO_ENVIADO);
+              atualizarItemSessaoUpload(indice, {
+                status: "nao-enviado",
+                arquivoExiste: false,
+                pendencias: ["envio"]
+              });
             }
           }
 
@@ -5977,22 +6337,193 @@ window.abrirSeletorNovoDocumento = function () {
         const resumo = resumirStatusUpload();
         uploadTeveErro = resumo.naoEnviados > 0;
         uploadConcluidoComSucesso = resumo.naoEnviados === 0;
-        const resultadoFinal = formatarResultadoFinalUpload(resumo);
+        const temFalhaConferencia = resultadosArquivosUpload.some(resultado =>
+          resultado?.pendencias?.includes("conferencia-tamanho")
+        );
+        const resultadoFinal = formatarResultadoFinalUpload(resumo, { temFalhaConferencia });
         atualizarProgressoUpload(100, resultadoFinal.titulo, resultadoFinal.mensagem, "");
         atualizarAcoesCentralUpload();
 
         mostrarMensagem(resultadoFinal.mensagem);
+        concluirOuManterSessaoUpload();
       } catch (erro) {
         logger.error(erro);
         uploadTeveErro = true;
         atualizarProgressoUpload(100, "Erro", "O envio foi interrompido. Confira a lista de arquivos.", "");
         atualizarAcoesCentralUpload();
         mostrarMensagem("Não foi possível enviar os arquivo(s). Tente novamente.", "erro");
+        concluirOuManterSessaoUpload();
       } finally {
         uploadEmAndamento = false;
         atualizarAcoesCentralUpload();
         document.getElementById("btnFecharCentralUpload")?.classList.remove("desativado");
       }
+    };
+
+    window.verificarSessaoUploadInterrompida = async function () {
+      const sessao = lerSessaoUploadLocal();
+      if (!sessaoUploadTemPendencia(sessao)) {
+        renderizarAvisoSessaoUploadInterrompida();
+        return;
+      }
+
+      atualizarProgressoUpload(0, "Verificando envio anterior", "Consultando somente metadados dos arquivos.", "");
+      try {
+        const documentosAtualizados = await listarDocumentos();
+        if (!documentosAtualizados) {
+          throw new Error("A lista de documentos não pôde ser atualizada para a conferência.");
+        }
+        const token = await obterToken();
+        const driveIdPadrao = await obterDriveDocumentosAtivos();
+        const porListItemId = new Map(documentosAtivos.map(doc => [String(doc.listItemId || ""), doc]));
+        const porNome = new Map(documentosAtivos.map(doc => [normalizarTexto(doc.nome), doc]));
+
+        for (const item of sessao.itens) {
+          let documento = null;
+          let metadado = null;
+          if (item.listItemId) documento = porListItemId.get(String(item.listItemId)) || null;
+          if (!documento) {
+            const nome = item.nomeFinalReal || item.nomeFinalPrevisto;
+            if (nome) documento = porNome.get(normalizarTexto(nome)) || null;
+          }
+
+          const tamanhoJaConfirmado = item.conferenciaTamanhoOk
+            && Number(item.tamanhoRemotoBytes) === Number(item.tamanhoLocalBytes);
+          if (documento && tamanhoJaConfirmado) {
+            metadado = {
+              id: item.driveItemId || "",
+              name: documento.nome,
+              size: item.tamanhoRemotoBytes,
+              parentReference: { driveId: item.driveId || driveIdPadrao }
+            };
+          } else {
+            try {
+              if (item.driveItemId) {
+                metadado = await obterMetadadoRemotoDriveItem(item.driveId || driveIdPadrao, item.driveItemId, token);
+              } else if (documento?.listItemId) {
+                metadado = await obterMetadadoDriveItemPorListItem(documento.listItemId, token);
+              }
+            } catch (erroMetadado) {
+              logger.warn("Nao foi possivel obter metadado durante conferencia de sessao.", erroMetadado);
+            }
+          }
+
+          const encontrou = !!(metadado?.id || documento || item.driveItemId || item.listItemId);
+          if (!encontrou) {
+            item.status = "nao-encontrado";
+            item.arquivoExiste = false;
+            item.conferenciaTamanhoOk = false;
+            item.pendencias = ["arquivo-nao-localizado"];
+            continue;
+          }
+
+          item.arquivoExiste = true;
+          item.driveItemId = metadado?.id || item.driveItemId || "";
+          item.driveId = metadado?.parentReference?.driveId || item.driveId || driveIdPadrao;
+          item.listItemId = documento?.listItemId || item.listItemId || "";
+          item.nomeFinalReal = metadado?.name || documento?.nome || item.nomeFinalReal || item.nomeFinalPrevisto;
+          const tamanhoRemoto = metadado?.size === undefined || metadado?.size === null
+            ? NaN
+            : Number(metadado.size);
+          item.tamanhoRemotoBytes = Number.isFinite(tamanhoRemoto) ? tamanhoRemoto : null;
+          item.conferenciaTamanhoOk = Number.isFinite(tamanhoRemoto) && tamanhoRemoto === Number(item.tamanhoLocalBytes);
+          item.status = item.conferenciaTamanhoOk ? "enviado" : "enviado-atencao";
+          item.pendencias = item.conferenciaTamanhoOk ? [] : ["conferencia-tamanho"];
+        }
+
+        const temAtencao = sessao.itens.some(item => item.status === "enviado-atencao");
+        const temNaoEncontrado = sessao.itens.some(item => item.status === "nao-encontrado" || item.status === "nao-enviado");
+        sessao.statusLote = temAtencao || temNaoEncontrado ? "interrompido" : "concluido";
+        salvarSessaoUploadLocal(sessao);
+
+        if (!temAtencao && !temNaoEncontrado) {
+          apagarSessaoUploadLocal(sessao.idLote);
+          atualizarProgressoUpload(100, "Envio anterior verificado", "Todos os arquivos foram encontrados.", "");
+          mostrarMensagem("Envio anterior verificado. Todos os arquivos foram encontrados.");
+          return;
+        }
+
+        renderizarPainelSessaoUpload(sessao);
+        renderizarAvisoSessaoUploadInterrompida();
+        atualizarProgressoUpload(100, "Verificação concluída", "Revise os arquivos encontrados com atenção e os não encontrados.", "");
+      } catch (erro) {
+        logger.error(erro);
+        salvarSessaoUploadLocal(sessao);
+        mostrarMensagem("Não foi possível verificar o envio anterior agora. A sessão foi mantida para nova tentativa.", "erro");
+      }
+    };
+
+    window.ignorarSessaoUploadInterrompida = function () {
+      const sessao = lerSessaoUploadLocal();
+      if (!sessao) return;
+      const confirmar = confirm("Tem certeza que deseja ignorar este envio interrompido? Use esta opção apenas se você já conferiu que está tudo certo.");
+      if (!confirmar) return;
+      apagarSessaoUploadLocal(sessao.idLote);
+      mostrarMensagem("Aviso de envio interrompido removido.");
+    };
+
+    window.fecharPainelSessaoUploadInterrompida = function () {
+      const painel = document.getElementById("painelSessaoUploadInterrompida");
+      if (painel) painel.hidden = true;
+    };
+
+    window.selecionarArquivosReenvioSessaoUpload = function () {
+      const sessao = lerSessaoUploadLocal();
+      if (!sessaoUploadTemPendencia(sessao)) return;
+      document.getElementById("inputReenvioSessaoUpload")?.click();
+    };
+
+    window.receberArquivosReenvioSessaoUpload = function (input) {
+      const sessao = lerSessaoUploadLocal();
+      const selecionados = Array.from(input?.files || []);
+      if (input) input.value = "";
+      if (!sessaoUploadTemPendencia(sessao) || !selecionados.length) return;
+
+      const candidatos = new Map();
+      sessao.itens.forEach((item, indice) => {
+        if (item.status !== "nao-encontrado" && item.status !== "nao-enviado") return;
+        const chave = `${normalizarTexto(item.nomeOriginal)}|${Number(item.tamanhoLocalBytes || 0)}`;
+        if (!candidatos.has(chave)) candidatos.set(chave, []);
+        candidatos.get(chave).push(indice);
+      });
+
+      const arquivosReenvio = [];
+      const indicesItens = [];
+      let ignorados = 0;
+      for (const arquivo of selecionados) {
+        const chave = `${normalizarTexto(arquivo.name)}|${Number(arquivo.size || 0)}`;
+        const fila = candidatos.get(chave);
+        if (!fila?.length) {
+          ignorados++;
+          continue;
+        }
+        arquivosReenvio.push(arquivo);
+        indicesItens.push(fila.shift());
+      }
+
+      if (!arquivosReenvio.length) {
+        mostrarMensagem("Nenhum arquivo selecionado corresponde aos itens não encontrados do lote.", "erro");
+        return;
+      }
+
+      arquivosCentralUpload = arquivosReenvio;
+      statusArquivosUpload = arquivosReenvio.map(() => "Pendente");
+      resultadosArquivosUpload = arquivosReenvio.map(() => null);
+      idSessaoUploadEmUso = sessao.idLote;
+      indicesSessaoUploadPorArquivo = indicesItens;
+      reenvioSessaoUploadAtivo = true;
+      resetarEstadoAoSelecionarArquivosUpload();
+      calcularAnaliseNomesCentralUpload();
+      analiseNomesCentralUpload = analiseNomesCentralUpload.map((analise, indice) => ({
+        ...analise,
+        nomeFinalPrevisto: sessao.itens[indicesItens[indice]]?.nomeFinalPrevisto || analise.nomeFinalPrevisto
+      }));
+      abrirCentralUpload();
+      document.getElementById("gavetaUpload").value = sessao.gaveta || "";
+      document.getElementById("motivoUpload").value = sessao.motivo || "";
+      renderizarListaCentralUpload();
+      atualizarAcoesCentralUpload();
+      mostrarMensagem(`${arquivosReenvio.length} arquivo(s) serão reenviados. ${ignorados} arquivo(s) foram ignorados porque já foram encontrados ou não pertencem ao lote.`);
     };
 
 function atualizarBotaoCarregarMaisDocumentos(totalLista, totalExibido) {
@@ -6522,10 +7053,13 @@ function renderizarDocumentos(listaArquivos) {
           const resumo = document.getElementById("resumoCentralDuplicidades");
           if (resumo) resumo.textContent = "Analise automatica desativada. Abra a Central para analisar.";
         }
+        renderizarAvisoSessaoUploadInterrompida();
+        return true;
 
       } catch (erro) {
         lista.innerHTML = "<li class=\"erro\">Não foi possível carregar os documentos. Tente novamente.</li>";
         logger.error(erro);
+        return false;
       }
     }
 
@@ -6630,6 +7164,11 @@ function renderizarDocumentos(listaArquivos) {
       aoClicar("btnEnviarMaisUploadCentral", window.prepararNovoEnvioCentralUpload);
       aoClicar("btnConcluirUploadCentral", window.concluirFecharCentralUpload);
       aoClicar("btnLimparSelecaoUpload", window.limparCentralUpload);
+      aoClicar("btnVerificarSessaoUpload", window.verificarSessaoUploadInterrompida);
+      aoClicar("btnIgnorarSessaoUpload", window.ignorarSessaoUploadInterrompida);
+      aoClicar("btnIgnorarSessaoUploadPainel", window.ignorarSessaoUploadInterrompida);
+      aoClicar("btnSelecionarReenvioSessaoUpload", window.selecionarArquivosReenvioSessaoUpload);
+      aoClicar("btnFecharPainelSessaoUpload", window.fecharPainelSessaoUploadInterrompida);
       aoClicar("btnAbrirHistoricoGeral", window.abrirHistoricoGeral);
       aoClicar("btnFecharPainelCentralDuplicidades", fecharPainelCentralDuplicidades);
       aoClicar("btnFecharPainelDashboard", window.fecharPainelDashboard);
@@ -6662,6 +7201,9 @@ function renderizarDocumentos(listaArquivos) {
 
       document.getElementById("inputNovoDocumento")?.addEventListener("change", (event) => {
         window.receberArquivosCentralUpload(event.target);
+      });
+      document.getElementById("inputReenvioSessaoUpload")?.addEventListener("change", (event) => {
+        window.receberArquivosReenvioSessaoUpload(event.target);
       });
       document.getElementById("gavetaUpload")?.addEventListener("change", atualizarAcoesCentralUpload);
       document.getElementById("motivoUpload")?.addEventListener("input", atualizarAcoesCentralUpload);
@@ -6953,6 +7495,7 @@ function renderizarDocumentos(listaArquivos) {
       }
     });
     inicializarEventosFixos();
+    renderizarAvisoSessaoUploadInterrompida();
     await msalInstance.handleRedirectPromise();
     await atualizarTela();
 

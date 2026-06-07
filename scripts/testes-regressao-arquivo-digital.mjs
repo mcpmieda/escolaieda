@@ -277,6 +277,52 @@ testar("Upload em massa diferencia aviso de erro real", () => {
   assert.match(css, /\.statusUploadErroReal\b/, "CSS deve reservar vermelho para Nao enviado.");
 });
 
+testar("Upload faz conferencia leve de tamanho sem baixar PDF", () => {
+  const conferir = blocoFuncao("conferirTamanhoUpload");
+  const obterMetadado = blocoFuncao("obterMetadadoRemotoDriveItem");
+  const enviar = blocoFuncao("enviarArquivoPdfComMetadados");
+  assert.match(conferir, /arquivo\?\.size/, "Conferencia deve usar arquivo.size como tamanho local.");
+  assert.match(conferir, /itemRemoto\?\.size|itemRemoto\.size/, "Conferencia deve usar driveItem.size como tamanho remoto.");
+  assert.match(conferir, /obterMetadadoRemotoDriveItem/, "Ausencia de size deve disparar consulta leve de metadado.");
+  assert.match(obterMetadado, /\?\$select=id,name,size,parentReference/, "Consulta deve pedir somente metadados pequenos.");
+  assert.doesNotMatch(obterMetadado, /\/content/, "Conferencia nao deve baixar o conteudo.");
+  assert.doesNotMatch(conferir, /pdf-lib|PDFDocument|p[aá]gina/i, "Conferencia nao deve contar paginas.");
+  assert.match(conferir, /tamanhoLocalBytes === tamanhoRemotoBytes/, "Tamanhos iguais devem confirmar o envio.");
+  assert.match(conferir, /conferencia-tamanho/, "Falha ou divergencia deve gerar pendencia.");
+  assert.match(enviar, /conferenciaTamanho\.ok \? STATUS_UPLOAD_ENVIADO : STATUS_UPLOAD_AVISO/, "Falha de conferencia deve virar atencao e bloquear reenvio.");
+  assert.match(enviar, /Conferência automática: tamanho confirmado/, "Historico deve registrar conferencia confirmada.");
+  assert.match(enviar, /tamanho não confirmado\. Não reenviar sem revisar/, "Historico deve orientar contra reenvio cego.");
+  assert.match(blocoFuncao("formatarResultadoFinalUpload"), /conferência automática não confirmou o tamanho\. Não reenviar sem revisar/, "Mensagem final deve explicar a falha de conferencia.");
+  assert.doesNotMatch(js, /Confira se o arquivo chegou com todas as páginas/, "Texto de conferencia manual de paginas deve ser removido.");
+  assert.match(js, /Arquivo grande — conferência automática de envio será feita ao final/, "Arquivo grande deve informar conferencia automatica.");
+});
+
+testar("Sessao local protege lote interrompido somente com metadados", () => {
+  const criar = blocoFuncao("criarSessaoUploadLocal");
+  const salvar = blocoFuncao("salvarSessaoUploadLocal");
+  const confirmar = blocoFuncao("confirmarUploadCentral");
+  const verificar = blocoFuncao("verificarSessaoUploadInterrompida");
+  const reenvio = blocoFuncao("receberArquivosReenvioSessaoUpload");
+  const ignorar = blocoFuncao("ignorarSessaoUploadInterrompida");
+  assert.match(js, /arquivoDigitalUploadSessaoAtual/, "Chave local da sessao deve existir.");
+  assert.match(criar, /nomeOriginal[\s\S]*nomeFinalPrevisto[\s\S]*tamanhoLocalBytes[\s\S]*status/, "Manifesto deve guardar metadados por item.");
+  assert.doesNotMatch(criar, /\b(file|blob|base64|conteudo)\b/i, "Manifesto nao deve guardar arquivo, blob, base64 ou conteudo.");
+  assert.doesNotMatch(salvar, /FileReader|arrayBuffer|readAsDataURL/, "Persistencia nao deve ler o PDF.");
+  assert.ok(confirmar.indexOf("criarSessaoUploadLocal") < confirmar.indexOf("enviarArquivoPdfComMetadados"), "Sessao deve ser criada antes do primeiro envio.");
+  assert.match(confirmar, /atualizarItemSessaoUpload\(indice/, "Sessao deve ser atualizada a cada item.");
+  assert.match(verificar, /new Map\(documentosAtivos\.map/, "Verificacao deve indexar documentos para evitar busca quadratica.");
+  assert.match(verificar, /driveItemId[\s\S]*listItemId[\s\S]*nomeFinalReal \|\| item\.nomeFinalPrevisto/, "Verificacao deve preferir IDs e depois nome final.");
+  assert.match(verificar, /tamanhoRemoto === Number\(item\.tamanhoLocalBytes\)/, "Verificacao deve comparar tamanho local e remoto.");
+  assert.match(verificar, /apagarSessaoUploadLocal\(sessao\.idLote\)/, "Sessao resolvida deve ser apagada automaticamente.");
+  assert.match(reenvio, /item\.status !== "nao-encontrado" && item\.status !== "nao-enviado"/, "Reenvio deve aceitar somente nao encontrados.");
+  assert.match(reenvio, /new Map\(\)/, "Reenvio deve usar indice eficiente.");
+  assert.match(reenvio, /normalizarTexto\(arquivo\.name\).*Number\(arquivo\.size/, "Selecao manual deve comparar nome e tamanho.");
+  assert.match(ignorar, /confirm\(/, "Ignorar aviso deve pedir confirmacao.");
+  assert.match(ignorar, /apagarSessaoUploadLocal/, "Confirmacao para ignorar deve limpar a sessao.");
+  assert.match(html, /id="avisoSessaoUploadInterrompida"[^>]*hidden/, "Card deve iniciar oculto e aparecer apenas com sessao pendente.");
+  assert.match(html, /inputReenvioSessaoUpload[^>]*type="file"/, "Reenvio deve exigir nova selecao manual.");
+});
+
 testar("Upload parcial e reparo pos-upload nao contam como erro simples", () => {
   const enviar = blocoFuncao("enviarArquivoPdfComMetadados");
   assert.match(enviar, /erroParcial\.uploadParcial\s*=\s*true/, "Erro parcial deve ser marcado.");
@@ -354,7 +400,7 @@ testar("Resumo final do upload nao mostra contagens zeradas", () => {
   assert.doesNotMatch(formatarResultado, /0 precisam de atenção/, "Resumo nao deve exibir zero precisam de atencao.");
   assert.doesNotMatch(formatarResultado, /0 não foram enviados/, "Resumo nao deve exibir zero nao foram enviados.");
   assert.match(formatarResumo, /formatarResultadoFinalUpload\(resumo\)\.mensagem/, "formatarResumoFinalUpload deve usar a regra simplificada central.");
-  assert.match(confirmar, /formatarResultadoFinalUpload\(resumo\)/, "Titulo e mensagem final devem partir do mesmo resumo simplificado.");
+  assert.match(confirmar, /formatarResultadoFinalUpload\(resumo,\s*\{\s*temFalhaConferencia\s*\}\)/, "Titulo e mensagem final devem partir do mesmo resumo simplificado.");
   assert.match(confirmar, /resultadoFinal\.titulo/, "Barra de progresso deve usar o titulo simplificado.");
   assert.match(confirmar, /resultadoFinal\.mensagem/, "Mensagem global deve usar a mensagem simplificada.");
 });
