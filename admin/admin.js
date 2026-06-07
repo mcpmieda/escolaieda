@@ -8,8 +8,14 @@ const CONFIG = {
   siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
   documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
   publicacoesListName: "PUBLICACOES_SITE",
+  avisosListName: "AVISOS_SITE",
+  bannersListName: "BANNERS_SITE",
+  destaquesListName: "DESTAQUES_SITE",
   enquetesListName: "ENQUETES_SITE",
   configuracoesListName: "CONFIGURACOES_PORTAL",
+  preferenciasListName: "PREFERENCIAS_USUARIO",
+  servicosListName: "SERVICOS_PAINEL",
+  logsListName: "LOGS_PORTAL",
   midiasLibraryName: "MIDIAS_SITE"
 };
 
@@ -357,6 +363,10 @@ async function provisionarSharePoint() {
     colunaDataHora("DataAtualizacao")
   ]);
 
+  await garantirLista(listas, CONFIG.avisosListName, "genericList", colunasPublicacaoBase());
+  await garantirLista(listas, CONFIG.bannersListName, "genericList", colunasPublicacaoBase());
+  await garantirLista(listas, CONFIG.destaquesListName, "genericList", colunasPublicacaoBase());
+
   await garantirLista(listas, CONFIG.enquetesListName, "genericList", [
     colunaTexto("Pergunta"),
     colunaTextoMultilinha("Opcoes"),
@@ -370,9 +380,42 @@ async function provisionarSharePoint() {
     colunaTextoMultilinha("Valor")
   ]);
 
+  await garantirLista(listas, CONFIG.preferenciasListName, "genericList", [
+    colunaTexto("Usuario"),
+    colunaTexto("Chave"),
+    colunaTextoMultilinha("Valor"),
+    colunaDataHora("DataAtualizacao")
+  ]);
+
+  await garantirLista(listas, CONFIG.servicosListName, "genericList", [
+    colunaTexto("Nome"),
+    colunaTexto("Status"),
+    colunaTexto("Url"),
+    colunaTextoMultilinha("Descricao"),
+    colunaDataHora("DataAtualizacao")
+  ]);
+
+  await garantirLista(listas, CONFIG.logsListName, "genericList", [
+    colunaTexto("Evento"),
+    colunaTexto("Usuario"),
+    colunaTextoMultilinha("Detalhes"),
+    colunaDataHora("DataHora")
+  ]);
+
   await garantirLista(listas, CONFIG.midiasLibraryName, "documentLibrary", []);
+  await atualizarIdsEstruturas();
+  await garantirPublicacaoTeste();
+  await salvarFontePublicaValor("/site-data/publicacoes-publicas.json");
   await carregarDados();
   registrarLog("Provisionamento concluído.");
+}
+
+async function atualizarIdsEstruturas() {
+  const listasAtualizadas = await obterListas();
+  const publicacoes = listasAtualizadas.find((lista) => lista.displayName === CONFIG.publicacoesListName);
+  const configuracoes = listasAtualizadas.find((lista) => lista.displayName === CONFIG.configuracoesListName);
+  estado.publicacoesListId = publicacoes?.id || "";
+  estado.configListId = configuracoes?.id || "";
 }
 
 async function garantirLista(listas, nome, template, columns) {
@@ -411,6 +454,14 @@ async function salvarFontePublica() {
 
   const chave = "fontePublicaPublicacoes";
   const valor = el.campoFontePublica.value.trim();
+  const resposta = await salvarFontePublicaValor(valor);
+  el.statusSistema.textContent = resposta ? "Fonte pública salva." : "Não foi possível salvar a fonte pública.";
+}
+
+async function salvarFontePublicaValor(valor) {
+  if (!estado.configListId) return false;
+
+  const chave = "fontePublicaPublicacoes";
   const respostaLista = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items?expand=fields&$top=200`);
   const dados = respostaLista.ok ? await respostaLista.json() : { value: [] };
   const item = (dados.value || []).find((i) => i.fields?.Chave === chave);
@@ -420,7 +471,33 @@ async function salvarFontePublica() {
     ? await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items/${item.id}/fields`, { method: "PATCH", body: JSON.stringify(body) })
     : await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items`, { method: "POST", body: JSON.stringify({ fields: body }) });
 
-  el.statusSistema.textContent = resposta.ok ? "Fonte pública salva." : "Não foi possível salvar a fonte pública.";
+  return resposta.ok;
+}
+
+async function garantirPublicacaoTeste() {
+  if (!estado.publicacoesListId) return;
+
+  const respostaLista = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items?expand=fields&$top=200`);
+  const dados = respostaLista.ok ? await respostaLista.json() : { value: [] };
+  const existente = (dados.value || []).find((item) => item.fields?.Title === "TESTE SITE");
+  const agora = new Date().toISOString();
+  const fields = {
+    Title: "TESTE SITE",
+    Resumo: "BOM DIA",
+    Conteudo: "OLÁ",
+    Categoria: "Aviso",
+    Publicado: true,
+    Destaque: true,
+    Autor: estado.account?.name || estado.account?.username || "Sistema Escola Iêda",
+    DataAtualizacao: agora
+  };
+
+  const resposta = existente
+    ? await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items/${existente.id}/fields`, { method: "PATCH", body: JSON.stringify(fields) })
+    : await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items`, { method: "POST", body: JSON.stringify({ fields: { ...fields, DataCriacao: agora } }) });
+
+  registrarLog(`TESTE SITE: ${resposta.ok ? "publicação pronta" : "falha ao criar"}.`);
+  if (!resposta.ok) registrarLog(await resposta.text());
 }
 
 function abrirView(nome) {
@@ -476,6 +553,22 @@ function somenteData(valor) {
 
 function colunaTexto(name) {
   return { name, text: {} };
+}
+
+function colunasPublicacaoBase() {
+  return [
+    colunaTexto("Resumo"),
+    colunaTextoMultilinha("Conteudo"),
+    colunaTexto("Imagem"),
+    colunaTexto("Categoria"),
+    colunaData("DataInicial"),
+    colunaData("DataFinal"),
+    colunaBoolean("Publicado"),
+    colunaBoolean("Destaque"),
+    colunaTexto("Autor"),
+    colunaDataHora("DataCriacao"),
+    colunaDataHora("DataAtualizacao")
+  ];
 }
 
 function colunaTextoMultilinha(name) {

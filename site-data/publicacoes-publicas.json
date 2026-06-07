@@ -1,0 +1,14 @@
+{
+  "publicacoes": [
+    {
+      "titulo": "TESTE SITE",
+      "resumo": "BOM DIA",
+      "conteudo": "OLÁ",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": true,
+      "dataInicial": null,
+      "dataFinal": null
+    }
+  ]
+}
