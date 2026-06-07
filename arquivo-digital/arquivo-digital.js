@@ -43,6 +43,7 @@
     let dadosApoioCarregando = false;
     let dadosApoioCarregados = false;
     let duplicidadesCarregando = false;
+    let tokenAnaliseCentralDuplicidades = 0;
     let versoesSharePointCarregadas = [];
     let versoesSharePointExpandido = false;
     let opcoesGavetaSharePoint = [];
@@ -61,6 +62,7 @@
     const TEMPO_LIMITE_GRAPH_MS = 30000;
     const LIMITE_MESCLAGEM_LOCAL_BYTES = 50 * 1024 * 1024;
     const cacheNormalizarTexto = new Map();
+    let cacheMapaNomesVisuaisRepetidos = { assinatura: "", mapa: new Map() };
 
     const msalConfig = {
       auth: {
@@ -438,6 +440,21 @@
       });
 
       return contagem;
+    }
+
+    function obterMapaNomesVisuaisRepetidosCacheado(lista) {
+      const assinatura = (lista || [])
+        .map(doc => `${doc?.id || ""}:${doc?.nome || ""}:${doc?.status || ""}`)
+        .sort()
+        .join("|");
+
+      if (cacheMapaNomesVisuaisRepetidos.assinatura === assinatura) {
+        return cacheMapaNomesVisuaisRepetidos.mapa;
+      }
+
+      const mapa = criarMapaNomesVisuaisRepetidos(lista);
+      cacheMapaNomesVisuaisRepetidos = { assinatura, mapa };
+      return mapa;
     }
 
     function temNomeVisualRepetido(documento, lista) {
@@ -2347,7 +2364,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
     function limparCacheDuplicidades() {
       cacheParesDuplicidades = { assinatura: "", pares: [] };
+      cacheMapaNomesVisuaisRepetidos = { assinatura: "", mapa: new Map() };
       centralDuplicidadesAnalisada = false;
+      tokenAnaliseCentralDuplicidades++;
     }
 
     async function carregarParesDuplicidadeIgnorados() {
@@ -2812,7 +2831,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         } finally {
           tarefaCentralDuplicidadesAgendada = false;
         }
-      }, 150);
+      }, 500);
     }
 
     window.alternarCentralDuplicidades = function () {
@@ -2858,10 +2877,16 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       if (duplicidadesCarregando) return;
       duplicidadesCarregando = true;
+      const tokenAnalise = ++tokenAnaliseCentralDuplicidades;
       resumo.textContent = "Analisando duplicidades em segundo plano...";
 
       try {
         await carregarParesDuplicidadeIgnorados();
+        if (tokenAnalise !== tokenAnaliseCentralDuplicidades) {
+          duplicidadesCarregando = false;
+          atualizarCentralDuplicidadesSegundoPlano();
+          return;
+        }
         renderizarParesIgnoradosDuplicidade();
       } catch (erro) {
         logger.warn("Nao foi possivel atualizar a Central de Duplicidades.", erro);
@@ -2870,8 +2895,16 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         return;
       }
 
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      if (tokenAnalise !== tokenAnaliseCentralDuplicidades) {
+        duplicidadesCarregando = false;
+        atualizarCentralDuplicidadesSegundoPlano();
+        return;
+      }
+
       const pares = gerarParesDuplicidades();
       totalParesCentralDuplicidades = pares.length;
+      const mapaNomesCentral = obterMapaNomesVisuaisRepetidosCacheado([...documentosAtivos, ...documentosLixeira]);
 
       aplicarEstadoVisualCentralDuplicidades(pares.length);
 
@@ -2907,14 +2940,14 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
               <div class="duplicidadeArquivo">
                 <span class="${tagA}">${statusA}</span>
                 <strong>${textoSeguroCentral(nomeArquivoVisualLimpo(par.a.nome))}</strong>
-                ${seloNomeRepetidoHtml(par.a, [...documentosAtivos, ...documentosLixeira])}
+                ${seloNomeRepetidoHtmlComMapa(par.a, mapaNomesCentral)}
                 <button data-acao-duplicidade="abrir" data-id="${idA}" data-status="${statusValorA}">Abrir no painel</button>
               </div>
 
               <div class="duplicidadeArquivo">
                 <span class="${tagB}">${statusB}</span>
                 <strong>${textoSeguroCentral(nomeArquivoVisualLimpo(par.b.nome))}</strong>
-                ${seloNomeRepetidoHtml(par.b, [...documentosAtivos, ...documentosLixeira])}
+                ${seloNomeRepetidoHtmlComMapa(par.b, mapaNomesCentral)}
                 <button data-acao-duplicidade="abrir" data-id="${idB}" data-status="${statusValorB}">Abrir no painel</button>
               </div>
             </div>
@@ -4679,6 +4712,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       documentoSelecionado = documento;
+      const painel = document.getElementById("painelLateral");
+      const tokenCarregamentoPainel = ++painelDocumentoTokenAtual;
+      if (painel) {
+        painel.dataset.carregamentoPainel = tokenCarregamentoPainel;
+      }
 
       document.getElementById("painelTitulo").textContent = nomeArquivoVisualLimpo(documento.nome);
       const painelNome = document.getElementById("painelNome");
@@ -4692,10 +4730,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       if (painelGaveta) painelGaveta.textContent = gavetaOuPadrao(documento.gaveta);
       const painelTituloChips = document.getElementById("painelTituloChips");
       if (painelTituloChips) {
-        const mapaNomesPainel = criarMapaNomesVisuaisRepetidos([...documentosAtivos, ...documentosLixeira]);
         painelTituloChips.innerHTML = `
           <span class="${documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo"}">${documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo"}</span>
-          ${seloNomeRepetidoHtmlComMapa(documento, mapaNomesPainel)}
           <span class="chipPainelGaveta">${escaparHtml(gavetaOuPadrao(documento.gaveta))}</span>
         `;
       }
@@ -4707,7 +4743,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("btnRestaurar").style.display = estaArquivado ? "inline-block" : "none";
       document.getElementById("btnMesclar").style.display = estaArquivado ? "none" : "inline-block";
 
-      document.getElementById("painelLateral").classList.add("aberto");
+      painel?.classList.add("aberto");
       marcarCamadaAbertaAcessivel("painelLateral", "#painelTitulo");
       registrarCamadaHistoricoMobile();
       document.getElementById("boxRenomear").style.display = "none";
@@ -4730,9 +4766,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       /* INICIO_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
       const documentoDoPainel = documento;
-      const painel = document.getElementById("painelLateral");
-      const tokenCarregamentoPainel = ++painelDocumentoTokenAtual;
-      if (painel) painel.dataset.carregamentoPainel = tokenCarregamentoPainel;
 
       const painelLocalAindaMostraDocumento = () =>
         painel &&
@@ -4740,7 +4773,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         painelAindaMostraDocumento(documentoDoPainel, tokenCarregamentoPainel);
 
       const carregarBlocoPainel = (nomeBloco, tarefa, atraso = 0) => {
-        setTimeout(async () => {
+        setTimeout(() => requestAnimationFrame(async () => {
           if (!painelLocalAindaMostraDocumento()) return;
 
           try {
@@ -4748,8 +4781,18 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           } catch (erro) {
             logger.error(`Falha ao carregar ${nomeBloco} do painel.`, erro);
           }
-        }, atraso);
+        }), atraso);
       };
+
+      requestAnimationFrame(() => {
+        if (!painelLocalAindaMostraDocumento() || !painelTituloChips) return;
+        const mapaNomesPainel = obterMapaNomesVisuaisRepetidosCacheado([...documentosAtivos, ...documentosLixeira]);
+        painelTituloChips.innerHTML = `
+          <span class="${documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo"}">${documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo"}</span>
+          ${seloNomeRepetidoHtmlComMapa(documento, mapaNomesPainel)}
+          <span class="chipPainelGaveta">${escaparHtml(gavetaOuPadrao(documento.gaveta))}</span>
+        `;
+      });
 
       const nomesParecidosPainel = document.getElementById("nomesParecidosArquivo");
       if (nomesParecidosPainel) {
@@ -5963,7 +6006,7 @@ function renderizarDocumentos(listaArquivos) {
       const movimentacoesRecentes = obterUltimasMovimentacoesPorArquivo(20);
       const termoBusca = normalizarTexto(document.getElementById("campoBusca").value);
       const baseRepetidos = modoListaAtual === "recentes" ? [...documentosAtivos, ...documentosLixeira] : listaArquivos;
-      const mapaNomesRepetidos = criarMapaNomesVisuaisRepetidos(baseRepetidos);
+      const mapaNomesRepetidos = obterMapaNomesVisuaisRepetidosCacheado(baseRepetidos);
       const indiceDocumentoPorId = new Map();
       documentosCarregados.forEach((doc, indice) => {
         if (doc?.id) indiceDocumentoPorId.set(doc.id, indice);
@@ -6027,6 +6070,14 @@ function renderizarDocumentos(listaArquivos) {
 
     window.gerarDiagnosticoPerformanceArquivoDigital = function () {
       const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
+      const medir = funcao => {
+        const inicio = agoraPerformance();
+        const resultado = funcao();
+        return {
+          ms: Number((agoraPerformance() - inicio).toFixed(1)),
+          resultado
+        };
+      };
       const inicioNormalizacao = agoraPerformance();
       medirTempoPerformance("diagnostico.normalizar-nomes-documentos", () => {
         todosDocumentos.forEach(atualizarIndiceBuscaDocumento);
@@ -6056,11 +6107,55 @@ function renderizarDocumentos(listaArquivos) {
         gerarParesDuplicidadesIndexado(simuladosDuplicidades)
       );
       const tempoDuplicidadesSimuladaMs = agoraPerformance() - inicioDuplicidadesSimulada;
+      const listaAtualOriginal = documentosCarregados;
+      const modoOriginal = modoListaAtual;
+      const filtroOriginal = filtroGavetaAtual;
+      const qtdVisivelOriginal = quantidadeDocumentosVisiveis;
+      const buscaComum = medir(() => todosDocumentos.filter(doc => atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes("a")).length);
+      const buscaRara = medir(() => todosDocumentos.filter(doc => atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes("__termo_raro_sem_resultado__")).length);
+      const recentesSemBusca = medir(() => montarDocumentosRecentesComHistorico().length);
+      const recentesComBusca = medir(() => documentosAtivos.filter(doc => atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes("a")).length);
+      const lixeira = medir(() => documentosLixeira.filter(doc => atualizarIndiceBuscaDocumento(doc)).length);
+      const assinaturaAtual = medir(() => assinaturaDuplicidades(documentosAtivos.filter(doc => doc && doc.nome && doc.id)));
+      let renderizacaoPrimeiraPaginaMs = 0;
+      let renderizacaoSimuladaMs = 0;
+
+      try {
+        documentosCarregados = documentosAtivos;
+        quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
+        const renderPrimeira = medir(() => renderizarDocumentos(documentosAtivos));
+        renderizacaoPrimeiraPaginaMs = renderPrimeira.ms;
+
+        documentosCarregados = simuladosBusca.map((doc, indice) => ({
+          ...doc,
+          id: `render-simulado-${indice}`,
+          status: "ATIVO",
+          gaveta: "SIMULADO",
+          modificado: ""
+        }));
+        const renderSimulada = medir(() => renderizarDocumentos(documentosCarregados));
+        renderizacaoSimuladaMs = renderSimulada.ms;
+      } finally {
+        documentosCarregados = listaAtualOriginal;
+        modoListaAtual = modoOriginal;
+        filtroGavetaAtual = filtroOriginal;
+        quantidadeDocumentosVisiveis = qtdVisivelOriginal;
+        if (document.getElementById("listaDocumentos")) {
+          renderizarDocumentos(documentosFiltradosAtuais);
+        }
+      }
 
       const totalDocumentosDuplicidades = documentosAtivos.filter(doc => doc && doc.nome && doc.id).length;
       const paresExaustivosEstimados = totalDocumentosDuplicidades > 1
         ? (totalDocumentosDuplicidades * (totalDocumentosDuplicidades - 1)) / 2
         : 0;
+      const itensRenderizados = document.querySelectorAll("#listaDocumentos > li").length;
+      const painelLateral = document.getElementById("painelLateral");
+      const painelCentral = document.getElementById("painelCentralDuplicidades");
+      const painelDashboard = document.getElementById("painelDashboard");
+      const estilosPainelLateral = painelLateral ? getComputedStyle(painelLateral) : null;
+      const estilosPainelCentral = painelCentral ? getComputedStyle(painelCentral) : null;
+      const estilosPainelDashboard = painelDashboard ? getComputedStyle(painelDashboard) : null;
 
       const resumo = {
         documentosAtivos: documentosAtivos.length,
@@ -6068,20 +6163,67 @@ function renderizarDocumentos(listaArquivos) {
         documentosCarregados: documentosCarregados.length,
         historicoCarregado: historicoCarregado.length,
         anotacoesCarregadas: anotacoesCarregadas.length,
+        duplicidadesIgnoradas: paresDuplicidadesIgnoradosDetalhes.length || paresDuplicidadesIgnorados.size,
         cacheNormalizarTexto: cacheNormalizarTexto.size,
         duplicidades: {
           documentosAtivosComNomeEId: totalDocumentosDuplicidades,
           paresExaustivosEstimados,
           limiteAnaliseExaustiva: LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA,
           usaIndice: totalDocumentosDuplicidades > LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA,
-          cacheAssinaturaAtiva: Boolean(cacheParesDuplicidades.assinatura)
+          modoUsado: totalDocumentosDuplicidades > LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA ? "indexado" : "exaustivo",
+          cacheAssinaturaAtiva: Boolean(cacheParesDuplicidades.assinatura),
+          centralCarregando: duplicidadesCarregando,
+          centralAnalisada: centralDuplicidadesAnalisada,
+          analiseAutomaticaNoCarregamento: preferenciasSistema.analiseDuplicidadesAuto === "sim",
+          tarefaAgendada: tarefaCentralDuplicidadesAgendada,
+          paresRetornadosCache: cacheParesDuplicidades.pares.length,
+          assinaturaMs: assinaturaAtual.ms,
+          assinaturaTamanho: assinaturaAtual.resultado.length
         },
         medicaoLocal: {
           normalizarNomesDocumentosMs: Number(tempoNormalizacaoMs.toFixed(1)),
+          filtrarBuscaTermoComumMs: buscaComum.ms,
+          filtrarBuscaTermoComumResultados: buscaComum.resultado,
+          filtrarBuscaTermoRaroMs: buscaRara.ms,
+          filtrarBuscaTermoRaroResultados: buscaRara.resultado,
+          montarRecentesSemBuscaMs: recentesSemBusca.ms,
+          montarRecentesComBuscaMs: recentesComBusca.ms,
+          montarLixeiraMs: lixeira.ms,
+          renderizarPrimeiraPaginaMs: renderizacaoPrimeiraPaginaMs,
+          renderizarCom6000SimuladosMs: renderizacaoSimuladaMs,
           buscar6000DocumentosMs: Number(tempoBuscaSimuladaMs.toFixed(1)),
           buscar6000DocumentosResultados: totalBuscaSimulada,
           duplicidades6000IndexadoMs: Number(tempoDuplicidadesSimuladaMs.toFixed(1)),
           duplicidades6000ParesRetornados: paresDuplicidadesSimulados.length
+        },
+        dom: {
+          itensRenderizados,
+          tamanhoPagina: TAMANHO_PAGINA_DOCUMENTOS,
+          respeitaPaginacao: itensRenderizados <= TAMANHO_PAGINA_DOCUMENTOS || itensRenderizados <= documentosFiltradosAtuais.length,
+          documentosFiltradosAtuais: documentosFiltradosAtuais.length
+        },
+        visual: {
+          painelLateral: {
+            aberto: painelLateral?.classList.contains("aberto") || false,
+            transition: estilosPainelLateral?.transition || "",
+            transform: estilosPainelLateral?.transform || "",
+            boxShadow: estilosPainelLateral?.boxShadow || "",
+            backdropFilter: estilosPainelLateral?.backdropFilter || ""
+          },
+          painelCentralDuplicidades: {
+            aberto: painelCentral?.classList.contains("aberto") || false,
+            transition: estilosPainelCentral?.transition || "",
+            transform: estilosPainelCentral?.transform || "",
+            boxShadow: estilosPainelCentral?.boxShadow || "",
+            backdropFilter: estilosPainelCentral?.backdropFilter || ""
+          },
+          painelDashboard: {
+            aberto: painelDashboard?.classList.contains("aberto") || false,
+            transition: estilosPainelDashboard?.transition || "",
+            transform: estilosPainelDashboard?.transform || "",
+            boxShadow: estilosPainelDashboard?.boxShadow || "",
+            backdropFilter: estilosPainelDashboard?.backdropFilter || ""
+          }
         },
         observacao: "Diagnostico local: nao chama SharePoint e nao altera dados de documentos."
       };

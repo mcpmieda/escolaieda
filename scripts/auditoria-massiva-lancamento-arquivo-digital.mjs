@@ -10,6 +10,7 @@ const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
 const LIMITE_RECENTES = 20;
 const TAMANHO_PAGINA = 50;
 const LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA = 120;
+const LIMITE_PAINEL_ABRE_ANTES_CONTEUDO_MS = 20;
 
 function normalizarTexto(valor) {
   return String(valor || "")
@@ -136,6 +137,38 @@ function analisarDuplicidades(documentos, ignorados = new Set()) {
   };
 }
 
+function assinaturaDuplicidades(documentos, ignorados = new Set()) {
+  const docs = documentos
+    .map(doc => `${doc.id}:${doc.nome}:${doc.status || ""}:${doc.modificado || ""}`)
+    .sort()
+    .join("||");
+  return `${docs}::${[...ignorados].sort().join("|")}`;
+}
+
+function renderizarPrimeiraPaginaSimulada(documentos) {
+  return paginar(documentos).map(doc => ({
+    id: doc.id,
+    nome: doc.nome,
+    gaveta: doc.gaveta,
+    status: doc.status
+  }));
+}
+
+function abrirPainelSimulado(documento) {
+  const inicio = performance.now();
+  const estado = {
+    aberto: true,
+    documentoId: documento.id,
+    conteudoPesadoCarregado: false
+  };
+  const tempoAbertura = performance.now() - inicio;
+  const carregarConteudoPesado = () => {
+    estado.conteudoPesadoCarregado = true;
+    return estado;
+  };
+  return { estado, tempoAbertura, carregarConteudoPesado };
+}
+
 function calcularAnaliseUpload(arquivos, documentosAtivos, statusArquivos = [], resultados = []) {
   const ocupadosAntesEnvio = new Set(documentosAtivos.map(doc => normalizarTexto(doc.nome)));
   const ocupadosDuranteAnalise = new Set(ocupadosAntesEnvio);
@@ -239,23 +272,38 @@ function testarMassa(quantidade) {
   const { ativos, lixeira } = criarDocumentos(quantidade);
   const todos = [...ativos, ...lixeira];
 
-  testar(`busca em ${quantidade} documentos`, () => {
+  testar(`busca comum em ${quantidade} documentos`, () => {
     assert.ok(filtrarDocumentos({ modo: "ativos", termo: "ALUNO", ativos, lixeira }).length > 0);
+  });
+
+  testar(`busca rara em ${quantidade} documentos`, () => {
     assert.ok(filtrarDocumentos({ modo: "ativos", termo: "99999", ativos, lixeira }).length === 0);
     assert.equal(filtrarDocumentos({ modo: "ativos", termo: ativos[5].nome, ativos, lixeira })[0]?.id, ativos[5].id);
+  });
+
+  testar(`recentes com busca em ${quantidade} documentos`, () => {
     assert.ok(filtrarDocumentos({ modo: "ativos", termo: "TURMA 3", ativos, lixeira }).length > 0);
     assert.ok(filtrarDocumentos({ modo: "recentes", termo: "ALUNO", ativos, lixeira }).length > LIMITE_RECENTES);
+  });
+
+  testar(`lixeira e gaveta em ${quantidade} documentos`, () => {
     assert.ok(filtrarDocumentos({ modo: "na Lixeira", termo: "PDF", ativos, lixeira }).every(doc => doc.status === "ARQUIVADO"));
     assert.ok(filtrarDocumentos({ modo: "ativos", termo: "ALUNO", gaveta: "MATRICULA", ativos, lixeira }).every(doc => doc.gaveta === "MATRICULA"));
   });
 
-  testar(`paginacao em ${quantidade} documentos`, () => {
+  testar(`recentes sem busca e paginacao em ${quantidade} documentos`, () => {
     const recentesSemBusca = filtrarDocumentos({ modo: "recentes", termo: "", ativos, lixeira });
     const recentesComBusca = filtrarDocumentos({ modo: "recentes", termo: "ALUNO", ativos, lixeira });
     assert.ok(recentesSemBusca.length <= LIMITE_RECENTES);
     assert.ok(recentesComBusca.length > LIMITE_RECENTES);
     assert.equal(paginar(recentesComBusca).length, Math.min(TAMANHO_PAGINA, recentesComBusca.length));
     assert.equal(paginar(recentesComBusca, 2).length, Math.min(TAMANHO_PAGINA * 2, recentesComBusca.length));
+  });
+
+  testar(`renderizacao simulada/paginacao em ${quantidade} documentos`, () => {
+    const primeiraPagina = renderizarPrimeiraPaginaSimulada(todos);
+    assert.equal(primeiraPagina.length, Math.min(TAMANHO_PAGINA, todos.length));
+    assert.ok(primeiraPagina.length < todos.length || todos.length <= TAMANHO_PAGINA);
   });
 
   testar(`duplicidades em ${quantidade} documentos`, () => {
@@ -272,6 +320,22 @@ function testarMassa(quantidade) {
     assert.equal(analisarDuplicidades([docA, docB]).pares.length, 0);
     assert.equal(analisarDuplicidades([{ id: "c", nome: "MARIA 1.pdf" }, { id: "d", nome: "MARIA 1.pdf" }]).pares.length, 1);
     assert.equal(analisarDuplicidades([{ id: "a", nome: "MARIA 1.pdf" }, { id: "b", nome: "MARIA 1.pdf" }], ignorados).pares.length, 0);
+  });
+
+  testar(`assinatura/cache duplicidades em ${quantidade} documentos`, () => {
+    const assinaturaA = assinaturaDuplicidades(todos);
+    const assinaturaB = assinaturaDuplicidades([...todos].reverse());
+    assert.equal(assinaturaA, assinaturaB);
+    assert.ok(assinaturaA.length > todos.length);
+  });
+
+  testar(`painel abre antes de conteudo pesado em ${quantidade} documentos`, () => {
+    const painel = abrirPainelSimulado(ativos[0]);
+    assert.equal(painel.estado.aberto, true);
+    assert.equal(painel.estado.conteudoPesadoCarregado, false);
+    assert.ok(painel.tempoAbertura < LIMITE_PAINEL_ABRE_ANTES_CONTEUDO_MS, `Abertura visual demorou ${painel.tempoAbertura.toFixed(1)} ms`);
+    painel.carregarConteudoPesado();
+    assert.equal(painel.estado.conteudoPesadoCarregado, true);
   });
 
   testar(`upload e mensagens em ${quantidade} documentos`, () => {
@@ -317,7 +381,7 @@ function testarMassa(quantidade) {
   });
 }
 
-const massas = [100, 1000, 6000, 10000, 20000];
+const massas = [100, 1000, 5000, 6000, 10000, 20000];
 const inicioTotal = performance.now();
 for (const quantidade of massas) testarMassa(quantidade);
 

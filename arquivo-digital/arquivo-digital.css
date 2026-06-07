@@ -6595,3 +6595,42 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
 }
 /* FIM_AJUSTE_FINAL_V1_DASHBOARD_IRMAOS_20260601 */
 
+/* PERFORMANCE_PAINEIS_CARGA_REAL_V4_20260607 */
+.painelLateral,
+.painelDashboard {
+  right: 0 !important;
+  transform: translate3d(104%, 0, 0);
+  opacity: .98;
+  transition: transform .20s ease, opacity .20s ease, box-shadow .20s ease !important;
+  will-change: transform;
+}
+
+.painelLateral.aberto,
+.painelDashboard.aberto {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+
+.painelCentralDuplicidades {
+  left: 0 !important;
+  right: auto !important;
+  transform: translate3d(-104%, 0, 0);
+  opacity: .98;
+  transition: transform .20s ease, opacity .20s ease, box-shadow .20s ease !important;
+  will-change: transform;
+}
+
+.painelCentralDuplicidades.aberto {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .painelLateral,
+  .painelDashboard,
+  .painelCentralDuplicidades {
+    transition: none !important;
+    will-change: auto;
+  }
+}
+

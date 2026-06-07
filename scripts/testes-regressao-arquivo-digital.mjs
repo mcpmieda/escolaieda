@@ -377,6 +377,41 @@ testar("Busca em Recentes usa documentos ativos quando ha termo", () => {
   assert.doesNotMatch(ramoRecentesComBusca, /limiteRecentes/, "Recentes com busca nao deve limitar pelo limite de recentes.");
 });
 
+testar("Duplicidades usam estrategia indexada e cache estavel", () => {
+  const gerar = blocoFuncao("gerarParesDuplicidades");
+  const atualizar = blocoFuncao("atualizarCentralDuplicidades");
+  const renderizar = blocoFuncao("renderizarDocumentos");
+
+  assert.match(gerar, /todos\.length\s*<=\s*LIMITE_ANALISE_DUPLICIDADES_EXAUSTIVA\s*\?\s*gerarParesDuplicidadesExaustivo\(todos\)\s*:\s*gerarParesDuplicidadesIndexado\(todos\)/, "Duplicidades acima do limite devem usar estrategia indexada.");
+  assert.match(gerar, /cacheParesDuplicidades\.assinatura\s*===\s*assinatura/, "Cache de pares deve ser reaproveitado por assinatura.");
+  assert.match(atualizar, /tokenAnaliseCentralDuplicidades/, "Central deve descartar analise obsoleta por token.");
+  assert.doesNotMatch(renderizar, /limparCacheDuplicidades\s*\(/, "Renderizacao/listagem nao deve limpar cache de duplicidades.");
+  assert.match(js, /obterMapaNomesVisuaisRepetidosCacheado/, "Mapa de nomes repetidos deve ser cacheado para carga massiva.");
+});
+
+testar("Paineis abrem visualmente antes de tarefas pesadas", () => {
+  const abrir = blocoFuncao("abrirDocumentoNoPainel");
+  const atualizarCentral = blocoFuncao("atualizarCentralDuplicidades");
+
+  const indiceAbertura = abrir.indexOf('painel?.classList.add("aberto")');
+  const indiceHistorico = abrir.indexOf("carregarHistoricoDocumento");
+  const indiceAnotacao = abrir.indexOf("carregarAnotacaoDocumento");
+  const indiceVersoes = abrir.indexOf("carregarVersoesSharePointDocumento");
+  assert.ok(indiceAbertura > -1, "Painel lateral deve abrir visualmente de forma explicita.");
+  assert.ok(indiceHistorico > indiceAbertura, "Historico deve carregar depois da abertura visual.");
+  assert.ok(indiceAnotacao > indiceAbertura, "Anotacao deve carregar depois da abertura visual.");
+  assert.ok(indiceVersoes > indiceAbertura, "Versoes devem carregar depois da abertura visual.");
+  assert.match(abrir, /requestAnimationFrame/, "Painel lateral deve respirar antes de tarefas pesadas.");
+  assert.match(atualizarCentral, /requestAnimationFrame/, "Central deve permitir abertura visual antes da renderizacao pesada.");
+});
+
+testar("CSS dos paineis usa transform e evita animar left/right", () => {
+  assert.match(css, /PERFORMANCE_PAINEIS_CARGA_REAL_V4_20260607/, "Bloco de performance dos paineis deve existir.");
+  assert.match(css, /\.painelLateral,[\s\S]*?\.painelDashboard\s*\{[\s\S]*transform:\s*translate3d\(104%,\s*0,\s*0\)/, "Painel lateral/dashboard devem entrar por transform.");
+  assert.match(css, /\.painelCentralDuplicidades\s*\{[\s\S]*transform:\s*translate3d\(-104%,\s*0,\s*0\)/, "Central de Duplicidades deve entrar por transform.");
+  assert.match(css, /transition:\s*transform\s+\.20s\s+ease,\s*opacity\s+\.20s\s+ease,\s*box-shadow\s+\.20s\s+ease\s*!important/, "Transicao dos paineis deve evitar transition all/left/right.");
+});
+
 testar("Botao Enviar da Central usa listener fixo", () => {
   const eventos = blocoFuncao("inicializarEventosFixos");
   assert.match(eventos, /aoClicar\(["']btnConfirmarUploadCentral["'],\s*window\.confirmarUploadCentral\)/, "Botao Enviar deve ser ligado pelo inicializador fixo.");
