@@ -323,6 +323,26 @@ testar("Sessao local protege lote interrompido somente com metadados", () => {
   assert.match(html, /inputReenvioSessaoUpload[^>]*type="file"/, "Reenvio deve exigir nova selecao manual.");
 });
 
+testar("Card de sessao interrompida ignora o upload ativo da aba atual", () => {
+  const criar = blocoFuncao("criarSessaoUploadLocal");
+  const ativa = blocoFuncao("sessaoUploadAtivaNestaExecucao");
+  const deveMostrar = blocoFuncao("deveMostrarAvisoSessaoUpload");
+  const renderizar = blocoFuncao("renderizarAvisoSessaoUploadInterrompida");
+  const reenvio = blocoFuncao("receberArquivosReenvioSessaoUpload");
+  assert.match(js, /const idExecucaoUploadAtual\s*=\s*criarIdExecucaoUpload\(\)/, "A aba deve ter identidade de execucao somente em memoria.");
+  assert.match(criar, /idExecucaoAtual:\s*idExecucaoUploadAtual/, "Novo lote deve registrar a execucao da aba.");
+  assert.match(criar, /statusLote:\s*"enviando"/, "Novo lote deve iniciar como enviando.");
+  assert.match(ativa, /sessao\.idExecucaoAtual === idExecucaoUploadAtual/, "Sessao ativa deve ser reconhecida pela identidade da execucao.");
+  assert.match(deveMostrar, /sessaoUploadTemPendencia\(sessao\)/, "Aviso ainda deve exigir sessao pendente.");
+  assert.match(deveMostrar, /!uploadEmAndamento/, "Upload em andamento deve bloquear o card.");
+  assert.match(deveMostrar, /!sessaoUploadAtivaNestaExecucao\(sessao\)/, "Sessao ativa da mesma aba deve bloquear o card.");
+  assert.match(renderizar, /deveMostrarAvisoSessaoUpload\(sessao\)/, "Renderizacao deve usar a regra central do card.");
+  assert.match(renderizar, /aviso\.hidden = !deveMostrar/, "Card deve ficar oculto quando a regra nao autorizar.");
+  assert.match(reenvio, /sessao\.idExecucaoAtual = idExecucaoUploadAtual/, "Reenvio manual deve vincular a sessao recuperada a execucao atual.");
+  assert.match(blocoFuncao("apagarSessaoUploadLocal"), /localStorage\.removeItem\(CHAVE_SESSAO_UPLOAD_LOCAL\)/, "Sessao concluida deve continuar sendo apagada.");
+  assert.match(blocoFuncao("lerSessaoUploadLocal"), /JSON\.parse[\s\S]*catch/, "localStorage corrompido deve continuar protegido.");
+});
+
 testar("Upload parcial e reparo pos-upload nao contam como erro simples", () => {
   const enviar = blocoFuncao("enviarArquivoPdfComMetadados");
   assert.match(enviar, /erroParcial\.uploadParcial\s*=\s*true/, "Erro parcial deve ser marcado.");

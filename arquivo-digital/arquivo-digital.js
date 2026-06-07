@@ -5025,6 +5025,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     let idSessaoUploadEmUso = "";
     let indicesSessaoUploadPorArquivo = [];
     let reenvioSessaoUploadAtivo = false;
+    const idExecucaoUploadAtual = criarIdExecucaoUpload();
     const LIMITE_UPLOAD_SIMPLES_BYTES = 25 * 1024 * 1024;
     const TAMANHO_BLOCO_UPLOAD_SESSION_BYTES = 5 * 1024 * 1024;
     const MAX_TENTATIVAS_EXTRAS_BLOCO_UPLOAD = 2;
@@ -5096,6 +5097,21 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       return sessao.itens.some(item => !STATUS_SESSAO_UPLOAD_RESOLVIDOS.has(item.status));
     }
 
+    function criarIdExecucaoUpload() {
+      if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+      return `execucao-upload-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function sessaoUploadAtivaNestaExecucao(sessao) {
+      return !!sessao?.idExecucaoAtual && sessao.idExecucaoAtual === idExecucaoUploadAtual;
+    }
+
+    function deveMostrarAvisoSessaoUpload(sessao) {
+      return sessaoUploadTemPendencia(sessao)
+        && !uploadEmAndamento
+        && !sessaoUploadAtivaNestaExecucao(sessao);
+    }
+
     function criarIdLoteUpload() {
       if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
       return `upload-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -5124,9 +5140,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       });
       const sessao = {
         idLote,
+        idExecucaoAtual: idExecucaoUploadAtual,
         criadoEm: agora,
         atualizadoEm: agora,
-        statusLote: "pendente",
+        statusLote: "enviando",
         gaveta,
         motivo,
         totalArquivos: itens.length,
@@ -5186,9 +5203,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const painel = document.getElementById("painelSessaoUploadInterrompida");
       if (!aviso || !detalhe) return;
       const sessao = lerSessaoUploadLocal();
-      const pendente = sessaoUploadTemPendencia(sessao);
-      aviso.hidden = !pendente;
-      if (!pendente) {
+      const deveMostrar = deveMostrarAvisoSessaoUpload(sessao);
+      aviso.hidden = !deveMostrar;
+      if (!deveMostrar) {
         if (painel) painel.hidden = true;
         return;
       }
@@ -6512,6 +6529,9 @@ window.abrirSeletorNovoDocumento = function () {
       idSessaoUploadEmUso = sessao.idLote;
       indicesSessaoUploadPorArquivo = indicesItens;
       reenvioSessaoUploadAtivo = true;
+      sessao.idExecucaoAtual = idExecucaoUploadAtual;
+      sessao.statusLote = "enviando";
+      salvarSessaoUploadLocal(sessao);
       resetarEstadoAoSelecionarArquivosUpload();
       calcularAnaliseNomesCentralUpload();
       analiseNomesCentralUpload = analiseNomesCentralUpload.map((analise, indice) => ({
