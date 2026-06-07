@@ -250,8 +250,10 @@ testar("V2.12 mantem acesso restrito alinhado a permissao SharePoint", () => {
 testar("V2.12 controla respostas obsoletas do painel lateral", () => {
   assert.match(js, /let painelDocumentoTokenAtual\s*=\s*0/, "Token central do painel deve existir.");
   assert.match(js, /function painelAindaMostraDocumento\b/, "Guarda central do painel deve existir.");
+  assert.match(js, /function painelLateralJaAbertoNoMesmoDocumento\b/, "Guarda contra reabertura do mesmo documento deve existir.");
 
   const abrirPainel = blocoFuncao("abrirDocumentoNoPainel");
+  assert.match(abrirPainel, /painelLateralJaAbertoNoMesmoDocumento\(documento\)[\s\S]*?return;/, "Abrir o mesmo documento ja exibido nao deve reiniciar painel/carregamentos.");
   assert.match(abrirPainel, /\+\+painelDocumentoTokenAtual/, "Abrir painel deve gerar novo token.");
   assert.match(abrirPainel, /painelLocalAindaMostraDocumento/, "Carregamentos do painel devem conferir token local.");
   assert.match(abrirPainel, /carregarHistoricoDocumento\(documentoDoPainel,\s*tokenCarregamentoPainel\)/, "Historico deve receber token do painel.");

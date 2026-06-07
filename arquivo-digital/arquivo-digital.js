@@ -929,6 +929,13 @@
       return mesmoToken && mesmoDocumento && mesmoArquivo;
     }
 
+    function painelLateralJaAbertoNoMesmoDocumento(documento) {
+      return Boolean(
+        document.getElementById("painelLateral")?.classList.contains("aberto") &&
+        painelAindaMostraDocumento(documento)
+      );
+    }
+
     function mostrarTelaAcessoRestrito(mensagemExtra = "") {
       aplicarBlindagemVisualPreLogin();
       acessoArquivoDigitalPermitido = false;
@@ -4708,6 +4715,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     async function abrirDocumentoNoPainel(documento) {
       if (!documento) {
         mostrarMensagem("Documento não encontrado.", "erro");
+        return;
+      }
+
+      if (painelLateralJaAbertoNoMesmoDocumento(documento)) {
         return;
       }
 
