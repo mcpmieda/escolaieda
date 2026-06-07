@@ -43,6 +43,11 @@ testar("abas e botoes sensiveis nao dependem do hover global", () => {
   assert.match(regraGlobal[0], /:not\(\.btnCarregarMaisDocumentos\)/, "Carregar mais deve ter hover proprio.");
 });
 
+testar("botoes de gaveta em configuracoes mantem texto legivel no hover", () => {
+  assert.match(css, /\.acoesGavetaConfiguracao button\.secundario:hover:not\(:disabled\),[\s\S]*?color:\s*#0f2f66;/, "Botao editar gaveta deve preservar contraste no hover.");
+  assert.match(css, /\.acoesGavetaConfiguracao button\.perigo:hover:not\(:disabled\),[\s\S]*?color:\s*#ffffff;/, "Botao excluir gaveta deve preservar contraste no hover.");
+});
+
 testar("graph-client modularizado esta em uso", () => {
   assert.match(js, /from "\.\/arquivo-digital-graph-client\.js"/, "Modulo graph-client deve ser importado.");
   assert.match(js, /montarUrlItensLista\(/, "Helpers do graph-client devem ser usados.");

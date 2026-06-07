@@ -2813,6 +2813,20 @@ body.modoCompacto {
       text-overflow: ellipsis;
     }
 
+    .acoesGavetaConfiguracao button.secundario:hover:not(:disabled),
+    .acoesGavetaConfiguracao button.secundario:focus-visible:not(:disabled) {
+      background: #dbeafe;
+      color: #0f2f66;
+      border-color: #93c5fd;
+    }
+
+    .acoesGavetaConfiguracao button.perigo:hover:not(:disabled),
+    .acoesGavetaConfiguracao button.perigo:focus-visible:not(:disabled) {
+      background: #b91c1c;
+      color: #ffffff;
+      border-color: #991b1b;
+    }
+
     .dashboard {
       align-items: stretch;
     }
