@@ -40,7 +40,7 @@ O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS esco
 - configurar secoes da pagina inicial, incluindo titulo, texto, visibilidade e formato das publicacoes no site;
 - marcar publicacoes como rascunho, visivel no site, agendada ou expirada;
 - escolher onde a publicacao aparece: secoes da home, Banner/topo ou Modal;
-- configurar imagem, link, botao, marcador, aparencia, prioridade e fixacao;
+- configurar imagem, link, botao, marcador, aparencia e prioridade;
 - visualizar previa antes de publicar;
 - cadastrar URLs de midias para uso nas publicacoes;
 - manter base administrativa inicial para enquetes futuras.

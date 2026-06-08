@@ -30,7 +30,6 @@
   }
 
   function ordenarPublicacoes(a, b) {
-    if (Boolean(a.fixado) !== Boolean(b.fixado)) return a.fixado ? -1 : 1;
     const ordemA = Number(a.ordem || 0);
     const ordemB = Number(b.ordem || 0);
     if (ordemA !== ordemB) return ordemA - ordemB;

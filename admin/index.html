@@ -133,14 +133,6 @@
             </div>
 
             <div class="workGrid cmsWorkGrid">
-              <div class="listPanel">
-                <div class="panelTitle">
-                  <h2>Publicações</h2>
-                  <span id="resumoFiltros">Lista completa</span>
-                </div>
-                <div class="publicationList" id="listaPublicacoes"></div>
-              </div>
-
               <form class="editorPanel" id="formPublicacao">
                 <input type="hidden" id="itemId">
                 <div class="panelTitle">
@@ -213,19 +205,20 @@
                     </select>
                   </label>
                 </div>
-                <div class="toggles">
-                  <label><input id="campoPublicado" type="checkbox"> Mostrar no site</label>
-                  <label><input id="campoFixado" type="checkbox"> Fixar primeiro nesta seção</label>
-                </div>
                 <div class="previewBox" id="previaPublicacao"></div>
                 <div class="buttonRow">
-                  <button class="primaryButton" type="submit">Salvar no site</button>
+                  <button class="primaryButton" type="submit">PUBLICAR NO SITE</button>
                   <button class="secondaryButton" id="btnRascunho" type="button">Salvar sem publicar</button>
-                  <button class="secondaryButton" id="btnDespublicar" type="button" disabled>Tirar do site</button>
-                  <button class="dangerButton" id="btnExcluir" type="button" disabled>Excluir</button>
-                  <button class="ghostButton" id="btnLimpar" type="button">Limpar</button>
                 </div>
               </form>
+
+              <div class="listPanel">
+                <div class="panelTitle">
+                  <h2>Publicações</h2>
+                  <span id="resumoFiltros">Lista completa</span>
+                </div>
+                <div class="publicationList" id="listaPublicacoes"></div>
+              </div>
             </div>
           </div>
 

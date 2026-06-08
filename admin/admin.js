@@ -126,10 +126,7 @@ const el = {
   statusEditorPublicacao: document.getElementById("statusEditorPublicacao"),
   previaPublicacao: document.getElementById("previaPublicacao"),
   btnNovaPublicacao: document.getElementById("btnNovaPublicacao"),
-  btnExcluir: document.getElementById("btnExcluir"),
-  btnLimpar: document.getElementById("btnLimpar"),
   btnRascunho: document.getElementById("btnRascunho"),
-  btnDespublicar: document.getElementById("btnDespublicar"),
   filtroBusca: document.getElementById("filtroBusca"),
   filtroStatus: document.getElementById("filtroStatus"),
   filtroLocal: document.getElementById("filtroLocal"),
@@ -170,9 +167,6 @@ function inicializarEventos() {
   el.formPublicacao?.addEventListener("submit", salvarPublicacao);
   el.btnNovaPublicacao?.addEventListener("click", limparFormulario);
   el.btnRascunho?.addEventListener("click", salvarRascunho);
-  el.btnDespublicar?.addEventListener("click", (event) => despublicarPublicacao(undefined, event.currentTarget));
-  el.btnExcluir?.addEventListener("click", (event) => excluirPublicacao(undefined, event.currentTarget));
-  el.btnLimpar?.addEventListener("click", limparFormulario);
   el.btnSalvarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, salvarFontePublica, "Salvando..."));
   el.btnSincronizarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, () => sincronizarFontePublica(), "Sincronizando..."));
   el.formHome?.addEventListener("submit", salvarHome);
@@ -201,9 +195,7 @@ function inicializarEventos() {
     "campoDataInicial",
     "campoDataFinal",
     "campoOrdem",
-    "campoEstilo",
-    "campoPublicado",
-    "campoFixado"
+    "campoEstilo"
   ].forEach((id) => campo(id)?.addEventListener("input", atualizarPreviaPublicacao));
 
   document.querySelectorAll("[data-view]").forEach((botao) => {
@@ -396,7 +388,6 @@ function normalizarMeta(meta) {
     imagemAlt: meta.imagemAlt || "",
     link: meta.link || "",
     botao: meta.botao || "",
-    fixado: Boolean(meta.fixado),
     ordem: Number.isFinite(Number(meta.ordem)) ? Number(meta.ordem) : 0,
     estilo: meta.estilo || "padrao",
     icone: meta.icone || ""
@@ -414,7 +405,6 @@ function montarConteudoEstruturado(texto, meta) {
 function ordenarPublicacoes(a, b) {
   const ordemA = Number(a.meta?.ordem || 0);
   const ordemB = Number(b.meta?.ordem || 0);
-  if (a.meta?.fixado !== b.meta?.fixado) return a.meta?.fixado ? -1 : 1;
   if (ordemA !== ordemB) return ordemA - ordemB;
   return String(b.atualizadoEm || b.criadoEm).localeCompare(String(a.atualizadoEm || a.criadoEm));
 }
@@ -458,13 +448,13 @@ function renderizarPublicacoes() {
       <div class="publicationMeta">
         <small>${escaparHtml(publicacao.categoria)}</small>
         <small>${escaparHtml(rotuloLocal(publicacao.meta.local))}</small>
-        <small>${publicacao.meta.fixado ? "Fixado primeiro" : "Prioridade " + Number(publicacao.meta.ordem || 0)}</small>
+        <small>Prioridade ${Number(publicacao.meta.ordem || 0)}</small>
       </div>
       <div class="itemActions">
         <button type="button" data-acao="editar" data-id="${publicacao.id}">Editar</button>
         <button type="button" data-acao="duplicar" data-id="${publicacao.id}">Duplicar</button>
         <button type="button" data-acao="visualizar" data-id="${publicacao.id}">Visualizar</button>
-        <button type="button" data-acao="despublicar" data-id="${publicacao.id}">Tirar do site</button>
+        ${publicacao.publicado ? `<button type="button" data-acao="despublicar" data-id="${publicacao.id}">Tirar do site</button>` : ""}
         <button class="dangerMini" type="button" data-acao="excluir" data-id="${publicacao.id}">Excluir</button>
       </div>
     `;
@@ -534,10 +524,6 @@ function preencherFormulario(publicacao) {
   campo("campoDataFinal").value = publicacao.dataFinal;
   campo("campoOrdem").value = publicacao.meta.ordem || "";
   campo("campoEstilo").value = publicacao.meta.estilo;
-  campo("campoPublicado").checked = publicacao.publicado;
-  campo("campoFixado").checked = publicacao.meta.fixado;
-  el.btnExcluir.disabled = false;
-  el.btnDespublicar.disabled = false;
   el.tituloEditorPublicacao.textContent = "Editar publicação";
   el.statusEditorPublicacao.textContent = rotuloStatus(obterStatusPublicacao(publicacao));
   atualizarPreviaPublicacao();
@@ -548,8 +534,6 @@ function limparFormulario() {
   campo("itemId").value = "";
   campo("campoLocal").value = "informacoes";
   campo("campoEstilo").value = "padrao";
-  el.btnExcluir.disabled = true;
-  el.btnDespublicar.disabled = true;
   el.tituloEditorPublicacao.textContent = "Nova publicação";
   el.statusEditorPublicacao.textContent = "Rascunho";
   atualizarPreviaPublicacao();
@@ -619,7 +603,6 @@ function lerMetaFormulario() {
     imagemAlt: campo("campoImagemAlt").value.trim(),
     link: campo("campoLink").value.trim(),
     botao: campo("campoBotao").value.trim(),
-    fixado: campo("campoFixado").checked,
     ordem: campo("campoOrdem").value,
     estilo: campo("campoEstilo").value,
     icone: campo("campoIcone").value.trim()
@@ -630,23 +613,12 @@ async function duplicarPublicacao(publicacao) {
   preencherFormulario(publicacao);
   campo("itemId").value = "";
   campo("campoTitulo").value = `${publicacao.titulo} - cópia`;
-  campo("campoPublicado").checked = false;
   el.tituloEditorPublicacao.textContent = "Duplicar publicação";
   el.statusEditorPublicacao.textContent = "Rascunho";
-  el.btnExcluir.disabled = true;
-  el.btnDespublicar.disabled = true;
   atualizarPreviaPublicacao();
 }
 
-async function despublicarPublicacao(idInformado, botaoAcao) {
-  if (botaoAcao && !estado.operacaoEmAndamento) {
-    const resultado = await executarComBotao(botaoAcao, () => despublicarPublicacao(idInformado), "Tirando...");
-    if (!campo("itemId").value) {
-      el.btnDespublicar.disabled = true;
-      el.btnExcluir.disabled = true;
-    }
-    return resultado;
-  }
+async function despublicarPublicacao(idInformado) {
   const id = typeof idInformado === "string" ? idInformado : campo("itemId").value;
   if (!id) return;
   const publicacao = estado.publicacoes.find((item) => item.id === id);
@@ -667,15 +639,7 @@ async function despublicarPublicacao(idInformado, botaoAcao) {
     : "Publicação retirada no SharePoint. A atualização pública depende do token GitHub.";
 }
 
-async function excluirPublicacao(idInformado, botaoAcao) {
-  if (botaoAcao && !estado.operacaoEmAndamento) {
-    const resultado = await executarComBotao(botaoAcao, () => excluirPublicacao(idInformado), "Excluindo...");
-    if (!campo("itemId").value) {
-      el.btnDespublicar.disabled = true;
-      el.btnExcluir.disabled = true;
-    }
-    return resultado;
-  }
+async function excluirPublicacao(idInformado) {
   const id = typeof idInformado === "string" ? idInformado : campo("itemId").value;
   if (!id || !confirm("Excluir esta publicação? Ela também será removida do site.")) return;
   const publicacao = estado.publicacoes.find((item) => item.id === id);
@@ -1025,7 +989,6 @@ function gerarFontePublica() {
       imagemAlt: publicacao.meta.imagemAlt,
       link: publicacao.meta.link,
       botao: publicacao.meta.botao,
-      fixado: publicacao.meta.fixado,
       ordem: publicacao.meta.ordem,
       estilo: publicacao.meta.estilo,
       icone: publicacao.meta.icone
