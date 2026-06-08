@@ -316,7 +316,13 @@ async function carregarDados() {
     estado.configListId = configuracoes?.id || "";
     estado.logsListId = logs?.id || "";
 
-    if (estado.configListId) await carregarConfiguracoes();
+    if (estado.configListId) {
+      try {
+        await carregarConfiguracoes();
+      } catch (erro) {
+        console.warn("Configurações temporariamente indisponíveis.", erro);
+      }
+    }
 
     if (estado.publicacoesListId) {
       await carregarPublicacoes();
@@ -539,6 +545,7 @@ function limparFormulario() {
   campo("itemId").value = "";
   campo("campoLocal").value = "informacoes";
   campo("campoEstilo").value = "padrao";
+  campo("campoImagem").value = "";
   if (el.campoArquivoImagem) el.campoArquivoImagem.value = "";
   atualizarStatusImagemPublicacao();
   el.tituloEditorPublicacao.textContent = "Nova publicação";
@@ -1416,14 +1423,32 @@ function abrirView(nome) {
 }
 
 async function graph(url, opcoes = {}) {
-  return fetch(url, {
-    ...opcoes,
-    headers: {
-      Authorization: `Bearer ${estado.token}`,
-      "Content-Type": "application/json",
-      ...(opcoes.headers || {})
+  const metodo = String(opcoes.method || "GET").toUpperCase();
+  const tentativas = metodo === "GET" ? 3 : 1;
+
+  for (let tentativa = 1; tentativa <= tentativas; tentativa += 1) {
+    try {
+      const resposta = await fetch(url, {
+        ...opcoes,
+        headers: {
+          Authorization: `Bearer ${estado.token}`,
+          "Content-Type": "application/json",
+          ...(opcoes.headers || {})
+        }
+      });
+      const transitorio = resposta.status === 429 || resposta.status >= 500;
+      if (!transitorio || tentativa === tentativas) return resposta;
+    } catch (erro) {
+      if (tentativa === tentativas) throw erro;
     }
-  });
+    await aguardar(500 * tentativa);
+  }
+
+  throw new Error("Falha inesperada ao acessar o Microsoft Graph.");
+}
+
+function aguardar(tempo) {
+  return new Promise((resolve) => setTimeout(resolve, tempo));
 }
 
 function mostrarSomente(area) {
