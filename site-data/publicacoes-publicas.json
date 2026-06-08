@@ -1,24 +1,45 @@
 {
+  "atualizadoEm": "2026-06-08T12:31:32.000Z",
+  "origem": "PUBLICACOES_SITE",
+  "cache": "derivado do SharePoint",
+  "home": {
+    "titulo": "Escola Municipal Professora Iêda Alves de Oliveira MCPM",
+    "subtitulo": "Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.",
+    "missao": "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.",
+    "infoTexto": "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.",
+    "corDestaque": "#003366",
+    "mostrarSobre": true,
+    "mostrarNumeros": true,
+    "mostrarInformacoes": true,
+    "mostrarContato": true,
+    "mostrarBanners": true,
+    "mostrarAvisos": true
+  },
   "publicacoes": [
     {
-      "titulo": "TESTE SITE",
-      "resumo": "BOM DIA",
-      "conteudo": "OLÁ",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": true,
-      "dataInicial": null,
-      "dataFinal": null
-    },
-    {
-      "titulo": "TESTE2",
-      "resumo": "OLÁ",
-      "conteudo": "OI",
+      "id": "3",
+      "titulo": "123",
+      "resumo": "123",
+      "conteudo": "123",
+      "imagem": "",
       "categoria": "Aviso",
       "publicado": true,
       "destaque": false,
       "dataInicial": null,
-      "dataFinal": null
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T12:31:32Z",
+      "tipo": "card",
+      "local": "informacoes",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "padrao",
+      "icone": ""
     }
-  ]
+  ],
+  "banners": [],
+  "avisos": [],
+  "destaques": []
 }

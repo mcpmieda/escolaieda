@@ -3,7 +3,7 @@ import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11
 const CONFIG = {
   clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
   tenantId: "f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
-  redirectUri: "https://escolaieda.com/",
+  redirectUri: `${window.location.origin}/admin/`,
   postLoginPath: "/admin/",
   siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
   documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
@@ -221,12 +221,11 @@ async function inicializarSessao() {
 }
 
 async function entrar() {
-  sessionStorage.setItem("escolaIedaDestinoLogin", CONFIG.postLoginPath);
+  atualizarLoginStatus("Abrindo login Microsoft...");
   await msalInstance.loginRedirect(loginRequest);
 }
 
 async function sair() {
-  sessionStorage.removeItem("escolaIedaDestinoLogin");
   await msalInstance.logoutRedirect({ postLogoutRedirectUri: "https://escolaieda.com/" });
 }
 
@@ -250,8 +249,8 @@ async function obterToken() {
     const resposta = await msalInstance.acquireTokenSilent({ ...tokenRequest, account: estado.account });
     return resposta.accessToken;
   } catch {
-    const resposta = await msalInstance.acquireTokenRedirect(tokenRequest);
-    return resposta.accessToken;
+    await msalInstance.acquireTokenRedirect(tokenRequest);
+    throw new Error("Redirecionando para concluir autorização Microsoft.");
   }
 }
 
@@ -751,23 +750,25 @@ async function sincronizarFontePublica(opcoes = {}) {
   const branch = el.campoGithubBranch?.value.trim() || "main";
 
   if (!token) {
-    definirStatusFontePublica("Informe o token GitHub para atualizar o JSON público.", opcoes.silencioso);
+    definirStatusFontePublica("Token GitHub não configurado. O conteúdo foi salvo no SharePoint, mas o site público não foi atualizado.", opcoes.silencioso);
     return false;
   }
 
   estado.sincronizando = true;
   el.btnSincronizarPublicacoes.disabled = true;
   el.btnSincronizarFontePublica.disabled = true;
+  definirStatusFontePublica("Sincronizando fonte pública...", opcoes.silencioso);
   try {
     await carregarPublicacoes();
-    const conteudo = `${JSON.stringify(gerarFontePublica(), null, 2)}\n`;
+    const fonte = gerarFontePublica();
+    const conteudo = `${JSON.stringify(fonte, null, 2)}\n`;
     await publicarArquivoGithub({ token, repo, branch, conteudo });
     await registrarLogPortal("sincronizou fonte pública", CAMINHO_FONTE_PUBLICA);
-    definirStatusFontePublica("Fonte pública sincronizada. Itens apagados, rascunhos e expirados foram removidos do JSON.", false);
+    definirStatusFontePublica(`Sincronização concluída. ${fonte.publicacoes.length} publicação(ões) visível(eis) no JSON público.`, false);
     return true;
   } catch (erro) {
     console.error(erro);
-    definirStatusFontePublica("Não foi possível sincronizar. Confira o token GitHub e tente novamente.", opcoes.silencioso);
+    definirStatusFontePublica(`Erro ao atualizar GitHub: ${erro.message || "confira o token e tente novamente."}`, opcoes.silencioso);
     return false;
   } finally {
     estado.sincronizando = false;
@@ -828,7 +829,7 @@ async function publicarArquivoGithub({ token, repo, branch, conteudo }) {
     const atual = await consulta.json();
     sha = atual.sha || "";
   } else if (consulta.status !== 404) {
-    throw new Error("Falha ao consultar arquivo público no GitHub.");
+    throw new Error(await mensagemErroGithub(consulta, "Falha ao consultar arquivo público no GitHub."));
   }
 
   const resposta = await fetch(apiBase, {
@@ -842,7 +843,22 @@ async function publicarArquivoGithub({ token, repo, branch, conteudo }) {
     })
   });
 
-  if (!resposta.ok) throw new Error("Falha ao publicar fonte pública no GitHub.");
+  if (!resposta.ok) throw new Error(await mensagemErroGithub(resposta, "Falha ao publicar fonte pública no GitHub."));
+
+  const validacao = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`, { headers: cabecalhosGithub(token) });
+  if (!validacao.ok) throw new Error(await mensagemErroGithub(validacao, "Arquivo publicado, mas não foi possível validar no GitHub."));
+  const publicado = await validacao.json();
+  if (!publicado.sha) throw new Error("GitHub não retornou confirmação do arquivo público.");
+}
+
+async function mensagemErroGithub(resposta, fallback) {
+  try {
+    const dados = await resposta.json();
+    if (resposta.status === 401 || resposta.status === 403) return "token GitHub inválido ou sem permissão para gravar no repositório.";
+    return dados.message || fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function cabecalhosGithub(token) {

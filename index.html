@@ -44,13 +44,6 @@
     gtag('config', 'G-ZN0NX8Q3E9');
   </script>
 
-  <!-- ================================================== -->
-  <!-- 4. BIBLIOTECA DE AUTENTICAÇÃO MICROSOFT (MSAL)     -->
-  <!-- Usada somente para iniciar o login e redirecionar  -->
-  <!-- perfis para áreas futuras/atuais.                  -->
-  <!-- ================================================== -->
-  <script src="https://alcdn.msauth.net/browser/2.38.2/js/msal-browser.min.js"></script>
-
   <style>
     /* ================================================== */
     /* 5. VARIÁVEIS GERAIS DO SITE                         */
@@ -892,146 +885,10 @@
 
     window.addEventListener('resize', controlarMenuTopo);
 
-    /* ================================================== */
-    /* 31. CONFIGURAÇÃO DO LOGIN MICROSOFT / ENTRA ID      */
-    /* A home usa redirect explícito para a raiz do site.  */
-    /* A URL também precisa estar cadastrada no Entra ID.  */
-    /* ================================================== */
-    const msalConfig = {
-      auth: {
-        clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
-        authority: "https://login.microsoftonline.com/organizations",
-        redirectUri: "https://escolaieda.com/"
-      },
-      cache: {
-        cacheLocation:"sessionStorage",
-        storeAuthStateInCookie:true
-      }
-    };
-
-    const loginRequest = {
-      scopes:["openid", "profile"],
-      prompt:"select_account"
-    };
-
-    let msalInstance = null;
-    let loginEmAndamento = false;
-
-    if(window.msal && window.msal.PublicClientApplication){
-      msalInstance = new msal.PublicClientApplication(msalConfig);
-    }else{
-      console.error("Biblioteca MSAL não foi carregada.");
-    }
-
-    /* ================================================== */
-    /* 32. FUNÇÕES AUXILIARES DO LOGIN                     */
-    /* ================================================== */
-    function normalizarTexto(valor){
-      return String(valor || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-    }
-
-    function obterRoles(claims){
-      return claims && Array.isArray(claims.roles) ? claims.roles : [];
-    }
-
-    function definirEstadoBotaoLogin(botao, bloqueado){
-      if(!botao){
-        return;
-      }
-
-      botao.disabled = bloqueado;
-      botao.textContent = bloqueado ? "Entrando..." : "Área Restrita";
-    }
-
-    function mostrarErroLogin(mensagem){
-      alert(mensagem || "Não foi possível concluir o login. Tente novamente.");
-    }
-
-    /* ================================================== */
-    /* 33. INICIAR LOGIN MICROSOFT                         */
-    /* ================================================== */
-    function loginMicrosoft(botao){
-      if(loginEmAndamento){
-        return;
-      }
-
-      if(!msalInstance){
-        mostrarErroLogin("Não foi possível carregar o sistema de login Microsoft. Atualize a página e tente novamente.");
-        return;
-      }
-
-      loginEmAndamento = true;
-      definirEstadoBotaoLogin(botao, true);
-      sessionStorage.setItem("escolaIedaDestinoLogin", "/admin/");
-
-      msalInstance.loginRedirect(loginRequest).catch((erro) => {
-        console.error("Erro ao iniciar login Microsoft:", erro);
-        loginEmAndamento = false;
-        definirEstadoBotaoLogin(botao, false);
-        mostrarErroLogin("Não foi possível abrir o login Microsoft. Verifique sua conexão e tente novamente.");
-      });
-    }
-
     if(btnAreaRestrita){
-      btnAreaRestrita.addEventListener('click', () => loginMicrosoft(btnAreaRestrita));
-    }
-
-    /* ================================================== */
-    /* 34. REDIRECIONAMENTO POR PERFIL                     */
-    /* ATENÇÃO: isso é apenas roteamento visual. Cada área */
-    /* restrita precisa validar login/permissão sozinha.   */
-    /* ================================================== */
-    function redirecionarPorPerfil(claims){
-      const roles = obterRoles(claims);
-
-      if(!roles.length){
-        mostrarErroLogin("Sua conta entrou, mas ainda não possui permissão de acesso ao portal.");
-        return;
-      }
-
-      for(const role of roles){
-        const perfil = normalizarTexto(role);
-        const rotaAtiva = ROTAS_PORTAL_ATIVAS[perfil];
-
-        if(rotaAtiva){
-          window.location.href = rotaAtiva;
-          return;
-        }
-
-        if(ROTAS_PORTAL_FUTURAS[perfil]){
-          mostrarErroLogin("Seu perfil foi reconhecido, mas a área institucional ainda está em preparação.");
-          return;
-        }
-      }
-
-      mostrarErroLogin("Sua conta foi reconhecida, mas o perfil ainda não possui uma área configurada no portal.");
-    }
-
-    /* ================================================== */
-    /* 35. TRATAMENTO DO RETORNO DO LOGIN                  */
-    /* ================================================== */
-    if(msalInstance){
-      msalInstance.handleRedirectPromise()
-        .then((response) => {
-          if(response && response.account){
-            msalInstance.setActiveAccount(response.account);
-            const destinoLogin = sessionStorage.getItem("escolaIedaDestinoLogin");
-            if(destinoLogin){
-              sessionStorage.removeItem("escolaIedaDestinoLogin");
-              window.location.href = destinoLogin;
-              return;
-            }
-            redirecionarPorPerfil(response.idTokenClaims);
-          }
-        })
-        .catch((erro) => {
-          console.error("Erro no login Microsoft:", erro);
-          mostrarErroLogin("Ocorreu um erro ao entrar com Microsoft. Tente novamente.");
-        });
+      btnAreaRestrita.addEventListener('click', () => {
+        window.location.href = '/admin/';
+      });
     }
   </script>
   <script src="/site-data/publicacoes-site.js" data-fonte="/site-data/publicacoes-publicas.json"></script>
