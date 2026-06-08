@@ -105,7 +105,6 @@ const el = {
   statusEditorPublicacao: document.getElementById("statusEditorPublicacao"),
   previaPublicacao: document.getElementById("previaPublicacao"),
   btnNovaPublicacao: document.getElementById("btnNovaPublicacao"),
-  btnSincronizarPublicacoes: document.getElementById("btnSincronizarPublicacoes"),
   btnExcluir: document.getElementById("btnExcluir"),
   btnLimpar: document.getElementById("btnLimpar"),
   btnRascunho: document.getElementById("btnRascunho"),
@@ -145,7 +144,6 @@ function inicializarEventos() {
   el.btnProvisionar?.addEventListener("click", provisionarSharePoint);
   el.formPublicacao?.addEventListener("submit", salvarPublicacao);
   el.btnNovaPublicacao?.addEventListener("click", limparFormulario);
-  el.btnSincronizarPublicacoes?.addEventListener("click", () => sincronizarFontePublica());
   el.btnRascunho?.addEventListener("click", salvarRascunho);
   el.btnDespublicar?.addEventListener("click", despublicarPublicacao);
   el.btnExcluir?.addEventListener("click", excluirPublicacao);
@@ -770,7 +768,7 @@ async function sincronizarFontePublica(opcoes = {}) {
   }
 
   estado.sincronizando = true;
-  el.btnSincronizarPublicacoes.disabled = true;
+  if (el.btnSincronizarPublicacoes) el.btnSincronizarPublicacoes.disabled = true;
   el.btnSincronizarFontePublica.disabled = true;
   definirStatusFontePublica("Sincronizando fonte pública...", opcoes.silencioso);
   try {
@@ -793,7 +791,7 @@ async function sincronizarFontePublica(opcoes = {}) {
     return false;
   } finally {
     estado.sincronizando = false;
-    el.btnSincronizarPublicacoes.disabled = false;
+    if (el.btnSincronizarPublicacoes) el.btnSincronizarPublicacoes.disabled = false;
     el.btnSincronizarFontePublica.disabled = false;
   }
 }

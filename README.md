@@ -70,6 +70,10 @@ Fluxo atual:
 5. O painel usa `githubPublicacoesToken` para gravar o JSON no repositorio.
 6. O GitHub Pages passa a servir a fonte publica atualizada.
 
+Todos os tipos e locais configurados em uma publicacao usam esse mesmo fluxo. Ou seja: card simples, banner, aviso urgente, link/documento, destaque, calendario, rodape e modal entram no JSON publico quando estiverem publicados e validos.
+
+O painel sincroniza automaticamente depois de salvar, publicar, despublicar ou excluir. O botao "Sincronizar agora" fica apenas em Configuracoes como ferramenta de recuperacao, para reconstruir a fonte publica manualmente quando necessario.
+
 Cuidados:
 
 - o token deve ter permissao minima para conteudo do repositorio `mcpmieda/escolaieda`;
@@ -88,6 +92,9 @@ A pagina inicial suporta conteudos gerenciaveis em:
 - Avisos;
 - Destaques;
 - Documentos;
+- Calendario;
+- Rodape;
+- Modal/aviso importante;
 - textos principais e visibilidade de blocos basicos.
 
 As paginas de professores, calendario, contato e area restrita permanecem preservadas.

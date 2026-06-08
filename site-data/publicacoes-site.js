@@ -120,9 +120,34 @@
     return banner;
   }
 
+  function criarModal(itens) {
+    const modal = document.createElement("div");
+    modal.className = "public-modal-content";
+
+    const fechar = document.createElement("button");
+    fechar.type = "button";
+    fechar.className = "public-modal-close";
+    fechar.textContent = "Fechar";
+    fechar.addEventListener("click", () => {
+      modal.closest("[data-publicacoes-local='modal']")?.setAttribute("hidden", "");
+    });
+    modal.appendChild(fechar);
+
+    itens.forEach((item) => {
+      modal.appendChild(criarCard(item));
+    });
+
+    return modal;
+  }
+
   function renderizarLocal(local, itens) {
     const alvo = document.querySelector(`[data-publicacoes-local="${local}"]`);
     if (!alvo || !itens.length) return;
+    if (local === "modal") {
+      alvo.replaceChildren(criarModal(itens));
+      alvo.removeAttribute("hidden");
+      return;
+    }
     const criador = local === "banner" ? criarBanner : criarCard;
     alvo.replaceChildren(...itens.map(criador));
   }
@@ -158,6 +183,9 @@
       renderizarLocal("avisos", (grupos.avisos || []).slice(0, 3));
       renderizarLocal("destaques", (grupos.destaques || []).slice(0, 3));
       renderizarLocal("documentos", (grupos.documentos || []).slice(0, 3));
+      renderizarLocal("calendario", (grupos.calendario || []).slice(0, 3));
+      renderizarLocal("rodape", (grupos.rodape || []).slice(0, 3));
+      renderizarLocal("modal", (grupos.modal || []).slice(0, 1));
     } catch (erro) {
       console.warn("Publicações dinâmicas indisponíveis.", erro);
     }
