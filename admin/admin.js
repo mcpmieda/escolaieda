@@ -1349,6 +1349,7 @@ function linkPublicacaoValido(valor) {
   } catch {
     return false;
   }
+}
 
 function removerImagemDaPublicacao() {
   campo("campoImagem").value = "";
