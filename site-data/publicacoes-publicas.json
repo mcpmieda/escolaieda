@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T17:06:05.011Z",
+  "atualizadoEm": "2026-06-08T17:06:14.032Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -145,28 +145,6 @@
       "botao": "",
       "fixado": false,
       "ordem": 0,
-      "estilo": "padrao",
-      "icone": ""
-    },
-    {
-      "id": "20",
-      "titulo": "TESTE UX CODEX 202606081645 destaques",
-      "resumo": "Chamada de teste para destaques",
-      "conteudo": "Texto principal de teste para validar destaques.",
-      "imagem": "",
-      "categoria": "Destaque",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T16:46:33Z",
-      "tipo": "card",
-      "local": "destaques",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 902,
       "estilo": "padrao",
       "icone": ""
     },
@@ -372,28 +350,6 @@
       "fixado": false,
       "ordem": 0,
       "estilo": "destaque",
-      "icone": ""
-    },
-    {
-      "id": "20",
-      "titulo": "TESTE UX CODEX 202606081645 destaques",
-      "resumo": "Chamada de teste para destaques",
-      "conteudo": "Texto principal de teste para validar destaques.",
-      "imagem": "",
-      "categoria": "Destaque",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T16:46:33Z",
-      "tipo": "card",
-      "local": "destaques",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 902,
-      "estilo": "padrao",
       "icone": ""
     }
   ]
