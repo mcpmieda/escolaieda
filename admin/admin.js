@@ -79,6 +79,7 @@ const estado = {
   }),
   home: { ...HOME_PADRAO },
   midias: carregarJsonLocal(STORAGE_MIDIAS, []),
+  githubToken: "",
   sincronizando: false
 };
 
@@ -666,6 +667,10 @@ async function carregarConfiguracoes() {
   const dados = await resposta.json();
   const mapa = new Map((dados.value || []).map((item) => [item.fields?.Chave, item.fields?.Valor]));
   el.campoFontePublica.value = mapa.get("fontePublicaPublicacoes") || FONTE_PUBLICA_PADRAO;
+  estado.githubToken = mapa.get("githubPublicacoesToken") || "";
+  if (estado.githubToken && el.campoGithubToken && !el.campoGithubToken.value) {
+    el.campoGithubToken.placeholder = "Token configurado no SharePoint";
+  }
   estado.home = { ...HOME_PADRAO, ...carregarJsonDeTexto(mapa.get("homeConfig"), {}) };
   preencherHomeFormulario();
 }
@@ -726,8 +731,16 @@ async function salvarFontePublica() {
   }
 
   const valor = el.campoFontePublica.value.trim() || FONTE_PUBLICA_PADRAO;
-  const resposta = await salvarConfiguracaoValor("fontePublicaPublicacoes", valor);
-  el.statusSistema.textContent = resposta ? "Fonte pública salva." : "Não foi possível salvar a fonte pública.";
+  const tokenDigitado = el.campoGithubToken?.value.trim();
+  const fonteSalva = await salvarConfiguracaoValor("fontePublicaPublicacoes", valor);
+  let tokenSalvo = true;
+  if (tokenDigitado) {
+    tokenSalvo = await salvarConfiguracaoValor("githubPublicacoesToken", tokenDigitado);
+    estado.githubToken = tokenDigitado;
+    el.campoGithubToken.value = "";
+    el.campoGithubToken.placeholder = "Token configurado no SharePoint";
+  }
+  el.statusSistema.textContent = fonteSalva && tokenSalvo ? "Configuração de publicação salva." : "Não foi possível salvar a configuração.";
 }
 
 async function salvarConfiguracaoValor(chave, valor) {
@@ -747,12 +760,12 @@ async function salvarConfiguracaoValor(chave, valor) {
 
 async function sincronizarFontePublica(opcoes = {}) {
   if (estado.sincronizando || !estado.publicacoesListId) return false;
-  const token = el.campoGithubToken?.value.trim();
+  const token = el.campoGithubToken?.value.trim() || estado.githubToken;
   const repo = el.campoGithubRepo?.value.trim() || "mcpmieda/escolaieda";
   const branch = el.campoGithubBranch?.value.trim() || "main";
 
   if (!token) {
-    definirStatusFontePublica("Token GitHub não configurado. O conteúdo foi salvo no SharePoint, mas o site público não foi atualizado.", opcoes.silencioso);
+    definirStatusFontePublica("Token GitHub não configurado. Abra Configurações, informe o token e salve para atualizar o site público.", opcoes.silencioso);
     return false;
   }
 
@@ -765,6 +778,12 @@ async function sincronizarFontePublica(opcoes = {}) {
     const fonte = gerarFontePublica();
     const conteudo = `${JSON.stringify(fonte, null, 2)}\n`;
     await publicarArquivoGithub({ token, repo, branch, conteudo });
+    if (el.campoGithubToken?.value.trim()) {
+      await salvarConfiguracaoValor("githubPublicacoesToken", token);
+      estado.githubToken = token;
+      el.campoGithubToken.value = "";
+      el.campoGithubToken.placeholder = "Token configurado no SharePoint";
+    }
     await registrarLogPortal("sincronizou fonte pública", CAMINHO_FONTE_PUBLICA);
     definirStatusFontePublica(`Sincronização concluída. ${fonte.publicacoes.length} publicação(ões) visível(eis) no JSON público.`, false);
     return true;

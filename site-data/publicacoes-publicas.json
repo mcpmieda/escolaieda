@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T12:54:40.8258257Z",
+  "atualizadoEm": "2026-06-08T13:10:00.000Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -15,32 +15,8 @@
     "mostrarBanners": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [
-    {
-      "id": "3",
-      "titulo": "123",
-      "resumo": "123",
-      "conteudo": "123",
-      "imagem": "",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T12:31:32.0000000Z",
-      "tipo": "card",
-      "local": "informacoes",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "padrao",
-      "icone": ""
-    }
-  ],
+  "publicacoes": [],
   "banners": [],
   "avisos": [],
   "destaques": []
 }
-
