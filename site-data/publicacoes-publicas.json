@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T13:20:27.1507908Z",
+  "atualizadoEm": "2026-06-08T13:22:15.0517871Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -15,30 +15,7 @@
     "mostrarBanners": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [
-    {
-      "id": "5",
-      "titulo": "TESTE TOKEN SHAREPOINT",
-      "resumo": "APARECE PELO TOKEN",
-      "conteudo": "TESTE TOKEN SHAREPOINT",
-      "imagem": "",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T13:20:25.0000000Z",
-      "tipo": "card",
-      "local": "informacoes",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "padrao",
-      "icone": ""
-    }
-  ],
+  "publicacoes": [],
   "banners": [],
   "avisos": [],
   "destaques": []
