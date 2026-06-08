@@ -40,9 +40,9 @@ O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS esco
 - configurar secoes da pagina inicial, incluindo titulo, texto, visibilidade e formato das publicacoes no site;
 - marcar publicacoes como rascunho, visivel no site, agendada ou expirada;
 - escolher onde a publicacao aparece: secoes da home, Banner/topo ou Modal;
-- configurar imagem, link, botao, marcador, aparencia e prioridade;
+- enviar imagem, configurar link, texto do botao, periodo de exibicao, aparencia e prioridade;
 - visualizar previa antes de publicar;
-- cadastrar URLs de midias para uso nas publicacoes;
+- manter uma biblioteca de imagens enviadas para reutilizacao nas publicacoes;
 - manter base administrativa inicial para enquetes futuras.
 
 O usuario acessa o login pelo painel em `/admin/`. O Entra ID usa a raiz `https://escolaieda.com/` como URL de retorno cadastrada; a home conclui o callback MSAL e volta automaticamente para `/admin/`. Isso evita depender de uma URL de redirect ainda nao cadastrada no aplicativo.
@@ -75,6 +75,10 @@ Todas as publicacoes usam esse mesmo fluxo. Para o usuario, a escolha principal 
 O painel sincroniza automaticamente depois de salvar, publicar, despublicar ou excluir. O botao "Sincronizar agora" fica apenas em Configuracoes como ferramenta de recuperacao, para reconstruir a fonte publica manualmente quando necessario.
 
 Quando varias alteracoes sao feitas em sequencia, o painel agrupa a sincronizacao por alguns segundos antes de atualizar o GitHub. Isso reduz commits intermediarios e evita cancelamentos normais do GitHub Pages em commits antigos.
+
+As imagens enviadas pelo painel sao validadas, redimensionadas e convertidas para WebP antes de serem publicadas em `imagens/publicacoes/`. O arquivo fica no proprio repositorio publico, evitando links do SharePoint que exigiriam autenticacao dos visitantes. A lista de imagens disponiveis para reutilizacao e registrada em `CONFIGURACOES_PORTAL/midiasConfig`.
+
+O link do botao aceita apenas enderecos HTTP ou HTTPS e o painel exige um link quando houver texto de botao. As datas "Mostrar a partir de" e "Mostrar ate" controlam a janela de exibicao. A prioridade ordena os itens dentro da mesma secao: numeros menores aparecem primeiro e `0` deixa a publicacao na ordem normal.
 
 Cuidados:
 
@@ -133,7 +137,6 @@ node scripts/testes-utils-arquivo-digital.mjs
 
 - Manter o token GitHub de menor permissao atualizado em `CONFIGURACOES_PORTAL`.
 - Rodar "Sincronizar site" no painel quando precisar reconstruir o JSON publico a partir do SharePoint.
-- Evoluir `MIDIAS_SITE` para upload direto de imagens quando a politica de armazenamento estiver definida.
 - Ativar votacao publica de enquetes em etapa futura.
 - Melhorar editor visual da home conforme o uso real da Secretaria.
 

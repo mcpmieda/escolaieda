@@ -163,17 +163,20 @@
                     </select>
                   </label>
                 </div>
-                <div class="formRow">
-                  <label>Link da imagem
-                    <input id="campoImagem" type="url" placeholder="https://">
+                <input id="campoImagem" type="hidden">
+                <div class="imageUploadBox">
+                  <label>Imagem da publicação
+                    <input id="campoArquivoImagem" type="file" accept="image/jpeg,image/png,image/webp">
                   </label>
+                  <div class="imageUploadActions">
+                    <button class="secondaryButton" id="btnEnviarImagemPublicacao" type="button">Enviar imagem</button>
+                    <button class="ghostButton" id="btnRemoverImagemPublicacao" type="button">Remover imagem</button>
+                  </div>
+                  <p class="hintText" id="statusImagemPublicacao">Envie JPG, PNG ou WebP. A imagem será otimizada automaticamente.</p>
                 </div>
-                <div class="formRow">
+                <div class="formRow singleField">
                   <label>Descrição da imagem
                     <input id="campoImagemAlt" type="text" maxlength="180">
-                  </label>
-                  <label>Marcador curto
-                    <input id="campoIcone" type="text" maxlength="40" placeholder="Ex.: !, i, PDF">
                   </label>
                 </div>
                 <div class="formRow">
@@ -194,7 +197,8 @@
                 </div>
                 <div class="formRow">
                   <label>Prioridade
-                    <input id="campoOrdem" type="number" min="0" step="1" placeholder="0">
+                    <input id="campoOrdem" type="number" min="0" step="1" placeholder="0" aria-describedby="ajudaPrioridade">
+                    <small id="ajudaPrioridade">Menor número aparece primeiro. Use 0 quando a ordem não importar.</small>
                   </label>
                   <label>Aparência
                     <select id="campoEstilo">
@@ -257,19 +261,20 @@
           <div class="cmsTabPanel" id="cmsTab-midias">
             <div class="settingsPanel">
               <div class="panelTitle">
-                <h2>Mídias</h2>
-                <span>Estrutura inicial</span>
+                <h2>Imagens e arquivos</h2>
+                <span>Biblioteca pública</span>
               </div>
-              <p>Cadastre URLs de imagens já enviadas para usar nas publicações. Prefira imagens leves e com descrição.</p>
+              <p>Envie imagens para reutilizar nas publicações. Os arquivos são otimizados e publicados no repositório do site.</p>
               <div class="formRow">
-                <label>URL da imagem
-                  <input id="midiaUrl" type="url" placeholder="https://">
+                <label>Selecionar imagem
+                  <input id="midiaArquivo" type="file" accept="image/jpeg,image/png,image/webp">
                 </label>
                 <label>Descrição da imagem
                   <input id="midiaAlt" type="text" maxlength="180">
                 </label>
               </div>
-              <button class="secondaryButton" id="btnUsarMidia" type="button">Usar no editor</button>
+              <button class="primaryButton" id="btnEnviarMidia" type="button">Enviar imagem</button>
+              <p class="hintText" id="statusMidia">Nenhuma imagem selecionada.</p>
               <div class="mediaList" id="listaMidias"></div>
             </div>
           </div>

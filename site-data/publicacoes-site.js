@@ -152,6 +152,8 @@
       link.className = "publicacao-botao";
       link.href = item.link;
       link.textContent = item.botao || "Abrir";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
       card.appendChild(link);
     }
 
@@ -180,6 +182,8 @@
       link.className = "publicacao-botao";
       link.href = item.link;
       link.textContent = item.botao || "Abrir";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
       banner.appendChild(link);
     }
     return banner;

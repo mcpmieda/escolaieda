@@ -127,6 +127,10 @@ const el = {
   previaPublicacao: document.getElementById("previaPublicacao"),
   btnNovaPublicacao: document.getElementById("btnNovaPublicacao"),
   btnRascunho: document.getElementById("btnRascunho"),
+  campoArquivoImagem: document.getElementById("campoArquivoImagem"),
+  btnEnviarImagemPublicacao: document.getElementById("btnEnviarImagemPublicacao"),
+  btnRemoverImagemPublicacao: document.getElementById("btnRemoverImagemPublicacao"),
+  statusImagemPublicacao: document.getElementById("statusImagemPublicacao"),
   filtroBusca: document.getElementById("filtroBusca"),
   filtroStatus: document.getElementById("filtroStatus"),
   filtroLocal: document.getElementById("filtroLocal"),
@@ -135,9 +139,10 @@ const el = {
   btnPreviaHome: document.getElementById("btnPreviaHome"),
   btnAdicionarSecaoHome: document.getElementById("btnAdicionarSecaoHome"),
   listaSecoesHome: document.getElementById("listaSecoesHome"),
-  midiaUrl: document.getElementById("midiaUrl"),
+  midiaArquivo: document.getElementById("midiaArquivo"),
   midiaAlt: document.getElementById("midiaAlt"),
-  btnUsarMidia: document.getElementById("btnUsarMidia"),
+  btnEnviarMidia: document.getElementById("btnEnviarMidia"),
+  statusMidia: document.getElementById("statusMidia"),
   listaMidias: document.getElementById("listaMidias"),
   campoFontePublica: document.getElementById("campoFontePublica"),
   campoGithubToken: document.getElementById("campoGithubToken"),
@@ -171,7 +176,9 @@ function inicializarEventos() {
   el.btnSincronizarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, () => sincronizarFontePublica(), "Sincronizando..."));
   el.formHome?.addEventListener("submit", salvarHome);
   el.btnPreviaHome?.addEventListener("click", () => aplicarHomeNaTela(lerHomeDoFormulario()));
-  el.btnUsarMidia?.addEventListener("click", usarMidiaNoEditor);
+  el.btnEnviarImagemPublicacao?.addEventListener("click", (event) => executarComBotao(event.currentTarget, enviarImagemDaPublicacao, "Enviando..."));
+  el.btnRemoverImagemPublicacao?.addEventListener("click", removerImagemDaPublicacao);
+  el.btnEnviarMidia?.addEventListener("click", (event) => executarComBotao(event.currentTarget, enviarMidia, "Enviando..."));
   el.btnAdicionarSecaoHome?.addEventListener("click", adicionarSecaoHome);
   el.campoGithubToken?.addEventListener("input", salvarConfiguracaoGithubLocal);
   el.campoGithubRepo?.addEventListener("input", salvarConfiguracaoGithubLocal);
@@ -189,7 +196,6 @@ function inicializarEventos() {
     "campoLocal",
     "campoImagem",
     "campoImagemAlt",
-    "campoIcone",
     "campoLink",
     "campoBotao",
     "campoDataInicial",
@@ -389,8 +395,7 @@ function normalizarMeta(meta) {
     link: meta.link || "",
     botao: meta.botao || "",
     ordem: Number.isFinite(Number(meta.ordem)) ? Number(meta.ordem) : 0,
-    estilo: meta.estilo || "padrao",
-    icone: meta.icone || ""
+    estilo: meta.estilo || "padrao"
   };
 }
 
@@ -517,13 +522,13 @@ function preencherFormulario(publicacao) {
   campo("campoLocal").value = publicacao.meta.local;
   campo("campoImagem").value = publicacao.imagem;
   campo("campoImagemAlt").value = publicacao.meta.imagemAlt;
-  campo("campoIcone").value = publicacao.meta.icone;
   campo("campoLink").value = publicacao.meta.link;
   campo("campoBotao").value = publicacao.meta.botao;
   campo("campoDataInicial").value = publicacao.dataInicial;
   campo("campoDataFinal").value = publicacao.dataFinal;
   campo("campoOrdem").value = publicacao.meta.ordem || "";
   campo("campoEstilo").value = publicacao.meta.estilo;
+  atualizarStatusImagemPublicacao();
   el.tituloEditorPublicacao.textContent = "Editar publicação";
   el.statusEditorPublicacao.textContent = rotuloStatus(obterStatusPublicacao(publicacao));
   atualizarPreviaPublicacao();
@@ -534,6 +539,8 @@ function limparFormulario() {
   campo("itemId").value = "";
   campo("campoLocal").value = "informacoes";
   campo("campoEstilo").value = "padrao";
+  if (el.campoArquivoImagem) el.campoArquivoImagem.value = "";
+  atualizarStatusImagemPublicacao();
   el.tituloEditorPublicacao.textContent = "Nova publicação";
   el.statusEditorPublicacao.textContent = "Rascunho";
   atualizarPreviaPublicacao();
@@ -576,6 +583,21 @@ async function persistirPublicacao(publicado) {
     el.statusSistema.textContent = "Informe um título antes de salvar.";
     return;
   }
+  if (fields.DataInicial && fields.DataFinal && fields.DataInicial > fields.DataFinal) {
+    el.statusSistema.textContent = "A data final não pode ser anterior à data inicial.";
+    campo("campoDataFinal").focus();
+    return;
+  }
+  if (meta.botao && !meta.link) {
+    el.statusSistema.textContent = "Informe o link do botão ou deixe o texto do botão vazio.";
+    campo("campoLink").focus();
+    return;
+  }
+  if (meta.link && !linkPublicacaoValido(meta.link)) {
+    el.statusSistema.textContent = "O link do botão deve começar com https:// ou http://.";
+    campo("campoLink").focus();
+    return;
+  }
 
   const resposta = id
     ? await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items/${id}/fields`, { method: "PATCH", body: JSON.stringify(fields) })
@@ -604,8 +626,7 @@ function lerMetaFormulario() {
     link: campo("campoLink").value.trim(),
     botao: campo("campoBotao").value.trim(),
     ordem: campo("campoOrdem").value,
-    estilo: campo("campoEstilo").value,
-    icone: campo("campoIcone").value.trim()
+    estilo: campo("campoEstilo").value
   });
 }
 
@@ -694,6 +715,14 @@ async function carregarConfiguracoes() {
   estado.githubToken = mapa.get("githubPublicacoesToken") || "";
   if (estado.githubToken && el.campoGithubToken && !el.campoGithubToken.value) {
     el.campoGithubToken.placeholder = "Token configurado no SharePoint";
+  }
+  const midiasSalvas = carregarJsonDeTexto(mapa.get("midiasConfig"), []);
+  if (Array.isArray(midiasSalvas)) {
+    estado.midias = [...midiasSalvas, ...estado.midias]
+      .filter((item, index, lista) => item?.url && lista.findIndex((outra) => outra.url === item.url) === index)
+      .slice(0, 30);
+    localStorage.setItem(STORAGE_MIDIAS, JSON.stringify(estado.midias));
+    renderizarMidias();
   }
   estado.home = normalizarHome(carregarJsonDeTexto(mapa.get("homeConfig"), {}));
   preencherHomeFormulario();
@@ -990,8 +1019,7 @@ function gerarFontePublica() {
       link: publicacao.meta.link,
       botao: publicacao.meta.botao,
       ordem: publicacao.meta.ordem,
-      estilo: publicacao.meta.estilo,
-      icone: publicacao.meta.icone
+      estilo: publicacao.meta.estilo
     }));
 
   return {
@@ -1185,16 +1213,160 @@ function preencherSelectLocal(select, locais) {
   select.value = locais.some((local) => local.valor === valorAtual) ? valorAtual : locais[0]?.valor || "informacoes";
 }
 
-function usarMidiaNoEditor() {
-  const url = el.midiaUrl.value.trim();
-  if (!url) return;
-  campo("campoImagem").value = url;
-  campo("campoImagemAlt").value = el.midiaAlt.value.trim();
-  const midias = [{ url, alt: el.midiaAlt.value.trim() }, ...estado.midias.filter((item) => item.url !== url)].slice(0, 20);
-  estado.midias = midias;
-  localStorage.setItem(STORAGE_MIDIAS, JSON.stringify(midias));
+async function enviarImagemDaPublicacao() {
+  try {
+    const arquivo = el.campoArquivoImagem?.files?.[0];
+    if (!arquivo) {
+      definirStatusImagem("Selecione uma imagem antes de enviar.");
+      return;
+    }
+    const alt = campo("campoImagemAlt").value.trim() || campo("campoTitulo").value.trim();
+    definirStatusImagem("Otimizando e enviando imagem...");
+    const midia = await enviarArquivoImagem(arquivo, alt);
+    campo("campoImagem").value = midia.url;
+    if (!campo("campoImagemAlt").value.trim()) campo("campoImagemAlt").value = midia.alt;
+    await registrarMidia(midia);
+    el.campoArquivoImagem.value = "";
+    definirStatusImagem("Imagem enviada e vinculada à publicação.");
+    atualizarPreviaPublicacao();
+  } catch (erro) {
+    console.error(erro);
+    definirStatusImagem(erro.message || "Não foi possível enviar a imagem.");
+  }
+}
+
+async function enviarMidia() {
+  try {
+    const arquivo = el.midiaArquivo?.files?.[0];
+    if (!arquivo) {
+      definirStatusMidia("Selecione uma imagem antes de enviar.");
+      return;
+    }
+    definirStatusMidia("Otimizando e enviando imagem...");
+    const midia = await enviarArquivoImagem(arquivo, el.midiaAlt.value.trim());
+    await registrarMidia(midia);
+    campo("campoImagem").value = midia.url;
+    campo("campoImagemAlt").value = midia.alt;
+    el.midiaArquivo.value = "";
+    el.midiaAlt.value = "";
+    definirStatusMidia("Imagem enviada. Ela já foi selecionada no editor de publicação.");
+    abrirAbaCms("conteudo");
+    atualizarStatusImagemPublicacao();
+    atualizarPreviaPublicacao();
+  } catch (erro) {
+    console.error(erro);
+    definirStatusMidia(erro.message || "Não foi possível enviar a imagem.");
+  }
+}
+
+async function enviarArquivoImagem(arquivo, alt) {
+  validarArquivoImagem(arquivo);
+  const imagem = await otimizarImagem(arquivo);
+  const token = el.campoGithubToken?.value.trim() || estado.githubToken;
+  const repo = el.campoGithubRepo?.value.trim() || "mcpmieda/escolaieda";
+  const branch = el.campoGithubBranch?.value.trim() || "main";
+  if (!token) throw new Error("Token GitHub não configurado. Abra Configurações e salve o token antes de enviar imagens.");
+  const nome = `${Date.now()}-${normalizarNomeArquivo(arquivo.name)}.webp`;
+  const caminho = `imagens/publicacoes/${nome}`;
+  const url = await publicarImagemGithub({ token, repo, branch, caminho, blob: imagem });
+  return { url, alt: alt || arquivo.name.replace(/\.[^.]+$/, "") };
+}
+
+function validarArquivoImagem(arquivo) {
+  const tipos = ["image/jpeg", "image/png", "image/webp"];
+  if (!tipos.includes(arquivo.type)) throw new Error("Formato não aceito. Use JPG, PNG ou WebP.");
+  if (arquivo.size > 8 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 8 MB.");
+}
+
+async function otimizarImagem(arquivo) {
+  const bitmap = await createImageBitmap(arquivo);
+  const limite = 1600;
+  const escala = Math.min(1, limite / Math.max(bitmap.width, bitmap.height));
+  const largura = Math.max(1, Math.round(bitmap.width * escala));
+  const altura = Math.max(1, Math.round(bitmap.height * escala));
+  const canvas = document.createElement("canvas");
+  canvas.width = largura;
+  canvas.height = altura;
+  const contexto = canvas.getContext("2d", { alpha: true });
+  contexto.drawImage(bitmap, 0, 0, largura, altura);
+  bitmap.close();
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.84));
+  if (!blob) throw new Error("Não foi possível otimizar a imagem.");
+  return blob;
+}
+
+async function publicarImagemGithub({ token, repo, branch, caminho, blob }) {
+  const [owner, name] = repo.split("/");
+  if (!owner || !name) throw new Error("Repositório GitHub inválido.");
+  const caminhoApi = caminho.split("/").map(encodeURIComponent).join("/");
+  const api = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/contents/${caminhoApi}`;
+  const resposta = await fetch(api, {
+    method: "PUT",
+    headers: cabecalhosGithub(token),
+    body: JSON.stringify({
+      message: `Adicionar imagem de publicação: ${caminho.split("/").pop()}`,
+      content: await blobParaBase64(blob),
+      branch
+    })
+  });
+  if (!resposta.ok) throw new Error(await mensagemErroGithub(resposta, "Falha ao enviar imagem para o site."));
+  const dados = await resposta.json();
+  const url = dados.content?.download_url;
+  if (!url) throw new Error("GitHub não retornou a URL pública da imagem.");
+  return url;
+}
+
+function blobParaBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => resolve(String(leitor.result).split(",")[1] || "");
+    leitor.onerror = () => reject(new Error("Não foi possível ler a imagem."));
+    leitor.readAsDataURL(blob);
+  });
+}
+
+function normalizarNomeArquivo(nome) {
+  return String(nome || "imagem")
+    .replace(/\.[^.]+$/, "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "imagem";
+}
+
+async function registrarMidia(midia) {
+  estado.midias = [midia, ...estado.midias.filter((item) => item.url !== midia.url)].slice(0, 30);
+  localStorage.setItem(STORAGE_MIDIAS, JSON.stringify(estado.midias));
+  if (estado.configListId) await salvarConfiguracaoValor("midiasConfig", JSON.stringify(estado.midias));
   renderizarMidias();
+}
+
+function linkPublicacaoValido(valor) {
+  try {
+    return ["http:", "https:"].includes(new URL(valor).protocol);
+  } catch {
+    return false;
+  }
+
+function removerImagemDaPublicacao() {
+  campo("campoImagem").value = "";
+  if (el.campoArquivoImagem) el.campoArquivoImagem.value = "";
+  definirStatusImagem("Nenhuma imagem vinculada à publicação.");
   atualizarPreviaPublicacao();
+}
+
+function atualizarStatusImagemPublicacao() {
+  definirStatusImagem(campo("campoImagem")?.value ? "Esta publicação possui uma imagem vinculada." : "Nenhuma imagem vinculada à publicação.");
+}
+
+function definirStatusImagem(texto) {
+  if (el.statusImagemPublicacao) el.statusImagemPublicacao.textContent = texto;
+}
+
+function definirStatusMidia(texto) {
+  if (el.statusMidia) el.statusMidia.textContent = texto;
 }
 
 function renderizarMidias() {
@@ -1216,6 +1388,7 @@ function renderizarMidias() {
       campo("campoImagem").value = botao.dataset.url;
       campo("campoImagemAlt").value = botao.dataset.alt || "";
       abrirAbaCms("conteudo");
+      atualizarStatusImagemPublicacao();
       atualizarPreviaPublicacao();
     });
   });
@@ -1320,12 +1493,10 @@ function criarHtmlCardPublico(item) {
   const resumo = escaparHtml(item.resumo || "");
   const conteudo = escaparHtml(item.conteudo || "");
   const imagem = item.imagem ? `<img class="publicMedia" src="${escaparHtml(item.imagem)}" alt="${escaparHtml(meta.imagemAlt || item.titulo || "")}">` : "";
-  const icone = meta.icone ? `<span class="badge">${escaparHtml(meta.icone)}</span>` : "";
-  const link = meta.link ? `<a class="publicacao-botao" href="${escaparHtml(meta.link)}">${escaparHtml(meta.botao || "Abrir")}</a>` : "";
+  const link = meta.link ? `<a class="publicacao-botao" href="${escaparHtml(meta.link)}" target="_blank" rel="noopener noreferrer">${escaparHtml(meta.botao || "Abrir")}</a>` : "";
   return `
     <article class="previewCard publicacao-dinamica estilo-${escaparHtml(meta.estilo)}">
       ${imagem}
-      ${icone}
       <h3>${titulo}</h3>
       ${resumo ? `<p><strong>${resumo}</strong></p>` : ""}
       ${conteudo ? `<p>${conteudo}</p>` : ""}
