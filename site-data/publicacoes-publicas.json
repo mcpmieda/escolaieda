@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T20:53:51.665Z",
+  "atualizadoEm": "2026-06-08T20:56:53.929Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -74,8 +74,54 @@
     "mostrarContato": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [],
+  "publicacoes": [
+    {
+      "id": "25",
+      "titulo": "teste modal",
+      "resumo": "oi",
+      "conteudo": "oi",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T20:56:23Z",
+      "tipo": "aviso",
+      "local": "modal",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "destaque",
+      "icone": ""
+    }
+  ],
   "banners": [],
-  "avisos": [],
+  "avisos": [
+    {
+      "id": "25",
+      "titulo": "teste modal",
+      "resumo": "oi",
+      "conteudo": "oi",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T20:56:23Z",
+      "tipo": "aviso",
+      "local": "modal",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "destaque",
+      "icone": ""
+    }
+  ],
   "destaques": []
 }
