@@ -2,87 +2,77 @@
 
 Repositorio do site publico e dos sistemas digitais da Escola Municipal Professora Ieda Alves de Oliveira MCPM.
 
-O projeto e publicado pelo GitHub Pages no dominio `https://escolaieda.com/`. Ele reune a pagina inicial da escola, paginas institucionais, portais em teste e o sistema interno Arquivo Digital Escolar.
+O projeto e publicado pelo GitHub Pages no dominio `https://escolaieda.com/`. Ele reune a pagina inicial da escola, paginas institucionais, portais em teste, painel administrativo do Sistema Escola Ieda e o sistema interno Arquivo Digital Escolar.
 
 ## Visao Geral
 
 - `index.html` e a home publica do site.
+- `admin/` contem o Painel Administrativo do Sistema Escola Ieda.
+- `site-data/` contem a fonte publica consumida pela home.
 - `site-institucional/` concentra paginas publicas da escola, como professores e calendario escolar.
 - `institucional/` e a area institucional/secretaria em teste.
 - `portais/` guarda areas experimentais para aluno, professor e direcao.
 - `arquivo-digital/` e uma aplicacao separada, sensivel, integrada ao Microsoft 365, SharePoint e Microsoft Graph.
-- `imagens/` contem apenas imagens usadas pelas paginas publicas atuais.
-- `scripts/` contem validadores e testes do Arquivo Digital.
+- `scripts/` contem validadores e rotinas auxiliares.
 - `AGENTS.md` preserva o contexto operacional detalhado do Arquivo Digital e nao deve ser apagado.
 
-## Estrutura
+## Sistema Escola Ieda
 
-```text
-escolaieda/
-├─ index.html
-├─ CNAME
-├─ README.md
-├─ AGENTS.md
-│
-├─ institucional/
-│  └─ index.html
-│
-├─ site-institucional/
-│  ├─ professores.html
-│  └─ calendario.html
-│
-├─ arquivo-digital/
-│  ├─ index.html
-│  ├─ arquivo-digital.css
-│  ├─ arquivo-digital.js
-│  ├─ arquivo-digital-utils.js
-│  └─ assets/
-│
-├─ portais/
-│  ├─ aluno/
-│  ├─ professor/
-│  └─ direcao/
-│
-├─ aluno/
-├─ professor/
-├─ direcao/
-│
-├─ professores.html
-├─ calendario.html
-├─ imagens/
-├─ scripts/
-├─ fundo_logo_ieda.jpg
-└─ logo_escola.png
-```
+O Sistema Escola Ieda usa SharePoint como base institucional do painel administrativo. As estruturas principais ja preparadas sao:
 
-## Paginas Publicas
+- `PUBLICACOES_SITE`
+- `AVISOS_SITE`
+- `BANNERS_SITE`
+- `DESTAQUES_SITE`
+- `ENQUETES_SITE`
+- `CONFIGURACOES_PORTAL`
+- `PREFERENCIAS_USUARIO`
+- `SERVICOS_PAINEL`
+- `LOGS_PORTAL`
+- `MIDIAS_SITE`
 
-A home apresenta a escola, informa o contato e direciona visitantes para calendario, professores e area institucional.
+## Painel Administrativo
 
-As paginas antigas `professores.html` e `calendario.html` continuam na raiz apenas como redirecionamentos para preservar links ja divulgados. O conteudo real dessas paginas fica em:
+O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS escolar simples:
 
-- `site-institucional/professores.html`
-- `site-institucional/calendario.html`
+- criar, editar, duplicar, despublicar e excluir publicacoes;
+- filtrar por busca, status, local e ordenacao;
+- marcar publicacoes como rascunho, publicado, destaque, agendado ou expirado;
+- escolher local de exibicao na home, como Informacoes, Avisos, Destaques, Banner, Documentos, Calendario, Rodape e Modal;
+- configurar imagem, link, botao, icone, estilo, ordem e fixacao;
+- visualizar previa antes de publicar;
+- editar textos e visibilidade basica da pagina inicial;
+- cadastrar URLs de midias para uso nas publicacoes;
+- manter base administrativa inicial para enquetes futuras.
 
-## Portais
+## Fonte Publica
 
-As pastas `aluno/`, `professor/` e `direcao/` mantem redirecionamentos de compatibilidade. As paginas de teste ficam em:
+O SharePoint e a fonte principal dos dados. O arquivo `site-data/publicacoes-publicas.json` e apenas uma fonte publica derivada para a home do GitHub Pages consumir sem login.
 
-- `portais/aluno/`
-- `portais/professor/`
-- `portais/direcao/`
+Ao sincronizar pelo painel, o JSON e reconstruido a partir do estado atual do SharePoint. Isso remove do site itens excluidos, rascunhos, publicacoes expiradas e publicacoes agendadas para o futuro.
+
+Para atualizar o JSON publico pelo painel, e necessario configurar um token GitHub com permissao minima de conteudo restrita ao repositorio `mcpmieda/escolaieda`. O token e usado somente para publicar o arquivo derivado no GitHub Pages.
+
+## Home Publica
+
+A home publica carrega `site-data/publicacoes-site.js`, que busca `site-data/publicacoes-publicas.json` com cache-busting simples e mantem fallback estatico caso a fonte publica falhe.
+
+A pagina inicial suporta conteudos gerenciaveis em:
+
+- banner/topo;
+- Informacoes;
+- Avisos;
+- Destaques;
+- Documentos;
+- textos principais e visibilidade de blocos basicos.
+
+As paginas de professores, calendario, contato e area restrita permanecem preservadas.
 
 ## Arquivo Digital
 
 `arquivo-digital/` e o sistema de gestao de documentos escolares em PDF. Ele possui login Microsoft, integracao com SharePoint/Graph, upload, historico, anotacoes, gavetas, lixeira, duplicidades, substituicao, mesclagem e validacoes automatizadas.
 
 Essa pasta nao deve ser reorganizada junto com o site institucional. Qualquer alteracao nela deve seguir o `AGENTS.md` e rodar as validacoes proprias.
-
-## Imagens e Arquivos
-
-O repositorio foi limpo para remover arquivos e imagens publicas sem referencia nas paginas atuais. As fotos de professores permanecem em `imagens/professores/` com os nomes usados pelo site institucional.
-
-Relatorios de diagnostico e backups locais devem ficar fora do Git, conforme `.gitignore`.
 
 ## Validacoes
 
@@ -91,9 +81,11 @@ Para conferir o estado geral:
 ```powershell
 git status --short
 git diff --check
+node --check admin/admin.js
+node --check site-data/publicacoes-site.js
 ```
 
-Para conferir o Arquivo Digital:
+Para conferir o Arquivo Digital, quando ele for alterado:
 
 ```powershell
 node scripts/validar-arquivo-digital.mjs
@@ -101,10 +93,18 @@ node scripts/testes-regressao-arquivo-digital.mjs
 node scripts/testes-utils-arquivo-digital.mjs
 ```
 
+## Pendencias e Proximos Passos
+
+- Configurar token GitHub de menor permissao no navegador da conta responsavel.
+- Rodar "Sincronizar site" no painel apos configurar o token para reconstruir o JSON publico a partir do SharePoint.
+- Evoluir `MIDIAS_SITE` para upload direto de imagens quando a politica de armazenamento estiver definida.
+- Ativar votacao publica de enquetes em etapa futura.
+- Melhorar editor visual da home conforme o uso real da Secretaria.
+
 ## Regras de Manutencao
 
 - Nao apagar `AGENTS.md`.
-- Nao mover `arquivo-digital/` sem planejamento especifico.
+- Nao mover ou alterar `arquivo-digital/` sem planejamento especifico.
 - Preservar redirecionamentos publicos antigos quando uma pagina mudar de caminho.
 - Evitar commitar arquivos temporarios, relatorios locais ou backups.
 - Preferir alteracoes pequenas, testaveis e com `git diff --check` antes do commit.

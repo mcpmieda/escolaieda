@@ -347,6 +347,66 @@
       font-size:1.1rem;
     }
 
+    .public-media{
+      width:100%;
+      max-height:220px;
+      object-fit:cover;
+      border-radius:12px;
+      margin-bottom:12px;
+    }
+
+    .publicacao-botao{
+      display:inline-flex;
+      margin-top:12px;
+      padding:10px 14px;
+      border-radius:10px;
+      background:var(--azul);
+      color:white;
+      font-weight:bold;
+    }
+
+    .publicacao-dinamica.estilo-suave{
+      background:#f8fbfd;
+    }
+
+    .publicacao-dinamica.estilo-destaque{
+      border-color:#7ba8c4;
+      box-shadow:0 16px 38px rgba(0,51,102,0.16);
+    }
+
+    .publicacao-dinamica.estilo-urgente{
+      border-color:#efb2a9;
+      background:#fff7f5;
+    }
+
+    .public-banner-area{
+      position:relative;
+      z-index:1;
+      max-width:920px;
+      margin:24px auto 0;
+      display:grid;
+      gap:12px;
+    }
+
+    .public-banner{
+      background:rgba(255,255,255,0.95);
+      color:var(--texto);
+      border-radius:14px;
+      padding:16px 18px;
+      text-align:left;
+      box-shadow:0 12px 30px rgba(0,0,0,0.16);
+    }
+
+    .public-banner strong{
+      color:var(--azul);
+      display:block;
+      margin-bottom:4px;
+    }
+
+    .hidden-by-cms{
+      display:none !important;
+    }
+
     /* ================================================== */
     /* 12. FAIXA DE DESTAQUE                              */
     /* ================================================== */
@@ -603,14 +663,15 @@
   <header class="hero" id="inicio">
     <div class="hero-content reveal">
       <img src="logo_escola.png" alt="Logo da Escola Municipal Professora Iêda Alves de Oliveira MCPM" class="logo">
-      <h1>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
-      <p class="sub">Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.</p>
+      <h1 data-home-titulo>Escola Municipal Professora Iêda Alves de Oliveira MCPM</h1>
+      <p class="sub" data-home-subtitulo>Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.</p>
 
       <div class="botoes" id="botoesHero">
         <a href="/site-institucional/professores.html" class="botao botao-secundario">Professores</a>
         <a href="/site-institucional/calendario.html" class="botao botao-secundario">Calendário Escolar</a>
         <a href="#contato" class="botao botao-secundario">Contato</a>
       </div>
+      <div class="public-banner-area" data-publicacoes-local="banner"></div>
     </div>
   </header>
 
@@ -618,7 +679,7 @@
     <!-- ================================================== -->
     <!-- 19. SEÇÃO NOSSA ESCOLA                            -->
     <!-- ================================================== -->
-    <section class="container reveal" id="sobre">
+    <section class="container reveal" id="sobre" data-home-bloco="sobre">
       <div class="titulo-secao">
         <h2>Nossa Escola</h2>
         <p>Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.</p>
@@ -645,10 +706,10 @@
     <!-- ================================================== -->
     <!-- 20. FAIXA DE DESTAQUE                             -->
     <!-- ================================================== -->
-    <section class="container reveal">
+    <section class="container reveal" data-home-bloco="numeros">
       <div class="faixa">
         <h2>Educar é construir o futuro</h2>
-        <p>Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.</p>
+        <p data-home-missao>Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.</p>
 
         <div class="numeros">
           <div class="numero">
@@ -677,13 +738,13 @@
     <!-- ================================================== -->
     <!-- 21. SEÇÃO DE INFORMAÇÕES                          -->
     <!-- ================================================== -->
-    <section class="container reveal" id="informacoes">
+    <section class="container reveal" id="informacoes" data-home-bloco="informacoes">
       <div class="titulo-secao">
         <h2>Informações</h2>
-        <p>Um espaço institucional pensado para centralizar conteúdos relevantes da escola.</p>
+        <p data-home-info-texto>Um espaço institucional pensado para centralizar conteúdos relevantes da escola.</p>
       </div>
 
-      <div class="grid" data-publicacoes-site>
+      <div class="grid" data-publicacoes-site data-publicacoes-local="informacoes">
         <div class="card">
           <h3>Avisos</h3>
           <p>Comunicados importantes à comunidade escolar poderão ser publicados aqui de forma clara e acessível.</p>
@@ -699,12 +760,15 @@
           <p>As informações da escola devem ser acompanhadas pelos canais oficiais de atendimento e comunicação.</p>
         </div>
       </div>
+      <div class="grid" data-publicacoes-local="avisos"></div>
+      <div class="grid" data-publicacoes-local="destaques"></div>
+      <div class="grid" data-publicacoes-local="documentos"></div>
     </section>
 
     <!-- ================================================== -->
     <!-- 22. SEÇÃO DE CONTATO                              -->
     <!-- ================================================== -->
-    <section class="container reveal" id="contato">
+    <section class="container reveal" id="contato" data-home-bloco="contato">
       <div class="contato-card">
         <h2>Contato</h2>
         <p><strong>Email:</strong> <a class="email" href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a></p>

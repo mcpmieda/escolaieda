@@ -83,58 +83,253 @@
         </section>
 
         <section class="view" id="view-publicacoes">
-          <div class="workGrid">
-            <form class="editorPanel" id="formPublicacao">
-              <input type="hidden" id="itemId">
-              <label>Título
-                <input id="campoTitulo" type="text" required maxlength="180">
+          <div class="cmsToolbar">
+            <button class="primaryButton" id="btnNovaPublicacao" type="button">Nova publicação</button>
+            <button class="secondaryButton" id="btnSincronizarPublicacoes" type="button">Sincronizar site</button>
+            <span id="contadorPublicacoes">0 itens</span>
+          </div>
+
+          <div class="cmsTabs" role="tablist" aria-label="Áreas do CMS">
+            <button class="cmsTab active" type="button" data-cms-tab="conteudo">Conteúdo</button>
+            <button class="cmsTab" type="button" data-cms-tab="home">Editor da Página Inicial</button>
+            <button class="cmsTab" type="button" data-cms-tab="midias">Mídias</button>
+            <button class="cmsTab" type="button" data-cms-tab="enquetes">Enquetes</button>
+          </div>
+
+          <div class="cmsTabPanel active" id="cmsTab-conteudo">
+            <div class="filtersPanel">
+              <label>Buscar
+                <input id="filtroBusca" type="search" placeholder="Título, resumo ou conteúdo">
               </label>
-              <label>Resumo
-                <textarea id="campoResumo" rows="3" maxlength="500"></textarea>
+              <label>Status
+                <select id="filtroStatus">
+                  <option value="todos">Todos</option>
+                  <option value="publicado">Publicado</option>
+                  <option value="rascunho">Rascunho</option>
+                  <option value="agendado">Agendado</option>
+                  <option value="expirado">Expirado</option>
+                </select>
               </label>
-              <label>Conteúdo
-                <textarea id="campoConteudo" rows="8"></textarea>
+              <label>Local
+                <select id="filtroLocal">
+                  <option value="todos">Todos</option>
+                  <option value="informacoes">Informações</option>
+                  <option value="avisos">Avisos</option>
+                  <option value="destaques">Destaques</option>
+                  <option value="banner">Banner</option>
+                  <option value="documentos">Documentos</option>
+                  <option value="calendario">Calendário</option>
+                  <option value="rodape">Rodapé</option>
+                  <option value="modal">Modal</option>
+                </select>
               </label>
-              <div class="formRow">
-                <label>Categoria
-                  <select id="campoCategoria">
-                    <option value="Aviso">Aviso</option>
-                    <option value="Notícia">Notícia</option>
-                    <option value="Banner">Banner</option>
-                    <option value="Destaque">Destaque</option>
-                    <option value="Enquete">Enquete</option>
-                  </select>
+              <label>Ordenar
+                <select id="filtroOrdenacao">
+                  <option value="atualizado">Mais recentes</option>
+                  <option value="status">Status</option>
+                  <option value="destaque">Destaques primeiro</option>
+                  <option value="ordem">Ordem de exibição</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="workGrid cmsWorkGrid">
+              <div class="listPanel">
+                <div class="panelTitle">
+                  <h2>Publicações</h2>
+                  <span id="resumoFiltros">Lista completa</span>
+                </div>
+                <div class="publicationList" id="listaPublicacoes"></div>
+              </div>
+
+              <form class="editorPanel" id="formPublicacao">
+                <input type="hidden" id="itemId">
+                <div class="panelTitle">
+                  <h2 id="tituloEditorPublicacao">Nova publicação</h2>
+                  <span id="statusEditorPublicacao">Rascunho</span>
+                </div>
+                <label>Título
+                  <input id="campoTitulo" type="text" required maxlength="180">
                 </label>
-                <label>Imagem
-                  <input id="campoImagem" type="url" placeholder="https://">
+                <label>Resumo
+                  <textarea id="campoResumo" rows="3" maxlength="500"></textarea>
                 </label>
+                <label>Conteúdo
+                  <textarea id="campoConteudo" rows="7"></textarea>
+                </label>
+                <div class="formRow">
+                  <label>Categoria
+                    <select id="campoCategoria">
+                      <option value="Aviso">Aviso</option>
+                      <option value="Notícia">Notícia</option>
+                      <option value="Banner">Banner</option>
+                      <option value="Destaque">Destaque</option>
+                      <option value="Documento">Documento</option>
+                      <option value="Calendário">Calendário</option>
+                    </select>
+                  </label>
+                  <label>Tipo
+                    <select id="campoTipo">
+                      <option value="card">Card simples</option>
+                      <option value="banner">Banner</option>
+                      <option value="aviso">Aviso urgente</option>
+                      <option value="link">Link/documento</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="formRow">
+                  <label>Local no site
+                    <select id="campoLocal">
+                      <option value="informacoes">Informações</option>
+                      <option value="avisos">Avisos</option>
+                      <option value="destaques">Destaques</option>
+                      <option value="banner">Banner/topo</option>
+                      <option value="documentos">Documentos</option>
+                      <option value="calendario">Calendário</option>
+                      <option value="rodape">Rodapé</option>
+                      <option value="modal">Modal/aviso importante</option>
+                    </select>
+                  </label>
+                  <label>Imagem
+                    <input id="campoImagem" type="url" placeholder="https://">
+                  </label>
+                </div>
+                <div class="formRow">
+                  <label>Texto alternativo da imagem
+                    <input id="campoImagemAlt" type="text" maxlength="180">
+                  </label>
+                  <label>Ícone opcional
+                    <input id="campoIcone" type="text" maxlength="40" placeholder="Ex.: !, i, PDF">
+                  </label>
+                </div>
+                <div class="formRow">
+                  <label>Link opcional
+                    <input id="campoLink" type="url" placeholder="https://">
+                  </label>
+                  <label>Texto do botão
+                    <input id="campoBotao" type="text" maxlength="60" placeholder="Ver detalhes">
+                  </label>
+                </div>
+                <div class="formRow">
+                  <label>Data inicial
+                    <input id="campoDataInicial" type="date">
+                  </label>
+                  <label>Data final
+                    <input id="campoDataFinal" type="date">
+                  </label>
+                </div>
+                <div class="formRow">
+                  <label>Ordem de exibição
+                    <input id="campoOrdem" type="number" min="0" step="1" placeholder="0">
+                  </label>
+                  <label>Estilo do card
+                    <select id="campoEstilo">
+                      <option value="padrao">Padrão</option>
+                      <option value="suave">Suave</option>
+                      <option value="destaque">Destaque</option>
+                      <option value="urgente">Urgente</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="toggles">
+                  <label><input id="campoPublicado" type="checkbox"> Publicado</label>
+                  <label><input id="campoDestaque" type="checkbox"> Destaque</label>
+                  <label><input id="campoFixado" type="checkbox"> Fixar no topo</label>
+                </div>
+                <div class="previewBox" id="previaPublicacao"></div>
+                <div class="buttonRow">
+                  <button class="primaryButton" type="submit">Salvar e publicar</button>
+                  <button class="secondaryButton" id="btnRascunho" type="button">Salvar rascunho</button>
+                  <button class="secondaryButton" id="btnDespublicar" type="button" disabled>Despublicar</button>
+                  <button class="dangerButton" id="btnExcluir" type="button" disabled>Excluir</button>
+                  <button class="ghostButton" id="btnLimpar" type="button">Limpar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="cmsTabPanel" id="cmsTab-home">
+            <form class="settingsPanel homeEditor" id="formHome">
+              <div class="panelTitle">
+                <h2>Editor da Página Inicial</h2>
+                <span>Textos e visibilidade</span>
               </div>
               <div class="formRow">
-                <label>Data inicial
-                  <input id="campoDataInicial" type="date">
+                <label>Título principal
+                  <input id="homeTitulo" type="text">
                 </label>
-                <label>Data final
-                  <input id="campoDataFinal" type="date">
+                <label>Subtítulo
+                  <input id="homeSubtitulo" type="text">
                 </label>
               </div>
-              <div class="toggles">
-                <label><input id="campoPublicado" type="checkbox"> Publicado</label>
-                <label><input id="campoDestaque" type="checkbox"> Destaque</label>
+              <label>Frase de missão
+                <textarea id="homeMissao" rows="3"></textarea>
+              </label>
+              <div class="formRow">
+                <label>Texto da seção Informações
+                  <input id="homeInfoTexto" type="text">
+                </label>
+                <label>Cor de destaque
+                  <input id="homeCorDestaque" type="color" value="#003366">
+                </label>
+              </div>
+              <div class="visibilityGrid">
+                <label><input id="homeMostrarSobre" type="checkbox"> Mostrar Nossa Escola</label>
+                <label><input id="homeMostrarNumeros" type="checkbox"> Mostrar números institucionais</label>
+                <label><input id="homeMostrarInformacoes" type="checkbox"> Mostrar Informações</label>
+                <label><input id="homeMostrarContato" type="checkbox"> Mostrar Contato</label>
+                <label><input id="homeMostrarBanners" type="checkbox"> Mostrar banners</label>
+                <label><input id="homeMostrarAvisos" type="checkbox"> Mostrar avisos</label>
               </div>
               <div class="buttonRow">
-                <button class="primaryButton" type="submit">Salvar</button>
-                <button class="secondaryButton" id="btnRascunho" type="button">Salvar rascunho</button>
-                <button class="dangerButton" id="btnExcluir" type="button" disabled>Excluir</button>
-                <button class="ghostButton" id="btnLimpar" type="button">Limpar</button>
+                <button class="primaryButton" type="submit">Salvar editor da home</button>
+                <button class="secondaryButton" id="btnPreviaHome" type="button">Prévia local</button>
               </div>
+              <p class="hintText">As mudanças da home entram no JSON público após sincronizar o site.</p>
             </form>
+          </div>
 
-            <div class="listPanel">
+          <div class="cmsTabPanel" id="cmsTab-midias">
+            <div class="settingsPanel">
               <div class="panelTitle">
-                <h2>Publicações</h2>
-                <span id="contadorPublicacoes">0 itens</span>
+                <h2>Mídias</h2>
+                <span>Estrutura inicial</span>
               </div>
-              <div class="publicationList" id="listaPublicacoes"></div>
+              <p>Cadastre URLs de imagens já enviadas para usar nas publicações. Prefira imagens leves e com descrição.</p>
+              <div class="formRow">
+                <label>URL da imagem
+                  <input id="midiaUrl" type="url" placeholder="https://">
+                </label>
+                <label>Descrição da imagem
+                  <input id="midiaAlt" type="text" maxlength="180">
+                </label>
+              </div>
+              <button class="secondaryButton" id="btnUsarMidia" type="button">Usar no editor</button>
+              <div class="mediaList" id="listaMidias"></div>
+            </div>
+          </div>
+
+          <div class="cmsTabPanel" id="cmsTab-enquetes">
+            <div class="settingsPanel">
+              <div class="panelTitle">
+                <h2>Enquetes</h2>
+                <span>Preparado para etapa futura</span>
+              </div>
+              <p>A estrutura administrativa está reservada para pergunta, opções, status e período. A votação pública ainda não foi ativada.</p>
+              <div class="formRow">
+                <label>Pergunta
+                  <input id="enquetePergunta" type="text" placeholder="Ex.: Qual tema você prefere?">
+                </label>
+                <label>Status
+                  <select id="enqueteStatus">
+                    <option>Rascunho</option>
+                    <option>Publicado</option>
+                  </select>
+                </label>
+              </div>
+              <label>Opções
+                <textarea id="enqueteOpcoes" rows="4" placeholder="Uma opção por linha"></textarea>
+              </label>
             </div>
           </div>
         </section>
@@ -150,9 +345,12 @@
           <div class="settingsGrid">
             <div class="settingsPanel">
               <h2>Estrutura Microsoft 365</h2>
-              <p>Cria apenas novas estruturas institucionais: publicações, enquetes, configurações e biblioteca de mídias.</p>
-              <button class="primaryButton" id="btnProvisionar" type="button">Preparar SharePoint</button>
-              <pre id="logProvisionamento" class="logBox">Aguardando ação.</pre>
+              <p>As estruturas principais já estão preparadas. Use esta área apenas em manutenção orientada.</p>
+              <details>
+                <summary>Ferramentas técnicas</summary>
+                <button class="primaryButton" id="btnProvisionar" type="button">Preparar SharePoint</button>
+                <pre id="logProvisionamento" class="logBox">Aguardando ação.</pre>
+              </details>
             </div>
             <div class="settingsPanel">
               <h2>Fonte pública</h2>
@@ -173,7 +371,7 @@
               </div>
               <button class="secondaryButton" id="btnSalvarFontePublica" type="button">Salvar configuração</button>
               <button class="primaryButton" id="btnSincronizarFontePublica" type="button">Sincronizar agora</button>
-              <p class="hintText" id="statusFontePublica">A fonte pública é atualizada automaticamente ao salvar ou excluir publicações.</p>
+              <p class="hintText" id="statusFontePublica">O token é usado somente para atualizar o JSON público no repositório. Use um token restrito ao repositório mcpmieda/escolaieda.</p>
             </div>
           </div>
         </section>
