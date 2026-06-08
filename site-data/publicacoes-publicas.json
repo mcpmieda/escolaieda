@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T13:47:57.503Z",
+  "atualizadoEm": "2026-06-08T14:00:34.087Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -15,7 +15,30 @@
     "mostrarBanners": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [],
+  "publicacoes": [
+    {
+      "id": "12",
+      "titulo": "aviso card simples informações padrão",
+      "resumo": "aviso card simples informações padrão",
+      "conteudo": "aviso card simples informações padrão",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T14:00:29Z",
+      "tipo": "card",
+      "local": "informacoes",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "padrao",
+      "icone": ""
+    }
+  ],
   "banners": [],
   "avisos": [],
   "destaques": []
