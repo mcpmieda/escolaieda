@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T18:57:13.538Z",
+  "atualizadoEm": "2026-06-08T19:16:34.908Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -74,7 +74,30 @@
     "mostrarContato": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [],
+  "publicacoes": [
+    {
+      "id": "24",
+      "titulo": "TESTE 6",
+      "resumo": "teste",
+      "conteudo": "teste 6",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T19:16:30Z",
+      "tipo": "card",
+      "local": "numeros",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "clique aqui",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "suave",
+      "icone": "!"
+    }
+  ],
   "banners": [],
   "avisos": [],
   "destaques": []
