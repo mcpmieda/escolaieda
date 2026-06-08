@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T17:06:14.032Z",
+  "atualizadoEm": "2026-06-08T17:06:22.726Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -149,28 +149,6 @@
       "icone": ""
     },
     {
-      "id": "21",
-      "titulo": "TESTE UX CODEX 202606081645 banner",
-      "resumo": "Chamada de teste para banner",
-      "conteudo": "Texto principal de teste para validar banner.",
-      "imagem": "",
-      "categoria": "Banner",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T16:46:42Z",
-      "tipo": "banner",
-      "local": "banner",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 903,
-      "estilo": "padrao",
-      "icone": ""
-    },
-    {
       "id": "22",
       "titulo": "TESTE UX CODEX 202606081645 documentos",
       "resumo": "Chamada de teste para documentos",
@@ -236,28 +214,6 @@
       "fixado": false,
       "ordem": 0,
       "estilo": "urgente",
-      "icone": ""
-    },
-    {
-      "id": "21",
-      "titulo": "TESTE UX CODEX 202606081645 banner",
-      "resumo": "Chamada de teste para banner",
-      "conteudo": "Texto principal de teste para validar banner.",
-      "imagem": "",
-      "categoria": "Banner",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T16:46:42Z",
-      "tipo": "banner",
-      "local": "banner",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 903,
-      "estilo": "padrao",
       "icone": ""
     }
   ],
