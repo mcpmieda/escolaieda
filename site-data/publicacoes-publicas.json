@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T13:26:38.556Z",
+  "atualizadoEm": "2026-06-08T13:29:24.036Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -16,6 +16,28 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
+    {
+      "id": "7",
+      "titulo": "titulo",
+      "resumo": "resumo",
+      "conteudo": "conteudo",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T13:29:22Z",
+      "tipo": "card",
+      "local": "informacoes",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "padrao",
+      "icone": ""
+    },
     {
       "id": "6",
       "titulo": "bom dia1",
