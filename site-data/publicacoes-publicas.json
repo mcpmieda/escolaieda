@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T14:00:34.087Z",
+  "atualizadoEm": "2026-06-08T14:01:00.288Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -16,6 +16,28 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
+    {
+      "id": "13",
+      "titulo": "noticia banner avisos suave",
+      "resumo": "noticia banner avisos suave",
+      "conteudo": "noticia banner avisos suave",
+      "imagem": "",
+      "categoria": "Notícia",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T14:00:55Z",
+      "tipo": "banner",
+      "local": "avisos",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "suave",
+      "icone": ""
+    },
     {
       "id": "12",
       "titulo": "aviso card simples informações padrão",
@@ -40,6 +62,29 @@
     }
   ],
   "banners": [],
-  "avisos": [],
+  "avisos": [
+    {
+      "id": "13",
+      "titulo": "noticia banner avisos suave",
+      "resumo": "noticia banner avisos suave",
+      "conteudo": "noticia banner avisos suave",
+      "imagem": "",
+      "categoria": "Notícia",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T14:00:55Z",
+      "tipo": "banner",
+      "local": "avisos",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "suave",
+      "icone": ""
+    }
+  ],
   "destaques": []
 }
