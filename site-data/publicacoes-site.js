@@ -1,7 +1,8 @@
 (function () {
   const scriptAtual = document.currentScript;
   const estado = {
-    carregado: false
+    carregado: false,
+    focoAntesDoModal: null
   };
 
   function obterFonte() {
@@ -188,10 +189,15 @@
   function criarModal(itens) {
     const modal = document.createElement("div");
     modal.className = "public-modal-content";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "public-modal-title");
+    modal.tabIndex = -1;
 
     const cabecalho = document.createElement("div");
     cabecalho.className = "public-modal-header";
     const tituloModal = document.createElement("strong");
+    tituloModal.id = "public-modal-title";
     tituloModal.textContent = "Aviso importante";
     cabecalho.appendChild(tituloModal);
 
@@ -199,9 +205,7 @@
     fechar.type = "button";
     fechar.className = "public-modal-close";
     fechar.textContent = "Fechar";
-    fechar.addEventListener("click", () => {
-      modal.closest("[data-publicacoes-local='modal']")?.setAttribute("hidden", "");
-    });
+    fechar.addEventListener("click", fecharModal);
     cabecalho.appendChild(fechar);
     modal.appendChild(cabecalho);
 
@@ -211,6 +215,7 @@
       corpo.appendChild(criarCard(item));
     });
     modal.appendChild(corpo);
+    modal.addEventListener("keydown", manterFocoNoModal);
 
     return modal;
   }
@@ -219,23 +224,64 @@
     const alvo = document.querySelector(`[data-publicacoes-local="${local}"]`);
     if (!alvo || !itens.length) return;
     if (local === "modal") {
+      const chave = `escolaIedaModalVisto:${itens.map((item) => item.id).join(",")}`;
+      if (sessionStorage.getItem(chave)) return;
       alvo.replaceChildren(criarModal(itens));
       alvo.removeAttribute("hidden");
-      alvo.addEventListener("click", (event) => {
-        if (event.target === alvo) alvo.setAttribute("hidden", "");
-      }, { once: true });
+      alvo.dataset.sessionKey = chave;
+      estado.focoAntesDoModal = document.activeElement;
+      document.body.classList.add("modal-open");
+      alvo.addEventListener("click", fecharModalPeloFundo);
       document.addEventListener("keydown", fecharModalComEsc);
+      requestAnimationFrame(() => alvo.querySelector(".public-modal-close")?.focus());
       return;
     }
     const criador = local === "banner" ? criarBanner : criarCard;
     alvo.replaceChildren(...itens.map(criador));
-    alvo.closest("[data-publicacoes-section]")?.classList.remove("secao-vazia");
+    const secao = alvo.closest("[data-publicacoes-section]");
+    secao?.classList.remove("secao-vazia");
+    secao?.removeAttribute("hidden");
   }
 
   function fecharModalComEsc(event) {
     if (event.key !== "Escape") return;
-    document.querySelector("[data-publicacoes-local='modal']")?.setAttribute("hidden", "");
+    fecharModal();
+  }
+
+  function fecharModalPeloFundo(event) {
+    if (event.target === event.currentTarget) fecharModal();
+  }
+
+  function fecharModal() {
+    const alvo = document.querySelector("[data-publicacoes-local='modal']");
+    if (!alvo || alvo.hasAttribute("hidden")) return;
+    alvo.setAttribute("hidden", "");
+    if (alvo.dataset.sessionKey) sessionStorage.setItem(alvo.dataset.sessionKey, "1");
+    document.body.classList.remove("modal-open");
     document.removeEventListener("keydown", fecharModalComEsc);
+    alvo.removeEventListener("click", fecharModalPeloFundo);
+    if (estado.focoAntesDoModal instanceof HTMLElement) estado.focoAntesDoModal.focus();
+    estado.focoAntesDoModal = null;
+  }
+
+  function manterFocoNoModal(event) {
+    if (event.key !== "Tab") return;
+    const foco = [...event.currentTarget.querySelectorAll("button, a[href], input, select, textarea, [tabindex]:not([tabindex='-1'])")]
+      .filter((elemento) => !elemento.disabled && elemento.offsetParent !== null);
+    if (!foco.length) {
+      event.preventDefault();
+      event.currentTarget.focus();
+      return;
+    }
+    const primeiro = foco[0];
+    const ultimo = foco[foco.length - 1];
+    if (event.shiftKey && document.activeElement === primeiro) {
+      event.preventDefault();
+      ultimo.focus();
+    } else if (!event.shiftKey && document.activeElement === ultimo) {
+      event.preventDefault();
+      primeiro.focus();
+    }
   }
 
   function normalizarClasse(valor) {

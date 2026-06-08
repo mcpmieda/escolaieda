@@ -94,6 +94,14 @@ A pagina inicial e organizada por secoes configuraveis no painel. Cada secao pod
 
 As secoes padrao sao Nossa Escola, Numeros institucionais, Informacoes, Avisos, Destaques, Documentos e Contato. O painel tambem permite adicionar novas secoes. Banner/topo e Modal continuam como locais especiais de publicacao.
 
+O modal publico:
+
+- pode ser fechado pelo botao, clique fora ou tecla `Esc`;
+- mantem o foco de teclado dentro da janela enquanto estiver aberto;
+- aparece uma vez por sessao para cada publicacao, evitando interromper o visitante repetidamente.
+
+A home usa uma versao WebP otimizada da logo com fallback PNG. A biblioteca Microsoft de autenticacao so e carregada quando a pagina esta concluindo um retorno de login.
+
 As paginas de professores, calendario, contato e area restrita permanecem preservadas.
 
 ## Arquivo Digital
