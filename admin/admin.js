@@ -26,6 +26,7 @@ const STORAGE_GITHUB_BRANCH = "escolaIedaGithubBranch";
 const STORAGE_GITHUB_TOKEN = "escolaIedaGithubToken";
 const STORAGE_ULTIMA_ABA = "escolaIedaUltimaAba";
 const STORAGE_FILTROS = "escolaIedaFiltrosPublicacoes";
+const STORAGE_MODO_PUBLICACOES = "escolaIedaModoPublicacoes";
 const STORAGE_MIDIAS = "escolaIedaMidias";
 const CMS_VERSAO = 1;
 const LOCAIS_PUBLICACAO = {
@@ -87,7 +88,9 @@ const estado = {
   }),
   home: { ...HOME_PADRAO },
   midias: carregarJsonLocal(STORAGE_MIDIAS, []),
+  modoPublicacoes: localStorage.getItem(STORAGE_MODO_PUBLICACOES) || "lista",
   githubToken: "",
+  operacaoEmAndamento: false,
   sincronizando: false,
   sincronizacaoTimer: null,
   sincronizacaoResolvers: []
@@ -119,6 +122,8 @@ const el = {
   btnLimpar: document.getElementById("btnLimpar"),
   btnRascunho: document.getElementById("btnRascunho"),
   btnDespublicar: document.getElementById("btnDespublicar"),
+  btnModoLista: document.getElementById("btnModoLista"),
+  btnModoBlocos: document.getElementById("btnModoBlocos"),
   filtroBusca: document.getElementById("filtroBusca"),
   filtroStatus: document.getElementById("filtroStatus"),
   filtroLocal: document.getElementById("filtroLocal"),
@@ -142,27 +147,30 @@ await msalInstance.initialize();
 carregarConfiguracaoGithubLocal();
 carregarFiltrosNaTela();
 inicializarEventos();
+aplicarModoPublicacoes();
 renderizarMidias();
 atualizarPreviaPublicacao();
 await inicializarSessao();
 
 function inicializarEventos() {
-  el.btnEntrar?.addEventListener("click", entrar);
-  el.btnTrocarConta?.addEventListener("click", entrar);
+  el.btnEntrar?.addEventListener("click", (event) => executarComBotao(event.currentTarget, entrar, "Abrindo..."));
+  el.btnTrocarConta?.addEventListener("click", (event) => executarComBotao(event.currentTarget, entrar, "Abrindo..."));
   el.btnSair?.addEventListener("click", sair);
-  el.btnAtualizar?.addEventListener("click", carregarDados);
-  el.btnProvisionar?.addEventListener("click", provisionarSharePoint);
+  el.btnAtualizar?.addEventListener("click", (event) => executarComBotao(event.currentTarget, carregarDados, "Atualizando..."));
+  el.btnProvisionar?.addEventListener("click", (event) => executarComBotao(event.currentTarget, provisionarSharePoint, "Preparando..."));
   el.formPublicacao?.addEventListener("submit", salvarPublicacao);
   el.btnNovaPublicacao?.addEventListener("click", limparFormulario);
   el.btnRascunho?.addEventListener("click", salvarRascunho);
-  el.btnDespublicar?.addEventListener("click", despublicarPublicacao);
-  el.btnExcluir?.addEventListener("click", excluirPublicacao);
+  el.btnDespublicar?.addEventListener("click", (event) => despublicarPublicacao(undefined, event.currentTarget));
+  el.btnExcluir?.addEventListener("click", (event) => excluirPublicacao(undefined, event.currentTarget));
   el.btnLimpar?.addEventListener("click", limparFormulario);
-  el.btnSalvarFontePublica?.addEventListener("click", salvarFontePublica);
-  el.btnSincronizarFontePublica?.addEventListener("click", () => sincronizarFontePublica());
+  el.btnSalvarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, salvarFontePublica, "Salvando..."));
+  el.btnSincronizarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, () => sincronizarFontePublica(), "Sincronizando..."));
   el.formHome?.addEventListener("submit", salvarHome);
   el.btnPreviaHome?.addEventListener("click", () => aplicarHomeNaTela(lerHomeDoFormulario()));
   el.btnUsarMidia?.addEventListener("click", usarMidiaNoEditor);
+  el.btnModoLista?.addEventListener("click", () => alterarModoPublicacoes("lista"));
+  el.btnModoBlocos?.addEventListener("click", () => alterarModoPublicacoes("blocos"));
   el.campoGithubToken?.addEventListener("input", salvarConfiguracaoGithubLocal);
   el.campoGithubRepo?.addEventListener("input", salvarConfiguracaoGithubLocal);
   el.campoGithubBranch?.addEventListener("input", salvarConfiguracaoGithubLocal);
@@ -205,6 +213,42 @@ function inicializarEventos() {
 
   const ultimaAba = localStorage.getItem(STORAGE_ULTIMA_ABA);
   if (ultimaAba) abrirAbaCms(ultimaAba);
+}
+
+async function executarComBotao(botao, tarefa, textoEnquanto = "Aguarde...") {
+  if (estado.operacaoEmAndamento || typeof tarefa !== "function") return undefined;
+  estado.operacaoEmAndamento = true;
+  const textoOriginal = botao?.textContent;
+  if (botao) {
+    botao.disabled = true;
+    botao.setAttribute("aria-busy", "true");
+    botao.textContent = textoEnquanto;
+  }
+  try {
+    return await tarefa();
+  } finally {
+    estado.operacaoEmAndamento = false;
+    if (botao) {
+      botao.removeAttribute("aria-busy");
+      botao.disabled = false;
+      botao.textContent = textoOriginal;
+    }
+  }
+}
+
+function alterarModoPublicacoes(modo) {
+  estado.modoPublicacoes = modo === "blocos" ? "blocos" : "lista";
+  localStorage.setItem(STORAGE_MODO_PUBLICACOES, estado.modoPublicacoes);
+  aplicarModoPublicacoes();
+}
+
+function aplicarModoPublicacoes() {
+  const blocos = estado.modoPublicacoes === "blocos";
+  el.listaPublicacoes?.classList.toggle("blocks", blocos);
+  el.btnModoLista?.classList.toggle("active", !blocos);
+  el.btnModoBlocos?.classList.toggle("active", blocos);
+  el.btnModoLista?.setAttribute("aria-pressed", String(!blocos));
+  el.btnModoBlocos?.setAttribute("aria-pressed", String(blocos));
 }
 
 async function inicializarSessao() {
@@ -401,6 +445,7 @@ function renderizarPublicacoes() {
   el.contadorPublicacoes.textContent = `${estado.publicacoes.length} item${estado.publicacoes.length === 1 ? "" : "s"}`;
   el.resumoFiltros.textContent = `${lista.length} exibido${lista.length === 1 ? "" : "s"}`;
   el.listaPublicacoes.innerHTML = "";
+  aplicarModoPublicacoes();
 
   if (!lista.length) {
     el.listaPublicacoes.innerHTML = '<div class="publicationItem"><p>Nenhuma publicação encontrada com estes filtros.</p></div>';
@@ -429,7 +474,7 @@ function renderizarPublicacoes() {
         <button type="button" data-acao="editar" data-id="${publicacao.id}">Editar</button>
         <button type="button" data-acao="duplicar" data-id="${publicacao.id}">Duplicar</button>
         <button type="button" data-acao="visualizar" data-id="${publicacao.id}">Visualizar</button>
-        <button type="button" data-acao="despublicar" data-id="${publicacao.id}">Despublicar</button>
+        <button type="button" data-acao="despublicar" data-id="${publicacao.id}">Tirar do site</button>
         <button class="dangerMini" type="button" data-acao="excluir" data-id="${publicacao.id}">Excluir</button>
       </div>
     `;
@@ -466,6 +511,7 @@ function filtrarPublicacoes() {
 async function tratarAcaoPublicacao(event) {
   const botao = event.target.closest("button[data-acao]");
   if (!botao) return;
+  event.preventDefault();
   const publicacao = estado.publicacoes.find((item) => item.id === botao.dataset.id);
   if (!publicacao) return;
 
@@ -476,7 +522,14 @@ async function tratarAcaoPublicacao(event) {
     despublicar: () => despublicarPublicacao(publicacao.id),
     excluir: () => excluirPublicacao(publicacao.id)
   };
-  await acoes[botao.dataset.acao]?.();
+  const textos = {
+    editar: "Abrindo...",
+    duplicar: "Duplicando...",
+    visualizar: "Abrindo...",
+    despublicar: "Tirando...",
+    excluir: "Excluindo..."
+  };
+  await executarComBotao(botao, acoes[botao.dataset.acao], textos[botao.dataset.acao]);
 }
 
 function preencherFormulario(publicacao) {
@@ -518,11 +571,11 @@ function limparFormulario() {
 
 async function salvarPublicacao(event) {
   event.preventDefault();
-  await persistirPublicacao(true);
+  await executarComBotao(event.submitter || el.formPublicacao.querySelector("[type='submit']"), () => persistirPublicacao(true), "Salvando...");
 }
 
-async function salvarRascunho() {
-  await persistirPublicacao(false);
+async function salvarRascunho(event) {
+  await executarComBotao(event?.currentTarget, () => persistirPublicacao(false), "Salvando...");
 }
 
 async function persistirPublicacao(publicado) {
@@ -599,7 +652,15 @@ async function duplicarPublicacao(publicacao) {
   atualizarPreviaPublicacao();
 }
 
-async function despublicarPublicacao(idInformado) {
+async function despublicarPublicacao(idInformado, botaoAcao) {
+  if (botaoAcao && !estado.operacaoEmAndamento) {
+    const resultado = await executarComBotao(botaoAcao, () => despublicarPublicacao(idInformado), "Tirando...");
+    if (!campo("itemId").value) {
+      el.btnDespublicar.disabled = true;
+      el.btnExcluir.disabled = true;
+    }
+    return resultado;
+  }
   const id = typeof idInformado === "string" ? idInformado : campo("itemId").value;
   if (!id) return;
   const publicacao = estado.publicacoes.find((item) => item.id === id);
@@ -608,7 +669,7 @@ async function despublicarPublicacao(idInformado) {
     body: JSON.stringify({ Publicado: false, DataAtualizacao: new Date().toISOString() })
   });
   if (!resposta.ok) {
-    el.statusSistema.textContent = "Não foi possível despublicar.";
+    el.statusSistema.textContent = "Não foi possível tirar a publicação do site.";
     return;
   }
   await registrarLogPortal("despublicou publicação", publicacao?.titulo || id);
@@ -616,13 +677,21 @@ async function despublicarPublicacao(idInformado) {
   await carregarPublicacoes();
   const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
   el.statusSistema.textContent = sincronizado
-    ? "Publicação despublicada e removida do site."
-    : "Publicação despublicada no SharePoint. Sincronize a fonte pública quando possível.";
+    ? "Publicação retirada do site."
+    : "Publicação retirada no SharePoint. A atualização pública depende do token GitHub.";
 }
 
-async function excluirPublicacao(idInformado) {
+async function excluirPublicacao(idInformado, botaoAcao) {
+  if (botaoAcao && !estado.operacaoEmAndamento) {
+    const resultado = await executarComBotao(botaoAcao, () => excluirPublicacao(idInformado), "Excluindo...");
+    if (!campo("itemId").value) {
+      el.btnDespublicar.disabled = true;
+      el.btnExcluir.disabled = true;
+    }
+    return resultado;
+  }
   const id = typeof idInformado === "string" ? idInformado : campo("itemId").value;
-  if (!id || !confirm("Excluir esta publicação? Ela sairá do site na próxima sincronização.")) return;
+  if (!id || !confirm("Excluir esta publicação? Ela também será removida do site.")) return;
   const publicacao = estado.publicacoes.find((item) => item.id === id);
   const resposta = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items/${id}`, { method: "DELETE" });
 
@@ -637,7 +706,7 @@ async function excluirPublicacao(idInformado) {
   const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
   el.statusSistema.textContent = sincronizado
     ? "Publicação excluída e removida do site."
-    : "Publicação excluída no SharePoint. Sincronize a fonte pública quando possível.";
+    : "Publicação excluída no SharePoint. A atualização pública depende do token GitHub.";
 }
 
 function abrirPrevia(publicacao) {
@@ -712,6 +781,10 @@ function lerHomeDoFormulario() {
 
 async function salvarHome(event) {
   event.preventDefault();
+  await executarComBotao(event.submitter || el.formHome.querySelector("[type='submit']"), salvarHomeDados, "Salvando...");
+}
+
+async function salvarHomeDados() {
   if (!estado.configListId) {
     el.statusSistema.textContent = "Lista de configurações não encontrada.";
     return;

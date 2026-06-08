@@ -29,6 +29,11 @@ button{
   cursor:pointer;
 }
 
+button:disabled{
+  cursor:not-allowed;
+  opacity:0.62;
+}
+
 .hidden{display:none !important}
 
 .appShell{
@@ -389,6 +394,14 @@ textarea{
   margin-bottom:14px;
 }
 
+.panelTitleActions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
 .panelTitle h2{
   margin:0;
 }
@@ -399,15 +412,46 @@ textarea{
 
 .publicationList{
   display:grid;
-  gap:10px;
+  gap:16px;
+}
+
+.publicationList.blocks{
+  grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.viewModeGroup{
+  display:inline-flex;
+  border:1px solid var(--line);
+  border-radius:8px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.viewModeButton{
+  min-height:34px;
+  border:0;
+  border-right:1px solid var(--line);
+  padding:7px 10px;
+  background:#fff;
+  color:var(--brand);
+  font-weight:700;
+}
+
+.viewModeButton:last-child{
+  border-right:0;
+}
+
+.viewModeButton.active{
+  background:var(--brand);
+  color:#fff;
 }
 
 .publicationItem{
   display:grid;
-  gap:8px;
+  gap:12px;
   border:1px solid var(--line);
   border-radius:8px;
-  padding:14px;
+  padding:16px;
   background:#fbfdfe;
   text-align:left;
   width:100%;

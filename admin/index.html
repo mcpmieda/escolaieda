@@ -89,9 +89,9 @@
           </div>
 
           <div class="cmsTabs" role="tablist" aria-label="Áreas do CMS">
-            <button class="cmsTab active" type="button" data-cms-tab="conteudo">Conteúdo</button>
-            <button class="cmsTab" type="button" data-cms-tab="home">Editor da Página Inicial</button>
-            <button class="cmsTab" type="button" data-cms-tab="midias">Mídias</button>
+            <button class="cmsTab active" type="button" data-cms-tab="conteudo">Publicações</button>
+            <button class="cmsTab" type="button" data-cms-tab="home">Página inicial</button>
+            <button class="cmsTab" type="button" data-cms-tab="midias">Imagens e arquivos</button>
             <button class="cmsTab" type="button" data-cms-tab="enquetes">Enquetes</button>
           </div>
 
@@ -125,7 +125,7 @@
                   <option value="atualizado">Mais recentes</option>
                   <option value="status">Status</option>
                   <option value="destaque">Destaques primeiro</option>
-                  <option value="ordem">Ordem de exibição</option>
+                  <option value="ordem">Prioridade</option>
                 </select>
               </label>
             </div>
@@ -134,7 +134,13 @@
               <div class="listPanel">
                 <div class="panelTitle">
                   <h2>Publicações</h2>
-                  <span id="resumoFiltros">Lista completa</span>
+                  <div class="panelTitleActions">
+                    <span id="resumoFiltros">Lista completa</span>
+                    <div class="viewModeGroup" role="group" aria-label="Modo de visualização">
+                      <button class="viewModeButton active" id="btnModoLista" type="button" data-list-mode="lista">Lista</button>
+                      <button class="viewModeButton" id="btnModoBlocos" type="button" data-list-mode="blocos">Blocos</button>
+                    </div>
+                  </div>
                 </div>
                 <div class="publicationList" id="listaPublicacoes"></div>
               </div>
@@ -148,10 +154,10 @@
                 <label>Título
                   <input id="campoTitulo" type="text" required maxlength="180">
                 </label>
-                <label>Resumo
+                <label>Chamada curta
                   <textarea id="campoResumo" rows="3" maxlength="500"></textarea>
                 </label>
-                <label>Conteúdo
+                <label>Texto principal
                   <textarea id="campoConteudo" rows="7"></textarea>
                 </label>
                 <div class="formRow singleField">
@@ -167,20 +173,20 @@
                   </label>
                 </div>
                 <div class="formRow">
-                  <label>Imagem
+                  <label>Link da imagem
                     <input id="campoImagem" type="url" placeholder="https://">
                   </label>
                 </div>
                 <div class="formRow">
-                  <label>Texto alternativo da imagem
+                  <label>Descrição da imagem
                     <input id="campoImagemAlt" type="text" maxlength="180">
                   </label>
-                  <label>Ícone opcional
+                  <label>Marcador curto
                     <input id="campoIcone" type="text" maxlength="40" placeholder="Ex.: !, i, PDF">
                   </label>
                 </div>
                 <div class="formRow">
-                  <label>Link opcional
+                  <label>Link do botão
                     <input id="campoLink" type="url" placeholder="https://">
                   </label>
                   <label>Texto do botão
@@ -188,18 +194,18 @@
                   </label>
                 </div>
                 <div class="formRow">
-                  <label>Data inicial
+                  <label>Mostrar a partir de
                     <input id="campoDataInicial" type="date">
                   </label>
-                  <label>Data final
+                  <label>Mostrar até
                     <input id="campoDataFinal" type="date">
                   </label>
                 </div>
                 <div class="formRow">
-                  <label>Ordem de exibição
+                  <label>Prioridade
                     <input id="campoOrdem" type="number" min="0" step="1" placeholder="0">
                   </label>
-                  <label>Estilo do card
+                  <label>Aparência
                     <select id="campoEstilo">
                       <option value="padrao">Padrão</option>
                       <option value="suave">Suave</option>
@@ -209,15 +215,15 @@
                   </label>
                 </div>
                 <div class="toggles">
-                  <label><input id="campoPublicado" type="checkbox"> Publicado</label>
-                  <label><input id="campoDestaque" type="checkbox"> Destaque</label>
-                  <label><input id="campoFixado" type="checkbox"> Fixar no topo</label>
+                  <label><input id="campoPublicado" type="checkbox"> Mostrar no site</label>
+                  <label><input id="campoDestaque" type="checkbox"> Destacar</label>
+                  <label><input id="campoFixado" type="checkbox"> Manter no topo</label>
                 </div>
                 <div class="previewBox" id="previaPublicacao"></div>
                 <div class="buttonRow">
-                  <button class="primaryButton" type="submit">Salvar e publicar</button>
-                  <button class="secondaryButton" id="btnRascunho" type="button">Salvar rascunho</button>
-                  <button class="secondaryButton" id="btnDespublicar" type="button" disabled>Despublicar</button>
+                  <button class="primaryButton" type="submit">Salvar no site</button>
+                  <button class="secondaryButton" id="btnRascunho" type="button">Salvar sem publicar</button>
+                  <button class="secondaryButton" id="btnDespublicar" type="button" disabled>Tirar do site</button>
                   <button class="dangerButton" id="btnExcluir" type="button" disabled>Excluir</button>
                   <button class="ghostButton" id="btnLimpar" type="button">Limpar</button>
                 </div>
@@ -228,7 +234,7 @@
           <div class="cmsTabPanel" id="cmsTab-home">
             <form class="settingsPanel homeEditor" id="formHome">
               <div class="panelTitle">
-                <h2>Editor da Página Inicial</h2>
+                <h2>Página inicial</h2>
                 <span>Textos e visibilidade</span>
               </div>
               <div class="formRow">

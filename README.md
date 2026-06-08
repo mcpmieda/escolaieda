@@ -37,9 +37,10 @@ O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS esco
 
 - criar, editar, duplicar, despublicar e excluir publicacoes;
 - filtrar por busca, status, local e ordenacao;
-- marcar publicacoes como rascunho, publicado, destaque, agendado ou expirado;
+- alternar a lista de publicacoes entre visualizacao em lista ou blocos;
+- marcar publicacoes como rascunho, visivel no site, destaque, agendada ou expirada;
 - escolher onde a publicacao aparece: Informacoes, Avisos, Destaques, Banner, Documentos ou Modal;
-- configurar imagem, link, botao, icone, estilo, ordem e fixacao;
+- configurar imagem, link, botao, marcador, aparencia, prioridade e fixacao;
 - visualizar previa antes de publicar;
 - editar textos e visibilidade basica da pagina inicial;
 - cadastrar URLs de midias para uso nas publicacoes;
