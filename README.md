@@ -74,6 +74,8 @@ Todos os tipos e locais configurados em uma publicacao usam esse mesmo fluxo. Ou
 
 O painel sincroniza automaticamente depois de salvar, publicar, despublicar ou excluir. O botao "Sincronizar agora" fica apenas em Configuracoes como ferramenta de recuperacao, para reconstruir a fonte publica manualmente quando necessario.
 
+Quando varias alteracoes sao feitas em sequencia, o painel agrupa a sincronizacao por alguns segundos antes de atualizar o GitHub. Isso reduz commits intermediarios e evita cancelamentos normais do GitHub Pages em commits antigos.
+
 Cuidados:
 
 - o token deve ter permissao minima para conteudo do repositorio `mcpmieda/escolaieda`;

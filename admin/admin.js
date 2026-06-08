@@ -80,7 +80,9 @@ const estado = {
   home: { ...HOME_PADRAO },
   midias: carregarJsonLocal(STORAGE_MIDIAS, []),
   githubToken: "",
-  sincronizando: false
+  sincronizando: false,
+  sincronizacaoTimer: null,
+  sincronizacaoResolvers: []
 };
 
 const el = {
@@ -560,7 +562,7 @@ async function persistirPublicacao(publicado) {
   await registrarLogPortal(id ? "editou publicação" : "criou publicação", fields.Title);
   limparFormulario();
   await carregarPublicacoes();
-  const sincronizado = await sincronizarFontePublica({ silencioso: true });
+  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
   el.statusSistema.textContent = sincronizado
     ? (publicado ? "Publicação salva e enviada para o site." : "Rascunho salvo e removido da fonte pública.")
     : "Publicação salva no SharePoint. Sincronize a fonte pública quando o token estiver configurado.";
@@ -607,7 +609,7 @@ async function despublicarPublicacao(idInformado) {
   await registrarLogPortal("despublicou publicação", publicacao?.titulo || id);
   limparFormulario();
   await carregarPublicacoes();
-  const sincronizado = await sincronizarFontePublica({ silencioso: true });
+  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
   el.statusSistema.textContent = sincronizado
     ? "Publicação despublicada e removida do site."
     : "Publicação despublicada no SharePoint. Sincronize a fonte pública quando possível.";
@@ -627,7 +629,7 @@ async function excluirPublicacao(idInformado) {
   await registrarLogPortal("excluiu publicação", publicacao?.titulo || id);
   limparFormulario();
   await carregarPublicacoes();
-  const sincronizado = await sincronizarFontePublica({ silencioso: true });
+  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
   el.statusSistema.textContent = sincronizado
     ? "Publicação excluída e removida do site."
     : "Publicação excluída no SharePoint. Sincronize a fonte pública quando possível.";
@@ -712,7 +714,7 @@ async function salvarHome(event) {
   estado.home = lerHomeDoFormulario();
   const salvo = await salvarConfiguracaoValor("homeConfig", JSON.stringify(estado.home));
   await registrarLogPortal("editou página inicial", "Configuração da home");
-  const sincronizado = await sincronizarFontePublica({ silencioso: true });
+  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
   el.statusSistema.textContent = salvo && sincronizado
     ? "Editor da home salvo e enviado para o site."
     : "Editor da home salvo. Sincronize a fonte pública quando possível.";
@@ -794,6 +796,27 @@ async function sincronizarFontePublica(opcoes = {}) {
     if (el.btnSincronizarPublicacoes) el.btnSincronizarPublicacoes.disabled = false;
     el.btnSincronizarFontePublica.disabled = false;
   }
+}
+
+function agendarSincronizacaoFontePublica(opcoes = {}) {
+  if (estado.sincronizacaoTimer) {
+    clearTimeout(estado.sincronizacaoTimer);
+  }
+
+  definirStatusFontePublica("Sincronização automática agendada. Aguarde alguns segundos.", opcoes.silencioso);
+
+  const promessa = new Promise((resolve) => {
+    estado.sincronizacaoResolvers.push(resolve);
+  });
+
+  estado.sincronizacaoTimer = setTimeout(async () => {
+    const resolvers = estado.sincronizacaoResolvers.splice(0);
+    estado.sincronizacaoTimer = null;
+    const resultado = await sincronizarFontePublica(opcoes);
+    resolvers.forEach((resolve) => resolve(resultado));
+  }, 4000);
+
+  return promessa;
 }
 
 function gerarFontePublica() {
