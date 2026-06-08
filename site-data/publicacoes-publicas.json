@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T16:46:20.004Z",
+  "atualizadoEm": "2026-06-08T16:46:28.970Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -169,6 +169,28 @@
       "ordem": 900,
       "estilo": "padrao",
       "icone": ""
+    },
+    {
+      "id": "19",
+      "titulo": "TESTE UX CODEX 202606081645 avisos",
+      "resumo": "Chamada de teste para avisos",
+      "conteudo": "Texto principal de teste para validar avisos.",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T16:46:24Z",
+      "tipo": "aviso",
+      "local": "avisos",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 901,
+      "estilo": "padrao",
+      "icone": ""
     }
   ],
   "banners": [
@@ -216,6 +238,28 @@
       "fixado": false,
       "ordem": 0,
       "estilo": "suave",
+      "icone": ""
+    },
+    {
+      "id": "19",
+      "titulo": "TESTE UX CODEX 202606081645 avisos",
+      "resumo": "Chamada de teste para avisos",
+      "conteudo": "Texto principal de teste para validar avisos.",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T16:46:24Z",
+      "tipo": "aviso",
+      "local": "avisos",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 901,
+      "estilo": "padrao",
       "icone": ""
     }
   ],
