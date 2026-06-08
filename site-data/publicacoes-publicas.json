@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T18:56:47.863Z",
+  "atualizadoEm": "2026-06-08T18:56:56.069Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -76,28 +76,6 @@
   },
   "publicacoes": [
     {
-      "id": "14",
-      "titulo": "banner aviso urgente destaques destaque",
-      "resumo": "banner aviso urgente destaques destaque",
-      "conteudo": "banner aviso urgente destaques destaque",
-      "imagem": "",
-      "categoria": "Banner",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T14:01:38Z",
-      "tipo": "card",
-      "local": "destaques",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "destaque",
-      "icone": ""
-    },
-    {
       "id": "13",
       "titulo": "noticia banner avisos suave",
       "resumo": "noticia banner avisos suave",
@@ -167,28 +145,5 @@
       "icone": ""
     }
   ],
-  "destaques": [
-    {
-      "id": "14",
-      "titulo": "banner aviso urgente destaques destaque",
-      "resumo": "banner aviso urgente destaques destaque",
-      "conteudo": "banner aviso urgente destaques destaque",
-      "imagem": "",
-      "categoria": "Banner",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T14:01:38Z",
-      "tipo": "card",
-      "local": "destaques",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "destaque",
-      "icone": ""
-    }
-  ]
+  "destaques": []
 }
