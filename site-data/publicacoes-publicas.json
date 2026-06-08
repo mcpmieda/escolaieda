@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T18:56:39.428Z",
+  "atualizadoEm": "2026-06-08T18:56:47.863Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -76,28 +76,6 @@
   },
   "publicacoes": [
     {
-      "id": "15",
-      "titulo": "documento link documento banner topo urgente",
-      "resumo": "documento link documento banner topo urgente",
-      "conteudo": "documento link documento banner topo urgente",
-      "imagem": "",
-      "categoria": "Documento",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T14:02:12Z",
-      "tipo": "banner",
-      "local": "banner",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "urgente",
-      "icone": ""
-    },
-    {
       "id": "14",
       "titulo": "banner aviso urgente destaques destaque",
       "resumo": "banner aviso urgente destaques destaque",
@@ -164,30 +142,7 @@
       "icone": ""
     }
   ],
-  "banners": [
-    {
-      "id": "15",
-      "titulo": "documento link documento banner topo urgente",
-      "resumo": "documento link documento banner topo urgente",
-      "conteudo": "documento link documento banner topo urgente",
-      "imagem": "",
-      "categoria": "Documento",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T14:02:12Z",
-      "tipo": "banner",
-      "local": "banner",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "urgente",
-      "icone": ""
-    }
-  ],
+  "banners": [],
   "avisos": [
     {
       "id": "13",
