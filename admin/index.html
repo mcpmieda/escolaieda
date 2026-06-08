@@ -112,11 +112,14 @@
               <label>Local
                 <select id="filtroLocal">
                   <option value="todos">Todos</option>
+                  <option value="sobre">Nossa Escola</option>
+                  <option value="numeros">Números institucionais</option>
                   <option value="informacoes">Informações</option>
                   <option value="avisos">Avisos</option>
                   <option value="destaques">Destaques</option>
                   <option value="banner">Banner</option>
                   <option value="documentos">Documentos</option>
+                  <option value="contato">Contato</option>
                   <option value="modal">Modal</option>
                 </select>
               </label>
@@ -124,7 +127,6 @@
                 <select id="filtroOrdenacao">
                   <option value="atualizado">Mais recentes</option>
                   <option value="status">Status</option>
-                  <option value="destaque">Destaques primeiro</option>
                   <option value="ordem">Prioridade</option>
                 </select>
               </label>
@@ -134,13 +136,7 @@
               <div class="listPanel">
                 <div class="panelTitle">
                   <h2>Publicações</h2>
-                  <div class="panelTitleActions">
-                    <span id="resumoFiltros">Lista completa</span>
-                    <div class="viewModeGroup" role="group" aria-label="Modo de visualização">
-                      <button class="viewModeButton active" id="btnModoLista" type="button" data-list-mode="lista">Lista</button>
-                      <button class="viewModeButton" id="btnModoBlocos" type="button" data-list-mode="blocos">Blocos</button>
-                    </div>
-                  </div>
+                  <span id="resumoFiltros">Lista completa</span>
                 </div>
                 <div class="publicationList" id="listaPublicacoes"></div>
               </div>
@@ -163,11 +159,14 @@
                 <div class="formRow singleField">
                   <label>Onde aparece
                     <select id="campoLocal">
+                      <option value="sobre">Nossa Escola</option>
+                      <option value="numeros">Números institucionais</option>
                       <option value="informacoes">Informações</option>
                       <option value="avisos">Avisos</option>
                       <option value="destaques">Destaques</option>
                       <option value="banner">Banner/topo</option>
                       <option value="documentos">Documentos</option>
+                      <option value="contato">Contato</option>
                       <option value="modal">Modal/aviso importante</option>
                     </select>
                   </label>
@@ -216,8 +215,7 @@
                 </div>
                 <div class="toggles">
                   <label><input id="campoPublicado" type="checkbox"> Mostrar no site</label>
-                  <label><input id="campoDestaque" type="checkbox"> Destacar</label>
-                  <label><input id="campoFixado" type="checkbox"> Manter no topo</label>
+                  <label><input id="campoFixado" type="checkbox"> Fixar primeiro nesta seção</label>
                 </div>
                 <div class="previewBox" id="previaPublicacao"></div>
                 <div class="buttonRow">
@@ -235,7 +233,7 @@
             <form class="settingsPanel homeEditor" id="formHome">
               <div class="panelTitle">
                 <h2>Página inicial</h2>
-                <span>Textos e visibilidade</span>
+                <span>Seções e visibilidade</span>
               </div>
               <div class="formRow">
                 <label>Título principal
@@ -245,30 +243,21 @@
                   <input id="homeSubtitulo" type="text">
                 </label>
               </div>
-              <label>Frase de missão
-                <textarea id="homeMissao" rows="3"></textarea>
-              </label>
               <div class="formRow">
-                <label>Texto da seção Informações
-                  <input id="homeInfoTexto" type="text">
-                </label>
                 <label>Cor de destaque
                   <input id="homeCorDestaque" type="color" value="#003366">
                 </label>
               </div>
-              <div class="visibilityGrid">
-                <label><input id="homeMostrarSobre" type="checkbox"> Mostrar Nossa Escola</label>
-                <label><input id="homeMostrarNumeros" type="checkbox"> Mostrar números institucionais</label>
-                <label><input id="homeMostrarInformacoes" type="checkbox"> Mostrar Informações</label>
-                <label><input id="homeMostrarContato" type="checkbox"> Mostrar Contato</label>
-                <label><input id="homeMostrarBanners" type="checkbox"> Mostrar banners</label>
-                <label><input id="homeMostrarAvisos" type="checkbox"> Mostrar avisos</label>
+              <div class="sectionEditorHeader">
+                <h3>Seções da página</h3>
+                <button class="secondaryButton" id="btnAdicionarSecaoHome" type="button">Adicionar seção</button>
               </div>
+              <div class="homeSectionsList" id="listaSecoesHome"></div>
               <div class="buttonRow">
                 <button class="primaryButton" type="submit">Salvar editor da home</button>
                 <button class="secondaryButton" id="btnPreviaHome" type="button">Prévia local</button>
               </div>
-              <p class="hintText">As mudanças da home entram no JSON público após sincronizar o site.</p>
+              <p class="hintText">Cada seção pode receber publicações pelo campo "Onde aparece". O formato Lista/Blocos vale para as publicações daquela seção no site.</p>
             </form>
           </div>
 

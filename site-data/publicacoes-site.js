@@ -43,12 +43,9 @@
     texto("[data-home-missao]", home.missao);
     texto("[data-home-info-texto]", home.infoTexto);
     if (home.corDestaque) document.documentElement.style.setProperty("--azul", home.corDestaque);
-    alternarBloco("sobre", home.mostrarSobre);
-    alternarBloco("numeros", home.mostrarNumeros);
-    alternarBloco("informacoes", home.mostrarInformacoes);
-    alternarBloco("contato", home.mostrarContato);
+    const secoes = normalizarSecoesHome(home);
+    secoes.forEach(aplicarSecao);
     alternarLocal("banner", home.mostrarBanners);
-    alternarLocal("avisos", home.mostrarAvisos);
   }
 
   function texto(seletor, valor) {
@@ -64,6 +61,60 @@
   function alternarLocal(nome, visivel) {
     const bloco = document.querySelector(`[data-publicacoes-local="${nome}"]`);
     if (bloco) bloco.classList.toggle("hidden-by-cms", visivel === false);
+  }
+
+  function normalizarSecoesHome(home) {
+    const fallback = [
+      { id: "sobre", titulo: "Nossa Escola", texto: "", visivel: home.mostrarSobre !== false, layout: "blocos" },
+      { id: "numeros", titulo: "Educar é construir o futuro", texto: home.missao, visivel: home.mostrarNumeros !== false, layout: "blocos" },
+      { id: "informacoes", titulo: "Informações", texto: home.infoTexto, visivel: home.mostrarInformacoes !== false, layout: "blocos" },
+      { id: "avisos", titulo: "Avisos", texto: "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.", visivel: home.mostrarAvisos !== false, layout: "lista" },
+      { id: "destaques", titulo: "Destaques", texto: "Conteúdos que precisam de maior visibilidade na página inicial.", visivel: true, layout: "blocos" },
+      { id: "documentos", titulo: "Documentos", texto: "Links, documentos e materiais úteis para a rotina escolar.", visivel: true, layout: "lista" },
+      { id: "contato", titulo: "Contato", texto: "", visivel: home.mostrarContato !== false, layout: "lista" }
+    ];
+    const secoes = Array.isArray(home.secoes) && home.secoes.length ? home.secoes : fallback;
+    return secoes.map((secao) => ({
+      id: normalizarClasse(secao.id),
+      titulo: secao.titulo || "",
+      texto: secao.texto || "",
+      visivel: secao.visivel !== false,
+      layout: secao.layout === "lista" ? "lista" : "blocos"
+    })).filter((secao) => secao.id);
+  }
+
+  function aplicarSecao(secao) {
+    const bloco = document.querySelector(`[data-home-section="${secao.id}"]`) || criarSecaoDinamica(secao);
+    if (!bloco) return;
+    bloco.classList.toggle("hidden-by-cms", secao.visivel === false);
+    texto(`[data-section-title="${secao.id}"]`, secao.titulo);
+    texto(`[data-section-text="${secao.id}"]`, secao.texto);
+    const lista = bloco.querySelector(`[data-publicacoes-local="${secao.id}"]`);
+    if (lista) {
+      lista.dataset.layout = secao.layout;
+      lista.classList.toggle("layout-lista", secao.layout === "lista");
+      lista.classList.toggle("layout-blocos", secao.layout !== "lista");
+    }
+  }
+
+  function criarSecaoDinamica(secao) {
+    const main = document.querySelector("main");
+    if (!main) return null;
+    const bloco = document.createElement("section");
+    bloco.className = "container reveal ativo secao-vazia";
+    bloco.id = secao.id;
+    bloco.dataset.homeSection = secao.id;
+    bloco.dataset.publicacoesSection = "";
+    bloco.innerHTML = `
+      <div class="titulo-secao">
+        <h2 data-section-title="${secao.id}"></h2>
+        <p data-section-text="${secao.id}"></p>
+      </div>
+      <div class="publicacoes-grid" data-publicacoes-local="${secao.id}"></div>
+    `;
+    const contato = document.querySelector('[data-home-section="contato"]');
+    main.insertBefore(bloco, contato || null);
+    return bloco;
   }
 
   function criarCard(item) {
@@ -138,6 +189,12 @@
     const modal = document.createElement("div");
     modal.className = "public-modal-content";
 
+    const cabecalho = document.createElement("div");
+    cabecalho.className = "public-modal-header";
+    const tituloModal = document.createElement("strong");
+    tituloModal.textContent = "Aviso importante";
+    cabecalho.appendChild(tituloModal);
+
     const fechar = document.createElement("button");
     fechar.type = "button";
     fechar.className = "public-modal-close";
@@ -145,11 +202,15 @@
     fechar.addEventListener("click", () => {
       modal.closest("[data-publicacoes-local='modal']")?.setAttribute("hidden", "");
     });
-    modal.appendChild(fechar);
+    cabecalho.appendChild(fechar);
+    modal.appendChild(cabecalho);
 
+    const corpo = document.createElement("div");
+    corpo.className = "public-modal-body";
     itens.forEach((item) => {
-      modal.appendChild(criarCard(item));
+      corpo.appendChild(criarCard(item));
     });
+    modal.appendChild(corpo);
 
     return modal;
   }
@@ -160,10 +221,21 @@
     if (local === "modal") {
       alvo.replaceChildren(criarModal(itens));
       alvo.removeAttribute("hidden");
+      alvo.addEventListener("click", (event) => {
+        if (event.target === alvo) alvo.setAttribute("hidden", "");
+      }, { once: true });
+      document.addEventListener("keydown", fecharModalComEsc);
       return;
     }
     const criador = local === "banner" ? criarBanner : criarCard;
     alvo.replaceChildren(...itens.map(criador));
+    alvo.closest("[data-publicacoes-section]")?.classList.remove("secao-vazia");
+  }
+
+  function fecharModalComEsc(event) {
+    if (event.key !== "Escape") return;
+    document.querySelector("[data-publicacoes-local='modal']")?.setAttribute("hidden", "");
+    document.removeEventListener("keydown", fecharModalComEsc);
   }
 
   function normalizarClasse(valor) {
@@ -193,10 +265,9 @@
       }, {});
 
       renderizarLocal("banner", grupos.banner || []);
-      renderizarLocal("informacoes", (grupos.informacoes || []).slice(0, 6));
-      renderizarLocal("avisos", (grupos.avisos || []).slice(0, 3));
-      renderizarLocal("destaques", (grupos.destaques || []).slice(0, 3));
-      renderizarLocal("documentos", (grupos.documentos || []).slice(0, 3));
+      Object.keys(grupos).forEach((local) => {
+        if (local !== "banner" && local !== "modal") renderizarLocal(local, grupos[local].slice(0, 12));
+      });
       renderizarLocal("modal", (grupos.modal || []).slice(0, 1));
     } catch (erro) {
       console.warn("Publicações dinâmicas indisponíveis.", erro);

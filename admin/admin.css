@@ -394,14 +394,6 @@ textarea{
   margin-bottom:14px;
 }
 
-.panelTitleActions{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-
 .panelTitle h2{
   margin:0;
 }
@@ -413,37 +405,6 @@ textarea{
 .publicationList{
   display:grid;
   gap:16px;
-}
-
-.publicationList.blocks{
-  grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
-}
-
-.viewModeGroup{
-  display:inline-flex;
-  border:1px solid var(--line);
-  border-radius:8px;
-  overflow:hidden;
-  background:#fff;
-}
-
-.viewModeButton{
-  min-height:34px;
-  border:0;
-  border-right:1px solid var(--line);
-  padding:7px 10px;
-  background:#fff;
-  color:var(--brand);
-  font-weight:700;
-}
-
-.viewModeButton:last-child{
-  border-right:0;
-}
-
-.viewModeButton.active{
-  background:var(--brand);
-  color:#fff;
 }
 
 .publicationItem{
@@ -569,25 +530,69 @@ textarea{
   max-width:980px;
 }
 
-.visibilityGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-  gap:10px;
-  margin:8px 0 16px;
+.sectionEditorHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:8px 0 12px;
 }
 
-.visibilityGrid label{
+.sectionEditorHeader h3{
+  margin:0;
+}
+
+.homeSectionsList{
+  display:grid;
+  gap:14px;
+  margin-bottom:16px;
+}
+
+.homeSectionItem{
+  display:grid;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:14px;
+  background:#fbfdfe;
+}
+
+.homeSectionTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.homeSectionTop strong{
+  color:var(--brand);
+}
+
+.homeSectionFields{
+  display:grid;
+  grid-template-columns:minmax(140px, 0.65fr) minmax(180px, 1fr);
+  gap:10px;
+}
+
+.homeSectionOptions{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+  gap:10px;
+}
+
+.homeSectionOptions label{
+  margin:0;
+}
+
+.homeSectionVisible{
   display:flex;
   align-items:center;
   gap:8px;
   margin:0;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:#fbfdfe;
 }
 
-.visibilityGrid input{
+.homeSectionVisible input{
   width:auto;
 }
 

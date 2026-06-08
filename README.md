@@ -37,12 +37,11 @@ O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS esco
 
 - criar, editar, duplicar, despublicar e excluir publicacoes;
 - filtrar por busca, status, local e ordenacao;
-- alternar a lista de publicacoes entre visualizacao em lista ou blocos;
-- marcar publicacoes como rascunho, visivel no site, destaque, agendada ou expirada;
-- escolher onde a publicacao aparece: Informacoes, Avisos, Destaques, Banner, Documentos ou Modal;
+- configurar secoes da pagina inicial, incluindo titulo, texto, visibilidade e formato das publicacoes no site;
+- marcar publicacoes como rascunho, visivel no site, agendada ou expirada;
+- escolher onde a publicacao aparece: secoes da home, Banner/topo ou Modal;
 - configurar imagem, link, botao, marcador, aparencia, prioridade e fixacao;
 - visualizar previa antes de publicar;
-- editar textos e visibilidade basica da pagina inicial;
 - cadastrar URLs de midias para uso nas publicacoes;
 - manter base administrativa inicial para enquetes futuras.
 
@@ -71,7 +70,7 @@ Fluxo atual:
 5. O painel usa `githubPublicacoesToken` para gravar o JSON no repositorio.
 6. O GitHub Pages passa a servir a fonte publica atualizada.
 
-Todas as publicacoes usam esse mesmo fluxo. Para o usuario, a escolha principal e apenas "Onde aparece"; categoria e tipo tecnico sao derivados automaticamente pelo painel para evitar combinacoes confusas.
+Todas as publicacoes usam esse mesmo fluxo. Para o usuario, a escolha principal e "Onde aparece"; categoria e tipo tecnico sao derivados automaticamente pelo painel para evitar combinacoes confusas. A secao "Destaques" substitui o antigo uso de um checkbox separado de destaque.
 
 O painel sincroniza automaticamente depois de salvar, publicar, despublicar ou excluir. O botao "Sincronizar agora" fica apenas em Configuracoes como ferramenta de recuperacao, para reconstruir a fonte publica manualmente quando necessario.
 
@@ -88,15 +87,12 @@ Cuidados:
 
 A home publica carrega `site-data/publicacoes-site.js`, que busca `site-data/publicacoes-publicas.json` com cache-busting simples e mantem fallback estatico caso a fonte publica falhe.
 
-A pagina inicial suporta conteudos gerenciaveis em:
+A pagina inicial e organizada por secoes configuraveis no painel. Cada secao pode ter titulo, texto, visibilidade e formato das publicacoes:
 
-- banner/topo;
-- Informacoes;
-- Avisos;
-- Destaques;
-- Documentos;
-- Modal/aviso importante;
-- textos principais e visibilidade de blocos basicos.
+- `Blocos`: cards lado a lado, com maior espacamento;
+- `Lista`: itens em uma coluna, melhor para muitos avisos ou documentos.
+
+As secoes padrao sao Nossa Escola, Numeros institucionais, Informacoes, Avisos, Destaques, Documentos e Contato. O painel tambem permite adicionar novas secoes. Banner/topo e Modal continuam como locais especiais de publicacao.
 
 As paginas de professores, calendario, contato e area restrita permanecem preservadas.
 

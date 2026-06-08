@@ -26,17 +26,29 @@ const STORAGE_GITHUB_BRANCH = "escolaIedaGithubBranch";
 const STORAGE_GITHUB_TOKEN = "escolaIedaGithubToken";
 const STORAGE_ULTIMA_ABA = "escolaIedaUltimaAba";
 const STORAGE_FILTROS = "escolaIedaFiltrosPublicacoes";
-const STORAGE_MODO_PUBLICACOES = "escolaIedaModoPublicacoes";
 const STORAGE_MIDIAS = "escolaIedaMidias";
 const CMS_VERSAO = 1;
 const LOCAIS_PUBLICACAO = {
+  sobre: { categoria: "Aviso", tipo: "card", rotulo: "Nossa Escola" },
+  numeros: { categoria: "Aviso", tipo: "card", rotulo: "Números institucionais" },
   informacoes: { categoria: "Aviso", tipo: "card", rotulo: "Informações" },
   avisos: { categoria: "Aviso", tipo: "aviso", rotulo: "Avisos" },
   destaques: { categoria: "Destaque", tipo: "card", rotulo: "Destaques" },
-  banner: { categoria: "Banner", tipo: "banner", rotulo: "Banner/topo" },
   documentos: { categoria: "Documento", tipo: "link", rotulo: "Documentos" },
+  contato: { categoria: "Aviso", tipo: "card", rotulo: "Contato" },
+  banner: { categoria: "Banner", tipo: "banner", rotulo: "Banner/topo" },
   modal: { categoria: "Aviso", tipo: "aviso", rotulo: "Modal" }
 };
+
+const SECOES_HOME_PADRAO = [
+  { id: "sobre", titulo: "Nossa Escola", texto: "Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.", visivel: true, layout: "blocos", fixa: true },
+  { id: "numeros", titulo: "Educar é construir o futuro", texto: "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.", visivel: true, layout: "blocos", fixa: true },
+  { id: "informacoes", titulo: "Informações", texto: "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.", visivel: true, layout: "blocos", fixa: true },
+  { id: "avisos", titulo: "Avisos", texto: "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.", visivel: true, layout: "lista", fixa: false },
+  { id: "destaques", titulo: "Destaques", texto: "Conteúdos que precisam de maior visibilidade na página inicial.", visivel: true, layout: "blocos", fixa: false },
+  { id: "documentos", titulo: "Documentos", texto: "Links, documentos e materiais úteis para a rotina escolar.", visivel: true, layout: "lista", fixa: false },
+  { id: "contato", titulo: "Contato", texto: "", visivel: true, layout: "lista", fixa: true }
+];
 
 const HOME_PADRAO = {
   titulo: "Escola Municipal Professora Iêda Alves de Oliveira MCPM",
@@ -44,12 +56,9 @@ const HOME_PADRAO = {
   missao: "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.",
   infoTexto: "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.",
   corDestaque: "#003366",
-  mostrarSobre: true,
-  mostrarNumeros: true,
-  mostrarInformacoes: true,
-  mostrarContato: true,
+  secoes: SECOES_HOME_PADRAO.map((secao) => ({ ...secao })),
   mostrarBanners: true,
-  mostrarAvisos: true
+  mostrarModal: true
 };
 
 const loginRequest = {
@@ -88,7 +97,6 @@ const estado = {
   }),
   home: { ...HOME_PADRAO },
   midias: carregarJsonLocal(STORAGE_MIDIAS, []),
-  modoPublicacoes: localStorage.getItem(STORAGE_MODO_PUBLICACOES) || "lista",
   githubToken: "",
   operacaoEmAndamento: false,
   sincronizando: false,
@@ -122,14 +130,14 @@ const el = {
   btnLimpar: document.getElementById("btnLimpar"),
   btnRascunho: document.getElementById("btnRascunho"),
   btnDespublicar: document.getElementById("btnDespublicar"),
-  btnModoLista: document.getElementById("btnModoLista"),
-  btnModoBlocos: document.getElementById("btnModoBlocos"),
   filtroBusca: document.getElementById("filtroBusca"),
   filtroStatus: document.getElementById("filtroStatus"),
   filtroLocal: document.getElementById("filtroLocal"),
   filtroOrdenacao: document.getElementById("filtroOrdenacao"),
   formHome: document.getElementById("formHome"),
   btnPreviaHome: document.getElementById("btnPreviaHome"),
+  btnAdicionarSecaoHome: document.getElementById("btnAdicionarSecaoHome"),
+  listaSecoesHome: document.getElementById("listaSecoesHome"),
   midiaUrl: document.getElementById("midiaUrl"),
   midiaAlt: document.getElementById("midiaAlt"),
   btnUsarMidia: document.getElementById("btnUsarMidia"),
@@ -146,8 +154,9 @@ const el = {
 await msalInstance.initialize();
 carregarConfiguracaoGithubLocal();
 carregarFiltrosNaTela();
+preencherHomeFormulario();
 inicializarEventos();
-aplicarModoPublicacoes();
+atualizarOpcoesLocais();
 renderizarMidias();
 atualizarPreviaPublicacao();
 await inicializarSessao();
@@ -169,8 +178,7 @@ function inicializarEventos() {
   el.formHome?.addEventListener("submit", salvarHome);
   el.btnPreviaHome?.addEventListener("click", () => aplicarHomeNaTela(lerHomeDoFormulario()));
   el.btnUsarMidia?.addEventListener("click", usarMidiaNoEditor);
-  el.btnModoLista?.addEventListener("click", () => alterarModoPublicacoes("lista"));
-  el.btnModoBlocos?.addEventListener("click", () => alterarModoPublicacoes("blocos"));
+  el.btnAdicionarSecaoHome?.addEventListener("click", adicionarSecaoHome);
   el.campoGithubToken?.addEventListener("input", salvarConfiguracaoGithubLocal);
   el.campoGithubRepo?.addEventListener("input", salvarConfiguracaoGithubLocal);
   el.campoGithubBranch?.addEventListener("input", salvarConfiguracaoGithubLocal);
@@ -195,7 +203,6 @@ function inicializarEventos() {
     "campoOrdem",
     "campoEstilo",
     "campoPublicado",
-    "campoDestaque",
     "campoFixado"
   ].forEach((id) => campo(id)?.addEventListener("input", atualizarPreviaPublicacao));
 
@@ -234,21 +241,6 @@ async function executarComBotao(botao, tarefa, textoEnquanto = "Aguarde...") {
       botao.textContent = textoOriginal;
     }
   }
-}
-
-function alterarModoPublicacoes(modo) {
-  estado.modoPublicacoes = modo === "blocos" ? "blocos" : "lista";
-  localStorage.setItem(STORAGE_MODO_PUBLICACOES, estado.modoPublicacoes);
-  aplicarModoPublicacoes();
-}
-
-function aplicarModoPublicacoes() {
-  const blocos = estado.modoPublicacoes === "blocos";
-  el.listaPublicacoes?.classList.toggle("blocks", blocos);
-  el.btnModoLista?.classList.toggle("active", !blocos);
-  el.btnModoBlocos?.classList.toggle("active", blocos);
-  el.btnModoLista?.setAttribute("aria-pressed", String(!blocos));
-  el.btnModoBlocos?.setAttribute("aria-pressed", String(blocos));
 }
 
 async function inicializarSessao() {
@@ -445,7 +437,6 @@ function renderizarPublicacoes() {
   el.contadorPublicacoes.textContent = `${estado.publicacoes.length} item${estado.publicacoes.length === 1 ? "" : "s"}`;
   el.resumoFiltros.textContent = `${lista.length} exibido${lista.length === 1 ? "" : "s"}`;
   el.listaPublicacoes.innerHTML = "";
-  aplicarModoPublicacoes();
 
   if (!lista.length) {
     el.listaPublicacoes.innerHTML = '<div class="publicationItem"><p>Nenhuma publicação encontrada com estes filtros.</p></div>';
@@ -461,14 +452,13 @@ function renderizarPublicacoes() {
         <strong>${escaparHtml(publicacao.titulo || "Sem título")}</strong>
         <div class="publicationMeta">
           <span class="badge ${classeStatus(status)}">${rotuloStatus(status)}</span>
-          ${publicacao.destaque ? '<span class="badge featured">Destaque</span>' : ""}
         </div>
       </div>
       <p>${escaparHtml(publicacao.resumo || publicacao.categoria || "Sem resumo")}</p>
       <div class="publicationMeta">
         <small>${escaparHtml(publicacao.categoria)}</small>
         <small>${escaparHtml(rotuloLocal(publicacao.meta.local))}</small>
-        <small>${publicacao.meta.fixado ? "Fixado" : "Ordem " + Number(publicacao.meta.ordem || 0)}</small>
+        <small>${publicacao.meta.fixado ? "Fixado primeiro" : "Prioridade " + Number(publicacao.meta.ordem || 0)}</small>
       </div>
       <div class="itemActions">
         <button type="button" data-acao="editar" data-id="${publicacao.id}">Editar</button>
@@ -497,9 +487,6 @@ function filtrarPublicacoes() {
   return lista.sort((a, b) => {
     if (estado.filtros.ordenacao === "status") {
       return obterStatusPublicacao(a).localeCompare(obterStatusPublicacao(b)) || ordenarPublicacoes(a, b);
-    }
-    if (estado.filtros.ordenacao === "destaque") {
-      if (a.destaque !== b.destaque) return a.destaque ? -1 : 1;
     }
     if (estado.filtros.ordenacao === "ordem") {
       return Number(a.meta?.ordem || 0) - Number(b.meta?.ordem || 0) || ordenarPublicacoes(a, b);
@@ -548,7 +535,6 @@ function preencherFormulario(publicacao) {
   campo("campoOrdem").value = publicacao.meta.ordem || "";
   campo("campoEstilo").value = publicacao.meta.estilo;
   campo("campoPublicado").checked = publicacao.publicado;
-  campo("campoDestaque").checked = publicacao.destaque;
   campo("campoFixado").checked = publicacao.meta.fixado;
   el.btnExcluir.disabled = false;
   el.btnDespublicar.disabled = false;
@@ -597,7 +583,7 @@ async function persistirPublicacao(publicado) {
     DataInicial: dataOuNull(campo("campoDataInicial").value),
     DataFinal: dataOuNull(campo("campoDataFinal").value),
     Publicado: Boolean(publicado),
-    Destaque: campo("campoDestaque").checked,
+    Destaque: meta.local === "destaques",
     Autor: estado.account?.name || estado.account?.username || "",
     DataAtualizacao: agora
   };
@@ -745,38 +731,157 @@ async function carregarConfiguracoes() {
   if (estado.githubToken && el.campoGithubToken && !el.campoGithubToken.value) {
     el.campoGithubToken.placeholder = "Token configurado no SharePoint";
   }
-  estado.home = { ...HOME_PADRAO, ...carregarJsonDeTexto(mapa.get("homeConfig"), {}) };
+  estado.home = normalizarHome(carregarJsonDeTexto(mapa.get("homeConfig"), {}));
   preencherHomeFormulario();
+  atualizarOpcoesLocais();
 }
 
 function preencherHomeFormulario() {
   campo("homeTitulo").value = estado.home.titulo;
   campo("homeSubtitulo").value = estado.home.subtitulo;
-  campo("homeMissao").value = estado.home.missao;
-  campo("homeInfoTexto").value = estado.home.infoTexto;
   campo("homeCorDestaque").value = estado.home.corDestaque || HOME_PADRAO.corDestaque;
-  campo("homeMostrarSobre").checked = estado.home.mostrarSobre !== false;
-  campo("homeMostrarNumeros").checked = estado.home.mostrarNumeros !== false;
-  campo("homeMostrarInformacoes").checked = estado.home.mostrarInformacoes !== false;
-  campo("homeMostrarContato").checked = estado.home.mostrarContato !== false;
-  campo("homeMostrarBanners").checked = estado.home.mostrarBanners !== false;
-  campo("homeMostrarAvisos").checked = estado.home.mostrarAvisos !== false;
+  renderizarSecoesHome();
 }
 
 function lerHomeDoFormulario() {
+  const secoes = [...el.listaSecoesHome.querySelectorAll(".homeSectionItem")].map((item) => ({
+    id: normalizarIdSecao(item.querySelector("[data-section-field='id']").value),
+    titulo: item.querySelector("[data-section-field='titulo']").value.trim(),
+    texto: item.querySelector("[data-section-field='texto']").value.trim(),
+    visivel: item.querySelector("[data-section-field='visivel']").checked,
+    layout: item.querySelector("[data-section-field='layout']").value === "lista" ? "lista" : "blocos",
+    fixa: item.dataset.fixa === "true"
+  })).filter((secao) => secao.id && secao.titulo);
+
   return {
     titulo: campo("homeTitulo").value.trim() || HOME_PADRAO.titulo,
     subtitulo: campo("homeSubtitulo").value.trim() || HOME_PADRAO.subtitulo,
-    missao: campo("homeMissao").value.trim() || HOME_PADRAO.missao,
-    infoTexto: campo("homeInfoTexto").value.trim() || HOME_PADRAO.infoTexto,
+    missao: textoSecao(secoes, "numeros") || HOME_PADRAO.missao,
+    infoTexto: textoSecao(secoes, "informacoes") || HOME_PADRAO.infoTexto,
     corDestaque: campo("homeCorDestaque").value || HOME_PADRAO.corDestaque,
-    mostrarSobre: campo("homeMostrarSobre").checked,
-    mostrarNumeros: campo("homeMostrarNumeros").checked,
-    mostrarInformacoes: campo("homeMostrarInformacoes").checked,
-    mostrarContato: campo("homeMostrarContato").checked,
-    mostrarBanners: campo("homeMostrarBanners").checked,
-    mostrarAvisos: campo("homeMostrarAvisos").checked
+    secoes,
+    mostrarSobre: secaoVisivel(secoes, "sobre"),
+    mostrarNumeros: secaoVisivel(secoes, "numeros"),
+    mostrarInformacoes: secaoVisivel(secoes, "informacoes"),
+    mostrarContato: secaoVisivel(secoes, "contato"),
+    mostrarBanners: true,
+    mostrarAvisos: secaoVisivel(secoes, "avisos"),
+    mostrarModal: true
   };
+}
+
+function normalizarHome(config) {
+  const legado = { ...HOME_PADRAO, ...(config || {}) };
+  const secoesRecebidas = Array.isArray(legado.secoes) && legado.secoes.length
+    ? legado.secoes
+    : SECOES_HOME_PADRAO.map((secao) => ({
+      ...secao,
+      texto: secao.id === "numeros" ? legado.missao || secao.texto : secao.id === "informacoes" ? legado.infoTexto || secao.texto : secao.texto,
+      visivel: secao.id === "sobre" ? legado.mostrarSobre !== false
+        : secao.id === "numeros" ? legado.mostrarNumeros !== false
+        : secao.id === "informacoes" ? legado.mostrarInformacoes !== false
+        : secao.id === "avisos" ? legado.mostrarAvisos !== false
+        : secao.id === "contato" ? legado.mostrarContato !== false
+        : secao.visivel !== false
+    }));
+
+  return {
+    ...legado,
+    secoes: normalizarSecoesHome(secoesRecebidas)
+  };
+}
+
+function normalizarSecoesHome(secoes) {
+  const mapaFixas = new Map(SECOES_HOME_PADRAO.map((secao) => [secao.id, secao]));
+  const recebidas = (Array.isArray(secoes) ? secoes : []).map((secao) => {
+    const id = normalizarIdSecao(secao.id || secao.titulo);
+    const padrao = mapaFixas.get(id) || {};
+    return {
+      id,
+      titulo: secao.titulo || padrao.titulo || "Nova seção",
+      texto: secao.texto || padrao.texto || "",
+      visivel: secao.visivel !== false,
+      layout: secao.layout === "lista" ? "lista" : "blocos",
+      fixa: Boolean(secao.fixa || padrao.fixa)
+    };
+  }).filter((secao) => secao.id);
+
+  SECOES_HOME_PADRAO.forEach((padrao) => {
+    if (!recebidas.some((secao) => secao.id === padrao.id)) recebidas.push({ ...padrao });
+  });
+
+  return recebidas;
+}
+
+function renderizarSecoesHome() {
+  if (!el.listaSecoesHome) return;
+  el.listaSecoesHome.innerHTML = estado.home.secoes.map((secao, indice) => `
+    <article class="homeSectionItem" data-fixa="${secao.fixa ? "true" : "false"}">
+      <div class="homeSectionTop">
+        <strong>${escaparHtml(secao.titulo || "Seção")}</strong>
+        <label class="homeSectionVisible">
+          <input type="checkbox" data-section-field="visivel" ${secao.visivel !== false ? "checked" : ""}>
+          Mostrar seção
+        </label>
+      </div>
+      <div class="homeSectionFields">
+        <label>Identificador
+          <input type="text" data-section-field="id" value="${escaparHtml(secao.id)}" ${secao.fixa ? "readonly" : ""}>
+        </label>
+        <label>Título da seção
+          <input type="text" data-section-field="titulo" value="${escaparHtml(secao.titulo)}">
+        </label>
+      </div>
+      <label>Texto da seção
+        <textarea rows="2" data-section-field="texto">${escaparHtml(secao.texto)}</textarea>
+      </label>
+      <div class="homeSectionOptions">
+        <label>Formato das publicações no site
+          <select data-section-field="layout">
+            <option value="blocos" ${secao.layout !== "lista" ? "selected" : ""}>Blocos</option>
+            <option value="lista" ${secao.layout === "lista" ? "selected" : ""}>Lista</option>
+          </select>
+        </label>
+        <button class="dangerButton" type="button" data-remover-secao="${indice}" ${secao.fixa ? "disabled" : ""}>Remover seção</button>
+      </div>
+    </article>
+  `).join("");
+
+  el.listaSecoesHome.querySelectorAll("[data-remover-secao]").forEach((botao) => {
+    botao.addEventListener("click", () => removerSecaoHome(Number(botao.dataset.removerSecao)));
+  });
+}
+
+function adicionarSecaoHome() {
+  estado.home = lerHomeDoFormulario();
+  const numero = estado.home.secoes.length + 1;
+  estado.home.secoes.push({
+    id: `secao-${numero}`,
+    titulo: `Nova seção ${numero}`,
+    texto: "",
+    visivel: true,
+    layout: "blocos",
+    fixa: false
+  });
+  renderizarSecoesHome();
+  atualizarOpcoesLocais();
+}
+
+function removerSecaoHome(indice) {
+  estado.home = lerHomeDoFormulario();
+  const secao = estado.home.secoes[indice];
+  if (!secao || secao.fixa) return;
+  estado.home.secoes.splice(indice, 1);
+  renderizarSecoesHome();
+  atualizarOpcoesLocais();
+}
+
+function textoSecao(secoes, id) {
+  return secoes.find((secao) => secao.id === id)?.texto || "";
+}
+
+function secaoVisivel(secoes, id) {
+  return secoes.find((secao) => secao.id === id)?.visivel !== false;
 }
 
 async function salvarHome(event) {
@@ -790,6 +895,7 @@ async function salvarHomeDados() {
     return;
   }
   estado.home = lerHomeDoFormulario();
+  atualizarOpcoesLocais();
   const salvo = await salvarConfiguracaoValor("homeConfig", JSON.stringify(estado.home));
   await registrarLogPortal("editou página inicial", "Configuração da home");
   const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
@@ -1094,6 +1200,28 @@ function carregarFiltrosNaTela() {
   if (el.filtroOrdenacao) el.filtroOrdenacao.value = estado.filtros.ordenacao;
 }
 
+function atualizarOpcoesLocais() {
+  const secoes = normalizarSecoesHome(estado.home.secoes);
+  const locais = [
+    ...secoes.map((secao) => ({ valor: secao.id, rotulo: secao.titulo || rotuloLocal(secao.id) })),
+    { valor: "banner", rotulo: "Banner/topo" },
+    { valor: "modal", rotulo: "Modal/aviso importante" }
+  ];
+  preencherSelectLocal(campo("campoLocal"), locais);
+  preencherSelectLocal(el.filtroLocal, [{ valor: "todos", rotulo: "Todos" }, ...locais.map((local) => ({
+    ...local,
+    rotulo: local.valor === "modal" ? "Modal" : local.rotulo
+  }))]);
+  carregarFiltrosNaTela();
+}
+
+function preencherSelectLocal(select, locais) {
+  if (!select) return;
+  const valorAtual = select.value;
+  select.innerHTML = locais.map((local) => `<option value="${escaparHtml(local.valor)}">${escaparHtml(local.rotulo)}</option>`).join("");
+  select.value = locais.some((local) => local.valor === valorAtual) ? valorAtual : locais[0]?.valor || "informacoes";
+}
+
 function usarMidiaNoEditor() {
   const url = el.midiaUrl.value.trim();
   if (!url) return;
@@ -1262,13 +1390,15 @@ function rotuloStatus(status) {
 }
 
 function rotuloLocal(local) {
-  return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.rotulo || "Informações";
+  const id = normalizarLocalPublicacao(local);
+  return estado.home.secoes?.find((secao) => secao.id === id)?.titulo || LOCAIS_PUBLICACAO[id]?.rotulo || "Informações";
 }
 
 function normalizarLocalPublicacao(local) {
-  const valor = String(local || "informacoes");
+  const valor = normalizarIdSecao(local || "informacoes");
   if (valor === "calendario") return "informacoes";
   if (valor === "rodape") return "informacoes";
+  if (estado.home.secoes?.some((secao) => secao.id === valor)) return valor;
   return LOCAIS_PUBLICACAO[valor] ? valor : "informacoes";
 }
 
@@ -1278,6 +1408,17 @@ function tipoPadraoPorLocal(local) {
 
 function categoriaPadraoPorLocal(local) {
   return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.categoria || "Aviso";
+}
+
+function normalizarIdSecao(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "informacoes";
 }
 
 function textoParaBase64(texto) {

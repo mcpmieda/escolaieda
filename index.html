@@ -314,23 +314,44 @@
     /* ================================================== */
     /* 11. CARDS EM GRADE                                 */
     /* ================================================== */
-    .grid{
+    .grid,
+    .publicacoes-grid{
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-      gap:32px;
+      gap:36px;
+      align-items:stretch;
+    }
+
+    .publicacoes-grid{
+      margin-top:26px;
+    }
+
+    .publicacoes-grid.layout-lista{
+      grid-template-columns:1fr;
+      max-width:900px;
+      margin-left:auto;
+      margin-right:auto;
+      gap:18px;
     }
 
     .card{
       background:white;
       border-radius:var(--raio);
-      padding:28px;
+      padding:30px;
       box-shadow:var(--sombra);
       transition:0.3s;
       border:1px solid rgba(0,0,0,0.04);
+      min-height:100%;
+      overflow:hidden;
+    }
+
+    .layout-lista .card{
+      min-height:0;
+      padding:24px 26px;
     }
 
     .card:hover{
-      transform:translateY(-6px);
+      transform:translateY(-4px);
       box-shadow:0 16px 35px rgba(0,0,0,0.12);
     }
 
@@ -375,12 +396,17 @@
     .public-resumo{
       font-weight:bold;
       color:#425466;
+      margin-bottom:8px;
     }
 
     .public-conteudo{
-      margin-top:8px;
+      margin-top:10px;
       color:#334155;
       white-space:pre-line;
+    }
+
+    .secao-vazia{
+      display:none;
     }
 
     .public-banner-area{
@@ -425,12 +451,32 @@
       width:min(100%, 520px);
       background:white;
       border-radius:14px;
-      padding:22px;
+      padding:0;
       box-shadow:0 18px 48px rgba(0,0,0,0.28);
+      overflow:hidden;
+    }
+
+    .public-modal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 18px;
+      border-bottom:1px solid rgba(0,0,0,0.08);
+      background:#f7fafc;
+    }
+
+    .public-modal-header strong{
+      color:var(--azul);
+    }
+
+    .public-modal-body{
+      display:grid;
+      gap:16px;
+      padding:18px;
     }
 
     .public-modal-close{
-      float:right;
       border:0;
       border-radius:10px;
       background:#eef2f6;
@@ -714,39 +760,38 @@
 
   <main>
     <!-- ================================================== -->
-    <!-- 19. SEÇÃO NOSSA ESCOLA                            -->
+    <!-- 19. SEÇÕES DA PÁGINA INICIAL                      -->
+    <!-- Cada seção pode receber publicações pelo painel.   -->
     <!-- ================================================== -->
-    <section class="container reveal" id="sobre" data-home-bloco="sobre">
+    <section class="container reveal" id="sobre" data-home-bloco="sobre" data-home-section="sobre" data-publicacoes-section>
       <div class="titulo-secao">
-        <h2>Nossa Escola</h2>
-        <p>Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.</p>
+        <h2 data-section-title="sobre">Nossa Escola</h2>
+        <p data-section-text="sobre">Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.</p>
       </div>
 
       <div class="grid">
         <div class="card">
           <h3>Portal Institucional</h3>
-          <p>Este site foi criado para aproximar a escola das famílias, com um canal simples, bonito e organizado para divulgar informações importantes.</p>
+          <p>Um canal oficial para aproximar a escola das famílias e organizar informações importantes em um só lugar.</p>
         </div>
 
         <div class="card">
           <h3>Compromisso com a Educação</h3>
-          <p>Valorizamos o ensino, a disciplina, o respeito, a convivência e a formação cidadã dos nossos estudantes.</p>
+          <p>Valorizamos o ensino, a disciplina, o respeito, a convivência e a formação cidadã dos estudantes.</p>
         </div>
 
         <div class="card">
           <h3>Comunicação com a Comunidade</h3>
-          <p>Este espaço reúne canais e orientações para fortalecer a comunicação entre escola, estudantes, famílias e comunidade.</p>
+          <p>Este espaço reúne orientações, avisos, documentos e canais para fortalecer a comunicação escolar.</p>
         </div>
       </div>
+      <div class="publicacoes-grid" data-publicacoes-local="sobre"></div>
     </section>
 
-    <!-- ================================================== -->
-    <!-- 20. FAIXA DE DESTAQUE                             -->
-    <!-- ================================================== -->
-    <section class="container reveal" data-home-bloco="numeros">
+    <section class="container reveal" id="numeros" data-home-bloco="numeros" data-home-section="numeros" data-publicacoes-section>
       <div class="faixa">
-        <h2>Educar é construir o futuro</h2>
-        <p data-home-missao>Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.</p>
+        <h2 data-section-title="numeros">Educar é construir o futuro</h2>
+        <p data-home-missao data-section-text="numeros">Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.</p>
 
         <div class="numeros">
           <div class="numero">
@@ -770,18 +815,16 @@
           </div>
         </div>
       </div>
+      <div class="publicacoes-grid" data-publicacoes-local="numeros"></div>
     </section>
 
-    <!-- ================================================== -->
-    <!-- 21. SEÇÃO DE INFORMAÇÕES                          -->
-    <!-- ================================================== -->
-    <section class="container reveal" id="informacoes" data-home-bloco="informacoes">
+    <section class="container reveal" id="informacoes" data-home-bloco="informacoes" data-home-section="informacoes" data-publicacoes-section>
       <div class="titulo-secao">
-        <h2>Informações</h2>
-        <p data-home-info-texto>Um espaço institucional pensado para centralizar conteúdos relevantes da escola.</p>
+        <h2 data-section-title="informacoes">Informações</h2>
+        <p data-home-info-texto data-section-text="informacoes">Um espaço institucional pensado para centralizar conteúdos relevantes da escola.</p>
       </div>
 
-      <div class="grid" data-publicacoes-site data-publicacoes-local="informacoes">
+      <div class="publicacoes-grid" data-publicacoes-site data-publicacoes-local="informacoes">
         <div class="card">
           <h3>Avisos</h3>
           <p>Comunicados importantes à comunidade escolar poderão ser publicados aqui de forma clara e acessível.</p>
@@ -797,15 +840,34 @@
           <p>As informações da escola devem ser acompanhadas pelos canais oficiais de atendimento e comunicação.</p>
         </div>
       </div>
-      <div class="grid" data-publicacoes-local="avisos"></div>
-      <div class="grid" data-publicacoes-local="destaques"></div>
-      <div class="grid" data-publicacoes-local="documentos"></div>
     </section>
 
-    <!-- ================================================== -->
-    <!-- 22. SEÇÃO DE CONTATO                              -->
-    <!-- ================================================== -->
-    <section class="container reveal" id="contato" data-home-bloco="contato">
+    <section class="container reveal secao-vazia" id="avisos" data-home-section="avisos" data-publicacoes-section>
+      <div class="titulo-secao">
+        <h2 data-section-title="avisos">Avisos</h2>
+        <p data-section-text="avisos">Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.</p>
+      </div>
+      <div class="publicacoes-grid" data-publicacoes-local="avisos"></div>
+    </section>
+
+    <section class="container reveal secao-vazia" id="destaques" data-home-section="destaques" data-publicacoes-section>
+      <div class="titulo-secao">
+        <h2 data-section-title="destaques">Destaques</h2>
+        <p data-section-text="destaques">Conteúdos que precisam de maior visibilidade na página inicial.</p>
+      </div>
+      <div class="publicacoes-grid" data-publicacoes-local="destaques"></div>
+    </section>
+
+    <section class="container reveal secao-vazia" id="documentos" data-home-section="documentos" data-publicacoes-section>
+      <div class="titulo-secao">
+        <h2 data-section-title="documentos">Documentos</h2>
+        <p data-section-text="documentos">Links, documentos e materiais úteis para a rotina escolar.</p>
+      </div>
+      <div class="publicacoes-grid" data-publicacoes-local="documentos"></div>
+    </section>
+
+    <section class="container reveal" id="contato" data-home-bloco="contato" data-home-section="contato" data-publicacoes-section>
+      <div class="publicacoes-grid" data-publicacoes-local="contato"></div>
       <div class="contato-card">
         <h2>Contato</h2>
         <p><strong>Email:</strong> <a class="email" href="mailto:secretaria@escolaieda.com">secretaria@escolaieda.com</a></p>
@@ -844,7 +906,6 @@
     /* ================================================== */
     /* 25. ELEMENTOS DO JAVASCRIPT                         */
     /* ================================================== */
-    const reveals = document.querySelectorAll('.reveal');
     const topbar = document.getElementById('topbar');
     const topoBtn = document.getElementById('topoBtn');
     const botoesHero = document.getElementById('botoesHero');
@@ -873,7 +934,7 @@
     function revelarElementos(){
       const alturaJanela = window.innerHeight;
 
-      reveals.forEach((el) => {
+      document.querySelectorAll('.reveal').forEach((el) => {
         const topo = el.getBoundingClientRect().top;
         if(topo < alturaJanela - 80){
           el.classList.add('ativo');
