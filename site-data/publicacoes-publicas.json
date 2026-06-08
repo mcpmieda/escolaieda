@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T13:41:40.934Z",
+  "atualizadoEm": "2026-06-08T13:43:22.670Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -16,6 +16,28 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
+    {
+      "id": "10",
+      "titulo": "teste 5",
+      "resumo": "teste 5",
+      "conteudo": "",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T13:43:21Z",
+      "tipo": "banner",
+      "local": "informacoes",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "destaque",
+      "icone": ""
+    },
     {
       "id": "9",
       "titulo": "teste 4",
