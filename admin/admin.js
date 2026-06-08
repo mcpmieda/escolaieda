@@ -3,7 +3,7 @@ import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11
 const CONFIG = {
   clientId: "bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
   tenantId: "f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
-  redirectUri: `${window.location.origin}/admin/`,
+  redirectUri: `${window.location.origin}/`,
   postLoginPath: "/admin/",
   siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
   documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
@@ -222,10 +222,12 @@ async function inicializarSessao() {
 
 async function entrar() {
   atualizarLoginStatus("Abrindo login Microsoft...");
+  sessionStorage.setItem("escolaIedaDestinoLogin", CONFIG.postLoginPath);
   await msalInstance.loginRedirect(loginRequest);
 }
 
 async function sair() {
+  sessionStorage.removeItem("escolaIedaDestinoLogin");
   await msalInstance.logoutRedirect({ postLogoutRedirectUri: "https://escolaieda.com/" });
 }
 

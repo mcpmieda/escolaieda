@@ -891,6 +891,42 @@
       });
     }
   </script>
+  <script type="module">
+    import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
+
+    const destinoLogin = sessionStorage.getItem("escolaIedaDestinoLogin");
+    const retornoMicrosoft = window.location.search.includes("code=") || window.location.hash.includes("code=");
+
+    if(destinoLogin || retornoMicrosoft){
+      const msalRetorno = new PublicClientApplication({
+        auth:{
+          clientId:"bc2ecead-5f2e-48b8-9d48-9d01f2848cfa",
+          authority:"https://login.microsoftonline.com/f04e0fa3-b8dc-4f77-be3c-7dfda0635188",
+          redirectUri:window.location.origin + "/"
+        },
+        cache:{
+          cacheLocation:"sessionStorage",
+          storeAuthStateInCookie:false
+        }
+      });
+
+      await msalRetorno.initialize();
+      msalRetorno.handleRedirectPromise()
+        .then((response) => {
+          if(response?.account){
+            msalRetorno.setActiveAccount(response.account);
+          }
+          if(destinoLogin){
+            sessionStorage.removeItem("escolaIedaDestinoLogin");
+            window.location.replace(destinoLogin);
+          }
+        })
+        .catch((erro) => {
+          console.error("Erro ao concluir retorno Microsoft:", erro);
+          sessionStorage.removeItem("escolaIedaDestinoLogin");
+        });
+    }
+  </script>
   <script src="/site-data/publicacoes-site.js" data-fonte="/site-data/publicacoes-publicas.json"></script>
 </body>
 </html>

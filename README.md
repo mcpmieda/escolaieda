@@ -45,7 +45,7 @@ O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS esco
 - cadastrar URLs de midias para uso nas publicacoes;
 - manter base administrativa inicial para enquetes futuras.
 
-O login Microsoft acontece diretamente em `/admin/`. A home publica apenas encaminha o usuario para o painel, sem processar retorno MSAL. No Entra ID/App Registration, a URL de redirecionamento do SPA precisa incluir `https://escolaieda.com/admin/`.
+O usuario acessa o login pelo painel em `/admin/`. O Entra ID usa a raiz `https://escolaieda.com/` como URL de retorno cadastrada; a home conclui o callback MSAL e volta automaticamente para `/admin/`. Isso evita depender de uma URL de redirect ainda nao cadastrada no aplicativo.
 
 ## Fonte Publica
 
