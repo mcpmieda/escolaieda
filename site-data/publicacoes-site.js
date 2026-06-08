@@ -84,8 +84,16 @@
 
     if (item.resumo) {
       const resumo = document.createElement("p");
+      resumo.className = "public-resumo";
       resumo.textContent = item.resumo;
       card.appendChild(resumo);
+    }
+
+    if (item.conteudo) {
+      const conteudo = document.createElement("p");
+      conteudo.className = "public-conteudo";
+      conteudo.textContent = item.conteudo;
+      card.appendChild(conteudo);
     }
 
     if (item.link) {
@@ -109,6 +117,12 @@
       const resumo = document.createElement("span");
       resumo.textContent = item.resumo;
       banner.appendChild(resumo);
+    }
+    if (item.conteudo) {
+      const conteudo = document.createElement("p");
+      conteudo.className = "public-conteudo";
+      conteudo.textContent = item.conteudo;
+      banner.appendChild(conteudo);
     }
     if (item.link) {
       const link = document.createElement("a");

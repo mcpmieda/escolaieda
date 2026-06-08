@@ -1126,6 +1126,7 @@ function criarHtmlCardPublico(item) {
   const meta = normalizarMeta(item.meta || item);
   const titulo = escaparHtml(item.titulo || item.categoria || "Publicação");
   const resumo = escaparHtml(item.resumo || "");
+  const conteudo = escaparHtml(item.conteudo || "");
   const imagem = item.imagem ? `<img class="publicMedia" src="${escaparHtml(item.imagem)}" alt="${escaparHtml(meta.imagemAlt || item.titulo || "")}">` : "";
   const icone = meta.icone ? `<span class="badge">${escaparHtml(meta.icone)}</span>` : "";
   const link = meta.link ? `<a class="publicacao-botao" href="${escaparHtml(meta.link)}">${escaparHtml(meta.botao || "Abrir")}</a>` : "";
@@ -1134,7 +1135,8 @@ function criarHtmlCardPublico(item) {
       ${imagem}
       ${icone}
       <h3>${titulo}</h3>
-      ${resumo ? `<p>${resumo}</p>` : ""}
+      ${resumo ? `<p><strong>${resumo}</strong></p>` : ""}
+      ${conteudo ? `<p>${conteudo}</p>` : ""}
       ${link}
     </article>
   `;
