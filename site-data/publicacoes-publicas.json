@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T13:22:15.0517871Z",
+  "atualizadoEm": "2026-06-08T13:26:38.556Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -15,7 +15,30 @@
     "mostrarBanners": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [],
+  "publicacoes": [
+    {
+      "id": "6",
+      "titulo": "bom dia1",
+      "resumo": "123",
+      "conteudo": "olá, esse é um teste real",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T13:26:37Z",
+      "tipo": "card",
+      "local": "informacoes",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 0,
+      "estilo": "padrao",
+      "icone": ""
+    }
+  ],
   "banners": [],
   "avisos": [],
   "destaques": []
