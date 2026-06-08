@@ -1,11 +1,11 @@
 (function () {
+  const scriptAtual = document.currentScript;
   const estado = {
     carregado: false
   };
 
   function obterFonte() {
-    const script = document.currentScript;
-    return script?.dataset?.fonte || window.ESCOLA_IEDA_PUBLICACOES_URL || "";
+    return scriptAtual?.dataset?.fonte || window.ESCOLA_IEDA_PUBLICACOES_URL || "";
   }
 
   function publicacaoVisivel(item, agora) {

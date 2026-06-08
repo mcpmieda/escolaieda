@@ -156,11 +156,24 @@
             </div>
             <div class="settingsPanel">
               <h2>Fonte pública</h2>
-              <p>Configure uma URL pública somente leitura para o site institucional consumir publicações sem login.</p>
+              <p>Configure a publicação automática da fonte que a página inicial consome sem login.</p>
               <label>URL JSON pública
                 <input id="campoFontePublica" type="url" placeholder="https://.../publicacoes-publicas.json">
               </label>
+              <label>Token GitHub
+                <input id="campoGithubToken" type="password" autocomplete="off" placeholder="Token com permissão de conteúdo no repositório">
+              </label>
+              <div class="formRow">
+                <label>Repositório
+                  <input id="campoGithubRepo" type="text" value="mcpmieda/escolaieda">
+                </label>
+                <label>Branch
+                  <input id="campoGithubBranch" type="text" value="main">
+                </label>
+              </div>
               <button class="secondaryButton" id="btnSalvarFontePublica" type="button">Salvar configuração</button>
+              <button class="primaryButton" id="btnSincronizarFontePublica" type="button">Sincronizar agora</button>
+              <p class="hintText" id="statusFontePublica">A fonte pública é atualizada automaticamente ao salvar ou excluir publicações.</p>
             </div>
           </div>
         </section>

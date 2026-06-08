@@ -19,6 +19,12 @@ const CONFIG = {
   midiasLibraryName: "MIDIAS_SITE"
 };
 
+const FONTE_PUBLICA_PADRAO = "/site-data/publicacoes-publicas.json";
+const CAMINHO_FONTE_PUBLICA = "site-data/publicacoes-publicas.json";
+const STORAGE_GITHUB_REPO = "escolaIedaGithubRepo";
+const STORAGE_GITHUB_BRANCH = "escolaIedaGithubBranch";
+const STORAGE_GITHUB_TOKEN = "escolaIedaGithubToken";
+
 const loginRequest = {
   scopes: ["User.Read", "Sites.ReadWrite.All"],
   prompt: "select_account"
@@ -69,10 +75,16 @@ const el = {
   btnLimpar: document.getElementById("btnLimpar"),
   btnRascunho: document.getElementById("btnRascunho"),
   campoFontePublica: document.getElementById("campoFontePublica"),
-  btnSalvarFontePublica: document.getElementById("btnSalvarFontePublica")
+  campoGithubToken: document.getElementById("campoGithubToken"),
+  campoGithubRepo: document.getElementById("campoGithubRepo"),
+  campoGithubBranch: document.getElementById("campoGithubBranch"),
+  btnSalvarFontePublica: document.getElementById("btnSalvarFontePublica"),
+  btnSincronizarFontePublica: document.getElementById("btnSincronizarFontePublica"),
+  statusFontePublica: document.getElementById("statusFontePublica")
 };
 
 await msalInstance.initialize();
+carregarConfiguracaoGithubLocal();
 inicializarEventos();
 await inicializarSessao();
 
@@ -87,6 +99,10 @@ function inicializarEventos() {
   el.btnExcluir?.addEventListener("click", excluirPublicacao);
   el.btnLimpar?.addEventListener("click", limparFormulario);
   el.btnSalvarFontePublica?.addEventListener("click", salvarFontePublica);
+  el.btnSincronizarFontePublica?.addEventListener("click", () => sincronizarFontePublica());
+  el.campoGithubToken?.addEventListener("input", salvarConfiguracaoGithubLocal);
+  el.campoGithubRepo?.addEventListener("input", salvarConfiguracaoGithubLocal);
+  el.campoGithubBranch?.addEventListener("input", salvarConfiguracaoGithubLocal);
 
   document.querySelectorAll("[data-view]").forEach((botao) => {
     botao.addEventListener("click", () => abrirView(botao.dataset.view));
@@ -317,7 +333,15 @@ async function persistirPublicacao(publicado) {
 
   limparFormulario();
   await carregarPublicacoes();
-  el.statusSistema.textContent = publicado ? "Publicação salva e publicada." : "Rascunho salvo.";
+  if (publicado) {
+    const sincronizado = await sincronizarFontePublica({ silencioso: true });
+    el.statusSistema.textContent = sincronizado
+      ? "Publicação salva, publicada e enviada para a página inicial."
+      : "Publicação salva no SharePoint. Configure o token GitHub e sincronize a fonte pública.";
+  } else {
+    await sincronizarFontePublica({ silencioso: true });
+    el.statusSistema.textContent = "Rascunho salvo. Rascunhos não aparecem na página inicial.";
+  }
 }
 
 async function excluirPublicacao() {
@@ -336,7 +360,10 @@ async function excluirPublicacao() {
 
   limparFormulario();
   await carregarPublicacoes();
-  el.statusSistema.textContent = "Publicação excluída.";
+  const sincronizado = await sincronizarFontePublica({ silencioso: true });
+  el.statusSistema.textContent = sincronizado
+    ? "Publicação excluída e fonte pública atualizada."
+    : "Publicação excluída no SharePoint. Configure o token GitHub e sincronize a fonte pública.";
 }
 
 function limparFormulario() {
@@ -405,7 +432,7 @@ async function provisionarSharePoint() {
   await garantirLista(listas, CONFIG.midiasLibraryName, "documentLibrary", []);
   await atualizarIdsEstruturas();
   await garantirPublicacaoTeste();
-  await salvarFontePublicaValor("/site-data/publicacoes-publicas.json");
+  await salvarFontePublicaValor(FONTE_PUBLICA_PADRAO);
   await carregarDados();
   registrarLog("Provisionamento concluído.");
 }
@@ -443,7 +470,7 @@ async function carregarFontePublica() {
   const dados = await resposta.json();
   const item = (dados.value || []).map((i) => ({ id: i.id, fields: i.fields || {} }))
     .find((i) => i.fields.Chave === "fontePublicaPublicacoes");
-  el.campoFontePublica.value = item?.fields?.Valor || "";
+  el.campoFontePublica.value = item?.fields?.Valor || FONTE_PUBLICA_PADRAO;
 }
 
 async function salvarFontePublica() {
@@ -453,7 +480,7 @@ async function salvarFontePublica() {
   }
 
   const chave = "fontePublicaPublicacoes";
-  const valor = el.campoFontePublica.value.trim();
+  const valor = el.campoFontePublica.value.trim() || FONTE_PUBLICA_PADRAO;
   const resposta = await salvarFontePublicaValor(valor);
   el.statusSistema.textContent = resposta ? "Fonte pública salva." : "Não foi possível salvar a fonte pública.";
 }
@@ -472,6 +499,118 @@ async function salvarFontePublicaValor(valor) {
     : await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items`, { method: "POST", body: JSON.stringify({ fields: body }) });
 
   return resposta.ok;
+}
+
+async function sincronizarFontePublica(opcoes = {}) {
+  if (!estado.publicacoesListId) return false;
+
+  const token = el.campoGithubToken?.value.trim();
+  const repo = el.campoGithubRepo?.value.trim() || "mcpmieda/escolaieda";
+  const branch = el.campoGithubBranch?.value.trim() || "main";
+
+  if (!token) {
+    definirStatusFontePublica("Informe o token GitHub para atualizar a fonte pública.", opcoes.silencioso);
+    return false;
+  }
+
+  try {
+    if (!estado.publicacoes.length) await carregarPublicacoes();
+    const conteudo = `${JSON.stringify(gerarFontePublica(), null, 2)}\n`;
+    await publicarArquivoGithub({ token, repo, branch, conteudo });
+    definirStatusFontePublica("Fonte pública sincronizada. A home receberá a atualização pelo GitHub Pages.", false);
+    return true;
+  } catch (erro) {
+    console.error(erro);
+    definirStatusFontePublica("Não foi possível sincronizar a fonte pública. Confira token, repositório e conexão.", opcoes.silencioso);
+    return false;
+  }
+}
+
+function gerarFontePublica() {
+  return {
+    atualizadoEm: new Date().toISOString(),
+    origem: "PUBLICACOES_SITE",
+    publicacoes: estado.publicacoes
+      .filter((publicacao) => publicacao.publicado === true)
+      .sort(ordenarPublicacoes)
+      .map((publicacao) => ({
+        titulo: publicacao.titulo,
+        resumo: publicacao.resumo,
+        conteudo: publicacao.conteudo,
+        imagem: publicacao.imagem,
+        categoria: publicacao.categoria,
+        publicado: true,
+        destaque: publicacao.destaque === true,
+        dataInicial: publicacao.dataInicial || null,
+        dataFinal: publicacao.dataFinal || null,
+        atualizadoEm: publicacao.atualizadoEm || publicacao.criadoEm || null
+      }))
+  };
+}
+
+async function publicarArquivoGithub({ token, repo, branch, conteudo }) {
+  const [owner, name] = repo.split("/");
+  if (!owner || !name) throw new Error("Repositório GitHub inválido.");
+
+  const apiBase = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/contents/${CAMINHO_FONTE_PUBLICA}`;
+  const consulta = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, {
+    headers: cabecalhosGithub(token)
+  });
+
+  let sha = "";
+  if (consulta.ok) {
+    const atual = await consulta.json();
+    sha = atual.sha || "";
+  } else if (consulta.status !== 404) {
+    throw new Error("Falha ao consultar arquivo público no GitHub.");
+  }
+
+  const resposta = await fetch(apiBase, {
+    method: "PUT",
+    headers: cabecalhosGithub(token),
+    body: JSON.stringify({
+      message: "Atualizar publicações públicas",
+      content: textoParaBase64(conteudo),
+      branch,
+      ...(sha ? { sha } : {})
+    })
+  });
+
+  if (!resposta.ok) throw new Error("Falha ao publicar fonte pública no GitHub.");
+}
+
+function cabecalhosGithub(token) {
+  return {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+}
+
+function textoParaBase64(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  let binario = "";
+  bytes.forEach((byte) => {
+    binario += String.fromCharCode(byte);
+  });
+  return btoa(binario);
+}
+
+function carregarConfiguracaoGithubLocal() {
+  if (el.campoGithubRepo) el.campoGithubRepo.value = localStorage.getItem(STORAGE_GITHUB_REPO) || el.campoGithubRepo.value || "mcpmieda/escolaieda";
+  if (el.campoGithubBranch) el.campoGithubBranch.value = localStorage.getItem(STORAGE_GITHUB_BRANCH) || el.campoGithubBranch.value || "main";
+  if (el.campoGithubToken) el.campoGithubToken.value = sessionStorage.getItem(STORAGE_GITHUB_TOKEN) || "";
+}
+
+function salvarConfiguracaoGithubLocal() {
+  if (el.campoGithubRepo) localStorage.setItem(STORAGE_GITHUB_REPO, el.campoGithubRepo.value.trim());
+  if (el.campoGithubBranch) localStorage.setItem(STORAGE_GITHUB_BRANCH, el.campoGithubBranch.value.trim());
+  if (el.campoGithubToken) sessionStorage.setItem(STORAGE_GITHUB_TOKEN, el.campoGithubToken.value.trim());
+}
+
+function definirStatusFontePublica(texto, silencioso) {
+  if (!silencioso && el.statusFontePublica) el.statusFontePublica.textContent = texto;
 }
 
 async function garantirPublicacaoTeste() {
