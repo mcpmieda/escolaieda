@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T13:46:16.185Z",
+  "atualizadoEm": "2026-06-08T13:47:50.131Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -16,28 +16,6 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
-    {
-      "id": "11",
-      "titulo": "teste6",
-      "resumo": "teste6",
-      "conteudo": "",
-      "imagem": "",
-      "categoria": "Banner",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": "2026-06-07",
-      "dataFinal": "2026-06-08",
-      "atualizadoEm": "2026-06-08T13:46:14Z",
-      "tipo": "banner",
-      "local": "banner",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "destaque",
-      "icone": ""
-    },
     {
       "id": "10",
       "titulo": "teste 5",
@@ -127,30 +105,7 @@
       "icone": ""
     }
   ],
-  "banners": [
-    {
-      "id": "11",
-      "titulo": "teste6",
-      "resumo": "teste6",
-      "conteudo": "",
-      "imagem": "",
-      "categoria": "Banner",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": "2026-06-07",
-      "dataFinal": "2026-06-08",
-      "atualizadoEm": "2026-06-08T13:46:14Z",
-      "tipo": "banner",
-      "local": "banner",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "destaque",
-      "icone": ""
-    }
-  ],
+  "banners": [],
   "avisos": [],
   "destaques": []
 }
