@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T18:56:30.515Z",
+  "atualizadoEm": "2026-06-08T18:56:39.428Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -75,28 +75,6 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
-    {
-      "id": "16",
-      "titulo": "calendario aviso urgente documentos suave",
-      "resumo": "",
-      "conteudo": "",
-      "imagem": "",
-      "categoria": "Calendário",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T14:03:09Z",
-      "tipo": "link",
-      "local": "documentos",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "suave",
-      "icone": ""
-    },
     {
       "id": "15",
       "titulo": "documento link documento banner topo urgente",
