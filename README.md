@@ -57,6 +57,26 @@ Para atualizar o JSON publico pelo painel, e necessario configurar um token GitH
 
 Se o token GitHub estiver ausente ou sem permissao, a publicacao fica salva no SharePoint, mas nao aparece no site ate que a fonte publica seja sincronizada com sucesso.
 
+### Token GitHub do CMS
+
+O painel usa a configuracao `githubPublicacoesToken` na lista `CONFIGURACOES_PORTAL`. Essa chave guarda o token usado para atualizar `site-data/publicacoes-publicas.json` via GitHub API.
+
+Fluxo atual:
+
+1. A Secretaria cria, edita, publica, despublica ou exclui uma publicacao no painel.
+2. O painel salva a mudanca em `PUBLICACOES_SITE`.
+3. O painel le novamente o estado atual do SharePoint.
+4. O painel monta um JSON limpo somente com itens publicos validos.
+5. O painel usa `githubPublicacoesToken` para gravar o JSON no repositorio.
+6. O GitHub Pages passa a servir a fonte publica atualizada.
+
+Cuidados:
+
+- o token deve ter permissao minima para conteudo do repositorio `mcpmieda/escolaieda`;
+- o token nao deve ser colocado no codigo fonte;
+- se o token expirar ou for revogado, a sincronizacao avisa erro no painel;
+- em caso de duvida, verificar `CONFIGURACOES_PORTAL/githubPublicacoesToken` e clicar em "Sincronizar site".
+
 ## Home Publica
 
 A home publica carrega `site-data/publicacoes-site.js`, que busca `site-data/publicacoes-publicas.json` com cache-busting simples e mantem fallback estatico caso a fonte publica falhe.
@@ -99,8 +119,8 @@ node scripts/testes-utils-arquivo-digital.mjs
 
 ## Pendencias e Proximos Passos
 
-- Configurar token GitHub de menor permissao no navegador da conta responsavel.
-- Rodar "Sincronizar site" no painel apos configurar o token para reconstruir o JSON publico a partir do SharePoint.
+- Manter o token GitHub de menor permissao atualizado em `CONFIGURACOES_PORTAL`.
+- Rodar "Sincronizar site" no painel quando precisar reconstruir o JSON publico a partir do SharePoint.
 - Evoluir `MIDIAS_SITE` para upload direto de imagens quando a politica de armazenamento estiver definida.
 - Ativar votacao publica de enquetes em etapa futura.
 - Melhorar editor visual da home conforme o uso real da Secretaria.
