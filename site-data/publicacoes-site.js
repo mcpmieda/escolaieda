@@ -197,8 +197,6 @@
       renderizarLocal("avisos", (grupos.avisos || []).slice(0, 3));
       renderizarLocal("destaques", (grupos.destaques || []).slice(0, 3));
       renderizarLocal("documentos", (grupos.documentos || []).slice(0, 3));
-      renderizarLocal("calendario", (grupos.calendario || []).slice(0, 3));
-      renderizarLocal("rodape", (grupos.rodape || []).slice(0, 3));
       renderizarLocal("modal", (grupos.modal || []).slice(0, 1));
     } catch (erro) {
       console.warn("Publicações dinâmicas indisponíveis.", erro);

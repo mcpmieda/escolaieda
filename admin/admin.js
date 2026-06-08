@@ -28,6 +28,14 @@ const STORAGE_ULTIMA_ABA = "escolaIedaUltimaAba";
 const STORAGE_FILTROS = "escolaIedaFiltrosPublicacoes";
 const STORAGE_MIDIAS = "escolaIedaMidias";
 const CMS_VERSAO = 1;
+const LOCAIS_PUBLICACAO = {
+  informacoes: { categoria: "Aviso", tipo: "card", rotulo: "Informações" },
+  avisos: { categoria: "Aviso", tipo: "aviso", rotulo: "Avisos" },
+  destaques: { categoria: "Destaque", tipo: "card", rotulo: "Destaques" },
+  banner: { categoria: "Banner", tipo: "banner", rotulo: "Banner/topo" },
+  documentos: { categoria: "Documento", tipo: "link", rotulo: "Documentos" },
+  modal: { categoria: "Aviso", tipo: "aviso", rotulo: "Modal" }
+};
 
 const HOME_PADRAO = {
   titulo: "Escola Municipal Professora Iêda Alves de Oliveira MCPM",
@@ -168,8 +176,6 @@ function inicializarEventos() {
     "campoTitulo",
     "campoResumo",
     "campoConteudo",
-    "campoCategoria",
-    "campoTipo",
     "campoLocal",
     "campoImagem",
     "campoImagemAlt",
@@ -347,9 +353,10 @@ function extrairConteudo(valor) {
 }
 
 function normalizarMeta(meta) {
+  const local = normalizarLocalPublicacao(meta.local);
   return {
-    tipo: meta.tipo || "card",
-    local: meta.local || "informacoes",
+    tipo: tipoPadraoPorLocal(local),
+    local,
     imagemAlt: meta.imagemAlt || "",
     link: meta.link || "",
     botao: meta.botao || "",
@@ -477,8 +484,6 @@ function preencherFormulario(publicacao) {
   campo("campoTitulo").value = publicacao.titulo;
   campo("campoResumo").value = publicacao.resumo;
   campo("campoConteudo").value = publicacao.conteudo;
-  campo("campoCategoria").value = publicacao.categoria;
-  campo("campoTipo").value = publicacao.meta.tipo;
   campo("campoLocal").value = publicacao.meta.local;
   campo("campoImagem").value = publicacao.imagem;
   campo("campoImagemAlt").value = publicacao.meta.imagemAlt;
@@ -503,9 +508,7 @@ function limparFormulario() {
   el.formPublicacao.reset();
   campo("itemId").value = "";
   campo("campoLocal").value = "informacoes";
-  campo("campoTipo").value = "card";
   campo("campoEstilo").value = "padrao";
-  campo("campoCategoria").value = "Aviso";
   el.btnExcluir.disabled = true;
   el.btnDespublicar.disabled = true;
   el.tituloEditorPublicacao.textContent = "Nova publicação";
@@ -531,12 +534,13 @@ async function persistirPublicacao(publicado) {
   const id = campo("itemId").value;
   const agora = new Date().toISOString();
   const meta = lerMetaFormulario();
+  const categoria = categoriaPadraoPorLocal(meta.local);
   const fields = {
     Title: campo("campoTitulo").value.trim(),
     Resumo: campo("campoResumo").value.trim(),
     Conteudo: montarConteudoEstruturado(campo("campoConteudo").value.trim(), meta),
     Imagem: campo("campoImagem").value.trim(),
-    Categoria: campo("campoCategoria").value,
+    Categoria: categoria,
     DataInicial: dataOuNull(campo("campoDataInicial").value),
     DataFinal: dataOuNull(campo("campoDataFinal").value),
     Publicado: Boolean(publicado),
@@ -569,9 +573,10 @@ async function persistirPublicacao(publicado) {
 }
 
 function lerMetaFormulario() {
+  const local = normalizarLocalPublicacao(campo("campoLocal").value);
   return normalizarMeta({
-    tipo: campo("campoTipo").value,
-    local: campo("campoLocal").value,
+    tipo: tipoPadraoPorLocal(local),
+    local,
     imagemAlt: campo("campoImagemAlt").value.trim(),
     link: campo("campoLink").value.trim(),
     botao: campo("campoBotao").value.trim(),
@@ -651,13 +656,13 @@ function atualizarPreviaPublicacao() {
     resumo,
     conteudo: campo("campoConteudo")?.value || "",
     imagem,
-    categoria: campo("campoCategoria")?.value || "Aviso",
+    categoria: categoriaPadraoPorLocal(campo("campoLocal")?.value),
     meta
   });
 }
 
 function lerMetaFormularioSeguro() {
-  if (!campo("campoTipo")) return normalizarMeta({});
+  if (!campo("campoLocal")) return normalizarMeta({});
   return lerMetaFormulario();
 }
 
@@ -1184,16 +1189,22 @@ function rotuloStatus(status) {
 }
 
 function rotuloLocal(local) {
-  return {
-    informacoes: "Informações",
-    avisos: "Avisos",
-    destaques: "Destaques",
-    banner: "Banner/topo",
-    documentos: "Documentos",
-    calendario: "Calendário",
-    rodape: "Rodapé",
-    modal: "Modal"
-  }[local] || "Informações";
+  return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.rotulo || "Informações";
+}
+
+function normalizarLocalPublicacao(local) {
+  const valor = String(local || "informacoes");
+  if (valor === "calendario") return "informacoes";
+  if (valor === "rodape") return "informacoes";
+  return LOCAIS_PUBLICACAO[valor] ? valor : "informacoes";
+}
+
+function tipoPadraoPorLocal(local) {
+  return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.tipo || "card";
+}
+
+function categoriaPadraoPorLocal(local) {
+  return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.categoria || "Aviso";
 }
 
 function textoParaBase64(texto) {

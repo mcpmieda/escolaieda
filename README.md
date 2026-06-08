@@ -38,7 +38,7 @@ O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS esco
 - criar, editar, duplicar, despublicar e excluir publicacoes;
 - filtrar por busca, status, local e ordenacao;
 - marcar publicacoes como rascunho, publicado, destaque, agendado ou expirado;
-- escolher local de exibicao na home, como Informacoes, Avisos, Destaques, Banner, Documentos, Calendario, Rodape e Modal;
+- escolher onde a publicacao aparece: Informacoes, Avisos, Destaques, Banner, Documentos ou Modal;
 - configurar imagem, link, botao, icone, estilo, ordem e fixacao;
 - visualizar previa antes de publicar;
 - editar textos e visibilidade basica da pagina inicial;
@@ -70,7 +70,7 @@ Fluxo atual:
 5. O painel usa `githubPublicacoesToken` para gravar o JSON no repositorio.
 6. O GitHub Pages passa a servir a fonte publica atualizada.
 
-Todos os tipos e locais configurados em uma publicacao usam esse mesmo fluxo. Ou seja: card simples, banner, aviso urgente, link/documento, destaque, calendario, rodape e modal entram no JSON publico quando estiverem publicados e validos.
+Todas as publicacoes usam esse mesmo fluxo. Para o usuario, a escolha principal e apenas "Onde aparece"; categoria e tipo tecnico sao derivados automaticamente pelo painel para evitar combinacoes confusas.
 
 O painel sincroniza automaticamente depois de salvar, publicar, despublicar ou excluir. O botao "Sincronizar agora" fica apenas em Configuracoes como ferramenta de recuperacao, para reconstruir a fonte publica manualmente quando necessario.
 
@@ -94,8 +94,6 @@ A pagina inicial suporta conteudos gerenciaveis em:
 - Avisos;
 - Destaques;
 - Documentos;
-- Calendario;
-- Rodape;
 - Modal/aviso importante;
 - textos principais e visibilidade de blocos basicos.
 

@@ -353,6 +353,10 @@ textarea{
   gap:12px;
 }
 
+.formRow.singleField{
+  grid-template-columns:1fr;
+}
+
 .toggles{
   display:flex;
   gap:18px;
