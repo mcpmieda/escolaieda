@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T17:06:40.322Z",
+  "atualizadoEm": "2026-06-08T18:56:30.515Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -8,36 +8,73 @@
     "missao": "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.",
     "infoTexto": "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.",
     "corDestaque": "#003366",
+    "secoes": [
+      {
+        "id": "sobre",
+        "titulo": "Nossa Escola",
+        "texto": "Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.",
+        "visivel": true,
+        "layout": "blocos",
+        "fixa": true
+      },
+      {
+        "id": "numeros",
+        "titulo": "Educar é construir o futuro",
+        "texto": "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.",
+        "visivel": true,
+        "layout": "blocos",
+        "fixa": true
+      },
+      {
+        "id": "informacoes",
+        "titulo": "Informações",
+        "texto": "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.",
+        "visivel": true,
+        "layout": "blocos",
+        "fixa": true
+      },
+      {
+        "id": "avisos",
+        "titulo": "Avisos",
+        "texto": "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.",
+        "visivel": true,
+        "layout": "lista",
+        "fixa": false
+      },
+      {
+        "id": "destaques",
+        "titulo": "Destaques",
+        "texto": "Conteúdos que precisam de maior visibilidade na página inicial.",
+        "visivel": true,
+        "layout": "blocos",
+        "fixa": false
+      },
+      {
+        "id": "documentos",
+        "titulo": "Documentos",
+        "texto": "Links, documentos e materiais úteis para a rotina escolar.",
+        "visivel": true,
+        "layout": "lista",
+        "fixa": false
+      },
+      {
+        "id": "contato",
+        "titulo": "Contato",
+        "texto": "",
+        "visivel": true,
+        "layout": "lista",
+        "fixa": true
+      }
+    ],
+    "mostrarBanners": true,
+    "mostrarModal": true,
     "mostrarSobre": true,
     "mostrarNumeros": true,
     "mostrarInformacoes": true,
     "mostrarContato": true,
-    "mostrarBanners": true,
     "mostrarAvisos": true
   },
   "publicacoes": [
-    {
-      "id": "17",
-      "titulo": "teste",
-      "resumo": "teste",
-      "conteudo": "teste",
-      "imagem": "",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": true,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T16:06:56Z",
-      "tipo": "card",
-      "local": "informacoes",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "padrao",
-      "icone": ""
-    },
     {
       "id": "16",
       "titulo": "calendario aviso urgente documentos suave",
@@ -198,28 +235,6 @@
     }
   ],
   "destaques": [
-    {
-      "id": "17",
-      "titulo": "teste",
-      "resumo": "teste",
-      "conteudo": "teste",
-      "imagem": "",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": true,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-08T16:06:56Z",
-      "tipo": "card",
-      "local": "informacoes",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "fixado": false,
-      "ordem": 0,
-      "estilo": "padrao",
-      "icone": ""
-    },
     {
       "id": "14",
       "titulo": "banner aviso urgente destaques destaque",
