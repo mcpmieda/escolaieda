@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T16:46:55.328Z",
+  "atualizadoEm": "2026-06-08T16:47:03.882Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -257,6 +257,28 @@
       "ordem": 904,
       "estilo": "padrao",
       "icone": ""
+    },
+    {
+      "id": "23",
+      "titulo": "TESTE UX CODEX 202606081645 modal",
+      "resumo": "Chamada de teste para modal",
+      "conteudo": "Texto principal de teste para validar modal.",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T16:46:59Z",
+      "tipo": "aviso",
+      "local": "modal",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 905,
+      "estilo": "padrao",
+      "icone": ""
     }
   ],
   "banners": [
@@ -347,6 +369,28 @@
       "botao": "",
       "fixado": false,
       "ordem": 901,
+      "estilo": "padrao",
+      "icone": ""
+    },
+    {
+      "id": "23",
+      "titulo": "TESTE UX CODEX 202606081645 modal",
+      "resumo": "Chamada de teste para modal",
+      "conteudo": "Texto principal de teste para validar modal.",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-08T16:46:59Z",
+      "tipo": "aviso",
+      "local": "modal",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "fixado": false,
+      "ordem": 905,
       "estilo": "padrao",
       "icone": ""
     }
