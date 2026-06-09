@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:32:30.073Z",
+  "atualizadoEm": "2026-06-09T00:45:46.058Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -15,6 +15,8 @@
         "texto": "Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.",
         "visivel": true,
         "layout": "blocos",
+        "tipo": "padrao",
+        "indicadores": [],
         "fixa": true
       },
       {
@@ -23,6 +25,25 @@
         "texto": "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.",
         "visivel": true,
         "layout": "blocos",
+        "tipo": "destaque-indicadores",
+        "indicadores": [
+          {
+            "valor": "1990",
+            "rotulo": "Fundação"
+          },
+          {
+            "valor": "6º ao 9º",
+            "rotulo": "Ensino Fundamental Anos Finais"
+          },
+          {
+            "valor": "19",
+            "rotulo": "Professores"
+          },
+          {
+            "valor": "45",
+            "rotulo": "Funcionários"
+          }
+        ],
         "fixa": true
       },
       {
@@ -31,6 +52,8 @@
         "texto": "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.",
         "visivel": true,
         "layout": "blocos",
+        "tipo": "padrao",
+        "indicadores": [],
         "fixa": true
       },
       {
@@ -39,6 +62,8 @@
         "texto": "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.",
         "visivel": true,
         "layout": "lista",
+        "tipo": "padrao",
+        "indicadores": [],
         "fixa": false
       },
       {
@@ -47,6 +72,8 @@
         "texto": "Conteúdos que precisam de maior visibilidade na página inicial.",
         "visivel": true,
         "layout": "blocos",
+        "tipo": "padrao",
+        "indicadores": [],
         "fixa": false
       },
       {
@@ -55,6 +82,8 @@
         "texto": "Links, documentos e materiais úteis para a rotina escolar.",
         "visivel": true,
         "layout": "lista",
+        "tipo": "padrao",
+        "indicadores": [],
         "fixa": false
       },
       {
@@ -63,6 +92,8 @@
         "texto": "",
         "visivel": true,
         "layout": "lista",
+        "tipo": "padrao",
+        "indicadores": [],
         "fixa": true
       }
     ],
