@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:06:50.961Z",
+  "atualizadoEm": "2026-06-09T00:06:58.154Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -75,6 +75,26 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
+    {
+      "id": "29",
+      "titulo": "TESTE FINAL PRIORIDADE 1 1780963593715",
+      "resumo": "Este card deve aparecer antes da prioridade 2.",
+      "conteudo": "Teste final de ordenação.",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-09T00:06:53Z",
+      "tipo": "card",
+      "local": "informacoes",
+      "imagemAlt": "",
+      "link": "",
+      "botao": "",
+      "ordem": 1,
+      "estilo": "padrao"
+    },
     {
       "id": "28",
       "titulo": "TESTE FINAL PRIORIDADE 2 1780963593715",
