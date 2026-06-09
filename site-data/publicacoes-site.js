@@ -4,6 +4,12 @@
     carregado: false,
     focoAntesDoModal: null
   };
+  const indicadoresNumerosPadrao = [
+    { valor: "1990", rotulo: "Fundação" },
+    { valor: "6º ao 9º", rotulo: "Ensino Fundamental Anos Finais" },
+    { valor: "21", rotulo: "Professores" },
+    { valor: "41", rotulo: "Funcionários" }
+  ];
 
   function obterFonte() {
     return scriptAtual?.dataset?.fonte || window.ESCOLA_IEDA_PUBLICACOES_URL || "";
@@ -66,7 +72,7 @@
   function normalizarSecoesHome(home) {
     const fallback = [
       { id: "sobre", titulo: "Nossa Escola", texto: "", visivel: home.mostrarSobre !== false, layout: "blocos" },
-      { id: "numeros", titulo: "Educar é construir o futuro", texto: home.missao, visivel: home.mostrarNumeros !== false, layout: "blocos" },
+      { id: "numeros", titulo: "Educar é construir o futuro", texto: home.missao, visivel: home.mostrarNumeros !== false, layout: "blocos", tipo: "destaque-indicadores", indicadores: indicadoresNumerosPadrao },
       { id: "informacoes", titulo: "Informações", texto: home.infoTexto, visivel: home.mostrarInformacoes !== false, layout: "blocos" },
       { id: "avisos", titulo: "Avisos", texto: "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.", visivel: home.mostrarAvisos !== false, layout: "lista" },
       { id: "destaques", titulo: "Destaques", texto: "Conteúdos que precisam de maior visibilidade na página inicial.", visivel: true, layout: "blocos" },
@@ -79,7 +85,9 @@
       titulo: secao.titulo || "",
       texto: secao.texto || "",
       visivel: secao.visivel !== false,
-      layout: secao.layout === "lista" ? "lista" : "blocos"
+      layout: secao.layout === "lista" ? "lista" : "blocos",
+      tipo: secao.tipo === "destaque-indicadores" || normalizarClasse(secao.id) === "numeros" ? "destaque-indicadores" : "padrao",
+      indicadores: normalizarIndicadores(secao.indicadores, normalizarClasse(secao.id) === "numeros" ? indicadoresNumerosPadrao : [])
     })).filter((secao) => secao.id);
   }
 
@@ -89,6 +97,7 @@
     bloco.classList.toggle("hidden-by-cms", secao.visivel === false);
     texto(`[data-section-title="${secao.id}"]`, secao.titulo);
     texto(`[data-section-text="${secao.id}"]`, secao.texto);
+    aplicarApresentacaoSecao(bloco, secao);
     const lista = bloco.querySelector(`[data-publicacoes-local="${secao.id}"]`);
     if (lista) {
       lista.dataset.layout = secao.layout;
@@ -106,15 +115,52 @@
     bloco.dataset.homeSection = secao.id;
     bloco.dataset.publicacoesSection = "";
     bloco.innerHTML = `
-      <div class="titulo-secao">
+      <div class="titulo-secao" data-section-presentation>
         <h2 data-section-title="${secao.id}"></h2>
         <p data-section-text="${secao.id}"></p>
+        <div class="numeros" data-section-indicators hidden></div>
       </div>
       <div class="publicacoes-grid" data-publicacoes-local="${secao.id}"></div>
     `;
     const contato = document.querySelector('[data-home-section="contato"]');
     main.insertBefore(bloco, contato || null);
     return bloco;
+  }
+
+  function aplicarApresentacaoSecao(bloco, secao) {
+    const apresentacao = bloco.querySelector("[data-section-presentation]") || bloco.querySelector(".faixa, .titulo-secao");
+    if (!apresentacao) return;
+    apresentacao.dataset.sectionPresentation = "";
+    const destaque = secao.tipo === "destaque-indicadores";
+    apresentacao.classList.toggle("faixa", destaque);
+    apresentacao.classList.toggle("titulo-secao", !destaque);
+    let indicadores = apresentacao.querySelector("[data-section-indicators]");
+    if (!indicadores) {
+      indicadores = document.createElement("div");
+      indicadores.className = "numeros";
+      indicadores.dataset.sectionIndicators = "";
+      apresentacao.appendChild(indicadores);
+    }
+    indicadores.hidden = !destaque || !secao.indicadores.length;
+    indicadores.replaceChildren(...secao.indicadores.map((item) => {
+      const blocoIndicador = document.createElement("div");
+      blocoIndicador.className = "numero";
+      const valor = document.createElement("strong");
+      valor.textContent = item.valor;
+      const rotulo = document.createElement("span");
+      rotulo.textContent = item.rotulo;
+      blocoIndicador.append(valor, rotulo);
+      return blocoIndicador;
+    }));
+  }
+
+  function normalizarIndicadores(indicadores, padrao) {
+    const lista = Array.isArray(indicadores) ? indicadores : [];
+    const normalizados = lista
+      .map((item) => ({ valor: String(item?.valor || "").trim(), rotulo: String(item?.rotulo || "").trim() }))
+      .filter((item) => item.valor || item.rotulo)
+      .slice(0, 12);
+    return normalizados.length ? normalizados : padrao.map((item) => ({ ...item }));
   }
 
   function criarCard(item) {

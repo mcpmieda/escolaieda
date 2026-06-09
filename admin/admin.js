@@ -28,6 +28,12 @@ const STORAGE_ULTIMA_ABA = "escolaIedaUltimaAba";
 const STORAGE_FILTROS = "escolaIedaFiltrosPublicacoes";
 const STORAGE_MIDIAS = "escolaIedaMidias";
 const CMS_VERSAO = 1;
+const INDICADORES_NUMEROS_PADRAO = [
+  { valor: "1990", rotulo: "Fundação" },
+  { valor: "6º ao 9º", rotulo: "Ensino Fundamental Anos Finais" },
+  { valor: "21", rotulo: "Professores" },
+  { valor: "41", rotulo: "Funcionários" }
+];
 const LOCAIS_PUBLICACAO = {
   sobre: { categoria: "Aviso", tipo: "card", rotulo: "Nossa Escola" },
   numeros: { categoria: "Aviso", tipo: "card", rotulo: "Números institucionais" },
@@ -42,7 +48,7 @@ const LOCAIS_PUBLICACAO = {
 
 const SECOES_HOME_PADRAO = [
   { id: "sobre", titulo: "Nossa Escola", texto: "Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.", visivel: true, layout: "blocos", fixa: true },
-  { id: "numeros", titulo: "Educar é construir o futuro", texto: "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.", visivel: true, layout: "blocos", fixa: true },
+  { id: "numeros", titulo: "Educar é construir o futuro", texto: "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.", visivel: true, layout: "blocos", tipo: "destaque-indicadores", indicadores: INDICADORES_NUMEROS_PADRAO, fixa: true },
   { id: "informacoes", titulo: "Informações", texto: "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.", visivel: true, layout: "blocos", fixa: true },
   { id: "avisos", titulo: "Avisos", texto: "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.", visivel: true, layout: "lista", fixa: false },
   { id: "destaques", titulo: "Destaques", texto: "Conteúdos que precisam de maior visibilidade na página inicial.", visivel: true, layout: "blocos", fixa: false },
@@ -750,6 +756,8 @@ function lerHomeDoFormulario() {
     texto: item.querySelector("[data-section-field='texto']").value.trim(),
     visivel: item.querySelector("[data-section-field='visivel']").checked,
     layout: item.querySelector("[data-section-field='layout']").value === "lista" ? "lista" : "blocos",
+    tipo: item.querySelector("[data-section-field='tipo']").value === "destaque-indicadores" ? "destaque-indicadores" : "padrao",
+    indicadores: lerIndicadores(item.querySelector("[data-section-field='indicadores']").value),
     fixa: item.dataset.fixa === "true"
   })).filter((secao) => secao.id && secao.titulo);
 
@@ -802,6 +810,8 @@ function normalizarSecoesHome(secoes) {
       texto: secao.texto || padrao.texto || "",
       visivel: secao.visivel !== false,
       layout: secao.layout === "lista" ? "lista" : "blocos",
+      tipo: secao.tipo === "destaque-indicadores" || id === "numeros" ? "destaque-indicadores" : "padrao",
+      indicadores: normalizarIndicadores(secao.indicadores, id === "numeros" ? INDICADORES_NUMEROS_PADRAO : []),
       fixa: Boolean(secao.fixa || padrao.fixa)
     };
   }).filter((secao) => secao.id);
@@ -836,6 +846,12 @@ function renderizarSecoesHome() {
         <textarea rows="2" data-section-field="texto">${escaparHtml(secao.texto)}</textarea>
       </label>
       <div class="homeSectionOptions">
+        <label>Tipo de seção
+          <select data-section-field="tipo">
+            <option value="padrao" ${secao.tipo !== "destaque-indicadores" ? "selected" : ""}>Seção padrão</option>
+            <option value="destaque-indicadores" ${secao.tipo === "destaque-indicadores" ? "selected" : ""}>Faixa de destaque com indicadores</option>
+          </select>
+        </label>
         <label>Formato das publicações no site
           <select data-section-field="layout">
             <option value="blocos" ${secao.layout !== "lista" ? "selected" : ""}>Blocos</option>
@@ -844,6 +860,10 @@ function renderizarSecoesHome() {
         </label>
         <button class="dangerButton" type="button" data-remover-secao="${indice}" ${secao.fixa ? "disabled" : ""}>Remover seção</button>
       </div>
+      <label>Indicadores da faixa
+        <textarea rows="4" data-section-field="indicadores" placeholder="1990 | Fundação&#10;21 | Professores">${escaparHtml(formatarIndicadores(secao.indicadores))}</textarea>
+        <small>Use uma linha por bloco, separando o valor e a descrição com |.</small>
+      </label>
     </article>
   `).join("");
 
@@ -861,10 +881,35 @@ function adicionarSecaoHome() {
     texto: "",
     visivel: true,
     layout: "blocos",
+    tipo: "padrao",
+    indicadores: [],
     fixa: false
   });
   renderizarSecoesHome();
   atualizarOpcoesLocais();
+}
+
+function normalizarIndicadores(indicadores, padrao = []) {
+  const lista = Array.isArray(indicadores) ? indicadores : [];
+  const normalizados = lista
+    .map((item) => ({
+      valor: String(item?.valor || "").trim(),
+      rotulo: String(item?.rotulo || "").trim()
+    }))
+    .filter((item) => item.valor || item.rotulo)
+    .slice(0, 12);
+  return normalizados.length ? normalizados : padrao.map((item) => ({ ...item }));
+}
+
+function lerIndicadores(texto) {
+  return normalizarIndicadores(String(texto || "").split(/\r?\n/).map((linha) => {
+    const [valor, ...rotulo] = linha.split("|");
+    return { valor, rotulo: rotulo.join("|") };
+  }));
+}
+
+function formatarIndicadores(indicadores) {
+  return normalizarIndicadores(indicadores).map((item) => `${item.valor} | ${item.rotulo}`).join("\n");
 }
 
 function removerSecaoHome(indice) {

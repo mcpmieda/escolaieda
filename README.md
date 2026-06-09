@@ -95,6 +95,7 @@ A pagina inicial e organizada por secoes configuraveis no painel. Cada secao pod
 
 - `Blocos`: cards lado a lado, com maior espacamento;
 - `Lista`: itens em uma coluna, melhor para muitos avisos ou documentos.
+- `Faixa de destaque com indicadores`: painel azul para apresentar numeros institucionais em pequenos blocos. Cada indicador usa o formato `valor | descricao`, como `1990 | Fundacao`.
 
 As secoes padrao sao Nossa Escola, Numeros institucionais, Informacoes, Avisos, Destaques, Documentos e Contato. O painel tambem permite adicionar novas secoes. Banner/topo e Modal continuam como locais especiais de publicacao.
 
@@ -135,6 +136,9 @@ node scripts/testes-utils-arquivo-digital.mjs
 
 ## Pendencias e Proximos Passos
 
+- Ao iniciar uma nova conversa no Codex, ler este README e o estado atual do repositorio antes de alterar o sistema. Tratar as informacoes desta documentacao como continuidade das decisoes anteriores.
+- Proximo passo planejado: criar previa ao vivo da pagina completa dentro do painel, com modos computador e celular, antes de publicar no SharePoint/GitHub.
+- Continuar evoluindo o editor da pagina inicial como um construtor simples: secoes reutilizaveis, faixa de destaque com indicadores, ordenacao de secoes e modelos visuais sem expor opcoes tecnicas ao usuario leigo.
 - Manter o token GitHub de menor permissao atualizado em `CONFIGURACOES_PORTAL`.
 - Rodar "Sincronizar site" no painel quando precisar reconstruir o JSON publico a partir do SharePoint.
 - Ativar votacao publica de enquetes em etapa futura.
