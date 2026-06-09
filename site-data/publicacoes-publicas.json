@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:18:37.352Z",
+  "atualizadoEm": "2026-06-09T00:24:45.917Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -74,7 +74,28 @@
     "mostrarContato": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [],
+  "publicacoes": [
+    {
+      "id": "32",
+      "titulo": "teste gui",
+      "resumo": "1",
+      "conteudo": "1",
+      "imagem": "",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-09T00:24:40Z",
+      "tipo": "card",
+      "local": "sobre",
+      "imagemAlt": "descriçãO",
+      "link": "HTTPS://FB.COM",
+      "botao": "CCCC",
+      "ordem": 0,
+      "estilo": "padrao"
+    }
+  ],
   "banners": [],
   "avisos": [],
   "destaques": []
