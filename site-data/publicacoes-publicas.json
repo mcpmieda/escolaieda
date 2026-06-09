@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:07:12.265Z",
+  "atualizadoEm": "2026-06-09T00:10:37.289Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -75,26 +75,6 @@
     "mostrarAvisos": true
   },
   "publicacoes": [
-    {
-      "id": "31",
-      "titulo": "TESTE FINAL EXPIRADO 1780963593715",
-      "resumo": "Não deve aparecer depois da data.",
-      "conteudo": "",
-      "imagem": "",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": "2026-06-08",
-      "atualizadoEm": "2026-06-09T00:07:07Z",
-      "tipo": "card",
-      "local": "informacoes",
-      "imagemAlt": "",
-      "link": "",
-      "botao": "",
-      "ordem": 0,
-      "estilo": "padrao"
-    },
     {
       "id": "29",
       "titulo": "TESTE FINAL PRIORIDADE 1 1780963593715",
