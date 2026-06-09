@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:28:54.676Z",
+  "atualizadoEm": "2026-06-09T00:30:55.102Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -13,7 +13,7 @@
         "id": "sobre",
         "titulo": "Nossa Escola",
         "texto": "Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.",
-        "visivel": false,
+        "visivel": true,
         "layout": "blocos",
         "fixa": true
       },
@@ -66,7 +66,7 @@
         "fixa": true
       }
     ],
-    "mostrarSobre": false,
+    "mostrarSobre": true,
     "mostrarNumeros": true,
     "mostrarInformacoes": true,
     "mostrarContato": true,
