@@ -1430,6 +1430,7 @@ async function graph(url, opcoes = {}) {
     try {
       const resposta = await fetch(url, {
         ...opcoes,
+        cache: metodo === "GET" ? "no-store" : opcoes.cache,
         headers: {
           Authorization: `Bearer ${estado.token}`,
           "Content-Type": "application/json",
