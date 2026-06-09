@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:30:55.102Z",
+  "atualizadoEm": "2026-06-09T00:32:30.073Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -74,28 +74,7 @@
     "mostrarAvisos": true,
     "mostrarModal": true
   },
-  "publicacoes": [
-    {
-      "id": "32",
-      "titulo": "teste gui",
-      "resumo": "1",
-      "conteudo": "1",
-      "imagem": "https://raw.githubusercontent.com/mcpmieda/escolaieda/main/imagens/publicacoes/1780964767468-chatgpt-image-8-de-jun-de-2026-19-29-36-1400.webp",
-      "categoria": "Aviso",
-      "publicado": true,
-      "destaque": false,
-      "dataInicial": null,
-      "dataFinal": null,
-      "atualizadoEm": "2026-06-09T00:26:24Z",
-      "tipo": "card",
-      "local": "sobre",
-      "imagemAlt": "descriçãO",
-      "link": "HTTPS://FB.COM",
-      "botao": "CCCC",
-      "ordem": 0,
-      "estilo": "padrao"
-    }
-  ],
+  "publicacoes": [],
   "banners": [],
   "avisos": [],
   "destaques": []
