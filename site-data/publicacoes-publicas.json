@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-08T23:46:57.118Z",
+  "atualizadoEm": "2026-06-09T00:06:50.961Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -74,7 +74,28 @@
     "mostrarContato": true,
     "mostrarAvisos": true
   },
-  "publicacoes": [],
+  "publicacoes": [
+    {
+      "id": "28",
+      "titulo": "TESTE FINAL PRIORIDADE 2 1780963593715",
+      "resumo": "Card com imagem, link e prioridade 2.",
+      "conteudo": "Conteúdo do teste final da publicação.",
+      "imagem": "https://raw.githubusercontent.com/mcpmieda/escolaieda/main/imagens/publicacoes/1780960874525-logo-escola.webp",
+      "categoria": "Aviso",
+      "publicado": true,
+      "destaque": false,
+      "dataInicial": null,
+      "dataFinal": null,
+      "atualizadoEm": "2026-06-09T00:06:46Z",
+      "tipo": "card",
+      "local": "informacoes",
+      "imagemAlt": "Logo da Escola Municipal Professora Iêda Alves de Oliveira",
+      "link": "https://example.com/",
+      "botao": "Abrir teste",
+      "ordem": 2,
+      "estilo": "padrao"
+    }
+  ],
   "banners": [],
   "avisos": [],
   "destaques": []
