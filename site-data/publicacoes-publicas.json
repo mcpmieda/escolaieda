@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:24:45.917Z",
+  "atualizadoEm": "2026-06-09T00:26:28.749Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -80,13 +80,13 @@
       "titulo": "teste gui",
       "resumo": "1",
       "conteudo": "1",
-      "imagem": "",
+      "imagem": "https://raw.githubusercontent.com/mcpmieda/escolaieda/main/imagens/publicacoes/1780964767468-chatgpt-image-8-de-jun-de-2026-19-29-36-1400.webp",
       "categoria": "Aviso",
       "publicado": true,
       "destaque": false,
       "dataInicial": null,
       "dataFinal": null,
-      "atualizadoEm": "2026-06-09T00:24:40Z",
+      "atualizadoEm": "2026-06-09T00:26:24Z",
       "tipo": "card",
       "local": "sobre",
       "imagemAlt": "descriçãO",
