@@ -56,6 +56,7 @@ scripts/auditoria-massiva-lancamento-arquivo-digital.mjs
 scripts/reset-arquivo-digital-v4.ps1
 scripts/USO-RESET-ARQUIVO-DIGITAL-V4.md
 scripts/retencao-historico-arquivo-digital-v1.ps1
+scripts/consultar-historico-frio-arquivo-digital-v1.ps1
 scripts/USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md
 ```
 
@@ -279,12 +280,16 @@ Regras:
 Executar DryRun antes de qualquer remoção real.
 Remoção real exige -EnviarParaLixeiraSharePoint e -ConfirmarRetencaoHistoricoAntigo.
 Remover apenas itens antigos de HISTORICO_ACESSOS, nunca PDFs ou anotações atuais.
+Histórico quente fica no SharePoint; histórico antigo deve ir para arquivo frio particionado.
+Arquivo frio oficial padrão: backups_locais/arquivo-digital/historico-frio/.
+Arquivo frio deve gerar manifesto com SHA-256 antes da remoção real.
 VISUALIZOU padrão: 180 dias.
 ANOTACAO padrão: 730 dias.
 Outras ações não críticas padrão: 730 dias.
 Ações críticas ficam preservadas por padrão.
 Remoção real deve usar Lixeira do SharePoint, não exclusão definitiva.
 Conferir relatórios em diagnosticos/retencao-historico-v1-YYYYMMDD-HHMMSS/.
+Consultar histórico frio com scripts/consultar-historico-frio-arquivo-digital-v1.ps1.
 ```
 
 ---

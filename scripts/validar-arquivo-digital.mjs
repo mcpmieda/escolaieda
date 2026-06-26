@@ -14,6 +14,7 @@ const arquivos = {
   regressao: path.join(raiz, "scripts", "testes-regressao-arquivo-digital.mjs"),
   testesUtils: path.join(raiz, "scripts", "testes-utils-arquivo-digital.mjs"),
   retencaoHistorico: path.join(raiz, "scripts", "retencao-historico-arquivo-digital-v1.ps1"),
+  consultaHistoricoFrio: path.join(raiz, "scripts", "consultar-historico-frio-arquivo-digital-v1.ps1"),
   usoRetencaoHistorico: path.join(raiz, "scripts", "USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md")
 };
 
@@ -226,8 +227,10 @@ const moduloUtilsExiste = existsSync(arquivos.utils);
 const scriptRegressaoExiste = existsSync(arquivos.regressao);
 const scriptTestesUtilsExiste = existsSync(arquivos.testesUtils);
 const scriptRetencaoHistoricoExiste = existsSync(arquivos.retencaoHistorico);
+const scriptConsultaHistoricoFrioExiste = existsSync(arquivos.consultaHistoricoFrio);
 const docRetencaoHistoricoExiste = existsSync(arquivos.usoRetencaoHistorico);
 const retencaoHistorico = scriptRetencaoHistoricoExiste ? readFileSync(arquivos.retencaoHistorico, "utf8") : "";
+const consultaHistoricoFrio = scriptConsultaHistoricoFrioExiste ? readFileSync(arquivos.consultaHistoricoFrio, "utf8") : "";
 const retencaoHistoricoSegura = scriptRetencaoHistoricoExiste &&
   /\[ValidateSet\("DryRun",\s*"ArquivarEEnviarLixeira"\)\]/.test(retencaoHistorico) &&
   /\$Mode\s*=\s*"DryRun"/.test(retencaoHistorico) &&
@@ -235,10 +238,22 @@ const retencaoHistoricoSegura = scriptRetencaoHistoricoExiste &&
   /EnviarParaLixeiraSharePoint/.test(retencaoHistorico) &&
   /Remove-PnPListItem[\s\S]*-Recycle/.test(retencaoHistorico) &&
   /HISTORICO_ACESSOS/.test(retencaoHistorico) &&
-  /AcoesCriticas/.test(retencaoHistorico);
+  /AcoesCriticas/.test(retencaoHistorico) &&
+  /arquivo-digital\\historico-frio/.test(retencaoHistorico) &&
+  /Exportar-ArquivoFrioHistorico/.test(retencaoHistorico) &&
+  /SHA256/.test(retencaoHistorico) &&
+  /indice-retencoes\.jsonl/.test(retencaoHistorico);
+const consultaHistoricoFrioSegura = scriptConsultaHistoricoFrioExiste &&
+  /historico-frio/.test(consultaHistoricoFrio) &&
+  /historico-retencao-\*\.jsonl/.test(consultaHistoricoFrio) &&
+  /ConvertFrom-Json/.test(consultaHistoricoFrio) &&
+  /Limite/.test(consultaHistoricoFrio) &&
+  !/Remove-PnPListItem|Remove-Item|Set-PnP|Add-PnP|Connect-PnPOnline/.test(consultaHistoricoFrio);
 conferir(scriptRetencaoHistoricoExiste, "Script de retencao do historico nao encontrado.");
+conferir(scriptConsultaHistoricoFrioExiste, "Script de consulta do historico frio nao encontrado.");
 conferir(docRetencaoHistoricoExiste, "Guia de uso da retencao do historico nao encontrado.");
 conferir(retencaoHistoricoSegura, "Script de retencao do historico sem travas de seguranca esperadas.");
+conferir(consultaHistoricoFrioSegura, "Script de consulta do historico frio sem travas de leitura esperadas.");
 const contarHandlersInline = (fonte) => ({
   onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
   onchange: (fonte.match(/\bonchange\s*=/g) || []).length,
@@ -330,4 +345,4 @@ console.log(`- Diagnostico CSP/CDN/SRI gradual: imports externos JS=${importsExt
 console.log(`- Diagnostico SharePoint/permissoes gradual: scopes=${scopesLogin.join(", ") || "nao encontrados"}; CONFIG obrigatorio=${chavesConfigPresentes.length}/${chavesConfigObrigatorias.length}; ALERTAS_SISTEMA id=${alertasSistemaListIdPresente ? "sim" : "nao"}; Graph chamadas aproximadas=${chamadasGraphAproximadas}; listas=${usaGraphListas ? "sim" : "nao"}; drives=${usaGraphDrives ? "sim" : "nao"}; versoes=${usaGraphVersoes ? "sim" : "nao"}; upload/conteudo=${usaGraphUpload ? "sim" : "nao"}.`);
 console.log(`- Diagnostico V2.12: texto acesso restrito=${textoAcessoRestritoAlinhado ? "alinhado" : "revisar"}; token painel=${tokenPainelPresente ? "sim" : "nao"}; timeout Graph=${timeoutGraphPresente ? "sim" : "nao"}; limite mesclagem local=${limiteMesclagemPresente ? "sim" : "nao"}.`);
 console.log(`- Diagnostico testes gradual: script de regressao=${scriptRegressaoExiste ? "sim" : "nao"}; modulo utils=${moduloUtilsExiste ? "sim" : "nao"}; testes utils=${scriptTestesUtilsExiste ? "sim" : "nao"}; comandos recomendados=node scripts/testes-regressao-arquivo-digital.mjs | node scripts/testes-utils-arquivo-digital.mjs.`);
-console.log(`- Diagnostico retencao historico: script=${scriptRetencaoHistoricoExiste ? "sim" : "nao"}; guia=${docRetencaoHistoricoExiste ? "sim" : "nao"}; travas seguras=${retencaoHistoricoSegura ? "sim" : "nao"}.`);
+console.log(`- Diagnostico retencao historico: script=${scriptRetencaoHistoricoExiste ? "sim" : "nao"}; consulta frio=${scriptConsultaHistoricoFrioExiste ? "sim" : "nao"}; guia=${docRetencaoHistoricoExiste ? "sim" : "nao"}; travas seguras=${retencaoHistoricoSegura && consultaHistoricoFrioSegura ? "sim" : "nao"}.`);
