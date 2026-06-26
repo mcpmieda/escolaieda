@@ -498,20 +498,33 @@ testar("Recentes usa o historico em carga, acoes e busca", () => {
   const acaoRelevante = blocoFuncao("acaoHistoricoRelevanteRecentes");
   const atualizar = blocoFuncao("atualizarTela");
   const renderizar = blocoFuncao("renderizarDocumentos");
+  const carregarApoio = blocoFuncao("carregarDadosDeApoio");
 
-  assert.match(aplicar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Recentes deve sempre partir do historico.");
+  assert.match(aplicar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\{\s*limitado:\s*!termoBuscaAtual\s*\}\)/, "Recentes deve sempre partir do historico.");
   assert.doesNotMatch(aplicar, /modoListaAtual === "recentes" && termoBusca/, "Busca nao deve trocar Recentes por todos os ativos.");
   assert.match(aplicar, /modoListaAtual === "na Lixeira"\s*\?\s*documentosLixeira/, "Lixeira deve manter documentosLixeira como base.");
 
-  assert.match(filtrar, /modoListaAtual === "recentes" && !dadosApoioCarregados/, "Recentes deve mostrar carregamento enquanto o historico nao estiver pronto.");
+  assert.match(filtrar, /modoListaAtual === "recentes" && !historicoApoioCarregado/, "Recentes deve mostrar carregamento enquanto o historico nao estiver pronto.");
   assert.match(filtrar, /Carregando alterações recentes/, "Estado provisorio deve explicar a carga do historico.");
-  assert.match(filtrar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\)/, "Filtro de Recentes deve sempre usar recentes.");
+  assert.match(filtrar, /modoListaAtual === "recentes"\s*\?\s*montarDocumentosRecentesComHistorico\(\{\s*limitado:\s*!termo\s*\}\)/, "Filtro de Recentes deve sempre usar recentes.");
   assert.doesNotMatch(filtrar, /modoListaAtual === "recentes" && termo\s*\?\s*documentosAtivos/, "Busca nao deve pesquisar fora dos recentes.");
   assert.match(filtrar, /modoListaAtual === "na Lixeira"\s*\?\s*documentosLixeira/, "Filtro da Lixeira deve pesquisar somente a Lixeira.");
-  assert.match(montarRecentes, /!dadosApoioCarregados/, "Recentes nao deve simular historico com data de modificacao.");
+  assert.match(montarRecentes, /!historicoApoioCarregado/, "Recentes nao deve simular historico com data de modificacao.");
   assert.doesNotMatch(montarRecentes, /return documentosAtivos/, "Ausencia de historico nao deve retornar todos os ativos.");
+  assert.match(montarRecentes, /const limitado\s*=\s*Boolean\(opcoes\.limitado\)/, "Recentes deve permitir montagem limitada para a guia sem busca.");
+  assert.match(montarRecentes, /obterHistoricoOrdenado\(ordem\)/, "Recentes limitado deve respeitar a ordenacao configurada.");
+  assert.match(montarRecentes, /if \(limitado && recentes\.length >= limite\) break;/, "Recentes sem busca deve parar ao atingir o limite configurado.");
   assert.match(acaoRelevante, /Boolean\(normalizarTexto\(acao \|\| ""\)\)/, "Toda acao valida do historico deve contar em Recentes.");
   assert.match(atualizar, /await listarDocumentos\(\);\s*agendarTarefaSegundoPlano\(\(\) => carregarDadosDeApoio\(\)\)/, "Historico deve carregar automaticamente apos os documentos.");
+  assert.match(carregarApoio, /historicoApoioCarregado\s*=\s*true/, "Historico deve ter estado proprio de carga.");
+  assert.ok(
+    carregarApoio.indexOf("historicoApoioCarregado = true") < carregarApoio.indexOf("const urlAnotacoes"),
+    "Recentes deve ser liberado antes da consulta de anotacoes."
+  );
+  assert.ok(
+    carregarApoio.indexOf("filtrarDocumentos()") < carregarApoio.indexOf("const urlAnotacoes"),
+    "Tela deve re-renderizar com historico antes de aguardar anotacoes."
+  );
   assert.match(renderizar, /modoListaAtual === "recentes" && !termoBusca[\s\S]*\.slice\(0,\s*preferenciasSistema\.limiteRecentes\)/, "Limite de recentes deve ser aplicado apenas quando nao ha busca.");
   const inicioRamoRecentesComBusca = renderizar.indexOf(': modoListaAtual === "recentes"');
   const fimRamoRecentesComBusca = renderizar.indexOf(': modoListaAtual === "na Lixeira"', inicioRamoRecentesComBusca);

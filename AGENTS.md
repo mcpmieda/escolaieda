@@ -221,8 +221,9 @@ Carregamento inicial pode demorar um pouco com 5 mil+ PDFs reais.
 Central de Duplicidades roda em segundo plano e prioriza suspeitas.
 Painéis devem abrir visualmente primeiro e carregar dados pesados depois quando possível.
 Não renderizar todos os documentos de uma vez; preservar paginação/carregar mais.
-Busca em Recentes com termo deve usar todos os documentos ativos.
+Busca em Recentes com termo deve usar todos os recentes do histórico, sem cortar pelo limite visual.
 Recentes sem busca deve respeitar limite de recentes.
+Recentes deve liberar a tela assim que o histórico carregar; anotações não devem bloquear essa guia.
 Lixeira deve continuar separada.
 ```
 

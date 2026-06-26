@@ -45,6 +45,7 @@
     let pdfLibPromise = null;
     let dadosApoioCarregando = false;
     let dadosApoioCarregados = false;
+    let historicoApoioCarregado = false;
     let duplicidadesCarregando = false;
     let tokenAnaliseCentralDuplicidades = 0;
     let versoesSharePointCarregadas = [];
@@ -72,7 +73,7 @@
     let cacheAnotacaoPorArquivoId = { versao: -1, mapa: new Map() };
     let cacheHistoricoOrdenado = { versao: -1, direcao: "", itens: [] };
     let cacheUltimasMovimentacoes = { versao: -1, limite: 0, mapa: new Map() };
-    let cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, itens: [] };
+    let cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
 
     const msalConfig = {
       auth: {
@@ -1181,7 +1182,7 @@ atualizarCardParesIgnorados();
       versaoDocumentosCache++;
       cacheDocumentosPorArquivoId = { versao: -1, mapa: new Map() };
       cacheMapaNomesVisuaisTodosDocumentos = { versao: -1, mapa: new Map() };
-      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, itens: [] };
+      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
     }
 
     function invalidarCacheHistorico() {
@@ -1189,7 +1190,7 @@ atualizarCardParesIgnorados();
       cacheHistoricoPorArquivoId = { versao: -1, mapa: new Map() };
       cacheHistoricoOrdenado = { versao: -1, direcao: "", itens: [] };
       cacheUltimasMovimentacoes = { versao: -1, limite: 0, mapa: new Map() };
-      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, itens: [] };
+      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
     }
 
     function invalidarCacheAnotacoes() {
@@ -1369,7 +1370,13 @@ atualizarCardParesIgnorados();
         const itensHistorico = await buscarTodosItens(urlHistorico, token);
 
         historicoCarregado = itensHistorico.map(mapearItemHistorico);
+        historicoApoioCarregado = true;
         invalidarCacheHistorico();
+        atualizarDashboard();
+        filtrarDocumentos();
+        if (document.getElementById("painelDashboard")?.classList.contains("aberto") && document.getElementById("listaHistoricoGeral")) {
+          renderizarHistoricoGeral();
+        }
 
         const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
 
@@ -1381,9 +1388,6 @@ atualizarCardParesIgnorados();
         dadosApoioCarregados = true;
         atualizarDashboard();
         filtrarDocumentos();
-        if (document.getElementById("painelDashboard")?.classList.contains("aberto") && document.getElementById("listaHistoricoGeral")) {
-          renderizarHistoricoGeral();
-        }
       } finally {
         dadosApoioCarregando = false;
       }
@@ -1998,7 +2002,7 @@ atualizarCardParesIgnorados();
 
       sincronizarCamposFiltroHistoricoGeral();
       renderizarHistoricoGeral();
-      if (!dadosApoioCarregados && !dadosApoioCarregando) {
+      if (!historicoApoioCarregado && !dadosApoioCarregando) {
         agendarTarefaSegundoPlano(async () => {
           await carregarDadosDeApoio();
           renderizarHistoricoGeral();
@@ -2422,10 +2426,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     };
 
     function aplicarListaAtual() {
+      const termoBuscaAtual = normalizarTexto(document.getElementById("campoBusca")?.value || "");
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
         : modoListaAtual === "recentes"
-          ? montarDocumentosRecentesComHistorico()
+          ? montarDocumentosRecentesComHistorico({ limitado: !termoBuscaAtual })
           : documentosAtivos;
 
       atualizarBotoesModoLista();
@@ -6804,7 +6809,7 @@ function renderizarDocumentos(listaArquivos) {
       const qtdVisivelOriginal = quantidadeDocumentosVisiveis;
       const buscaComum = medir(() => todosDocumentos.filter(doc => atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes("a")).length);
       const buscaRara = medir(() => todosDocumentos.filter(doc => atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes("__termo_raro_sem_resultado__")).length);
-      const recentesSemBusca = medir(() => montarDocumentosRecentesComHistorico().length);
+      const recentesSemBusca = medir(() => montarDocumentosRecentesComHistorico({ limitado: true }).length);
       const recentesComBusca = medir(() => documentosAtivos.filter(doc => atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes("a")).length);
       const lixeira = medir(() => documentosLixeira.filter(doc => atualizarIndiceBuscaDocumento(doc)).length);
       const assinaturaAtual = medir(() => assinaturaDuplicidades(documentosAtivos.filter(doc => doc && doc.nome && doc.id)));
@@ -6853,6 +6858,7 @@ function renderizarDocumentos(listaArquivos) {
         documentosLixeira: documentosLixeira.length,
         documentosCarregados: documentosCarregados.length,
         historicoCarregado: historicoCarregado.length,
+        historicoApoioCarregado,
         anotacoesCarregadas: anotacoesCarregadas.length,
         duplicidadesIgnoradas: paresDuplicidadesIgnoradosDetalhes.length || paresDuplicidadesIgnorados.size,
         cacheNormalizarTexto: cacheNormalizarTexto.size,
@@ -6954,20 +6960,33 @@ function renderizarDocumentos(listaArquivos) {
       return Boolean(normalizarTexto(acao || ""));
     }
 
+    function obterLimiteRecentesSeguro() {
+      const limite = Number(preferenciasSistema.limiteRecentes || 20);
+      if (!Number.isFinite(limite)) return 20;
+      return Math.max(1, Math.min(100, Math.trunc(limite)));
+    }
+
     function formatarAcaoRecente(acao) {
       const texto = (acao || "").toString().trim().toUpperCase();
       if (texto === "RESTAUROU") return "RESTAURADO";
       return formatarAcaoHistorico(acao || "MOVIMENTOU");
     }
 
-    function montarDocumentosRecentesComHistorico() {
-      if (!dadosApoioCarregados || !historicoCarregado.length) {
+    function montarDocumentosRecentesComHistorico(opcoes = {}) {
+      if (!historicoApoioCarregado || !historicoCarregado.length) {
         return [];
       }
 
+      const limitado = Boolean(opcoes.limitado);
+      const limite = limitado ? obterLimiteRecentesSeguro() : 0;
+      const ordem = preferenciasSistema.ordemRecentes === "asc" ? "asc" : "desc";
+
       if (
         cacheDocumentosRecentes.versaoHistorico === versaoHistoricoCache &&
-        cacheDocumentosRecentes.versaoDocumentos === versaoDocumentosCache
+        cacheDocumentosRecentes.versaoDocumentos === versaoDocumentosCache &&
+        cacheDocumentosRecentes.limitado === limitado &&
+        cacheDocumentosRecentes.limite === limite &&
+        cacheDocumentosRecentes.ordem === ordem
       ) {
         return cacheDocumentosRecentes.itens;
       }
@@ -6976,7 +6995,7 @@ function renderizarDocumentos(listaArquivos) {
       const recentes = [];
       const vistos = new Set();
 
-      for (const item of obterHistoricoOrdenado("desc")) {
+      for (const item of obterHistoricoOrdenado(ordem)) {
         if (!acaoHistoricoRelevanteRecentes(item.ACAO)) continue;
 
         const documento = normalizarIdArquivo(item.ARQUIVO_ID)
@@ -6994,11 +7013,16 @@ function renderizarDocumentos(listaArquivos) {
           dataRecente: item.DATA_HORA,
           movimentoRecente: item
         });
+
+        if (limitado && recentes.length >= limite) break;
       }
 
       cacheDocumentosRecentes = {
         versaoHistorico: versaoHistoricoCache,
         versaoDocumentos: versaoDocumentosCache,
+        limitado,
+        limite,
+        ordem,
         itens: recentes
       };
       return recentes;
@@ -7047,7 +7071,7 @@ function renderizarDocumentos(listaArquivos) {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
       quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
 
-      if (modoListaAtual === "recentes" && !dadosApoioCarregados) {
+      if (modoListaAtual === "recentes" && !historicoApoioCarregado) {
         documentosCarregados = [];
         documentosFiltradosAtuais = [];
         document.getElementById("contadorResultados").textContent = "Carregando alterações recentes...";
@@ -7065,7 +7089,7 @@ function renderizarDocumentos(listaArquivos) {
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
         : modoListaAtual === "recentes"
-          ? montarDocumentosRecentesComHistorico()
+          ? montarDocumentosRecentesComHistorico({ limitado: !termo })
           : documentosAtivos;
 
       if (modoListaAtual === "ativos" && !termo && !filtroGavetaAtual) {
