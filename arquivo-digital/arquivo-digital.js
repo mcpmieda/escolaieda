@@ -4952,17 +4952,17 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       anotacaoUltimoTextoSalvo = "";
       atualizarStatusAnotacao("Carregando anotacao...");
 
-      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel, tokenCarregamentoPainel), 180);
+      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel, tokenCarregamentoPainel), 360);
 
-      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel, tokenCarregamentoPainel), 220);
+      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel, tokenCarregamentoPainel), 440);
 
       carregarBlocoPainel("anotacao", async () => {
         await carregarAnotacaoDocumento(documentoDoPainel, tokenCarregamentoPainel);
         if (!painelLocalAindaMostraDocumento()) return;
         ajustarAlturaAnotacao();
-      }, 260);
+      }, 520);
 
-      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel, tokenCarregamentoPainel), 340);
+      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel, tokenCarregamentoPainel), 680);
       /* FIM_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
     }
 
