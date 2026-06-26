@@ -55,6 +55,8 @@ scripts/auditoria-visual-estatica-v3-12.mjs
 scripts/auditoria-massiva-lancamento-arquivo-digital.mjs
 scripts/reset-arquivo-digital-v4.ps1
 scripts/USO-RESET-ARQUIVO-DIGITAL-V4.md
+scripts/retencao-historico-arquivo-digital-v1.ps1
+scripts/USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md
 ```
 
 Pastas locais fora do Git:
@@ -257,7 +259,37 @@ Não apagar listas, colunas, permissões ou gavetas.
 
 ---
 
-## 8. HTML, CSS e UI
+## 8. Retenção do histórico
+
+Script principal:
+
+```text
+scripts/retencao-historico-arquivo-digital-v1.ps1
+```
+
+Uso seguro inicial:
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File .\scripts\retencao-historico-arquivo-digital-v1.ps1 -Mode DryRun
+```
+
+Regras:
+
+```text
+Executar DryRun antes de qualquer remoção real.
+Remoção real exige -EnviarParaLixeiraSharePoint e -ConfirmarRetencaoHistoricoAntigo.
+Remover apenas itens antigos de HISTORICO_ACESSOS, nunca PDFs ou anotações atuais.
+VISUALIZOU padrão: 180 dias.
+ANOTACAO padrão: 730 dias.
+Outras ações não críticas padrão: 730 dias.
+Ações críticas ficam preservadas por padrão.
+Remoção real deve usar Lixeira do SharePoint, não exclusão definitiva.
+Conferir relatórios em diagnosticos/retencao-historico-v1-YYYYMMDD-HHMMSS/.
+```
+
+---
+
+## 9. HTML, CSS e UI
 
 ```text
 Não inserir dados externos diretamente em innerHTML sem escapar.
@@ -281,7 +313,7 @@ Evitar mensagens técnicas para a Secretaria.
 
 ---
 
-## 9. Áreas sensíveis
+## 10. Áreas sensíveis
 
 Não alterar sem diagnóstico específico:
 
@@ -305,7 +337,7 @@ CSS de pré-login
 
 ---
 
-## 10. Comandos úteis
+## 11. Comandos úteis
 
 Estado do repositório:
 
@@ -334,7 +366,7 @@ git tag --points-at HEAD
 
 ---
 
-## 11. Situação de lançamento
+## 12. Situação de lançamento
 
 Considerar o sistema como fechado para uso operacional, dependendo apenas de testes reais finais e ajustes pequenos.
 
