@@ -29,6 +29,9 @@
     let modoListaAtual = "recentes";
     let historicoCarregado = [];
     let anotacoesCarregadas = [];
+    let versaoHistoricoCache = 0;
+    let versaoAnotacoesCache = 0;
+    let versaoDocumentosCache = 0;
     let documentoSelecionado = null;
     let anotacaoAtualItemId = null;
     let anotacaoAtualEtag = "";
@@ -63,6 +66,13 @@
     const LIMITE_MESCLAGEM_LOCAL_BYTES = 50 * 1024 * 1024;
     const cacheNormalizarTexto = new Map();
     let cacheMapaNomesVisuaisRepetidos = { assinatura: "", mapa: new Map() };
+    let cacheMapaNomesVisuaisTodosDocumentos = { versao: -1, mapa: new Map() };
+    let cacheDocumentosPorArquivoId = { versao: -1, mapa: new Map() };
+    let cacheHistoricoPorArquivoId = { versao: -1, mapa: new Map() };
+    let cacheAnotacaoPorArquivoId = { versao: -1, mapa: new Map() };
+    let cacheHistoricoOrdenado = { versao: -1, direcao: "", itens: [] };
+    let cacheUltimasMovimentacoes = { versao: -1, limite: 0, mapa: new Map() };
+    let cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, itens: [] };
 
     const msalConfig = {
       auth: {
@@ -454,6 +464,16 @@
 
       const mapa = criarMapaNomesVisuaisRepetidos(lista);
       cacheMapaNomesVisuaisRepetidos = { assinatura, mapa };
+      return mapa;
+    }
+
+    function obterMapaNomesVisuaisTodosDocumentos() {
+      if (cacheMapaNomesVisuaisTodosDocumentos.versao === versaoDocumentosCache) {
+        return cacheMapaNomesVisuaisTodosDocumentos.mapa;
+      }
+
+      const mapa = criarMapaNomesVisuaisRepetidos([...documentosAtivos, ...documentosLixeira]);
+      cacheMapaNomesVisuaisTodosDocumentos = { versao: versaoDocumentosCache, mapa };
       return mapa;
     }
 
@@ -1157,6 +1177,26 @@
 atualizarCardParesIgnorados();
     }
 
+    function invalidarCacheDocumentos() {
+      versaoDocumentosCache++;
+      cacheDocumentosPorArquivoId = { versao: -1, mapa: new Map() };
+      cacheMapaNomesVisuaisTodosDocumentos = { versao: -1, mapa: new Map() };
+      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, itens: [] };
+    }
+
+    function invalidarCacheHistorico() {
+      versaoHistoricoCache++;
+      cacheHistoricoPorArquivoId = { versao: -1, mapa: new Map() };
+      cacheHistoricoOrdenado = { versao: -1, direcao: "", itens: [] };
+      cacheUltimasMovimentacoes = { versao: -1, limite: 0, mapa: new Map() };
+      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, itens: [] };
+    }
+
+    function invalidarCacheAnotacoes() {
+      versaoAnotacoesCache++;
+      cacheAnotacaoPorArquivoId = { versao: -1, mapa: new Map() };
+    }
+
     function normalizarIdArquivo(valor) {
       return (valor || "").toString().trim();
     }
@@ -1184,10 +1224,83 @@ atualizarCardParesIgnorados();
       return Boolean(idAnotacao && idDocumento && idAnotacao === idDocumento);
     }
 
+    function obterDocumentosPorArquivoId() {
+      if (cacheDocumentosPorArquivoId.versao === versaoDocumentosCache) {
+        return cacheDocumentosPorArquivoId.mapa;
+      }
+
+      const mapa = new Map();
+      [...documentosAtivos, ...documentosLixeira].forEach(doc => {
+        const id = obterIdArquivoDocumento(doc);
+        if (id) mapa.set(id, doc);
+      });
+
+      cacheDocumentosPorArquivoId = { versao: versaoDocumentosCache, mapa };
+      return mapa;
+    }
+
+    function obterHistoricoPorArquivoId() {
+      if (cacheHistoricoPorArquivoId.versao === versaoHistoricoCache) {
+        return cacheHistoricoPorArquivoId.mapa;
+      }
+
+      const mapa = new Map();
+      historicoCarregado.forEach(item => {
+        const id = normalizarIdArquivo(item?.ARQUIVO_ID);
+        if (!id) return;
+        if (!mapa.has(id)) mapa.set(id, []);
+        mapa.get(id).push(item);
+      });
+
+      cacheHistoricoPorArquivoId = { versao: versaoHistoricoCache, mapa };
+      return mapa;
+    }
+
+    function obterAnotacoesPorArquivoId() {
+      if (cacheAnotacaoPorArquivoId.versao === versaoAnotacoesCache) {
+        return cacheAnotacaoPorArquivoId.mapa;
+      }
+
+      const mapa = new Map();
+      anotacoesCarregadas.forEach(item => {
+        const id = normalizarIdArquivo(item?.ARQUIVO_ID);
+        if (id) mapa.set(id, item);
+      });
+
+      cacheAnotacaoPorArquivoId = { versao: versaoAnotacoesCache, mapa };
+      return mapa;
+    }
+
+    function obterHistoricoOrdenado(direcao = "desc") {
+      const direcaoNormalizada = direcao === "asc" ? "asc" : "desc";
+      if (
+        cacheHistoricoOrdenado.versao === versaoHistoricoCache &&
+        cacheHistoricoOrdenado.direcao === direcaoNormalizada
+      ) {
+        return cacheHistoricoOrdenado.itens;
+      }
+
+      const itens = historicoCarregado
+        .filter(item => item && item.DATA_HORA)
+        .sort((a, b) => {
+          const dataA = new Date(a.DATA_HORA || 0).getTime() || 0;
+          const dataB = new Date(b.DATA_HORA || 0).getTime() || 0;
+          return direcaoNormalizada === "asc" ? dataA - dataB : dataB - dataA;
+        });
+
+      cacheHistoricoOrdenado = {
+        versao: versaoHistoricoCache,
+        direcao: direcaoNormalizada,
+        itens
+      };
+      return itens;
+    }
+
     function atualizarCacheHistoricoDocumento(itensDocumento) {
       const idsNovos = new Set(itensDocumento.map(item => String(item.ID || "")));
       historicoCarregado = historicoCarregado.filter(item => !idsNovos.has(String(item.ID || "")));
       historicoCarregado.push(...itensDocumento);
+      invalidarCacheHistorico();
     }
 
     function atualizarCacheAnotacaoDocumento(itemAnotacao, arquivoId) {
@@ -1195,6 +1308,7 @@ atualizarCardParesIgnorados();
         normalizarIdArquivo(item.ARQUIVO_ID) !== normalizarIdArquivo(arquivoId)
       );
       if (itemAnotacao) anotacoesCarregadas.push(itemAnotacao);
+      invalidarCacheAnotacoes();
     }
 
     function mapearItemHistorico(item) {
@@ -1255,12 +1369,14 @@ atualizarCardParesIgnorados();
         const itensHistorico = await buscarTodosItens(urlHistorico, token);
 
         historicoCarregado = itensHistorico.map(mapearItemHistorico);
+        invalidarCacheHistorico();
 
         const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
 
         const itensAnotacoes = await buscarTodosItens(urlAnotacoes, token);
 
         anotacoesCarregadas = itensAnotacoes.map(mapearItemAnotacao);
+        invalidarCacheAnotacoes();
 
         dadosApoioCarregados = true;
         atualizarDashboard();
@@ -2161,9 +2277,7 @@ window.verMaisHistoricoGeral = function (event) {
         return;
       }
 
-      const ordenados = [...historicoCarregado]
-        .filter(item => item && item.DATA_HORA)
-        .sort(compararHistoricoGeralPorData);
+      const ordenados = obterHistoricoOrdenado(obterOrdemHistoricoGeralAtual());
 
       const filtradosPorData = ordenados.filter(itemDentroFiltroHistoricoGeral);
       const filtrados = filtradosPorData.filter(itemDentroBuscaHistoricoGeral);
@@ -2369,6 +2483,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     function limparCacheDuplicidades() {
       cacheParesDuplicidades = { assinatura: "", pares: [] };
       cacheMapaNomesVisuaisRepetidos = { assinatura: "", mapa: new Map() };
+      cacheMapaNomesVisuaisTodosDocumentos = { versao: -1, mapa: new Map() };
       centralDuplicidadesAnalisada = false;
       tokenAnaliseCentralDuplicidades++;
     }
@@ -3023,6 +3138,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         ARQUIVO_ID: arquivoId,
         OBSERVACAO: observacao
       });
+      invalidarCacheHistorico();
 
       atualizarDashboard();
     }
@@ -3240,9 +3356,13 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const renderizarHistoricoDoCache = () => {
         if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
         const anotacoesJaMostradas = new Set();
+        const arquivoId = obterIdArquivoDocumento(documento);
 
-        const entradasHistorico = (historicoCarregado || [])
-          .filter(item => historicoPertenceAoDocumento(item, documento))
+        const historicoDocumento = arquivoId
+          ? obterHistoricoPorArquivoId().get(arquivoId) || []
+          : (historicoCarregado || []).filter(item => historicoPertenceAoDocumento(item, documento));
+
+        const entradasHistorico = historicoDocumento
           .map(item => ({
             tipo: "historico",
             acao: item.ACAO || "",
@@ -3265,8 +3385,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
             return true;
           });
 
-        const entradasAnotacao = (anotacoesCarregadas || [])
-          .filter(item => anotacaoPertenceAoDocumento(item, documento) && (item.ANOTACAO || "").trim())
+        const anotacaoDocumento = arquivoId
+          ? obterAnotacoesPorArquivoId().get(arquivoId)
+          : (anotacoesCarregadas || []).find(item => anotacaoPertenceAoDocumento(item, documento));
+
+        const entradasAnotacao = (anotacaoDocumento ? [anotacaoDocumento] : [])
+          .filter(item => (item.ANOTACAO || "").trim())
           .filter(item => {
             const chave = chaveTexto(item.ANOTACAO || "");
             return chave && !anotacoesJaMostradas.has(chave);
@@ -3524,6 +3648,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         });
       }
 
+      invalidarCacheAnotacoes();
       atualizarDashboard();
             // Registrar historico de anotacao somente quando o texto mudou
       if (texto !== anotacaoUltimoTextoSalvo) {
@@ -4800,7 +4925,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       requestAnimationFrame(() => {
         if (!painelLocalAindaMostraDocumento() || !painelTituloChips) return;
-        const mapaNomesPainel = obterMapaNomesVisuaisRepetidosCacheado([...documentosAtivos, ...documentosLixeira]);
+        const mapaNomesPainel = obterMapaNomesVisuaisTodosDocumentos();
         painelTituloChips.innerHTML = `
           <span class="${documento.status === "ARQUIVADO" ? "statusPainel statusPainelLixeira" : "statusPainel statusPainelAtivo"}">${documento.status === "ARQUIVADO" ? "Lixeira" : "Ativo"}</span>
           ${seloNomeRepetidoHtmlComMapa(documento, mapaNomesPainel)}
@@ -4827,17 +4952,17 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       anotacaoUltimoTextoSalvo = "";
       atualizarStatusAnotacao("Carregando anotacao...");
 
-      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel, tokenCarregamentoPainel), 0);
+      carregarBlocoPainel("nomes parecidos", () => carregarNomesParecidos(documentoDoPainel, tokenCarregamentoPainel), 180);
 
-      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel, tokenCarregamentoPainel), 40);
+      carregarBlocoPainel("historico", () => carregarHistoricoDocumento(documentoDoPainel, tokenCarregamentoPainel), 220);
 
       carregarBlocoPainel("anotacao", async () => {
         await carregarAnotacaoDocumento(documentoDoPainel, tokenCarregamentoPainel);
         if (!painelLocalAindaMostraDocumento()) return;
         ajustarAlturaAnotacao();
-      }, 80);
+      }, 260);
 
-      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel, tokenCarregamentoPainel), 120);
+      carregarBlocoPainel("versoes", () => carregarVersoesSharePointDocumento(documentoDoPainel, tokenCarregamentoPainel), 340);
       /* FIM_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
     }
 
@@ -6571,8 +6696,9 @@ function renderizarDocumentos(listaArquivos) {
       const contador = document.getElementById("contadorResultados");
       const movimentacoesRecentes = obterUltimasMovimentacoesPorArquivo(20);
       const termoBusca = normalizarTexto(document.getElementById("campoBusca").value);
-      const baseRepetidos = modoListaAtual === "recentes" ? [...documentosAtivos, ...documentosLixeira] : listaArquivos;
-      const mapaNomesRepetidos = obterMapaNomesVisuaisRepetidosCacheado(baseRepetidos);
+      const mapaNomesRepetidos = modoListaAtual === "recentes"
+        ? obterMapaNomesVisuaisTodosDocumentos()
+        : obterMapaNomesVisuaisRepetidosCacheado(listaArquivos);
       const indiceDocumentoPorId = new Map();
       documentosCarregados.forEach((doc, indice) => {
         if (doc?.id) indiceDocumentoPorId.set(doc.id, indice);
@@ -6600,15 +6726,12 @@ function renderizarDocumentos(listaArquivos) {
         return;
       }
 
-      lista.innerHTML = "";
-
-      listaExibida.forEach(item => {
+      const itensHtml = listaExibida.map(item => {
         const indiceOriginal = indiceDocumentoPorId.has(item.id)
           ? indiceDocumentoPorId.get(item.id)
           : -1;
         const idArquivo = obterIdArquivoDocumento(item);
         const chaveId = idArquivo ? `id:${idArquivo}` : "";
-        const chaveNome = `nome:${normalizarTexto(item.nome || "")}`;
         const movimento = item.movimentoRecente || (modoListaAtual !== "na Lixeira"
           ? movimentacoesRecentes.get(chaveId)
           : null);
@@ -6616,8 +6739,8 @@ function renderizarDocumentos(listaArquivos) {
         const classeStatusRecente = item.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
         const nomeRepetido = (mapaNomesRepetidos.get(chaveNomeArquivoVisualLimpo(item.nome || "")) || 0) > 1;
 
-        const li = document.createElement("li");
-        li.innerHTML = `
+        return `
+          <li>
           <button class="itemArquivo" data-indice-documento="${indiceOriginal}">
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.nome))}</strong>
             <span class="metadadosArquivo">
@@ -6629,9 +6752,11 @@ function renderizarDocumentos(listaArquivos) {
             ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${escaparHtml(formatarData(movimento.DATA_HORA))}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${escaparHtml(formatarData(item.modificado))}</span>` : ""}
           </button>
+          </li>
         `;
-        lista.appendChild(li);
       });
+
+      lista.innerHTML = itensHtml.join("");
     }
 
     window.gerarDiagnosticoPerformanceArquivoDigital = function () {
@@ -6799,23 +6924,29 @@ function renderizarDocumentos(listaArquivos) {
     };
 
     function obterUltimasMovimentacoesPorArquivo(limite = 20) {
+      if (
+        cacheUltimasMovimentacoes.versao === versaoHistoricoCache &&
+        cacheUltimasMovimentacoes.limite === limite
+      ) {
+        return cacheUltimasMovimentacoes.mapa;
+      }
+
       const vistos = new Set();
       const mapa = new Map();
 
-      historicoCarregado
-        .filter(item => item && item.DATA_HORA && item.ARQUIVO_ID)
-        .sort((a, b) => new Date(b.DATA_HORA) - new Date(a.DATA_HORA))
-        .forEach(item => {
-          if (vistos.size >= limite) return;
+      for (const item of obterHistoricoOrdenado("desc")) {
+        if (vistos.size >= limite) break;
+        if (!item?.ARQUIVO_ID) continue;
 
-          const chave = `id:${normalizarIdArquivo(item.ARQUIVO_ID)}`;
+        const chave = `id:${normalizarIdArquivo(item.ARQUIVO_ID)}`;
 
-          if (!chave || vistos.has(chave)) return;
+        if (!chave || vistos.has(chave)) continue;
 
-          vistos.add(chave);
-          mapa.set(chave, item);
-        });
+        vistos.add(chave);
+        mapa.set(chave, item);
+      }
 
+      cacheUltimasMovimentacoes = { versao: versaoHistoricoCache, limite, mapa };
       return mapa;
     }
 
@@ -6834,38 +6965,42 @@ function renderizarDocumentos(listaArquivos) {
         return [];
       }
 
-      const todosDocumentos = [...documentosAtivos, ...documentosLixeira];
-      const porId = new Map();
+      if (
+        cacheDocumentosRecentes.versaoHistorico === versaoHistoricoCache &&
+        cacheDocumentosRecentes.versaoDocumentos === versaoDocumentosCache
+      ) {
+        return cacheDocumentosRecentes.itens;
+      }
 
-      todosDocumentos.forEach(doc => {
-        const idDocumento = obterIdArquivoDocumento(doc);
-        if (idDocumento) porId.set(idDocumento, doc);
-      });
-
+      const porId = obterDocumentosPorArquivoId();
       const recentes = [];
       const vistos = new Set();
 
-      historicoCarregado
-        .filter(item => item && item.DATA_HORA && acaoHistoricoRelevanteRecentes(item.ACAO))
-        .sort((a, b) => new Date(b.DATA_HORA || 0) - new Date(a.DATA_HORA || 0))
-        .forEach(item => {
-          const documento = normalizarIdArquivo(item.ARQUIVO_ID)
-            ? porId.get(normalizarIdArquivo(item.ARQUIVO_ID))
-            : null;
+      for (const item of obterHistoricoOrdenado("desc")) {
+        if (!acaoHistoricoRelevanteRecentes(item.ACAO)) continue;
 
-          if (!documento) return;
+        const documento = normalizarIdArquivo(item.ARQUIVO_ID)
+          ? porId.get(normalizarIdArquivo(item.ARQUIVO_ID))
+          : null;
 
-          const chave = obterIdArquivoDocumento(documento);
-          if (!chave || vistos.has(chave)) return;
+        if (!documento) continue;
 
-          vistos.add(chave);
-          recentes.push({
-            ...documento,
-            dataRecente: item.DATA_HORA,
-            movimentoRecente: item
-          });
+        const chave = obterIdArquivoDocumento(documento);
+        if (!chave || vistos.has(chave)) continue;
+
+        vistos.add(chave);
+        recentes.push({
+          ...documento,
+          dataRecente: item.DATA_HORA,
+          movimentoRecente: item
         });
+      }
 
+      cacheDocumentosRecentes = {
+        versaoHistorico: versaoHistoricoCache,
+        versaoDocumentos: versaoDocumentosCache,
+        itens: recentes
+      };
       return recentes;
     }
 
@@ -6878,13 +7013,16 @@ function renderizarDocumentos(listaArquivos) {
     }
 
     function documentoTemAnotacao(doc) {
-      return anotacoesCarregadas.some(item => anotacaoPertenceAoDocumento(item, doc) && (item.ANOTACAO || "").trim());
+      const id = obterIdArquivoDocumento(doc);
+      const item = id ? obterAnotacoesPorArquivoId().get(id) : null;
+      return Boolean(item && (item.ANOTACAO || "").trim());
     }
 
     function documentoEnviadoRecentemente(doc) {
       const limite = Date.now() - (30 * 24 * 60 * 60 * 1000);
-      return historicoCarregado.some(item =>
-        historicoPertenceAoDocumento(item, doc) &&
+      const id = obterIdArquivoDocumento(doc);
+      const historicoDocumento = id ? obterHistoricoPorArquivoId().get(id) || [] : [];
+      return historicoDocumento.some(item =>
         normalizarTexto(item.ACAO || "") === "enviou" &&
         (new Date(item.DATA_HORA).getTime() || 0) >= limite
       );
@@ -7063,6 +7201,7 @@ function renderizarDocumentos(listaArquivos) {
           .filter(item => String(item.fields.FileDirRef || "") === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS`)
           .map(mapear);
 
+        invalidarCacheDocumentos();
         atualizarInterfacesGaveta();
         limparCacheDuplicidades();
         aplicarListaAtual();
