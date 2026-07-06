@@ -1528,8 +1528,8 @@ atualizarCardParesIgnorados();
                 <small>${total} documento(s) · Cadastrada</small>
               </div>
               <div class="acoesGavetaConfiguracao">
-                <button class="secundario" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="editar" data-gaveta="${gavetaParam}">Editar</button>
-                <button class="perigo" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="excluir" data-gaveta="${gavetaParam}">Excluir</button>
+                <button class="secundario ignorarHoverGlobal" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="editar" data-gaveta="${gavetaParam}">Editar</button>
+                <button class="perigo ignorarHoverGlobal" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="excluir" data-gaveta="${gavetaParam}">Excluir</button>
               </div>
             </div>
           `;
@@ -2321,7 +2321,7 @@ window.verMaisHistoricoGeral = function (event) {
       }).join("");
 
       const botaoMais = filtrados.length > exibidos.length ? `
-        <button class="secundario btnVerMaisHistoricoGeral" type="button" data-acao-historico="ver-mais">Ver mais</button>
+        <button class="secundario ignorarHoverGlobal hoverSecundarioNeutro btnVerMaisHistoricoGeral" type="button" data-acao-historico="ver-mais">Ver mais</button>
       ` : "";
 
       caixa.innerHTML = itensHtml + botaoMais;

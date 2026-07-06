@@ -171,13 +171,13 @@
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
+    button:not(.ignorarHoverGlobal):not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
+    button:not(.ignorarHoverGlobal):not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -215,7 +215,7 @@
       border: 1px solid #cbd5e1;
     }
 
-    button.secundario:hover:not(:disabled),
+    button.secundario:not(.ignorarHoverGlobal):hover:not(:disabled),
     #btnSair:hover:not(:disabled) {
       background: #e2e8f0;
       color: #0f172a;
@@ -2019,13 +2019,34 @@ ul {
       cursor: not-allowed;
     }
 
+    .acoesGavetaConfiguracao button.secundario:hover:not(:disabled),
+    .acoesGavetaConfiguracao button.secundario:focus-visible:not(:disabled) {
+      background: #e2e8f0;
+      color: #0f2f66;
+      border-color: #94a3b8;
+    }
+
+    .acoesGavetaConfiguracao button.perigo:hover:not(:disabled),
+    .acoesGavetaConfiguracao button.perigo:focus-visible:not(:disabled) {
+      background: #b91c1c;
+      color: #ffffff;
+      border-color: #991b1b;
+    }
+
+    button.hoverSecundarioNeutro:hover:not(:disabled),
+    button.hoverSecundarioNeutro:focus-visible:not(:disabled) {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+
     button.perigo {
       background: #dc2626;
       color: #ffffff;
       border-color: #b91c1c;
     }
 
-    button.perigo:hover:not(:disabled) {
+    button.perigo:not(.ignorarHoverGlobal):hover:not(:disabled) {
       background: #b91c1c;
       color: #ffffff;
     }
@@ -2811,20 +2832,6 @@ body.modoCompacto {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .acoesGavetaConfiguracao button.secundario:hover:not(:disabled),
-    .acoesGavetaConfiguracao button.secundario:focus-visible:not(:disabled) {
-      background: #dbeafe;
-      color: #0f2f66;
-      border-color: #93c5fd;
-    }
-
-    .acoesGavetaConfiguracao button.perigo:hover:not(:disabled),
-    .acoesGavetaConfiguracao button.perigo:focus-visible:not(:disabled) {
-      background: #b91c1c;
-      color: #ffffff;
-      border-color: #991b1b;
     }
 
     .dashboard {
@@ -6696,36 +6703,6 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   opacity: .98;
   transition: transform .20s ease, opacity .20s ease, box-shadow .20s ease !important;
   will-change: transform;
-}
-
-/* Controles administrativos com estados próprios, fora do hover global legado. */
-.centralConfiguracoes .linhaCadastroGaveta #btnCadastrarNovaGaveta,
-.centralConfiguracoes .acoesGavetaConfiguracao button,
-.painelDashboard .btnVerMaisHistoricoGeral {
-  transform: none;
-  text-shadow: none;
-}
-
-.centralConfiguracoes .linhaCadastroGaveta #btnCadastrarNovaGaveta:hover:not(:disabled),
-.centralConfiguracoes .linhaCadastroGaveta #btnCadastrarNovaGaveta:focus-visible:not(:disabled),
-.centralConfiguracoes .acoesGavetaConfiguracao button.secundario:hover:not(:disabled),
-.centralConfiguracoes .acoesGavetaConfiguracao button.secundario:focus-visible:not(:disabled),
-.painelDashboard .btnVerMaisHistoricoGeral:hover:not(:disabled),
-.painelDashboard .btnVerMaisHistoricoGeral:focus-visible:not(:disabled) {
-  background: #e2e8f0;
-  color: #0f172a;
-  border-color: #94a3b8;
-  box-shadow: 0 3px 9px rgba(15, 47, 102, .12);
-  transform: none;
-}
-
-.centralConfiguracoes .acoesGavetaConfiguracao button.perigo:hover:not(:disabled),
-.centralConfiguracoes .acoesGavetaConfiguracao button.perigo:focus-visible:not(:disabled) {
-  background: #b91c1c;
-  color: #ffffff;
-  border-color: #991b1b;
-  box-shadow: 0 3px 9px rgba(153, 27, 27, .18);
-  transform: none;
 }
 
 .painelLateral.aberto,
