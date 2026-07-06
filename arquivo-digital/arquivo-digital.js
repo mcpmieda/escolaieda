@@ -1359,11 +1359,11 @@ atualizarCardParesIgnorados();
       return itens.length ? mapearItemAnotacao(itens[0]) : null;
     }
 
-    async function carregarDadosDeApoio() {
-      if (dadosApoioCarregando) return;
+    async function carregarDadosDeApoio(tokenInformado = "", opcoes = {}) {
+      if (dadosApoioCarregando || (dadosApoioCarregados && !opcoes.forcar)) return;
       dadosApoioCarregando = true;
       try {
-        const token = await obterToken();
+        const token = tokenInformado || await obterToken();
 
         const urlHistorico = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.historicoAcessosListId}/items?$expand=fields($select=Title,USUARIO_EMAIL,ACAO,USUARIO_NOME,DATA_HORA,ARQUIVO_ID,OBSERVACAO)&$top=999`;
 
@@ -1396,7 +1396,7 @@ atualizarCardParesIgnorados();
     window.recarregarDashboard = async function () {
       try {
         mostrarMensagem("Atualizando dashboard...");
-        await carregarDadosDeApoio();
+        await carregarDadosDeApoio("", { forcar: true });
         mostrarMensagem("Dashboard atualizado.");
       } catch (erro) {
         logger.error(erro);
@@ -2612,7 +2612,20 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
           throw new Error(await resposta.text());
         }
 
+        const itemCriado = await resposta.json().catch(() => ({}));
         paresDuplicidadesIgnorados.add(chave);
+        paresDuplicidadesIgnoradosDetalhes = [
+          {
+            itemId: itemCriado.id || "",
+            chave,
+            nomeA: a.nome,
+            nomeB: b.nome,
+            data: corpo.fields.DATA_ALERTA
+          },
+          ...paresDuplicidadesIgnoradosDetalhes.filter(item => item.chave !== chave)
+        ];
+        carregouIgnoradosDuplicidade = true;
+        renderizarParesIgnoradosDuplicidade();
         limparCacheDuplicidades();
         mostrarMensagem("Par marcado como pessoas diferentes.");
 
@@ -3784,13 +3797,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         return;
       }
 
-      const jaExiste = documentosCarregados.some(doc =>
-        doc.id !== documentoSelecionado.id &&
-        normalizarTexto(doc.nome) === normalizarTexto(novoNome)
-      );
-
+      const documentosMesmoLocal = documentoSelecionado.status === "ARQUIVADO"
+        ? documentosLixeira
+        : documentosAtivos;
       const nomesExistentesRenomear = new Set(
-        documentosAtivos
+        documentosMesmoLocal
           .filter(doc => doc.id !== documentoSelecionado.id)
           .map(doc => normalizarTexto(doc.nome))
       );
@@ -3993,11 +4004,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
     window.prepararMesclar = function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Selecione um arquivo antes de mesclar.", "erro");
-        return;
-      }
-
-      if (documentoSelecionado.status === "ARQUIVADO") {
-        mostrarMensagemPainel("Restaure o documento antes de mesclar.", "erro");
         return;
       }
 
@@ -4881,11 +4887,11 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       const estaArquivado = documento.status === "ARQUIVADO";
-      document.getElementById("btnRenomear").style.display = estaArquivado ? "none" : "inline-block";
-      document.getElementById("btnSubstituir").style.display = estaArquivado ? "none" : "inline-block";
+      document.getElementById("btnRenomear").style.display = "inline-block";
+      document.getElementById("btnSubstituir").style.display = "inline-block";
       document.getElementById("btnArquivar").style.display = estaArquivado ? "none" : "inline-block";
       document.getElementById("btnRestaurar").style.display = estaArquivado ? "inline-block" : "none";
-      document.getElementById("btnMesclar").style.display = estaArquivado ? "none" : "inline-block";
+      document.getElementById("btnMesclar").style.display = "inline-block";
 
       painel?.classList.add("aberto");
       marcarCamadaAbertaAcessivel("painelLateral", "#painelTitulo");
@@ -7057,10 +7063,10 @@ function renderizarDocumentos(listaArquivos) {
       return (new Date(doc.modificado || 0).getTime() || 0) >= limite;
     }
 
-    function aplicarFiltrosAvancados(lista) {
+    function aplicarFiltrosAvancados(lista, opcoes = {}) {
       let resultado = lista;
 
-      if (modoListaAtual === "ativos" && filtroGavetaAtual) {
+      if (modoListaAtual === "ativos" && filtroGavetaAtual && !opcoes.ignorarGaveta) {
         resultado = resultado.filter(doc => chaveGaveta(doc.gaveta) === filtroGavetaAtual);
       }
 
@@ -7105,7 +7111,9 @@ function renderizarDocumentos(listaArquivos) {
         return atualizarIndiceBuscaDocumento(doc)?.nomeBusca?.includes(termo);
       });
 
-      const filtrados = aplicarFiltrosAvancados(filtradosBusca);
+      const filtrados = aplicarFiltrosAvancados(filtradosBusca, {
+        ignorarGaveta: modoListaAtual === "ativos" && Boolean(termo)
+      });
       documentosFiltradosAtuais = filtrados;
       atualizarBotoesFiltros();
       renderizarDocumentos(filtrados);
@@ -7180,12 +7188,12 @@ function renderizarDocumentos(listaArquivos) {
       `;
     }
     /* FIM_CARREGAMENTOS_VISUAIS_FASE6C_20260527 */
-    async function listarDocumentos() {
+    async function listarDocumentos(tokenInformado = "") {
       const lista = document.getElementById("listaDocumentos");
       lista.innerHTML = montarCarregamentoVisual("Buscando documentos", "Consultando o Arquivo Digital. Aguarde um instante.", "📂", "li");
 
       try {
-        const token = await obterToken();
+        const token = tokenInformado || await obterToken();
 
         const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType,GAVETA)&$top=999`;
 
@@ -7289,9 +7297,12 @@ function renderizarDocumentos(listaArquivos) {
           document.getElementById("btnAbrirConfiguracoesTopo").style.display = "inline-block";
           document.getElementById("areaSistema").style.display = "block";
 
-          await carregarOpcoesGavetaSharePoint(token);
+          carregarDadosDeApoio(token).catch(erro => {
+            logger.warn("Nao foi possivel carregar os dados de apoio no inicio.", erro);
+          });
           await listarDocumentos();
           agendarTarefaSegundoPlano(() => carregarDadosDeApoio());
+          agendarTarefaSegundoPlano(() => carregarOpcoesGavetaSharePoint(token));
         } catch (erro) {
           logger.error(erro);
           mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");
