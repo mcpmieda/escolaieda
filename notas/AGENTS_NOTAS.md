@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` reimaginada em modo demonstração com Turma, Banco, Alunos, Boletim, Conselho, Relatórios, Sync e Estrutura; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` reimaginada em modo demonstração com Turma, Banco, Alunos, Boletim, Conselho, Relatórios, Sync e Estrutura; em 07/07/2026 o visual foi corrigido para ficar mais fiel aos prints reais de `APROVEITAMENTO`, `BOLETIM`, `FICHA ALUNO` e `CONSELHO`; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -658,6 +658,9 @@ O projeto só poderá ser considerado concluído quando:
 - **Servidor local com `python` no Windows**: nesta máquina `python.exe` aponta para o atalho `WindowsApps`, que abre a orientação da Microsoft Store e não inicia servidor HTTP. Solução: usar `npx --yes http-server . -a 127.0.0.1 -p <porta> -c-1 --silent` ou instalar Python real fora do alias.
 - **Playwright sem navegador instalado**: a CLI pode existir, mas a captura falha se o Chromium do Playwright não estiver baixado. Solução usada: `npx --yes playwright install chromium` e depois `npx --yes playwright screenshot ...`.
 - **Teste Playwright sem dependência local**: o runner não conseguiu resolver `@playwright/test`/`playwright/test` em arquivo temporário local sem instalar dependência no projeto. Solução nesta etapa: não adicionar dependência; usar `node scripts/testes-notas.mjs`, `git diff --check` e capturas Playwright CLI.
+- **Script temporário com `require("playwright")` via `npx --package`**: nesta máquina o `node` executado pelo `npx --package playwright` não resolveu o módulo para scripts temporários. Solução usada em 07/07/2026: não instalar dependência no repositório; adicionar suporte a hash na SPA e usar a CLI `npx --yes playwright screenshot` com URLs como `/notas/#banco`, `/notas/#boletins` e `/notas/#conselho`.
+- **Exportação de prints reais do Excel em branco**: `CopyPicture` pode gerar imagem branca se a faixa não estiver ativa/selecionada corretamente. Solução usada: abrir o `.xlsb` somente leitura com macros/eventos/links desabilitados, ativar a planilha, selecionar a faixa e usar `CopyPicture(1, -4147)` antes de colar/exportar via gráfico temporário.
+- **Aluno em foco do Conselho fora da turma exibida**: escolher o menor desempenho global pode mostrar aluno de outra turma enquanto o relatório final está em uma turma ativa. Solução aplicada: derivar a turma ativa por filtro/hash e escolher o candidato do Conselho dentro dessa turma; só cair para o conjunto filtrado geral se a turma estiver vazia.
 - **SharePoint/Power Automate por impulso**: não criar listas, fluxos ou permissões para “testar rápido”. Solução: manter a SPA em modo demonstração, usar scripts de verificação e só provisionar com autorização explícita e rollback documentado.
 
 ## 18. Protocolo para futuras sessões com IA
@@ -681,6 +684,31 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — correção de fidelidade aos prints reais do banco de notas
+
+- Usuário informou que o modelo ainda estava distante das telas geradas por outra IA e pediu nova correção mais fiel, revisando novamente a pasta `C:\Users\Eugui\Desktop\imagens` e os prints reais do arquivo `BANCO DE NOTAS 2026 TESTE.xlsb`.
+- Foram reabertas as seis imagens de referência e comparadas com prints temporários extraídos do Excel real: `APROVEITAMENTO`, `BOLETIM`, `FICHA ALUNO`, `CONSELHO`, `INICIO` e `ATA RESULTADOS`.
+- A extração dos prints reais ficou fora do repositório, em pasta temporária local; nenhum PNG gerado do Excel foi versionado.
+- O print `APROVEITAMENTO` passou a orientar a tela `Banco`: foi adicionado `quadroAproveitamento`, com faixa vertical `APROVEITAMENTO ESCOLAR ANUAL`, cabeçalho de turma/período, linhas numeradas, colunas por componente e destaques vermelhos em notas abaixo do mínimo do I trimestre.
+- A ordem visual dos componentes foi ajustada para o padrão observado no banco real: `P`, `M`, `C`, `G`, `H`, `A`, `RL`, `F`, `I`, `RD`, `ET`, `CPT`.
+- O print `BOLETIM` passou a orientar a tela `Boletim`: a prévia agora tem área `Relatórios e impressão`, faixa institucional vermelha/azul, dados do aluno, blocos de trimestres e matriz por componente com linhas de nota, recuperação, total, nota necessária e faltas.
+- O print `FICHA ALUNO` passou a orientar o painel lateral da ficha: foi substituído o resumo em cards por um mini-documento com logo, campos do aluno, tabela de aproveitamento anual, regime de avaliação, dias letivos e faltas.
+- O print `CONSELHO` passou a orientar a tela `Conselho`: foram adicionados chips de turma, aluno em foco, botões de deliberação e folha `RELATÓRIO DE RESULTADO FINAL` com cabeçalho institucional, ano, linhas alternadas e colunas verticais de decisão.
+- Corrigida inconsistência detectada na validação visual: o aluno em foco do Conselho agora é escolhido dentro da turma ativa, não pelo menor desempenho global de todas as turmas.
+- Adicionado suporte a hash de tela para validação e acesso direto: `/notas/#banco`, `/notas/#boletins` e `/notas/#conselho`.
+- `scripts/testes-notas.mjs` foi ampliado para travar `quadroAproveitamento`, `renderQuadroAproveitamento`, `boletimExcelPage`, `conselhoReportPage` e os estilos principais dos novos documentos.
+- Validação executada: `node scripts/testes-notas.mjs` passou com 40 estudantes fictícios, 4 turmas fictícias e 480 lançamentos fictícios.
+- Validação executada: `git diff --check` não apontou erro de whitespace; apenas avisos esperados de conversão LF/CRLF.
+- Validação HTTP executada: `/notas/` respondeu 200 no servidor local já ativo em `http://127.0.0.1:4177/notas/`.
+- Validação visual executada por Playwright CLI:
+  - desktop 1366×900 em `/notas/#banco` com `#quadroAproveitamento .excelTable`;
+  - desktop 1366×900 em `/notas/#boletins` com `#boletimPreview .boletimExcelPage`;
+  - desktop 1366×900 em `/notas/#conselho` com `#conselhoAlunoFoco .conselhoReportPage`;
+  - mobile full-page 390×844 em `/notas/#boletins`.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido em fixture; nomes reais vistos nos prints de referência não foram copiados.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID ou recurso Microsoft 365 foi criado ou alterado.
+- Próxima etapa correta: publicar com commit/push para o responsável testar no GitHub Pages; se o visual for aprovado, voltar à prova pendente do conector Excel Online (Business) ou iniciar script de provisionamento simulado das listas `NOTAS_*`, conforme autorização.
 
 ### 07/07/2026 — reimaginação baseada nas telas de referência da pasta imagens
 

@@ -54,6 +54,7 @@ const ui = {
   donutDesempenho: document.getElementById("donutDesempenho"),
   painelTrimestres: document.getElementById("painelTrimestres"),
   mapaAproveitamento: document.getElementById("mapaAproveitamento"),
+  quadroAproveitamento: document.getElementById("quadroAproveitamento"),
   matrizBancoNotas: document.getElementById("matrizBancoNotas"),
   painelAproveitamento: document.getElementById("painelAproveitamento"),
   tabelaEstudantes: document.getElementById("tabelaEstudantes"),
@@ -94,6 +95,8 @@ async function initialize() {
   preencherFiltros();
   await inicializarSessaoMicrosoft();
   renderAll();
+  const initialView = viewFromHash();
+  if (initialView) abrirView(initialView);
 }
 
 function bindEvents() {
@@ -111,6 +114,10 @@ function bindEvents() {
   ui.filtroTurma.addEventListener("change", atualizarFiltros);
   ui.filtroComponente.addEventListener("change", atualizarFiltros);
   ui.filtroSituacao.addEventListener("change", atualizarFiltros);
+  window.addEventListener("hashchange", () => {
+    const view = viewFromHash();
+    if (view) abrirView(view);
+  });
 }
 
 async function inicializarSessaoMicrosoft() {
@@ -189,6 +196,11 @@ function abrirView(view) {
   ui.viewSubtitle.textContent = subtitle;
 }
 
+function viewFromHash() {
+  const view = window.location.hash.replace("#", "").trim();
+  return viewCopy[view] ? view : "";
+}
+
 function renderAll() {
   const estudantesResumoBase = listarEstudantesComResumo(state.data);
   const estudantesResumo = filtrarEstudantes(estudantesResumoBase, state.filters);
@@ -208,6 +220,7 @@ function renderAll() {
   renderDonut(resumo);
   renderTrimestres(lancamentosFiltrados);
   renderMapaAproveitamento(turmasResumo);
+  renderQuadroAproveitamento(estudantesResumo);
   renderBancoNotas(estudantesResumo);
   renderPainelAproveitamento(estudantesResumo);
   renderTabelaEstudantes(estudantesResumo);
@@ -349,6 +362,65 @@ function renderMapaAproveitamento(turmasResumo) {
   }));
 }
 
+function renderQuadroAproveitamento(estudantesResumo) {
+  if (!ui.quadroAproveitamento) return;
+
+  const turma = obterTurmaAtiva(estudantesResumo);
+  const estudantesTurma = estudantesResumo.filter((estudante) => estudante.turmaId === turma?.id);
+  const linhas = Array.from({ length: Math.max(24, estudantesTurma.length) }, (_, index) => estudantesTurma[index] || null);
+
+  const documento = element("div", "excelDocument");
+  const topo = element("div", "excelDocTop");
+  const titulo = element("div");
+  appendText(titulo, "span", "APROVEITAMENTO ESCOLAR ANUAL", "excelOverline");
+  appendText(titulo, "strong", turma?.nome || "Turma demonstrativa");
+  appendText(titulo, "small", "I TRIMESTRE · lançamento por componente · valores fictícios", "muted");
+  const periodo = element("div", "excelPeriodSeal");
+  appendText(periodo, "span", "2026");
+  appendText(periodo, "strong", "I TRI.");
+  topo.append(titulo, periodo);
+
+  const grid = element("div", "excelGridWrap");
+  appendText(grid, "div", "APROVEITAMENTO ESCOLAR ANUAL", "excelVerticalBand");
+  const tableWrap = element("div", "responsiveTable excelTableWrap");
+  const table = document.createElement("table");
+  table.className = "excelTable";
+
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  appendText(headerRow, "th", "Nº", "excelNumberCol");
+  appendText(headerRow, "th", "ALUNO", "excelNameCol");
+  componentesPlanilha().forEach((componente) => {
+    const header = element("th", "excelCodeCol");
+    appendText(header, "span", codigoPlanilha(componente), "excelCode");
+    appendText(header, "small", componente.nome, "excelCodeName");
+    headerRow.append(header);
+  });
+  appendText(headerRow, "th", "AP ANTERIOR", "excelApCol");
+  thead.append(headerRow);
+
+  const tbody = document.createElement("tbody");
+  replaceChildren(tbody, linhas.map((estudante, index) => {
+    const row = document.createElement("tr");
+    appendText(row, "td", String(index + 1), "excelNumberCell");
+    appendText(row, "td", estudante?.nome || "", "excelNameCell");
+    componentesPlanilha().forEach((componente) => {
+      const nota = estudante?.lancamentos.find((item) => item.componenteId === componente.id);
+      const cell = appendText(row, "td", nota ? formatarMedia(nota.notaT1) : "", "excelScoreCell");
+      if (nota && Number(nota.notaT1) < 18) cell.classList.add("scoreLow");
+    });
+    const media = estudante ? formatarMedia(estudante.mediaFinal) : "";
+    appendText(row, "td", media, "excelApCell");
+    return row;
+  }));
+
+  table.append(thead, tbody);
+  tableWrap.append(table);
+  grid.append(tableWrap);
+  documento.append(topo, grid);
+  replaceChildren(ui.quadroAproveitamento, [documento]);
+}
+
 function renderBancoNotas(estudantesResumo) {
   const componentes = resumirComponentes(state.data, estudantesResumo);
   replaceChildren(ui.matrizBancoNotas, componentes.map((componente) => {
@@ -417,85 +489,177 @@ function renderBoletim(estudantesResumo) {
     return;
   }
 
-  const top = element("div", "boletimTop");
-  const marca = element("div", "boletimMarca");
-  const logo = element("img", "boletimLogo");
-  logo.src = "../logo_escola.png";
-  logo.alt = "";
-  const marcaText = element("div");
-  appendText(marcaText, "strong", "Escola Municipal Profª Iêda Alves de Oliveira");
-  appendText(marcaText, "span", "Modelo CPM · Medeiros Neto - BA");
-  appendText(marcaText, "small", "secretaria@escolaieda.com · (73) 99871-0105 · Rua Clidenor de Oliveira, S/N");
-  marca.append(logo, marcaText);
-  const year = element("div", "yearSeal");
-  appendText(year, "span", "Ensino Fundamental");
-  appendText(year, "strong", "2026");
-  top.append(marca, year);
+  const hub = element("div", "printHub");
+  const hubTitle = element("div");
+  appendText(hubTitle, "p", "Relatórios e impressão", "sectionKicker");
+  appendText(hubTitle, "h2", "Boletim escolar");
+  appendText(hubTitle, "span", "Prévia demonstrativa baseada no modelo real do banco de notas.", "muted");
+  const hubActions = element("div", "printActions");
+  ["Boletim", "Ficha", "Ata", "PDF"].forEach((label, index) => {
+    const button = element("button", index === 0 ? "periodChip active" : "periodChip");
+    button.type = "button";
+    button.textContent = label;
+    hubActions.append(button);
+  });
+  hub.append(hubTitle, hubActions);
 
-  const title = element("div", "boletimTitle");
-  appendText(title, "p", "Ficha individual do aluno", "sectionKicker");
-  appendText(title, "h2", estudante.nome);
-  appendText(title, "span", `${estudante.turma?.nome || ""} · ${estudante.codigo} · ${estudante.resultadoFinal}`);
+  const page = element("article", "boletimExcelPage");
+  const top = element("div", "boletimExcelTop");
+  appendText(top, "strong", "ESCOLA MUN. PROFª IÊDA ALVES DE OLIVEIRA MCPM");
+  appendText(top, "span", "RUA CLIDENOR DE OLIVEIRA, S/N · CENTRO · MEDEIROS NETO - BAHIA");
+  appendText(top, "small", "secretaria@escolaieda.com · (73) 99871-0105");
 
-  const regime = element("div", "regimeGrid");
+  const titleBand = element("div", "boletimExcelBand");
+  appendText(titleBand, "strong", "APROVEITAMENTO ESCOLAR 2026");
+  appendText(titleBand, "span", estudante.turma?.nome || "Turma demonstrativa");
+
+  const alunoBox = element("div", "boletimStudentBand");
   [
-    ["I trimestre", "18", "30"],
-    ["II trimestre", "18", "30"],
-    ["III trimestre", "24", "40"],
-    ["Total", "60", "100"]
-  ].forEach(([etapa, min, max]) => {
-    const card = element("article", "regimeCard");
-    appendText(card, "span", etapa);
-    appendText(card, "strong", `${min}/${max}`);
-    regime.append(card);
+    ["ALUNO", estudante.nome],
+    ["CÓDIGO", estudante.codigo],
+    ["TURMA", estudante.turma?.codigo || ""],
+    ["RESULTADO", estudante.resultadoFinal]
+  ].forEach(([label, value]) => {
+    const field = element("article");
+    appendText(field, "span", label);
+    appendText(field, "strong", value);
+    alunoBox.append(field);
   });
 
-  const tableWrap = element("div", "responsiveTable boletimTable");
+  const body = element("div", "boletimExcelBody");
+  const left = element("aside", "boletimTriColumn");
+  [
+    ["I TRIMESTRE", "18/30", mediaLocal(estudante.lancamentos.map((nota) => nota.notaT1))],
+    ["II TRIMESTRE", "18/30", mediaLocal(estudante.lancamentos.map((nota) => nota.notaT2))],
+    ["III TRIMESTRE", "24/40", mediaLocal(estudante.lancamentos.map((nota) => nota.notaT3))]
+  ].forEach(([label, regra, media]) => {
+    const card = element("article", "boletimTriCard");
+    appendText(card, "span", label);
+    appendText(card, "strong", formatarMedia(media));
+    appendText(card, "small", `mín. ${regra}`);
+    left.append(card);
+  });
+
+  const tableWrap = element("div", "responsiveTable boletimMatrixWrap");
   const table = document.createElement("table");
+  table.className = "boletimMatrix";
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-  ["Componente", "I tri.", "II tri.", "III tri.", "Total", "Rec.", "Final", "Faltas"].forEach((label) => appendText(headerRow, "th", label));
+  appendText(headerRow, "th", "LINHA", "boletimAxis");
+  componentesPlanilha().forEach((componente) => {
+    const header = appendText(headerRow, "th", codigoPlanilha(componente), "boletimComponentHeader");
+    header.title = componente.nome;
+  });
   thead.append(headerRow);
+
+  const notaPorComponente = new Map(estudante.lancamentos.map((nota) => [nota.componenteId, nota]));
+  const rows = [
+    ["I TRIMESTRE · NOTA", (nota) => nota.notaT1],
+    ["I TRIMESTRE · REC", (nota) => nota.recT1],
+    ["II TRIMESTRE · NOTA", (nota) => nota.notaT2],
+    ["II TRIMESTRE · REC", (nota) => nota.recT2],
+    ["III TRIMESTRE · NOTA", (nota) => nota.notaT3],
+    ["III TRIMESTRE · REC", (nota) => nota.recT3],
+    ["TOTAL", (nota) => nota.total],
+    ["NOTA NECESSÁRIA", (nota) => Math.max(0, 60 - Number(nota.total || 0))],
+    ["FALTAS", (nota) => nota.faltas]
+  ];
   const tbody = document.createElement("tbody");
-  replaceChildren(tbody, estudante.lancamentos.map((nota) => {
+  replaceChildren(tbody, rows.map(([label, getter]) => {
     const row = document.createElement("tr");
-    appendText(row, "td", nota.componente?.nome || nota.componenteId);
-    appendText(row, "td", formatarMedia(nota.notaT1));
-    appendText(row, "td", formatarMedia(nota.notaT2));
-    appendText(row, "td", formatarMedia(nota.notaT3));
-    appendText(row, "td", formatarMedia(nota.total));
-    appendText(row, "td", formatarMedia(nota.totalRec));
-    appendText(row, "td", formatarMedia(nota.notaFinal));
-    appendText(row, "td", String(nota.faltas));
+    appendText(row, "td", label, "boletimRowLabel");
+    componentesPlanilha().forEach((componente) => {
+      const nota = notaPorComponente.get(componente.id);
+      const valor = nota ? getter(nota) : "";
+      const cell = appendText(row, "td", typeof valor === "number" ? formatarMedia(valor) : String(valor), "boletimScoreCell");
+      if (nota && Number(valor) > 0 && Number(valor) < 18 && !String(label).includes("FALTAS")) cell.classList.add("scoreLow");
+    });
     return row;
   }));
   table.append(thead, tbody);
   tableWrap.append(table);
 
-  const footer = element("div", "boletimFooter");
-  appendText(footer, "strong", `Nota final demonstrativa: ${formatarMedia(estudante.mediaFinal)}`);
+  const printedAt = element("div", "verticalDate");
+  printedAt.textContent = "Emitido em 07/07/2026";
+  body.append(left, tableWrap, printedAt);
+
+  const footer = element("div", "boletimExcelFooter");
+  appendText(footer, "strong", `Média final demonstrativa: ${formatarMedia(estudante.mediaFinal)}`);
   appendText(footer, "span", "Dados fictícios para validação visual. Não corresponde a boletim real.", "muted");
 
-  replaceChildren(ui.boletimPreview, [top, title, regime, tableWrap, footer]);
+  page.append(top, titleBand, alunoBox, body, footer);
+  replaceChildren(ui.boletimPreview, [hub, page]);
   renderFichaResumo(estudante);
   renderFilaBoletins(estudantesResumo);
 }
 
 function renderFichaResumo(estudante) {
   const criticos = estudante.lancamentos.filter((nota) => nota.notaFinal < 60).length;
-  const cards = [
-    ["Média anual", formatarMedia(estudante.mediaFinal), rotuloSituacao(estudante.situacao)],
-    ["Componentes", estudante.componentes, `${criticos} abaixo de 60`],
-    ["Matrícula", estudante.situacaoMatricula, estudante.turma?.turno || ""],
-    ["Frequência", `${somar(estudante.lancamentos.map((nota) => nota.faltas))} faltas`, "demonstração"]
-  ].map(([label, value, hint]) => {
-    const card = element("article", "snapshotCard");
-    appendText(card, "span", label, "muted");
-    appendText(card, "strong", String(value));
-    appendText(card, "small", hint, "muted");
-    return card;
+  const page = element("article", "fichaPrintMini");
+  const top = element("div", "fichaTop");
+  const logo = element("img", "fichaLogo");
+  logo.src = "../logo_escola.png";
+  logo.alt = "";
+  const topText = element("div");
+  appendText(topText, "strong", "ESCOLA MUNICIPAL PROFª IÊDA ALVES DE OLIVEIRA");
+  appendText(topText, "span", "Sistema CPM · Medeiros Neto - BA");
+  appendText(topText, "small", "FICHA INDIVIDUAL DO ALUNO · 2026");
+  top.append(logo, topText);
+
+  const dados = element("div", "fichaFieldGrid");
+  [
+    ["ALUNO", estudante.nome],
+    ["TURMA", estudante.turma?.nome || ""],
+    ["CÓDIGO", estudante.codigo],
+    ["MATRÍCULA", estudante.situacaoMatricula],
+    ["RESULTADO", estudante.resultadoFinal],
+    ["COMPONENTES ABAIXO DE 60", String(criticos)]
+  ].forEach(([label, value]) => {
+    const field = element("article");
+    appendText(field, "span", label);
+    appendText(field, "strong", value);
+    dados.append(field);
   });
-  replaceChildren(ui.fichaAlunoResumo, cards);
+
+  const aproveitamento = element("div", "fichaSection");
+  appendText(aproveitamento, "h3", "APROVEITAMENTO ANUAL");
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const head = document.createElement("tr");
+  ["Comp.", "Total", "Rec.", "Final"].forEach((label) => appendText(head, "th", label));
+  thead.append(head);
+  const tbody = document.createElement("tbody");
+  replaceChildren(tbody, estudante.lancamentos.map((nota) => {
+    const row = document.createElement("tr");
+    appendText(row, "td", codigoPlanilha(nota.componente));
+    appendText(row, "td", formatarMedia(nota.total));
+    appendText(row, "td", formatarMedia(nota.totalRec));
+    const finalCell = appendText(row, "td", formatarMedia(nota.notaFinal));
+    if (Number(nota.notaFinal) < 60) finalCell.classList.add("scoreLow");
+    return row;
+  }));
+  table.append(thead, tbody);
+  aproveitamento.append(table);
+
+  const regime = element("div", "fichaRegime");
+  [
+    ["I TRI", "18/30"],
+    ["II TRI", "18/30"],
+    ["III TRI", "24/40"],
+    ["TOTAL", "60/100"],
+    ["DIAS LETIVOS", "200"],
+    ["FALTAS", String(somar(estudante.lancamentos.map((nota) => nota.faltas)))]
+  ].forEach(([label, value]) => {
+    const item = element("article");
+    appendText(item, "span", label);
+    appendText(item, "strong", value);
+    regime.append(item);
+  });
+
+  const footer = element("footer", "fichaFooter");
+  footer.textContent = "MEDEIROS NETO - BA, 07/07/2026";
+  page.append(top, dados, aproveitamento, regime, footer);
+  replaceChildren(ui.fichaAlunoResumo, [page]);
 }
 
 function renderFilaBoletins(estudantesResumo) {
@@ -509,7 +673,10 @@ function renderFilaBoletins(estudantesResumo) {
 }
 
 function renderConselho(estudantesResumo) {
-  const candidato = [...estudantesResumo].sort((a, b) => a.mediaFinal - b.mediaFinal)[0];
+  const turma = obterTurmaAtiva(estudantesResumo);
+  const estudantesTurma = estudantesResumo.filter((estudante) => estudante.turmaId === turma?.id);
+  const candidatos = estudantesTurma.length ? estudantesTurma : estudantesResumo;
+  const candidato = [...candidatos].sort((a, b) => a.mediaFinal - b.mediaFinal)[0];
   if (!candidato) {
     replaceChildren(ui.conselhoAlunoFoco, [emptyState("Nenhum aluno encontrado para conselho.")]);
     replaceChildren(ui.conselhoResumo, []);
@@ -517,12 +684,21 @@ function renderConselho(estudantesResumo) {
     return;
   }
 
-  const header = element("div", "conselhoHeader");
-  appendText(header, "span", "01", "caseNumber");
+  const classSelector = element("div", "conselhoClassSelector");
+  state.data.turmas.forEach((item) => {
+    const chipButton = element("button", item.id === turma?.id ? "periodChip active" : "periodChip");
+    chipButton.type = "button";
+    chipButton.textContent = item.codigo;
+    classSelector.append(chipButton);
+  });
+
+  const focus = element("div", "conselhoFocusStrip");
+  appendText(focus, "span", "01", "caseNumber");
   const title = element("div");
+  appendText(title, "p", "Aluno em foco", "sectionKicker");
   appendText(title, "h2", candidato.nome);
-  appendText(title, "p", `${candidato.turma?.codigo || ""} · em deliberação demonstrativa`, "muted");
-  header.append(title, chip("Em deliberação", "warn"));
+  appendText(title, "span", `${candidato.turma?.codigo || ""} · média ${formatarMedia(candidato.mediaFinal)} · ${candidato.resultadoFinal}`, "muted");
+  focus.append(title, chip("Em deliberação", "warn"));
 
   const actions = element("div", "decisionGrid");
   [["Aprovar pelo conselho", "ok"], ["Reprovar pelo conselho", "error"], ["Manter em análise", "info"]].forEach(([label, type]) => {
@@ -532,25 +708,52 @@ function renderConselho(estudantesResumo) {
     actions.append(button);
   });
 
-  const matrix = element("div", "responsiveTable conselhoTable");
+  const paper = element("article", "conselhoReportPage");
+  const paperTop = element("div", "conselhoReportTop");
+  const logo = element("img", "conselhoLogo");
+  logo.src = "../logo_escola.png";
+  logo.alt = "";
+  const stripes = element("div", "schoolStripes");
+  ["", "", ""].forEach(() => stripes.append(element("span")));
+  const school = element("div");
+  appendText(school, "strong", "ESCOLA MUNICIPAL PROFª IÊDA ALVES DE OLIVEIRA - SCPM");
+  appendText(school, "span", "RUA CLIDENOR DE OLIVEIRA, S/N · MEDEIROS NETO - BAHIA");
+  appendText(school, "small", "(73) 99871-0105 · secretaria@escolaieda.com");
+  paperTop.append(logo, stripes, school);
+
+  const reportTitle = element("div", "conselhoReportTitle");
+  appendText(reportTitle, "strong", "RELATÓRIO DE RESULTADO FINAL");
+  appendText(reportTitle, "span", "2026", "conselhoYear");
+
+  const reportTableWrap = element("div", "responsiveTable conselhoReportTable");
   const table = document.createElement("table");
   const thead = document.createElement("thead");
   const rowHead = document.createElement("tr");
-  ["Componente", "T1", "T2", "T3", "Final"].forEach((label) => appendText(rowHead, "th", label));
+  ["SITUAÇÃO", "ORDEM", turma?.nome || "TURMA", "APROVADO DIRETO", "AP CONSELHO ANO ANTERIOR", "APROVADO PELO CONSELHO EM 2026", "APROVADO PELA RECUPERAÇÃO", "NÃO COMPARECEU", "REPROVADO"].forEach((label, index) => {
+    appendText(rowHead, "th", label, index > 2 ? "verticalTh" : "");
+  });
   thead.append(rowHead);
+
+  const linhas = Array.from({ length: Math.max(24, estudantesTurma.length) }, (_, index) => estudantesTurma[index] || null);
   const tbody = document.createElement("tbody");
-  replaceChildren(tbody, candidato.lancamentos.map((nota) => {
+  replaceChildren(tbody, linhas.map((estudante, index) => {
     const row = document.createElement("tr");
-    appendText(row, "td", nota.componente?.nome || nota.componenteId);
-    appendText(row, "td", formatarMedia(nota.notaT1));
-    appendText(row, "td", formatarMedia(nota.notaT2));
-    appendText(row, "td", formatarMedia(nota.notaT3));
-    appendText(row, "td", formatarMedia(nota.notaFinal));
+    const resultado = estudante?.resultadoFinal || "";
+    appendText(row, "td", estudante ? rotuloSituacao(estudante.situacao) : "", "conselhoSituationCell");
+    appendText(row, "td", String(index + 1), "conselhoOrderCell");
+    appendText(row, "td", estudante?.nome || "", "conselhoNameCell");
+    appendText(row, "td", resultado === "APROVADO DIRETO" ? "Sim" : "", "conselhoMarkCell");
+    appendText(row, "td", "", "conselhoMarkCell");
+    appendText(row, "td", estudante && estudante.mediaFinal >= 55 && estudante.mediaFinal < 60 ? "Sim" : "", "conselhoMarkCell");
+    appendText(row, "td", resultado === "APROVADO PELA RECUPERAÇÃO" ? "Sim" : "", "conselhoMarkCell");
+    appendText(row, "td", estudante && estudante.situacaoMatricula !== "ativo" ? "Sim" : "", "conselhoMarkCell");
+    appendText(row, "td", estudante && estudante.mediaFinal < 50 ? "Sim" : "", "conselhoMarkCell");
     return row;
   }));
   table.append(thead, tbody);
-  matrix.append(table);
-  replaceChildren(ui.conselhoAlunoFoco, [header, actions, matrix]);
+  reportTableWrap.append(table);
+  paper.append(paperTop, reportTitle, reportTableWrap);
+  replaceChildren(ui.conselhoAlunoFoco, [classSelector, focus, actions, paper]);
 
   const abaixo = candidato.lancamentos.filter((nota) => nota.notaFinal < 60);
   const resumo = element("div", "summaryStack");
@@ -772,6 +975,36 @@ function classePorMedia(media) {
 
 function barraPorMedia(media) {
   return media >= 70 ? "ok" : media >= 60 ? "warn" : "error";
+}
+
+function obterTurmaAtiva(estudantesResumo) {
+  if (state.filters.turma !== "todas") {
+    return state.data.turmas.find((turma) => turma.id === state.filters.turma) || estudantesResumo[0]?.turma || state.data.turmas[0];
+  }
+  return estudantesResumo[0]?.turma || state.data.turmas[0];
+}
+
+function componentesPlanilha() {
+  const ordem = ["P", "M", "C", "G", "H", "A", "R", "EF", "I", "ER", "PV", "EO"];
+  const posicao = new Map(ordem.map((codigo, index) => [codigo, index]));
+  return [...state.data.componentes].sort((a, b) => (posicao.get(a.codigo) ?? 99) - (posicao.get(b.codigo) ?? 99));
+}
+
+function codigoPlanilha(componente = {}) {
+  return {
+    P: "P",
+    M: "M",
+    C: "C",
+    G: "G",
+    H: "H",
+    A: "A",
+    R: "RL",
+    EF: "F",
+    I: "I",
+    ER: "RD",
+    PV: "ET",
+    EO: "CPT"
+  }[componente?.codigo] || componente?.codigo || "";
 }
 
 function formatarData(value) {

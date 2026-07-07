@@ -840,14 +840,695 @@ td {
   margin: 0;
 }
 
+.compactHeader {
+  margin-top: 4px;
+}
+
+.excelPanel {
+  background:
+    linear-gradient(135deg, rgba(10, 37, 70, 0.88), rgba(13, 45, 78, 0.84)),
+    var(--surface);
+}
+
+.excelBoardShell {
+  overflow: hidden;
+  border: 1px solid rgba(156, 195, 239, 0.30);
+  border-radius: var(--radius);
+  background: #0c2f59;
+}
+
+.excelDocument {
+  min-width: 0;
+  color: #f6fbff;
+}
+
+.excelDocTop {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  background:
+    linear-gradient(90deg, #113d71, #0c2f59 62%, #164c86),
+    #0c2f59;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.excelDocTop strong,
+.excelDocTop small,
+.excelOverline {
+  display: block;
+}
+
+.excelDocTop strong {
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  line-height: 1.05;
+}
+
+.excelOverline {
+  margin-bottom: 4px;
+  color: #ffe494;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.excelPeriodSeal {
+  min-width: 92px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  text-align: center;
+}
+
+.excelPeriodSeal span,
+.excelPeriodSeal strong {
+  display: block;
+}
+
+.excelPeriodSeal span {
+  color: #cfe2f8;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.excelPeriodSeal strong {
+  margin-top: 2px;
+  font-size: 1.35rem;
+}
+
+.excelGridWrap {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  min-height: 420px;
+}
+
+.excelVerticalBand {
+  display: grid;
+  place-items: center;
+  padding: 8px 4px;
+  background: #09284b;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.excelTableWrap {
+  background: #103966;
+}
+
+.excelTable {
+  min-width: 1080px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8rem;
+}
+
+.excelTable th,
+.excelTable td {
+  padding: 6px 7px;
+  border-right: 1px solid rgba(190, 220, 255, 0.22);
+  border-bottom: 1px solid rgba(190, 220, 255, 0.18);
+}
+
+.excelTable th {
+  height: 72px;
+  background: #174c83;
+  color: #dceeff;
+  text-align: center;
+}
+
+.excelTable tbody tr:nth-child(odd) td {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.excelNumberCol,
+.excelNumberCell {
+  width: 48px;
+  text-align: center;
+}
+
+.excelNameCol,
+.excelNameCell {
+  min-width: 220px;
+}
+
+.excelNameCell {
+  color: #ffffff;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.excelCodeCol {
+  width: 54px;
+}
+
+.excelCode,
+.excelCodeName {
+  display: block;
+}
+
+.excelCode {
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.excelCodeName {
+  max-width: 44px;
+  margin: 4px auto 0;
+  overflow: hidden;
+  color: #bdd7f2;
+  font-size: 0.58rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.excelApCol,
+.excelApCell {
+  width: 94px;
+  text-align: center;
+}
+
+.excelScoreCell,
+.excelApCell,
+.boletimScoreCell {
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.excelScoreCell.scoreLow,
+.boletimScoreCell.scoreLow,
+.fichaPrintMini .scoreLow {
+  background: #d82438 !important;
+  color: #ffffff !important;
+  font-weight: 900;
+}
+
+.printHub {
+  margin-bottom: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--ink);
+}
+
+.printHub h2,
+.printHub p {
+  margin-bottom: 4px;
+}
+
+.printActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.boletimSheet {
+  background:
+    linear-gradient(135deg, rgba(12, 37, 68, 0.88), rgba(7, 23, 45, 0.82)),
+    var(--surface);
+  color: var(--ink);
+}
+
+.boletimExcelPage,
+.fichaPrintMini,
+.conselhoReportPage {
+  border: 1px solid #c8d7e8;
+  border-radius: 4px;
+  background: #f9fcff;
+  color: #10243c;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.20);
+}
+
+.boletimExcelPage {
+  padding: 12px;
+}
+
+.boletimExcelTop {
+  padding: 7px 10px 9px;
+  border-top: 8px solid #d21f2e;
+  border-bottom: 7px solid #163f78;
+  text-align: center;
+}
+
+.boletimExcelTop strong,
+.boletimExcelTop span,
+.boletimExcelTop small {
+  display: block;
+}
+
+.boletimExcelTop strong {
+  color: #d21f2e;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+}
+
+.boletimExcelTop span,
+.boletimExcelTop small {
+  color: #435b76;
+}
+
+.boletimExcelBand {
+  margin-top: 10px;
+  padding: 9px 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: #183f76;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.boletimStudentBand {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, minmax(110px, 1fr));
+  border: 1px solid #c9d9eb;
+  border-top: 0;
+}
+
+.boletimStudentBand article,
+.fichaFieldGrid article,
+.fichaRegime article {
+  min-width: 0;
+  padding: 8px;
+  border-right: 1px solid #c9d9eb;
+  background: #e9f3fc;
+}
+
+.boletimStudentBand article:last-child,
+.fichaFieldGrid article:last-child {
+  border-right: 0;
+}
+
+.boletimStudentBand span,
+.fichaFieldGrid span,
+.fichaRegime span {
+  display: block;
+  color: #55708e;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.boletimStudentBand strong,
+.fichaFieldGrid strong,
+.fichaRegime strong {
+  display: block;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+  color: #10243c;
+}
+
+.boletimExcelBody {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) 24px;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.boletimTriColumn {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.boletimTriCard {
+  min-height: 80px;
+  padding: 10px;
+  display: grid;
+  align-content: center;
+  border: 1px solid #bcd1e8;
+  background: #dceefa;
+  text-align: center;
+}
+
+.boletimTriCard span,
+.boletimTriCard small {
+  color: #55708e;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.boletimTriCard strong {
+  color: #133d72;
+  font-size: 1.4rem;
+}
+
+.boletimMatrixWrap {
+  border: 1px solid #bdd1e8;
+}
+
+.boletimMatrix {
+  min-width: 860px;
+  border-collapse: collapse;
+  font-size: 0.73rem;
+}
+
+.boletimMatrix th,
+.boletimMatrix td {
+  padding: 7px 6px;
+  border: 1px solid #c9d9eb;
+  color: #10243c;
+}
+
+.boletimMatrix th {
+  background: #d7eafa;
+  text-align: center;
+}
+
+.boletimAxis,
+.boletimRowLabel {
+  min-width: 150px;
+  background: #eef6fd;
+  color: #183f76;
+  font-weight: 900;
+}
+
+.boletimComponentHeader {
+  width: 48px;
+  color: #183f76;
+}
+
+.verticalDate {
+  display: grid;
+  place-items: center;
+  color: #506985;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.boletimExcelFooter {
+  margin-top: 10px;
+  padding: 9px 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #c9d9eb;
+  background: #eef6fd;
+}
+
+.fichaPrintMini {
+  padding: 10px;
+}
+
+.fichaTop {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 5px solid #173e7a;
+}
+
+.fichaLogo {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+
+.fichaTop strong,
+.fichaTop span,
+.fichaTop small {
+  display: block;
+}
+
+.fichaTop strong {
+  font-size: 0.88rem;
+}
+
+.fichaTop span,
+.fichaTop small {
+  color: #516b88;
+  font-size: 0.72rem;
+}
+
+.fichaFieldGrid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #c9d9eb;
+}
+
+.fichaFieldGrid article:nth-child(2n) {
+  border-right: 0;
+}
+
+.fichaFieldGrid article:nth-child(n + 3) {
+  border-top: 1px solid #c9d9eb;
+}
+
+.fichaSection {
+  margin-top: 9px;
+}
+
+.fichaSection h3 {
+  margin: 0;
+  padding: 7px 9px;
+  background: #173e7a;
+  color: #ffffff;
+  font-size: 0.82rem;
+}
+
+.fichaSection table {
+  min-width: 0;
+  font-size: 0.72rem;
+}
+
+.fichaSection th,
+.fichaSection td {
+  padding: 5px 6px;
+  border: 1px solid #c9d9eb;
+  color: #10243c;
+  text-align: center;
+}
+
+.fichaSection th {
+  background: #e8f2fc;
+}
+
+.fichaRegime {
+  margin-top: 9px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid #c9d9eb;
+}
+
+.fichaRegime article:nth-child(2n) {
+  border-right: 0;
+}
+
+.fichaRegime article:nth-child(n + 3) {
+  border-top: 1px solid #c9d9eb;
+}
+
+.fichaFooter {
+  margin-top: 9px;
+  color: #516b88;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.dangerFocus {
+  background:
+    linear-gradient(135deg, rgba(14, 43, 78, 0.88), rgba(8, 26, 52, 0.88)),
+    var(--surface);
+}
+
+.conselhoClassSelector {
+  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.conselhoFocusStrip {
+  margin-bottom: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.conselhoFocusStrip h2 {
+  margin-bottom: 3px;
+  font-size: clamp(1.2rem, 2.6vw, 1.8rem);
+}
+
+.conselhoReportPage {
+  padding: 10px;
+  overflow: hidden;
+}
+
+.conselhoReportTop {
+  display: grid;
+  grid-template-columns: 76px 300px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 4px solid #2f64a3;
+}
+
+.conselhoLogo {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+}
+
+.schoolStripes {
+  display: grid;
+  gap: 8px;
+}
+
+.schoolStripes span {
+  height: 22px;
+  background: #07306b;
+}
+
+.schoolStripes span:nth-child(2) {
+  background: #cf1d2a;
+}
+
+.schoolStripes span:nth-child(3) {
+  background: #f2c51c;
+}
+
+.conselhoReportTop strong,
+.conselhoReportTop span,
+.conselhoReportTop small {
+  display: block;
+}
+
+.conselhoReportTop strong {
+  color: #111827;
+  font-size: clamp(0.95rem, 1.8vw, 1.32rem);
+}
+
+.conselhoReportTop span,
+.conselhoReportTop small {
+  color: #52667d;
+}
+
+.conselhoReportTitle {
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 116px;
+  gap: 12px;
+  align-items: center;
+}
+
+.conselhoReportTitle strong {
+  padding: 12px;
+  background: #2d3b4b;
+  color: #ffffff;
+  font-size: clamp(1.05rem, 2vw, 1.55rem);
+}
+
+.conselhoYear {
+  padding: 8px;
+  border: 2px solid #111827;
+  color: #111827;
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.conselhoReportTable table {
+  min-width: 1040px;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.conselhoReportTable th,
+.conselhoReportTable td {
+  padding: 7px 6px;
+  border: 1px solid #b7d0ea;
+  color: #111827;
+}
+
+.conselhoReportTable th {
+  background: #bdd7ee;
+  text-align: center;
+}
+
+.conselhoReportTable tbody tr:nth-child(odd) td {
+  background: #dcebf7;
+}
+
+.conselhoReportTable tbody tr:nth-child(even) td {
+  background: #edf6fc;
+}
+
+.verticalTh {
+  width: 72px;
+  height: 110px;
+  padding: 8px 4px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.conselhoSituationCell {
+  width: 92px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.conselhoOrderCell {
+  width: 58px;
+  text-align: center;
+  font-weight: 900;
+}
+
+.conselhoNameCell {
+  min-width: 260px;
+  font-weight: 800;
+}
+
+.conselhoMarkCell {
+  text-align: center;
+  font-weight: 900;
+}
+
 @media (max-width: 980px) {
   .disciplineBars {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .decisionGrid,
-  .regimeGrid {
+  .regimeGrid,
+  .boletimStudentBand,
+  .boletimExcelBody,
+  .conselhoReportTop,
+  .conselhoReportTitle {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .boletimExcelBody {
+    grid-template-columns: 1fr;
+  }
+
+  .verticalDate {
+    writing-mode: horizontal-tb;
+    transform: none;
   }
 }
 
@@ -856,20 +1537,42 @@ td {
   .panelHeader,
   .boletimTop,
   .conselhoHeader,
+  .conselhoFocusStrip,
   .voteItem,
-  .boletimFooter {
+  .boletimFooter,
+  .excelDocTop,
+  .printHub,
+  .boletimExcelFooter {
     grid-template-columns: 1fr;
   }
 
   .syncStrip,
   .panelHeader,
-  .boletimFooter {
+  .boletimFooter,
+  .printHub,
+  .boletimExcelFooter {
     align-items: stretch;
   }
 
   .disciplineBars,
   .decisionGrid,
-  .regimeGrid {
+  .regimeGrid,
+  .fichaFieldGrid,
+  .fichaRegime {
+    grid-template-columns: 1fr;
+  }
+
+  .excelGridWrap {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .excelVerticalBand {
+    font-size: 0.63rem;
+  }
+
+  .boletimStudentBand,
+  .conselhoReportTop,
+  .conselhoReportTitle {
     grid-template-columns: 1fr;
   }
 }

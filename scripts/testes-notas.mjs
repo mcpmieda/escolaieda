@@ -63,7 +63,17 @@ conferir(/id=["']view-conselho["']/.test(html), "view-conselho nao encontrada.")
 conferir(/id=["']view-relatorios["']/.test(html), "view-relatorios nao encontrada.");
 conferir(/id=["']view-importacoes["']/.test(html), "view-importacoes nao encontrada.");
 conferir(/id=["']dashboardDisciplinas["']/.test(html), "dashboardDisciplinas nao encontrada.");
+conferir(/id=["']quadroAproveitamento["']/.test(html), "quadroAproveitamento nao encontrado.");
 conferir(/id=["']conselhoAlunoFoco["']/.test(html), "conselhoAlunoFoco nao encontrada.");
+
+const appTexto = ler("notas/js/app.js");
+const cssComponentes = ler("notas/css/componentes.css");
+conferir(appTexto.includes("renderQuadroAproveitamento"), "renderQuadroAproveitamento nao encontrado em app.js.");
+conferir(appTexto.includes("boletimExcelPage"), "boletimExcelPage nao encontrado em app.js.");
+conferir(appTexto.includes("conselhoReportPage"), "conselhoReportPage nao encontrado em app.js.");
+conferir(cssComponentes.includes(".excelDocument"), "Estilo do quadro de aproveitamento nao encontrado.");
+conferir(cssComponentes.includes(".fichaPrintMini"), "Estilo da ficha individual nao encontrado.");
+conferir(cssComponentes.includes(".conselhoReportPage"), "Estilo do relatorio de conselho nao encontrado.");
 
 const demoTexto = ler("notas/js/demo-data.js");
 const termosProibidos = ["ALICE", "AMANDA", "ROSE MARCIA", "CPF", "INEP"];
