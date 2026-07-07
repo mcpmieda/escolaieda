@@ -1,19 +1,20 @@
 .appShell {
+  position: relative;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 282px minmax(0, 1fr);
+  grid-template-columns: 244px minmax(0, 1fr);
+  z-index: 1;
 }
 
 .appRail {
   min-height: 100vh;
-  padding: 22px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background:
-    linear-gradient(180deg, rgba(16, 52, 60, 0.96), rgba(14, 42, 49, 0.98)),
-    url("../../arquivo-digital/assets/imagens/arquivo-digital-capa.jpg") center / cover no-repeat;
-  color: #ffffff;
+  gap: 18px;
+  border-right: 1px solid var(--line);
+  background: rgba(3, 15, 32, 0.72);
+  backdrop-filter: blur(18px);
 }
 
 .brandLockup {
@@ -21,7 +22,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #ffffff;
+  color: var(--ink);
   text-decoration: none;
 }
 
@@ -40,17 +41,17 @@
 }
 
 .brandLockup strong {
-  font-size: 1.2rem;
+  font-size: 1.04rem;
 }
 
 .brandLockup small {
   margin-top: 2px;
-  color: #cfe0df;
+  color: var(--ink-soft);
 }
 
 .railNav {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
 .railFooter {
@@ -69,101 +70,129 @@
   min-width: 0;
   width: min(1540px, 100%);
   margin: 0 auto;
-  padding: 24px;
+  padding: 18px 22px 28px;
 }
 
-.workHeader {
-  margin-bottom: 16px;
+.systemBar {
+  min-height: 70px;
+  margin-bottom: 12px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.66fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.systemBar h1 {
+  margin-bottom: 4px;
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  line-height: 1.02;
+}
+
+.systemBar p:last-child {
+  max-width: 780px;
+  margin-bottom: 0;
+  color: var(--ink-soft);
+}
+
+.commandCluster {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  gap: 8px;
+}
+
+.classDeck {
+  margin-bottom: 12px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto auto;
   gap: 14px;
-  align-items: stretch;
-}
-
-.heroSurface {
-  min-height: 168px;
-  padding: 22px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.7fr);
-  gap: 18px;
-  align-items: end;
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  align-items: center;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  background:
-    linear-gradient(90deg, rgba(16, 52, 60, 0.96), rgba(15, 75, 84, 0.78)),
-    url("../../arquivo-digital/assets/imagens/arquivo-digital-capa.jpg") center / cover no-repeat;
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(21, 63, 111, 0.84), rgba(12, 37, 68, 0.78));
   box-shadow: var(--shadow-panel);
 }
 
-.heroCopy h1 {
-  margin-bottom: 6px;
-  font-size: clamp(2rem, 4vw, 3.8rem);
-  line-height: 1;
+.classIdentity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.heroCopy p:last-child {
-  max-width: 760px;
-  margin-bottom: 0;
-  color: #d7e7e5;
-  font-size: 1.02rem;
+.classIdentity strong,
+.classIdentity span {
+  display: block;
 }
 
-.heroStats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+.classIdentity strong {
+  overflow-wrap: anywhere;
+  font-size: clamp(1.45rem, 2.6vw, 2.25rem);
+  line-height: 1.05;
 }
 
-.headerActions {
-  display: grid;
-  align-content: start;
-  gap: 10px;
-  min-width: 190px;
+.periodSelector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.classActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .filtersBar {
-  margin-bottom: 18px;
-  padding: 12px;
+  margin-bottom: 14px;
+  padding: 10px;
   display: grid;
-  grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(146px, 1fr));
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--shadow-soft);
+  background: rgba(255, 255, 255, 0.045);
+  backdrop-filter: blur(14px);
 }
 
-.metricGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.dashboardGrid,
-.reportGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-  gap: 16px;
-  align-items: start;
-}
-
+.overviewGrid,
 .workGrid,
-.pocGrid,
-.boletimGrid {
+.studentGrid,
+.boletimGrid,
+.conselhoGrid,
+.reportGrid,
+.pocGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.42fr) minmax(330px, 0.58fr);
+  gap: 14px;
   align-items: start;
 }
 
 .workGrid.wideRight {
-  grid-template-columns: minmax(320px, 0.75fr) minmax(0, 1.25fr);
+  grid-template-columns: minmax(330px, 0.75fr) minmax(0, 1.25fr);
+}
+
+.insightStack {
+  display: grid;
+  gap: 14px;
 }
 
 .panelWide {
   min-width: 0;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.heroMiniStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(82px, 1fr));
+  gap: 8px;
 }
 
 .detailPanel {
@@ -173,9 +202,9 @@
   width: min(520px, 100vw);
   height: 100vh;
   padding: 22px;
-  background: var(--surface);
+  background: #07172d;
   border-left: 1px solid var(--line);
-  box-shadow: -18px 0 46px rgba(28, 49, 61, 0.18);
+  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.32);
   transform: translateX(105%);
   transition: transform 0.24s ease;
   z-index: 20;
@@ -198,7 +227,7 @@
   margin-bottom: 0;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1180px) {
   .appShell {
     grid-template-columns: 1fr;
   }
@@ -217,19 +246,17 @@
     align-items: center;
   }
 
-  .workHeader,
-  .heroSurface,
-  .dashboardGrid,
-  .reportGrid,
+  .systemBar,
+  .classDeck,
+  .overviewGrid,
   .workGrid,
   .workGrid.wideRight,
-  .pocGrid,
-  .boletimGrid {
+  .studentGrid,
+  .boletimGrid,
+  .conselhoGrid,
+  .reportGrid,
+  .pocGrid {
     grid-template-columns: 1fr;
-  }
-
-  .headerActions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -245,15 +272,20 @@
   .railNav,
   .filtersBar,
   .metricGrid,
-  .heroStats,
-  .headerActions,
+  .heroMiniStats,
+  .commandCluster,
   .railFooter,
-  .sidebarActions {
+  .sidebarActions,
+  .classActions {
     grid-template-columns: 1fr;
   }
 
-  .heroSurface {
-    min-height: 0;
-    padding: 18px;
+  .commandCluster,
+  .classActions {
+    display: grid;
+  }
+
+  .classIdentity {
+    align-items: flex-start;
   }
 }

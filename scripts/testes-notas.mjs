@@ -59,8 +59,11 @@ conferir(/id=["']view-dashboard["']/.test(html), "view-dashboard nao encontrada.
 conferir(/id=["']view-banco["']/.test(html), "view-banco nao encontrada.");
 conferir(/id=["']view-estudantes["']/.test(html), "view-estudantes nao encontrada.");
 conferir(/id=["']view-boletins["']/.test(html), "view-boletins nao encontrada.");
+conferir(/id=["']view-conselho["']/.test(html), "view-conselho nao encontrada.");
 conferir(/id=["']view-relatorios["']/.test(html), "view-relatorios nao encontrada.");
 conferir(/id=["']view-importacoes["']/.test(html), "view-importacoes nao encontrada.");
+conferir(/id=["']dashboardDisciplinas["']/.test(html), "dashboardDisciplinas nao encontrada.");
+conferir(/id=["']conselhoAlunoFoco["']/.test(html), "conselhoAlunoFoco nao encontrada.");
 
 const demoTexto = ler("notas/js/demo-data.js");
 const termosProibidos = ["ALICE", "AMANDA", "ROSE MARCIA", "CPF", "INEP"];

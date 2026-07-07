@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` redesenhada em modo demonstração com início, banco, alunos, boletins, relatórios, importações e estrutura; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` reimaginada em modo demonstração com Turma, Banco, Alunos, Boletim, Conselho, Relatórios, Sync e Estrutura; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -351,7 +351,7 @@ notas/
 
 A estrutura atual é uma SPA estática compatível com GitHub Pages, sem etapa de build. O modo demonstração usa somente dados fictícios. O cliente Graph existe para autenticação MSAL e verificação estrutural das listas `NOTAS_*`, mas não grava em SharePoint e não contém dados reais embutidos.
 
-Em 07/07/2026 a interface deixou de ser apenas prova técnica e passou a representar uma primeira visão de produto: navegação lateral com identidade própria, início com indicadores, banco/matriz de notas por componente, consulta de alunos, prévia de boletim, relatórios de aproveitamento/conselho/ata, importações e estrutura. O desenho se inspira em sistemas Android/One UI no sentido de superfícies leves, navegação clara, hierarquia tátil e adaptação a PC/celular, sem copiar marca, componente proprietário ou layout exato de fabricante.
+Em 07/07/2026 a interface deixou de ser apenas prova técnica e passou a representar uma primeira visão de produto: navegação lateral com identidade própria, início com indicadores, banco/matriz de notas por componente, consulta de alunos, prévia de boletim, relatórios de aproveitamento/conselho/ata, importações e estrutura. No redesenho posterior da mesma data, as referências visuais da pasta `C:\Users\Eugui\Desktop\imagens` foram usadas como inspiração, mas não copiadas literalmente: o modelo final usa um console acadêmico escuro, botões compactos, turma/período no topo, ranking, donut de desempenho, matriz por componente, ficha/boletim com identidade real da escola e tela própria de conselho de classe.
 
 Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vite somente se houver uma estratégia aprovada para compilar e publicar sem quebrar o GitHub Pages da raiz. Não introduzir framework apenas para reproduzir componentes que HTML/CSS resolvem.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 07/07/2026: a SPA já possui início, banco de notas, alunos, boletins, relatórios, importações e tela de POC/estrutura em modo demonstração. As telas de professores/planilhas, inconsistências com fluxo de resolução, auditoria detalhada e configurações reais ainda dependem do provisionamento das listas `NOTAS_*` e do fluxo piloto.
+Estado real em 07/07/2026: a SPA já possui Turma, Banco de notas, Alunos, Boletim, Conselho, Relatórios, Sync e tela de POC/estrutura em modo demonstração. As telas de professores/planilhas, inconsistências com fluxo de resolução, auditoria detalhada e configurações reais ainda dependem do provisionamento das listas `NOTAS_*` e do fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -682,6 +682,52 @@ Ao concluir:
 
 ## 19. Registro de continuidade
 
+### 07/07/2026 — reimaginação baseada nas telas de referência da pasta imagens
+
+- Usuário informou que ainda considerava o design fraco e pediu para ler as imagens geradas por outra IA em `C:\Users\Eugui\Desktop\imagens`, cruzar com o contexto real do banco de notas e criar um modelo final mais casado, leve, moderno e imersivo.
+- Foram inspecionados seis PNGs:
+  - `ChatGPT Image 7 de jul. de 2026, 11_04_10.png`;
+  - `ChatGPT Image 7 de jul. de 2026, 11_07_38.png`;
+  - `ChatGPT Image 7 de jul. de 2026, 11_07_50 (1).png`;
+  - `ChatGPT Image 7 de jul. de 2026, 11_07_50 (2).png`;
+  - `ChatGPT Image 7 de jul. de 2026, 11_07_50 (3).png`;
+  - `ChatGPT Image 7 de jul. de 2026, 11_16_04.png`.
+- Elementos aproveitados das referências:
+  - menu lateral fixo junto ao conteúdo em telas grandes;
+  - seletor de turma/período no topo da experiência;
+  - cartões compactos de média, alunos acima/abaixo e sincronização;
+  - matriz de notas por componente;
+  - ranking/destaques da turma;
+  - gráfico circular de desempenho geral;
+  - área de boletim/ficha com cabeçalho institucional;
+  - tela de conselho de classe com aluno em foco, decisões e matriz por disciplina.
+- Elementos descartados ou suavizados:
+  - azul excessivamente genérico e pesado;
+  - botões grandes demais dominando a tela;
+  - excesso de brilho e aparência de mockup de produto genérico;
+  - nomes reais que apareciam nas referências geradas pela outra IA;
+  - folha de boletim como simples imagem estática sem comportamento de sistema.
+- Recursos reais incorporados:
+  - identidade `Escola Municipal Profª Iêda Alves de Oliveira` / `Escola Iêda MCPM`;
+  - localização pública `Medeiros Neto - BA`;
+  - contato público `secretaria@escolaieda.com` e `(73) 99871-0105`;
+  - endereço público `Rua Clidenor de Oliveira, S/N`;
+  - estrutura real confirmada do banco: `INICIO`, `APROVEITAMENTO`, `BOLETIM`, `FICHA ALUNO`, `CONSELHO`, `ATA RESULTADOS`, `BASE DE CONTROLE`, `VINCULO NOTAS`;
+  - regime de avaliação confirmado: I trimestre 18/30, II trimestre 18/30, III trimestre 24/40, total anual 60/100;
+  - componentes e campos do contrato `TB_EXPORT_NOTAS`: `NotaT1`, `NotaT2`, `NotaT3`, `Total`, `RecT1`, `RecT2`, `RecT3`, `TotalRec`, `NotaFinal`.
+- A navegação foi reestruturada para `Turma`, `Banco`, `Alunos`, `Boletim`, `Conselho`, `Relatórios`, `Sync` e `Estrutura`.
+- O topo passou a funcionar como área de visualização/contexto: título da experiência, busca compacta, turma selecionada, chips de período e ações rápidas de relatório/boletim.
+- A tela `Turma` passou a renderizar desempenho por componente, ranking da turma, donut de desempenho geral, métricas compactas e regime de avaliação.
+- A tela `Boletim` passou a renderizar ficha/boletim com marca real da escola, regime de avaliação, matriz de notas, recuperação, nota final e faltas demonstrativas.
+- Foi criada tela própria `Conselho`, com aluno fictício em foco, botões compactos de decisão, matriz de notas, resumo para decisão e votos simulados.
+- `scripts/testes-notas.mjs` foi ampliado para validar `view-conselho`, `dashboardDisciplinas` e `conselhoAlunoFoco`.
+- Validação executada: `node scripts/testes-notas.mjs` passou.
+- Validação executada: `git diff --check` não apontou erro de whitespace; apenas avisos esperados de conversão LF/CRLF.
+- Validação HTTP executada: `/notas/` respondeu 200 e o HTML contém `view-conselho` e `dashboardDisciplinas`.
+- Validação visual executada por Playwright CLI: capturas desktop 1366×900, mobile 390×844 e full-page com `#dashboardDisciplinas .disciplineBar` carregado.
+- Nenhum recurso Microsoft 365 foi criado ou alterado; nenhum dado real de aluno/professor foi inserido.
+- Próxima etapa correta: publicar com commit/push para avaliação no GitHub Pages; depois ajustar UX fino conforme retorno visual do responsável.
+
 ### 07/07/2026 — redesenho de produto do módulo de notas
 
 - Usuário avaliou que o design inicial estava distante do pedido e solicitou uma etapa maior, com personalidade própria, visual leve/moderno inspirado em sistema Android no PC e telas mais próximas do banco de notas em Excel.
@@ -813,6 +859,7 @@ Ao concluir:
 - [Visão geral do One UI Design System — Samsung Developer](https://developer.samsung.com/one-ui/index.html)
 - [Layout básico One UI — Samsung Developer](https://developer.samsung.com/one-ui/layout/basic.html)
 - [Layout para telas grandes — Samsung Developer](https://developer.samsung.com/one-ui/largescreen-and-foldable/large_screen_layout.html)
+- [Sistema e uso de cores One UI — Samsung Developer](https://developer.samsung.com/one-ui/color/system.html)
 - [Movimento One UI — Samsung Developer](https://developer.samsung.com/one-ui/motion/basic.html)
 - [Profundidade visual One UI — Samsung Developer](https://developer.samsung.com/one-ui/structure/visual-depth.html)
 - [Cor e contraste One UI — Samsung Developer](https://developer.samsung.com/one-ui/accessibility/color-contrast.html)

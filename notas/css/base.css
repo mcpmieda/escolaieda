@@ -11,10 +11,20 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(237, 243, 241, 0.94), rgba(247, 250, 248, 0.98)),
-    url("../../fundo_logo_ieda.jpg") center top / cover fixed no-repeat;
+    linear-gradient(135deg, rgba(7, 23, 45, 0.98), rgba(10, 36, 66, 0.96) 44%, rgba(12, 53, 80, 0.94)),
+    url("../../arquivo-digital/assets/imagens/arquivo-digital-capa.jpg") center / cover fixed no-repeat;
   color: var(--ink);
   font-family: var(--font);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 78% 12%, rgba(46, 124, 255, 0.22), transparent 32%),
+    linear-gradient(90deg, rgba(5, 15, 31, 0.68), transparent 42%);
 }
 
 button,
@@ -70,7 +80,7 @@ h3 {
 .eyebrow,
 .sectionKicker {
   margin-bottom: 6px;
-  color: var(--brand-3);
+  color: var(--brand);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0;
@@ -83,6 +93,15 @@ h3 {
 
 .muted {
   color: var(--muted);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 :focus-visible {

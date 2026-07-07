@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#10343c">
+  <meta name="theme-color" content="#07172d">
   <title>Gestão de Notas | Escola Iêda MCPM</title>
   <link rel="icon" type="image/png" href="../imagens/favicon.png">
   <link rel="stylesheet" href="css/tokens.css">
@@ -19,19 +19,20 @@
       <a class="brandLockup" href="../admin/" aria-label="Voltar ao painel administrativo">
         <img src="../logo_escola.png" alt="" class="brandLogo">
         <span>
-          <strong>Notas</strong>
-          <small>Escola Iêda MCPM</small>
+          <strong>Escola Iêda</strong>
+          <small>Sistema de Notas</small>
         </span>
       </a>
 
       <nav class="railNav" aria-label="Áreas principais">
-        <button class="navItem active" type="button" data-view="dashboard"><span>Início</span></button>
-        <button class="navItem" type="button" data-view="banco"><span>Banco</span></button>
-        <button class="navItem" type="button" data-view="estudantes"><span>Alunos</span></button>
-        <button class="navItem" type="button" data-view="boletins"><span>Boletins</span></button>
-        <button class="navItem" type="button" data-view="relatorios"><span>Relatórios</span></button>
-        <button class="navItem" type="button" data-view="importacoes"><span>Importações</span></button>
-        <button class="navItem" type="button" data-view="poc"><span>Estrutura</span></button>
+        <button class="navItem active" type="button" data-view="dashboard"><span class="navIcon" aria-hidden="true">▦</span><span>Turma</span></button>
+        <button class="navItem" type="button" data-view="banco"><span class="navIcon" aria-hidden="true">▤</span><span>Banco</span></button>
+        <button class="navItem" type="button" data-view="estudantes"><span class="navIcon" aria-hidden="true">◎</span><span>Alunos</span></button>
+        <button class="navItem" type="button" data-view="boletins"><span class="navIcon" aria-hidden="true">◫</span><span>Boletim</span></button>
+        <button class="navItem" type="button" data-view="conselho"><span class="navIcon" aria-hidden="true">◈</span><span>Conselho</span></button>
+        <button class="navItem" type="button" data-view="relatorios"><span class="navIcon" aria-hidden="true">▧</span><span>Relatórios</span></button>
+        <button class="navItem" type="button" data-view="importacoes"><span class="navIcon" aria-hidden="true">⇅</span><span>Sync</span></button>
+        <button class="navItem" type="button" data-view="poc"><span class="navIcon" aria-hidden="true">⌁</span><span>Estrutura</span></button>
       </nav>
 
       <div class="railFooter">
@@ -47,34 +48,43 @@
     </aside>
 
     <main class="mainArea">
-      <header class="workHeader">
-        <div class="heroSurface">
-          <div class="heroCopy">
-            <p class="eyebrow">Central pedagógica 2026</p>
-            <h1 id="viewTitle">Gestão de notas</h1>
-            <p id="viewSubtitle">Acompanhamento anual por turma, componente, aluno, boletim e resultado.</p>
-          </div>
-          <div class="heroStats" aria-label="Resumo rápido">
-            <article>
-              <span>Média geral</span>
-              <strong id="heroMedia">0,0</strong>
-            </article>
-            <article>
-              <span>Em atenção</span>
-              <strong id="heroAtencao">0</strong>
-            </article>
-            <article>
-              <span>Última sync</span>
-              <strong id="heroSync">--</strong>
-            </article>
-          </div>
+      <header class="systemBar">
+        <div>
+          <p class="eyebrow">Central pedagógica 2026</p>
+          <h1 id="viewTitle">Movimento estatístico escolar</h1>
+          <p id="viewSubtitle">Banco de notas, boletins, conselho e relatórios em uma experiência única.</p>
         </div>
-
-        <div class="headerActions">
-          <button class="secondaryButton" id="btnDemo" type="button">Demonstração</button>
-          <button class="primaryButton" id="btnEntrar" type="button">Entrar com Microsoft</button>
+        <div class="commandCluster">
+          <label class="searchBox">
+            <span class="srOnly">Buscar aluno, turma ou componente</span>
+            <input id="filtroBusca" type="search" placeholder="Buscar aluno, turma ou componente">
+          </label>
+          <button class="secondaryButton" id="btnDemo" type="button">Demo</button>
+          <button class="primaryButton" id="btnEntrar" type="button">Microsoft</button>
         </div>
       </header>
+
+      <section class="classDeck" aria-label="Contexto atual de consulta">
+        <div class="classIdentity">
+          <span class="classGlyph" aria-hidden="true">▣</span>
+          <div>
+            <p class="eyebrow">Turma selecionada</p>
+            <strong id="classeTitulo">6A - Demonstração</strong>
+            <span id="classeSubtitulo">Ensino Fundamental Anos Finais · 40 alunos fictícios</span>
+          </div>
+        </div>
+        <div class="periodSelector" aria-label="Períodos">
+          <button class="periodChip active" type="button">Anual</button>
+          <button class="periodChip" type="button">I tri.</button>
+          <button class="periodChip" type="button">II tri.</button>
+          <button class="periodChip" type="button">III tri.</button>
+          <button class="periodChip" type="button">Rec.</button>
+        </div>
+        <div class="classActions">
+          <button class="secondaryButton compactButton" type="button" data-view="relatorios">Relatório</button>
+          <button class="primaryButton compactButton" type="button" data-view="boletins">Boletim</button>
+        </div>
+      </section>
 
       <section class="syncStrip" id="systemBanner" aria-live="polite">
         <div>
@@ -85,10 +95,6 @@
       </section>
 
       <section class="filtersBar" aria-label="Filtros de consulta">
-        <label>
-          <span>Buscar</span>
-          <input id="filtroBusca" type="search" placeholder="Aluno, turma ou componente">
-        </label>
         <label>
           <span>Turma</span>
           <select id="filtroTurma"></select>
@@ -109,48 +115,36 @@
       </section>
 
       <section class="view active" id="view-dashboard">
-        <div class="metricGrid" id="metricGrid"></div>
-
-        <div class="dashboardGrid">
-          <section class="panel panelWide">
+        <div class="overviewGrid">
+          <section class="panel panelWide heroPanel">
             <div class="panelHeader">
               <div>
                 <p class="sectionKicker">Aproveitamento</p>
-                <h2>Mapa anual por turma</h2>
+                <h2>Desempenho da turma</h2>
+              </div>
+              <div class="heroMiniStats" aria-label="Resumo rápido">
+                <article><span>Média</span><strong id="heroMedia">0,0</strong></article>
+                <article><span>Atenção</span><strong id="heroAtencao">0</strong></article>
+                <article><span>Sync</span><strong id="heroSync">--</strong></article>
               </div>
             </div>
-            <div class="heatList" id="mapaAproveitamento"></div>
+            <div class="metricGrid" id="metricGrid"></div>
+            <div class="disciplineBars" id="dashboardDisciplinas"></div>
           </section>
 
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Rotina</p>
-                <h2>Importações recentes</h2>
+          <aside class="insightStack">
+            <section class="panel" id="rankingDestaques"></section>
+            <section class="panel" id="donutDesempenho"></section>
+            <section class="panel">
+              <div class="panelHeader">
+                <div>
+                  <p class="sectionKicker">Etapas</p>
+                  <h2>Regime de avaliação</h2>
+                </div>
               </div>
-            </div>
-            <div class="timeline" id="timelineImportacoes"></div>
-          </section>
-
-          <section class="panel panelWide">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Etapas</p>
-                <h2>I, II, III trimestre e recuperação</h2>
-              </div>
-            </div>
-            <div class="stageGrid" id="painelTrimestres"></div>
-          </section>
-
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Turmas</p>
-                <h2>Prioridades</h2>
-              </div>
-            </div>
-            <div class="turmaList" id="listaTurmasResumo"></div>
-          </section>
+              <div class="stageGrid" id="painelTrimestres"></div>
+            </section>
+          </aside>
         </div>
       </section>
 
@@ -162,6 +156,7 @@
                 <p class="sectionKicker">Banco de notas</p>
                 <h2>Matriz por componente</h2>
               </div>
+              <span class="chip info">12 componentes</span>
             </div>
             <div class="responsiveTable">
               <table>
@@ -194,28 +189,39 @@
       </section>
 
       <section class="view" id="view-estudantes">
-        <div class="tablePanel">
-          <div class="panelHeader">
-            <div>
-              <p class="sectionKicker">Consulta</p>
-              <h2>Alunos e situação anual</h2>
+        <div class="studentGrid">
+          <section class="tablePanel panelWide">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Consulta</p>
+                <h2>Alunos e situação anual</h2>
+              </div>
             </div>
-          </div>
-          <div class="responsiveTable">
-            <table>
-              <thead>
-                <tr>
-                  <th>Aluno</th>
-                  <th>Turma</th>
-                  <th>Componentes</th>
-                  <th>Média</th>
-                  <th>Resultado</th>
-                  <th>Ação</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaEstudantes"></tbody>
-            </table>
-          </div>
+            <div class="responsiveTable">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Aluno</th>
+                    <th>Turma</th>
+                    <th>Componentes</th>
+                    <th>Média</th>
+                    <th>Resultado</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaEstudantes"></tbody>
+              </table>
+            </div>
+          </section>
+          <aside class="panel">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Prioridade</p>
+                <h2>Mapa por turma</h2>
+              </div>
+            </div>
+            <div class="heatList" id="mapaAproveitamento"></div>
+          </aside>
         </div>
       </section>
 
@@ -233,11 +239,21 @@
             <div class="panelDivider"></div>
             <div class="panelHeader tight">
               <div>
-                <p class="sectionKicker">Fila</p>
+                <p class="sectionKicker">Emissão</p>
                 <h2>Boletins recentes</h2>
               </div>
             </div>
             <div class="boletimQueue" id="listaBoletins"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-conselho">
+        <div class="conselhoGrid">
+          <section class="panel panelWide dangerFocus" id="conselhoAlunoFoco"></section>
+          <aside class="insightStack">
+            <section class="panel" id="conselhoResumo"></section>
+            <section class="panel" id="conselhoVotos"></section>
           </aside>
         </div>
       </section>
