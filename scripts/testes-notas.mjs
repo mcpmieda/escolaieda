@@ -69,10 +69,12 @@ conferir(/id=["']conselhoAlunoFoco["']/.test(html), "conselhoAlunoFoco nao encon
 const appTexto = ler("notas/js/app.js");
 const cssComponentes = ler("notas/css/componentes.css");
 conferir(appTexto.includes("renderQuadroAproveitamento"), "renderQuadroAproveitamento nao encontrado em app.js.");
-conferir(appTexto.includes("boletimExcelPage"), "boletimExcelPage nao encontrado em app.js.");
+conferir(appTexto.includes("boletimPrintExact"), "boletimPrintExact nao encontrado em app.js.");
+conferir(appTexto.includes("boletimControls"), "boletimControls nao encontrado em app.js.");
 conferir(appTexto.includes("conselhoReportPage"), "conselhoReportPage nao encontrado em app.js.");
 conferir(cssComponentes.includes(".excelDocument"), "Estilo do quadro de aproveitamento nao encontrado.");
-conferir(cssComponentes.includes(".fichaPrintMini"), "Estilo da ficha individual nao encontrado.");
+conferir(cssComponentes.includes(".disciplineChart"), "Estilo do grafico estatistico trimestral nao encontrado.");
+conferir(cssComponentes.includes(".boletimPrintExact"), "Estilo do boletim fiel ao Excel nao encontrado.");
 conferir(cssComponentes.includes(".conselhoReportPage"), "Estilo do relatorio de conselho nao encontrado.");
 
 const demoTexto = ler("notas/js/demo-data.js");

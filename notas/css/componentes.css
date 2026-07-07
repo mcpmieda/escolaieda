@@ -344,7 +344,7 @@
 }
 
 .disciplineBars {
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .disciplineBar {
@@ -1506,6 +1506,495 @@ td {
 .conselhoMarkCell {
   text-align: center;
   font-weight: 900;
+}
+
+.bankToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.miniSearch input {
+  width: min(280px, 32vw);
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.075);
+  color: var(--ink);
+}
+
+.disciplineChart {
+  display: grid;
+  gap: 10px;
+  padding: 12px 12px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025)),
+    rgba(255, 255, 255, 0.035);
+}
+
+.disciplineLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.disciplineChartPlot {
+  min-height: 250px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+  padding: 12px 8px 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px) 0 0 / 100% 25%,
+    linear-gradient(180deg, rgba(8, 31, 61, 0.14), rgba(8, 31, 61, 0.02));
+}
+
+.disciplineColumn {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 7px;
+  align-items: end;
+}
+
+.disciplineColumnBars {
+  height: 188px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 3px;
+}
+
+.disciplineColumnBars span {
+  width: 17px;
+  min-height: 0;
+  height: var(--height);
+  position: relative;
+  border-radius: 5px 5px 2px 2px;
+}
+
+.disciplineColumnBars span::before {
+  content: attr(data-value);
+  position: absolute;
+  left: 50%;
+  top: -22px;
+  transform: translateX(-50%);
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.11);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.aboveBar {
+  background: linear-gradient(180deg, #3b85ff, #1459d9);
+  box-shadow: 0 8px 18px rgba(46, 124, 255, 0.24);
+}
+
+.belowBar {
+  background: linear-gradient(180deg, #ff4458, #b80f2d);
+  box-shadow: 0 8px 18px rgba(255, 67, 88, 0.20);
+}
+
+.belowBar[data-value="0"]::before {
+  color: #9db7d5;
+}
+
+.disciplineColumn footer {
+  min-height: 58px;
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  text-align: center;
+}
+
+.disciplineColumn footer strong {
+  color: #ffffff;
+  font-size: 0.86rem;
+}
+
+.disciplineColumn footer span {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 1.08;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.disciplineChartFoot {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.excelBoardShell {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 42%),
+    #123c73;
+}
+
+.excelGridWrap {
+  grid-template-columns: 42px minmax(0, 1fr);
+}
+
+.excelTableWrap {
+  overflow: visible;
+}
+
+.excelTable {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  font-size: clamp(0.58rem, 0.72vw, 0.78rem);
+}
+
+.excelTable th,
+.excelTable td {
+  padding: 5px 4px;
+}
+
+.excelTable th {
+  height: 44px;
+}
+
+.excelNumberCol,
+.excelNumberCell {
+  width: 34px;
+}
+
+.excelNameCol,
+.excelNameCell {
+  width: clamp(170px, 27vw, 350px);
+}
+
+.excelNameCell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.excelCodeCol {
+  width: auto;
+}
+
+.excelCodeName {
+  display: none;
+}
+
+.excelApCol,
+.excelApCell {
+  width: 82px;
+}
+
+.boletimControls {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.8fr) minmax(180px, 0.55fr) minmax(420px, 1.65fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.controlGroup {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.controlGroup h2 {
+  margin: 0 0 6px;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.controlGroupBody {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.controlToggle {
+  min-height: 25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.controlToggle input {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--brand-strong);
+}
+
+.dangerText {
+  color: #ff9aa5;
+}
+
+.boletimInfoPanel,
+.reportPreviewPanel {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.boletimInfoPanel {
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.boletimInfoTitle h2,
+.previewHeader h2 {
+  margin-bottom: 0;
+  color: var(--ink);
+  font-size: 0.96rem;
+}
+
+.boletimFieldGrid {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.65fr) minmax(150px, 0.45fr) minmax(260px, 1fr) minmax(240px, 1fr);
+  gap: 8px;
+}
+
+.fieldControl {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.fieldControl span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.fieldControl input {
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--ink);
+  font-size: 0.76rem;
+}
+
+.previewHeader {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.previewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.scaleButton {
+  min-width: 62px;
+}
+
+.boletimPrintExact {
+  overflow: hidden;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(90deg, rgba(31, 58, 91, 0.08) 0 54px, rgba(255, 255, 255, 0.14) 54px 108px),
+    #eef2f7;
+  color: #010817;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.26);
+}
+
+.boletimExactTop {
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(90deg, rgba(120, 0, 0, 0.14) 0 52px, transparent 52px 104px),
+    #d20000;
+  color: #ffffff;
+  text-align: center;
+}
+
+.boletimExactTop strong {
+  font-size: clamp(1.18rem, 2.2vw, 2rem);
+  line-height: 1;
+}
+
+.boletimExactBlue {
+  height: 50px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 52px, transparent 52px 104px),
+    linear-gradient(90deg, #294a83, #1e3a68);
+}
+
+.boletimExactContent {
+  min-height: 304px;
+  display: grid;
+  grid-template-columns: minmax(250px, 35%) minmax(0, 1fr) 26px 42px;
+  gap: 0;
+  align-items: end;
+  padding: 28px 24px 0 24px;
+}
+
+.boletimExactPercent {
+  min-height: 276px;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: center;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(176, 190, 207, 0.78), rgba(236, 241, 247, 0.80));
+}
+
+.boletimExactPercent article {
+  min-height: 155px;
+  display: grid;
+  align-content: center;
+  gap: 40px;
+  border-right: 1px solid rgba(70, 91, 116, 0.20);
+}
+
+.boletimExactPercent article:last-of-type {
+  border-right: 0;
+}
+
+.boletimExactPercent span {
+  color: #0b294e;
+  font-size: 0.98rem;
+}
+
+.boletimExactPercent strong {
+  color: #010817;
+  font-size: 1.32rem;
+  font-weight: 500;
+}
+
+.boletimPercentDash {
+  position: absolute;
+  left: 50%;
+  bottom: 42px;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+}
+
+.boletimExactTableWrap {
+  min-width: 0;
+  align-self: center;
+}
+
+.boletimExactTable {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.68);
+  font-size: clamp(0.46rem, 0.52vw, 0.64rem);
+}
+
+.boletimExactTable th,
+.boletimExactTable td {
+  padding: 4px 3px;
+  border: 2px solid #2c3d52;
+  color: #010817;
+  text-align: center;
+}
+
+.boletimExactTable thead th {
+  height: 84px;
+}
+
+.boletimExactTitleCell {
+  width: 98px;
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.boletimSmallHeader,
+.boletimTypeCell {
+  width: 34px;
+}
+
+.boletimExactVertical {
+  width: 30px;
+  padding: 5px 2px;
+  font-size: 0.43rem;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.boletimBlankHeader,
+.boletimBlankCell {
+  width: 28px;
+}
+
+.boletimPeriodCell,
+.boletimNeedCell {
+  width: 98px;
+  color: #1f344d;
+  font-size: 0.56rem;
+}
+
+.boletimNeedCell {
+  font-weight: 900;
+}
+
+.boletimDashCell {
+  font-weight: 700;
+}
+
+.boletimExactDate {
+  align-self: center;
+  color: #0b294e;
+  font-size: 0.64rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.boletimExactNumber {
+  align-self: end;
+  padding-bottom: 10px;
+  color: #0b294e;
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+.boletimNotice {
+  margin-left: calc(24px + 35%);
+  padding: 7px 10px;
+  background: rgba(205, 215, 228, 0.72);
+  color: #010817;
+  font-size: clamp(0.58rem, 0.75vw, 0.82rem);
+  text-align: center;
+}
+
+.boletimExactFoot {
+  padding: 18px 24px 24px;
+  color: #1a2d46;
+  font-size: clamp(0.58rem, 0.75vw, 0.82rem);
+  text-align: center;
 }
 
 @media (max-width: 980px) {

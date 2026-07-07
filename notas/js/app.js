@@ -78,10 +78,10 @@ const ui = {
 };
 
 const viewCopy = {
-  dashboard: ["Movimento estatístico escolar", "Turma, período, ranking, componentes e desempenho em visão executiva."],
-  banco: ["Banco de notas", "Matriz consolidada por componente, trimestre, recuperação e resultado."],
+  dashboard: ["Movimento estatístico trimestral", "Desempenho da turma por componente, ranking e síntese do I trimestre."],
+  banco: ["Banco de notas", "Quadro trimestral compacto com todas as notas visíveis na tela."],
   estudantes: ["Alunos", "Consulta operacional por turma, média, situação e resultado final."],
-  boletins: ["Boletim e ficha", "Prévia de ficha individual com regime, aproveitamento anual, recuperação e frequência."],
+  boletins: ["Boletim", "Configuração de impressão e prévia fiel ao boletim atual do banco de notas."],
   conselho: ["Conselho de classe", "Aluno em foco, deliberação, matriz de notas e resumo para decisão pedagógica."],
   relatorios: ["Relatórios", "Aproveitamento, conselho de classe e síntese para ata de resultados."],
   importacoes: ["Sincronização", "Fila técnica, alertas e falhas que precisam ser reprocessáveis."],
@@ -96,7 +96,7 @@ async function initialize() {
   await inicializarSessaoMicrosoft();
   renderAll();
   const initialView = viewFromHash();
-  if (initialView) abrirView(initialView);
+  abrirView(initialView || state.currentView);
 }
 
 function bindEvents() {
@@ -185,6 +185,7 @@ function atualizarFiltros() {
 
 function abrirView(view) {
   state.currentView = view;
+  document.body.dataset.view = view;
   document.querySelectorAll(".view").forEach((elemento) => {
     elemento.classList.toggle("active", elemento.id === `view-${view}`);
   });
@@ -205,24 +206,28 @@ function renderAll() {
   const estudantesResumoBase = listarEstudantesComResumo(state.data);
   const estudantesResumo = filtrarEstudantes(estudantesResumoBase, state.filters);
   const turmasResumo = filtrarTurmasPorEstudantes(resumirTurmas(state.data), estudantesResumo);
+  const turmaAtiva = obterTurmaAtiva(estudantesResumo);
+  const estudantesDaTurma = estudantesResumo.filter((estudante) => estudante.turmaId === turmaAtiva?.id);
+  const contextoEstudantes = estudantesDaTurma.length ? estudantesDaTurma : estudantesResumo;
   const lancamentosFiltrados = estudantesResumo.flatMap((estudante) => estudante.lancamentos);
-  const resumo = calcularResumoGeral({
+  const lancamentosTurma = contextoEstudantes.flatMap((estudante) => estudante.lancamentos);
+  const resumoTurma = calcularResumoGeral({
     ...state.data,
-    estudantes: estudantesResumo.map(({ turma, lancamentos, ...estudante }) => estudante),
-    lancamentos: lancamentosFiltrados
+    estudantes: contextoEstudantes.map(({ turma, lancamentos, ...estudante }) => estudante),
+    lancamentos: lancamentosTurma
   });
 
   renderContextoClasse(estudantesResumo, turmasResumo);
-  renderHero(resumo, turmasResumo);
-  renderMetrics(resumo);
-  renderDashboardDisciplinas(estudantesResumo);
-  renderRanking(estudantesResumo);
-  renderDonut(resumo);
-  renderTrimestres(lancamentosFiltrados);
+  renderHero(resumoTurma, [turmaAtiva].filter(Boolean));
+  renderMetrics(resumoTurma);
+  renderDashboardDisciplinas(contextoEstudantes);
+  renderRanking(contextoEstudantes);
+  renderDonut(resumoTurma);
+  renderTrimestres(lancamentosTurma);
   renderMapaAproveitamento(turmasResumo);
-  renderQuadroAproveitamento(estudantesResumo);
-  renderBancoNotas(estudantesResumo);
-  renderPainelAproveitamento(estudantesResumo);
+  renderQuadroAproveitamento(contextoEstudantes);
+  renderBancoNotas(contextoEstudantes);
+  renderPainelAproveitamento(contextoEstudantes);
   renderTabelaEstudantes(estudantesResumo);
   renderBoletim(estudantesResumo);
   renderConselho(estudantesResumo);
@@ -260,10 +265,10 @@ function renderHero(resumo, turmasResumo) {
 function renderMetrics(resumo) {
   const total = Math.max(1, resumo.totalEstudantes);
   const metrics = [
-    ["Acima ou igual a 60", resumo.regular + resumo.atencao, `${Math.round(((resumo.regular + resumo.atencao) / total) * 100)}% da amostra`, "accentMint"],
-    ["Abaixo de 60", resumo.critico, `${Math.round((resumo.critico / total) * 100)}% em risco`, "accentCoral"],
-    ["Componentes", resumo.totalComponentes, "matriz anual", "accentBlue"],
-    ["Pendências", resumo.importacoesComProblema + resumo.inconsistencias, "sync e alertas", "accentAmber"]
+    ["Acima ou igual à média", resumo.regular + resumo.atencao, `${Math.round(((resumo.regular + resumo.atencao) / total) * 100)}%`, "accentMint"],
+    ["Abaixo da média", resumo.critico, `${Math.round((resumo.critico / total) * 100)}%`, "accentCoral"],
+    ["Alunos na turma", resumo.totalEstudantes, "100%", "accentBlue"],
+    ["Média geral da turma", formatarMedia(resumo.mediaGeral), "Bom", "accentAmber"]
   ];
   replaceChildren(ui.metricGrid, metrics.map(([label, value, hint, accent]) => {
     const card = element("article", `metricCard ${accent}`.trim());
@@ -275,21 +280,35 @@ function renderMetrics(resumo) {
 }
 
 function renderDashboardDisciplinas(estudantesResumo) {
-  const componentes = resumirComponentes(state.data, estudantesResumo);
-  replaceChildren(ui.dashboardDisciplinas, componentes.map((componente) => {
-    const item = element("article", "disciplineBar");
-    const header = element("header");
-    appendText(header, "strong", componente.codigo);
-    appendText(header, "span", componente.nome);
-    const body = element("div", "barStack");
+  const componentes = ordenarComponentesResumo(resumirComponentes(state.data, estudantesResumo));
+  const total = Math.max(1, estudantesResumo.length);
+  const chart = element("div", "disciplineChart");
+  const plot = element("div", "disciplineChartPlot");
+  componentes.forEach((componente) => {
     const acima = Math.max(0, componente.regular + componente.atencao);
-    const total = Math.max(1, componente.lancamentos);
-    const percentual = Math.round((acima / total) * 100);
-    body.append(progressTrack(percentual, percentual >= 70 ? "ok" : percentual >= 55 ? "warn" : "error"));
-    appendText(body, "small", `${percentual}% com nota final igual/acima de 60`, "muted");
-    item.append(header, body);
-    return item;
-  }));
+    const abaixo = Math.max(0, componente.critico);
+    const column = element("article", "disciplineColumn");
+    const bars = element("div", "disciplineColumnBars");
+    const aboveBar = element("span", "aboveBar");
+    aboveBar.style.setProperty("--height", `${Math.max(8, (acima / total) * 100)}%`);
+    aboveBar.dataset.value = String(acima);
+    const belowBar = element("span", "belowBar");
+    belowBar.style.setProperty("--height", `${Math.max(abaixo ? 8 : 0, (abaixo / total) * 100)}%`);
+    belowBar.dataset.value = String(abaixo);
+    bars.append(aboveBar, belowBar);
+    const label = element("footer");
+    appendText(label, "strong", codigoPlanilha(componente));
+    appendText(label, "span", componente.nome);
+    column.append(bars, label);
+    plot.append(column);
+  });
+
+  const legend = element("div", "disciplineLegend");
+  legend.append(chip("Acima ou igual à média", "info"), chip("Abaixo da média", "error"));
+  const foot = element("div", "disciplineChartFoot");
+  appendText(foot, "span", "I trimestre: mínimo de 18 pontos para alcançar a média. Máximo de 30 pontos.", "muted");
+  chart.append(legend, plot, foot);
+  replaceChildren(ui.dashboardDisciplinas, [chart]);
 }
 
 function renderRanking(estudantesResumo) {
@@ -422,6 +441,7 @@ function renderQuadroAproveitamento(estudantesResumo) {
 }
 
 function renderBancoNotas(estudantesResumo) {
+  if (!ui.matrizBancoNotas) return;
   const componentes = resumirComponentes(state.data, estudantesResumo);
   replaceChildren(ui.matrizBancoNotas, componentes.map((componente) => {
     const row = document.createElement("tr");
@@ -439,6 +459,7 @@ function renderBancoNotas(estudantesResumo) {
 }
 
 function renderPainelAproveitamento(estudantesResumo) {
+  if (!ui.painelAproveitamento) return;
   const componentes = resumirComponentes(state.data, estudantesResumo);
   const areas = new Map();
   for (const componente of componentes) {
@@ -482,118 +503,136 @@ function renderTabelaEstudantes(estudantesResumo) {
 
 function renderBoletim(estudantesResumo) {
   const estudante = estudantesResumo[0];
+  if (!ui.boletimPreview) return;
   if (!estudante) {
     replaceChildren(ui.boletimPreview, [emptyState("Nenhum aluno encontrado para os filtros atuais.")]);
-    replaceChildren(ui.fichaAlunoResumo, []);
-    replaceChildren(ui.listaBoletins, []);
+    if (ui.fichaAlunoResumo) replaceChildren(ui.fichaAlunoResumo, []);
+    if (ui.listaBoletins) replaceChildren(ui.listaBoletins, []);
     return;
   }
 
-  const hub = element("div", "printHub");
-  const hubTitle = element("div");
-  appendText(hubTitle, "p", "Relatórios e impressão", "sectionKicker");
-  appendText(hubTitle, "h2", "Boletim escolar");
-  appendText(hubTitle, "span", "Prévia demonstrativa baseada no modelo real do banco de notas.", "muted");
-  const hubActions = element("div", "printActions");
-  ["Boletim", "Ficha", "Ata", "PDF"].forEach((label, index) => {
-    const button = element("button", index === 0 ? "periodChip active" : "periodChip");
+  const controls = element("div", "boletimControls");
+  controls.append(
+    controlGroup("Impressão", [
+      controlButton("Imprimir", "primaryButton compactButton"),
+      controlToggle("Preto e branco", false),
+      controlToggle("Colorido", true),
+      controlToggle("Ocultar IIº tri", false),
+      controlToggle("Ocultar IIIº tri", false)
+    ]),
+    controlGroup("Geração", [
+      controlButton("Gerar", "primaryButton compactButton"),
+      controlButton("Gerar com foto", "secondaryButton compactButton"),
+      controlButton("Aplicar foto", "secondaryButton compactButton dangerText")
+    ]),
+    controlGroup("Situações", [
+      controlToggle("Em curso", true),
+      controlToggle("Aprovado direto", true),
+      controlToggle("Aprovado pelo conselho", false),
+      controlToggle("Aprovado pela recuperação", false),
+      controlToggle("Reprovado", false),
+      controlToggle("Transferido", false)
+    ])
+  );
+
+  const info = element("div", "boletimInfoPanel");
+  const infoTitle = element("div", "boletimInfoTitle");
+  appendText(infoTitle, "p", "Informações e recados", "sectionKicker");
+  appendText(infoTitle, "h2", "Textos do boletim");
+  const fields = element("div", "boletimFieldGrid");
+  fields.append(
+    fieldControl("Título do boletim", "Aproveitamento Escolar 2026"),
+    fieldControl("Data de impressão", "07/07/2026"),
+    fieldControl("Recado", "ATENÇÃO: O período de férias escolares será de 20/07/2026 a 31/07/2026. Retorno em 03/08/2026"),
+    fieldControl("Rodapé", "I TRIMESTRE: mínimo de 18 pontos necessários para alcançar a média e máximo de 30 pontos.")
+  );
+  info.append(infoTitle, fields);
+
+  const previewPanel = element("section", "reportPreviewPanel");
+  const previewHeader = element("div", "previewHeader");
+  const previewTitle = element("div");
+  appendText(previewTitle, "p", "Prévia do relatório", "sectionKicker");
+  appendText(previewTitle, "h2", "Boletim no padrão atual do Excel");
+  const previewActions = element("div", "previewActions");
+  ["−", "100%", "+", "Tela cheia", "Download PDF"].forEach((label) => {
+    const button = element("button", label === "100%" ? "secondaryButton compactButton scaleButton" : "secondaryButton compactButton");
     button.type = "button";
     button.textContent = label;
-    hubActions.append(button);
+    previewActions.append(button);
   });
-  hub.append(hubTitle, hubActions);
+  previewHeader.append(previewTitle, previewActions);
 
-  const page = element("article", "boletimExcelPage");
-  const top = element("div", "boletimExcelTop");
-  appendText(top, "strong", "ESCOLA MUN. PROFª IÊDA ALVES DE OLIVEIRA MCPM");
-  appendText(top, "span", "RUA CLIDENOR DE OLIVEIRA, S/N · CENTRO · MEDEIROS NETO - BAHIA");
-  appendText(top, "small", "secretaria@escolaieda.com · (73) 99871-0105");
+  const page = element("article", "boletimPrintExact");
+  const topBand = element("header", "boletimExactTop");
+  appendText(topBand, "strong", "ESCOLA MUN. PROFª IÊDA ALVES DE OLIVEIRA MCPM ★ ★ ★ ★ ★");
+  const blueBand = element("div", "boletimExactBlue");
 
-  const titleBand = element("div", "boletimExcelBand");
-  appendText(titleBand, "strong", "APROVEITAMENTO ESCOLAR 2026");
-  appendText(titleBand, "span", estudante.turma?.nome || "Turma demonstrativa");
-
-  const alunoBox = element("div", "boletimStudentBand");
+  const content = element("div", "boletimExactContent");
+  const left = element("aside", "boletimExactPercent");
   [
-    ["ALUNO", estudante.nome],
-    ["CÓDIGO", estudante.codigo],
-    ["TURMA", estudante.turma?.codigo || ""],
-    ["RESULTADO", estudante.resultadoFinal]
+    ["I TRIMESTRE", "0%"],
+    ["II TRIMESTRE", "0%"],
+    ["III TRIMESTRE", "0%"]
   ].forEach(([label, value]) => {
-    const field = element("article");
-    appendText(field, "span", label);
-    appendText(field, "strong", value);
-    alunoBox.append(field);
-  });
-
-  const body = element("div", "boletimExcelBody");
-  const left = element("aside", "boletimTriColumn");
-  [
-    ["I TRIMESTRE", "18/30", mediaLocal(estudante.lancamentos.map((nota) => nota.notaT1))],
-    ["II TRIMESTRE", "18/30", mediaLocal(estudante.lancamentos.map((nota) => nota.notaT2))],
-    ["III TRIMESTRE", "24/40", mediaLocal(estudante.lancamentos.map((nota) => nota.notaT3))]
-  ].forEach(([label, regra, media]) => {
-    const card = element("article", "boletimTriCard");
+    const card = element("article");
     appendText(card, "span", label);
-    appendText(card, "strong", formatarMedia(media));
-    appendText(card, "small", `mín. ${regra}`);
+    appendText(card, "strong", value);
     left.append(card);
   });
+  appendText(left, "b", "-", "boletimPercentDash");
 
-  const tableWrap = element("div", "responsiveTable boletimMatrixWrap");
+  const tableWrap = element("div", "boletimExactTableWrap");
   const table = document.createElement("table");
-  table.className = "boletimMatrix";
+  table.className = "boletimExactTable";
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-  appendText(headerRow, "th", "LINHA", "boletimAxis");
-  componentesPlanilha().forEach((componente) => {
-    const header = appendText(headerRow, "th", codigoPlanilha(componente), "boletimComponentHeader");
-    header.title = componente.nome;
+  appendText(headerRow, "th", "APROVEITAMENTO ESCOLAR 2026", "boletimExactTitleCell");
+  appendText(headerRow, "th", "", "boletimSmallHeader");
+  componentesBoletim().forEach((componente) => {
+    appendText(headerRow, "th", rotuloComponenteBoletim(componente), "boletimExactVertical");
   });
+  appendText(headerRow, "th", "", "boletimBlankHeader");
   thead.append(headerRow);
-
-  const notaPorComponente = new Map(estudante.lancamentos.map((nota) => [nota.componenteId, nota]));
-  const rows = [
-    ["I TRIMESTRE · NOTA", (nota) => nota.notaT1],
-    ["I TRIMESTRE · REC", (nota) => nota.recT1],
-    ["II TRIMESTRE · NOTA", (nota) => nota.notaT2],
-    ["II TRIMESTRE · REC", (nota) => nota.recT2],
-    ["III TRIMESTRE · NOTA", (nota) => nota.notaT3],
-    ["III TRIMESTRE · REC", (nota) => nota.recT3],
-    ["TOTAL", (nota) => nota.total],
-    ["NOTA NECESSÁRIA", (nota) => Math.max(0, 60 - Number(nota.total || 0))],
-    ["FALTAS", (nota) => nota.faltas]
-  ];
-  const tbody = document.createElement("tbody");
-  replaceChildren(tbody, rows.map(([label, getter]) => {
+  const body = document.createElement("tbody");
+  [
+    ["I TRIMESTRE", "NOTA"],
+    ["", "REC"],
+    ["II TRIMESTRE", "NOTA"],
+    ["", "REC"],
+    ["III TRIMESTRE", "NOTA"],
+    ["", "REC"],
+    ["NOTA NECESSÁRIA", ""]
+  ].forEach(([periodo, tipo]) => {
     const row = document.createElement("tr");
-    appendText(row, "td", label, "boletimRowLabel");
-    componentesPlanilha().forEach((componente) => {
-      const nota = notaPorComponente.get(componente.id);
-      const valor = nota ? getter(nota) : "";
-      const cell = appendText(row, "td", typeof valor === "number" ? formatarMedia(valor) : String(valor), "boletimScoreCell");
-      if (nota && Number(valor) > 0 && Number(valor) < 18 && !String(label).includes("FALTAS")) cell.classList.add("scoreLow");
-    });
-    return row;
-  }));
-  table.append(thead, tbody);
+    appendText(row, "td", periodo, periodo === "NOTA NECESSÁRIA" ? "boletimNeedCell" : "boletimPeriodCell");
+    appendText(row, "td", tipo, "boletimTypeCell");
+    componentesBoletim().forEach(() => appendText(row, "td", "-", "boletimDashCell"));
+    appendText(row, "td", "", "boletimBlankCell");
+    body.append(row);
+  });
+  table.append(thead, body);
   tableWrap.append(table);
 
-  const printedAt = element("div", "verticalDate");
-  printedAt.textContent = "Emitido em 07/07/2026";
-  body.append(left, tableWrap, printedAt);
+  const verticalDate = element("div", "boletimExactDate");
+  verticalDate.textContent = "DOCUMENTO IMPRESSO EM 07/07/2026";
+  const pageNumber = element("div", "boletimExactNumber");
+  pageNumber.textContent = "Nº 01";
+  content.append(left, tableWrap, verticalDate, pageNumber);
 
-  const footer = element("div", "boletimExcelFooter");
-  appendText(footer, "strong", `Média final demonstrativa: ${formatarMedia(estudante.mediaFinal)}`);
-  appendText(footer, "span", "Dados fictícios para validação visual. Não corresponde a boletim real.", "muted");
+  const notice = element("div", "boletimNotice");
+  notice.textContent = "ATENÇÃO: O PERÍODO DE FÉRIAS ESCOLARES SERÁ DE 20/07/2026 A 31/07/2026. RETORNO EM 03/08/2026";
+  const foot = element("footer", "boletimExactFoot");
+  foot.textContent = "I TRIMESTRE: MÍNIMO DE 18 PONTOS NECESSÁRIOS PARA ALCANÇAR A MÉDIA E MÁXIMO DE 30 PONTOS";
+  page.append(topBand, blueBand, content, notice, foot);
+  previewPanel.append(previewHeader, page);
 
-  page.append(top, titleBand, alunoBox, body, footer);
-  replaceChildren(ui.boletimPreview, [hub, page]);
+  replaceChildren(ui.boletimPreview, [controls, info, previewPanel]);
   renderFichaResumo(estudante);
   renderFilaBoletins(estudantesResumo);
 }
 
 function renderFichaResumo(estudante) {
+  if (!ui.fichaAlunoResumo) return;
   const criticos = estudante.lancamentos.filter((nota) => nota.notaFinal < 60).length;
   const page = element("article", "fichaPrintMini");
   const top = element("div", "fichaTop");
@@ -663,6 +702,7 @@ function renderFichaResumo(estudante) {
 }
 
 function renderFilaBoletins(estudantesResumo) {
+  if (!ui.listaBoletins) return;
   replaceChildren(ui.listaBoletins, estudantesResumo.slice(0, 7).map((estudante) => {
     const item = element("article", "queueItem");
     appendText(item, "strong", estudante.nome);
@@ -990,6 +1030,18 @@ function componentesPlanilha() {
   return [...state.data.componentes].sort((a, b) => (posicao.get(a.codigo) ?? 99) - (posicao.get(b.codigo) ?? 99));
 }
 
+function componentesBoletim() {
+  const ordem = ["P", "M", "C", "G", "H", "A", "ER", "EF", "I", "R", "PV", "EO"];
+  const posicao = new Map(ordem.map((codigo, index) => [codigo, index]));
+  return [...state.data.componentes].sort((a, b) => (posicao.get(a.codigo) ?? 99) - (posicao.get(b.codigo) ?? 99));
+}
+
+function ordenarComponentesResumo(componentes) {
+  const ordem = ["P", "M", "C", "G", "H", "A", "R", "EF", "I", "ER", "PV", "EO"];
+  const posicao = new Map(ordem.map((codigo, index) => [codigo, index]));
+  return [...componentes].sort((a, b) => (posicao.get(a.codigo) ?? 99) - (posicao.get(b.codigo) ?? 99));
+}
+
 function codigoPlanilha(componente = {}) {
   return {
     P: "P",
@@ -1005,6 +1057,57 @@ function codigoPlanilha(componente = {}) {
     PV: "ET",
     EO: "CPT"
   }[componente?.codigo] || componente?.codigo || "";
+}
+
+function rotuloComponenteBoletim(componente = {}) {
+  return {
+    P: "LÍNGUA PORTUGUESA",
+    M: "MATEMÁTICA",
+    C: "CIÊNCIAS",
+    G: "GEOGRAFIA",
+    H: "HISTÓRIA",
+    A: "ARTES",
+    EF: "EDUCAÇÃO FÍSICA",
+    I: "INGLÊS",
+    ER: "RELIGIÃO",
+    R: "REDAÇÃO",
+    PV: "ÉTICA",
+    EO: "COMPUTAÇÃO"
+  }[componente?.codigo] || componente?.nome || "";
+}
+
+function controlGroup(title, controls) {
+  const group = element("section", "controlGroup");
+  appendText(group, "h2", title);
+  const body = element("div", "controlGroupBody");
+  body.append(...controls);
+  group.append(body);
+  return group;
+}
+
+function controlButton(label, className) {
+  const button = element("button", className);
+  button.type = "button";
+  button.textContent = label;
+  return button;
+}
+
+function controlToggle(label, checked) {
+  const wrapper = element("label", "controlToggle");
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = checked;
+  wrapper.append(input, textNode(label));
+  return wrapper;
+}
+
+function fieldControl(label, value) {
+  const wrapper = element("label", "fieldControl");
+  appendText(wrapper, "span", label);
+  const input = document.createElement("input");
+  input.value = value;
+  wrapper.append(input);
+  return wrapper;
 }
 
 function formatarData(value) {

@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` reimaginada em modo demonstração com Turma, Banco, Alunos, Boletim, Conselho, Relatórios, Sync e Estrutura; em 07/07/2026 o visual foi corrigido para ficar mais fiel aos prints reais de `APROVEITAMENTO`, `BOLETIM`, `FICHA ALUNO` e `CONSELHO`; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` reimaginada em modo demonstração com Turma, Banco, Alunos, Boletim, Conselho, Relatórios, Sync e Estrutura; em 07/07/2026 o visual de `Turma`, `Banco` e `Boletim` foi corrigido novamente para ficar mais fiel aos prints da pasta `imagens` e ao print real do Excel, com Banco sem rolagem horizontal e Boletim com controles de impressão/recados/data/situações; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -661,6 +661,11 @@ O projeto só poderá ser considerado concluído quando:
 - **Script temporário com `require("playwright")` via `npx --package`**: nesta máquina o `node` executado pelo `npx --package playwright` não resolveu o módulo para scripts temporários. Solução usada em 07/07/2026: não instalar dependência no repositório; adicionar suporte a hash na SPA e usar a CLI `npx --yes playwright screenshot` com URLs como `/notas/#banco`, `/notas/#boletins` e `/notas/#conselho`.
 - **Exportação de prints reais do Excel em branco**: `CopyPicture` pode gerar imagem branca se a faixa não estiver ativa/selecionada corretamente. Solução usada: abrir o `.xlsb` somente leitura com macros/eventos/links desabilitados, ativar a planilha, selecionar a faixa e usar `CopyPicture(1, -4147)` antes de colar/exportar via gráfico temporário.
 - **Aluno em foco do Conselho fora da turma exibida**: escolher o menor desempenho global pode mostrar aluno de outra turma enquanto o relatório final está em uma turma ativa. Solução aplicada: derivar a turma ativa por filtro/hash e escolher o candidato do Conselho dentro dessa turma; só cair para o conjunto filtrado geral se a turma estiver vazia.
+- **Banco com barra horizontal**: tabelas HTML com `min-width` fixo preservam colunas, mas quebram o pedido de ver todas as notas na tela. Solução aplicada em 07/07/2026: no quadro principal do Banco, usar `table-layout: fixed`, `min-width: 0`, fontes compactas, nomes de componentes escondidos no cabeçalho e larguras fixas pequenas para número/AP anterior; manter a ordem `P M C G H A RL F I RD ET CPT`.
+- **Painéis analíticos competindo com o quadro real**: a matriz consolidada por componente e a leitura por área deixavam a aba Banco menos fiel aos prints. Solução aplicada: remover visualmente esses painéis da aba Banco e deixar o quadro trimestral como experiência principal.
+- **Tela Boletim começando baixa demais**: reaproveitar `classDeck`, banner de demonstração e filtros globais antes da área de impressão consumia a altura útil e afastava o layout do print `Relatórios e Impressão`. Solução aplicada: definir `body[data-view]` em `abrirView()` e esconder `classDeck`, `syncStrip` e `filtersBar` apenas em `boletins`; esconder `filtersBar` também em `dashboard` e `banco` para aproximar dos prints.
+- **Ordem de componentes diferente entre Banco e Boletim**: o Banco usa a ordem visual `P M C G H A RL F I RD ET CPT`, mas o print do Boletim posiciona Religião antes de Educação Física/Inglês/Redação. Solução aplicada: manter `componentesPlanilha()` para Banco e criar `componentesBoletim()` para a prévia fiel do Boletim.
+- **Gráfico de Turma preso em uma coluna**: ao trocar cards por gráfico, a classe antiga `.disciplineBars` ainda criava quatro colunas e espremia o gráfico no primeiro quadrante. Solução aplicada: alterar `.disciplineBars` para uma coluna no desktop e renderizar um único `.disciplineChart` com barras internas.
 - **SharePoint/Power Automate por impulso**: não criar listas, fluxos ou permissões para “testar rápido”. Solução: manter a SPA em modo demonstração, usar scripts de verificação e só provisionar com autorização explícita e rollback documentado.
 
 ## 18. Protocolo para futuras sessões com IA
@@ -684,6 +689,45 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — foco em Turma, Banco e Boletim fiel ao print
+
+- Usuário informou que as páginas ainda não estavam parecidas com os prints da outra IA, pediu mais elegância no estilo One UI, Banco sem barra horizontal e Boletim 100% fiel ao print real colocado na pasta `C:\Users\Eugui\Desktop\imagens`.
+- Novo print encontrado e analisado: `Captura de tela 2026-07-07 132720 print boletim do banco de notas.png`.
+- Referências revisadas:
+  - prints da outra IA para `Movimento Estatístico Escolar`, Banco/tabela de notas e `Relatórios e Impressão`;
+  - print real `02-APROVEITAMENTO.png` extraído do Excel;
+  - novo print real do Boletim na pasta `imagens`;
+  - documentação oficial Samsung One UI sobre layout em telas grandes, cor e profundidade visual, aplicada apenas como orientação de hierarquia/compactação.
+- Aba `Turma`:
+  - título inicial alterado para `Movimento estatístico trimestral`;
+  - cards métricos reescritos para `Acima ou igual à média`, `Abaixo da média`, `Alunos na turma` e `Média geral da turma`;
+  - lista de disciplinas substituída por gráfico compacto de colunas com azul/vermelho, legenda e rodapé de regra do I trimestre;
+  - corrigido o cálculo padrão para usar a turma ativa exibida quando o filtro está em `Todas`.
+- Aba `Banco`:
+  - removidos visualmente os blocos `Matriz por componente` e `Aproveitamento por área`;
+  - quadro de notas virou a experiência principal, com busca/filtros/impressão dentro do painel;
+  - tabela compactada para exibir todas as notas na largura disponível, sem rolagem horizontal em desktop 1366×900;
+  - ordem preservada como `P M C G H A RL F I RD ET CPT`;
+  - filtros globais foram ocultados nesta aba para aproximar do print de referência.
+- Aba `Boletim`:
+  - removida a coluna lateral de ficha/boletins recentes desta tela;
+  - criada tela única de configuração e prévia, com grupos `Impressão`, `Geração`, `Situações` e `Informações e recados`;
+  - controles adicionados: `Preto e branco`, `Colorido`, ocultar II/III trimestre, situações, título, data de impressão, recado e texto de rodapé;
+  - `classDeck`, banner de demonstração e filtros globais foram ocultados apenas em `boletins` para a prévia subir na tela;
+  - prévia recriada como folha horizontal baseada no print real: faixa vermelha, faixa azul, percentuais I/II/III trimestre, matriz central com traços, data vertical, número da página, recado e rodapé;
+  - criada ordem específica `componentesBoletim()` para o print do Boletim, separada da ordem do Banco.
+- `scripts/testes-notas.mjs` foi atualizado para validar `boletimPrintExact`, `boletimControls` e `disciplineChart`.
+- Validação executada: `node scripts/testes-notas.mjs` passou.
+- Validação executada: `git diff --check` não apontou erro de whitespace; apenas avisos esperados de conversão LF/CRLF no Windows.
+- Validação visual executada por Playwright CLI:
+  - `/notas/` com `#dashboardDisciplinas .disciplineChart`;
+  - `/notas/#banco` com `#quadroAproveitamento .excelTable`;
+  - `/notas/#boletins` com `#boletimPreview .boletimPrintExact`.
+- Nenhum dado real de aluno/professor/nota foi inserido; o print real foi usado só como referência visual e não foi versionado.
+- Nenhuma lista, fluxo, permissão ou recurso Microsoft 365 foi criado ou alterado.
+- Pendência assumida: a aba `Conselho` ainda precisa de uma fase própria, conforme o usuário indicou que pode ficar para depois.
+- Próxima etapa correta: publicar com commit/push; o responsável validar no GitHub Pages; depois decidir entre ajuste fino de Boletim/Turma/Banco ou fase própria do Conselho.
 
 ### 07/07/2026 — correção de fidelidade aos prints reais do banco de notas
 

@@ -156,10 +156,24 @@
   backdrop-filter: blur(14px);
 }
 
+body[data-view="dashboard"] .filtersBar,
+body[data-view="banco"] .filtersBar,
+body[data-view="boletins"] .classDeck,
+body[data-view="boletins"] .syncStrip,
+body[data-view="boletins"] .filtersBar {
+  display: none;
+}
+
+body[data-view="boletins"] .systemBar {
+  min-height: 58px;
+  margin-bottom: 10px;
+}
+
 .overviewGrid,
 .workGrid,
 .studentGrid,
 .boletimGrid,
+.boletimWorkspace,
 .conselhoGrid,
 .reportGrid,
 .pocGrid {
@@ -167,6 +181,16 @@
   grid-template-columns: minmax(0, 1.42fr) minmax(330px, 0.58fr);
   gap: 14px;
   align-items: start;
+}
+
+.bankGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.boletimWorkspace {
+  grid-template-columns: 1fr;
 }
 
 .workGrid.wideRight {
@@ -249,11 +273,12 @@
   .systemBar,
   .classDeck,
   .overviewGrid,
-  .workGrid,
-  .workGrid.wideRight,
-  .studentGrid,
-  .boletimGrid,
-  .conselhoGrid,
+    .workGrid,
+    .workGrid.wideRight,
+    .studentGrid,
+    .boletimGrid,
+    .boletimWorkspace,
+    .conselhoGrid,
   .reportGrid,
   .pocGrid {
     grid-template-columns: 1fr;

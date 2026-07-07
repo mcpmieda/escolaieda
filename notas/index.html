@@ -51,8 +51,8 @@
       <header class="systemBar">
         <div>
           <p class="eyebrow">Central pedagógica 2026</p>
-          <h1 id="viewTitle">Movimento estatístico escolar</h1>
-          <p id="viewSubtitle">Banco de notas, boletins, conselho e relatórios em uma experiência única.</p>
+          <h1 id="viewTitle">Movimento estatístico trimestral</h1>
+          <p id="viewSubtitle">Desempenho da turma por componente, ranking e síntese do I trimestre.</p>
         </div>
         <div class="commandCluster">
           <label class="searchBox">
@@ -149,49 +149,23 @@
       </section>
 
       <section class="view" id="view-banco">
-        <div class="workGrid">
+        <div class="bankGrid">
           <section class="tablePanel panelWide excelPanel">
             <div class="panelHeader">
               <div>
                 <p class="sectionKicker">Banco de notas</p>
-                <h2>Quadro de aproveitamento da turma</h2>
+                <h2>Quadro trimestral de aproveitamento</h2>
               </div>
-              <span class="chip info">modelo planilha real</span>
+              <div class="bankToolbar" aria-label="Ações do banco de notas">
+                <label class="miniSearch">
+                  <span class="srOnly">Buscar aluno na tabela</span>
+                  <input type="search" placeholder="Buscar aluno na tabela">
+                </label>
+                <button class="secondaryButton compactButton" type="button">Filtros</button>
+                <button class="primaryButton compactButton" type="button">Imprimir aproveitamento</button>
+              </div>
             </div>
             <div class="excelBoardShell" id="quadroAproveitamento" aria-label="Quadro de aproveitamento escolar"></div>
-            <div class="panelDivider"></div>
-            <div class="panelHeader compactHeader">
-              <div>
-                <p class="sectionKicker">Consolidado</p>
-                <h2>Matriz por componente</h2>
-              </div>
-            </div>
-            <div class="responsiveTable">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Componente</th>
-                    <th>I tri.</th>
-                    <th>II tri.</th>
-                    <th>III tri.</th>
-                    <th>Total</th>
-                    <th>Final</th>
-                    <th>Risco</th>
-                  </tr>
-                </thead>
-                <tbody id="matrizBancoNotas"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Leitura rápida</p>
-                <h2>Aproveitamento por área</h2>
-              </div>
-            </div>
-            <div class="areaList" id="painelAproveitamento"></div>
           </section>
         </div>
       </section>
@@ -234,25 +208,8 @@
       </section>
 
       <section class="view" id="view-boletins">
-        <div class="boletimGrid">
-          <section class="boletimSheet" id="boletimPreview" aria-label="Prévia de boletim"></section>
-          <aside class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Ficha</p>
-                <h2>Resumo individual</h2>
-              </div>
-            </div>
-            <div class="studentSnapshot" id="fichaAlunoResumo"></div>
-            <div class="panelDivider"></div>
-            <div class="panelHeader tight">
-              <div>
-                <p class="sectionKicker">Emissão</p>
-                <h2>Boletins recentes</h2>
-              </div>
-            </div>
-            <div class="boletimQueue" id="listaBoletins"></div>
-          </aside>
+        <div class="boletimWorkspace">
+          <section class="boletimSheet" id="boletimPreview" aria-label="Configuração e prévia de boletim"></section>
         </div>
       </section>
 
