@@ -1,0 +1,342 @@
+.navItem,
+.primaryButton,
+.secondaryButton,
+.ghostButton,
+.iconButton {
+  min-height: 42px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-weight: 800;
+}
+
+.navItem {
+  width: 100%;
+  padding: 11px 12px;
+  background: transparent;
+  color: #dce8eb;
+  text-align: left;
+}
+
+.navItem:hover,
+.navItem:focus-visible,
+.navItem.active {
+  background: var(--sidebar-soft);
+  color: #ffffff;
+}
+
+.primaryButton {
+  padding: 10px 15px;
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.primaryButton:hover,
+.primaryButton:focus-visible {
+  background: var(--brand-strong);
+}
+
+.secondaryButton,
+.ghostButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  text-decoration: none;
+}
+
+.secondaryButton {
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--brand);
+}
+
+.ghostButton {
+  border-color: transparent;
+  background: transparent;
+  color: var(--brand);
+}
+
+.compactButton {
+  min-height: 34px;
+  padding: 7px 10px;
+}
+
+.iconButton {
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-color: var(--line);
+  background: #ffffff;
+  color: var(--brand);
+}
+
+.systemBanner {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #e4d4aa;
+  border-radius: var(--radius);
+  background: #fff8e6;
+  color: #554116;
+}
+
+.systemBanner strong,
+.systemBanner span {
+  display: block;
+}
+
+.systemBanner span {
+  margin-top: 3px;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+.statusDotWarn {
+  background: #d79a24;
+}
+
+.statusDotError {
+  background: var(--red);
+}
+
+.filtersBar label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.filtersBar input,
+.filtersBar select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.metricCard,
+.panel,
+.tablePanel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(28, 49, 61, 0.08);
+}
+
+.metricCard {
+  min-height: 126px;
+  padding: 16px;
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+}
+
+.metricCard span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.metricCard strong {
+  font-size: 2rem;
+  color: var(--brand);
+}
+
+.metricCard small {
+  color: var(--muted);
+}
+
+.panel,
+.tablePanel {
+  padding: 18px;
+}
+
+.panelHeader {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panelHeader h2 {
+  margin-bottom: 4px;
+  font-size: 1.14rem;
+}
+
+.panelHeader p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.turmaList,
+.timeline,
+.importList,
+.issueList,
+.structureList,
+.detailContent {
+  display: grid;
+  gap: 10px;
+}
+
+.turmaCard,
+.timelineItem,
+.importItem,
+.issueItem,
+.structureItem,
+.studentMiniCard {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+}
+
+.turmaCard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.turmaCard strong,
+.timelineItem strong,
+.importItem strong,
+.issueItem strong {
+  color: var(--brand);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #e9f4f1;
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.chip.warn {
+  background: #fff4d8;
+  color: var(--amber);
+}
+
+.chip.error {
+  background: #fde9e6;
+  color: var(--red);
+}
+
+.chip.info {
+  background: #e9f0fa;
+  color: var(--blue);
+}
+
+.progressTrack {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dde8e5;
+}
+
+.progressBar {
+  height: 100%;
+  width: var(--progress);
+  background: var(--teal);
+}
+
+.responsiveTable {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+td {
+  color: var(--ink);
+}
+
+.rowButton {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.statusList {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.statusList div {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) 1fr;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+}
+
+.statusList dt {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.statusList dd {
+  margin: 0;
+}
+
+@media (max-width: 660px) {
+  .systemBanner,
+  .turmaCard,
+  .statusList div {
+    grid-template-columns: 1fr;
+  }
+
+  .systemBanner {
+    align-items: stretch;
+  }
+}

@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1 — arquivos reais analisados, contrato de exportação proposto e preparação da cópia piloto automatizada; leitura online pelo Excel Online (Business) ainda pendente; nenhuma lista, biblioteca, fluxo definitivo ou aplicação de notas foi criado no Microsoft 365.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e primeira SPA local `/notas/` criada em modo demonstração; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -51,7 +51,7 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 7. Todos os colaboradores atuais do site/Arquivo Digital deverão acessar o módulo de notas.
 8. As novas estruturas serão separadas das listas e bibliotecas atuais, usando o prefixo `NOTAS_`.
 9. A aplicação será acessada por `https://escolaieda.com/notas/` e por um cartão no painel `/admin/`.
-10. Nesta fase 0, somente documentação e estrutura inicial do repositório são autorizadas. Nenhum recurso Microsoft 365 deve ser criado ainda.
+10. Nesta etapa, estão autorizados documentação, scripts de POC e protótipo estático local do módulo de notas. Nenhum recurso Microsoft 365 deve ser criado ainda sem aprovação explícita.
 
 ### Consequência da decisão de permissões
 
@@ -326,9 +326,9 @@ Os fluxos não devem depender da conta pessoal de alguém que possa sair da esco
 
 ### 10.1 Estratégia técnica inicial
 
-Para preservar a implantação direta existente do GitHub Pages, começar com HTML semântico, CSS modular e JavaScript ES Modules, divididos por domínio. Não repetir o padrão de um único arquivo JavaScript muito grande.
+Para preservar a implantação direta existente do GitHub Pages, a primeira versão usa HTML semântico, CSS modular e JavaScript ES Modules, divididos por domínio. Não repetir o padrão de um único arquivo JavaScript muito grande.
 
-Estrutura futura sugerida:
+Estrutura implementada em 07/07/2026:
 
 ```text
 notas/
@@ -338,21 +338,18 @@ notas/
 ├── css/
 │   ├── tokens.css
 │   ├── base.css
-│   ├── componentes.css
 │   ├── layouts.css
-│   └── movimento.css
+│   └── componentes.css
 ├── js/
 │   ├── app.js
 │   ├── config.js
-│   ├── auth.js
+│   ├── demo-data.js
+│   ├── domain.js
 │   ├── graph-client.js
-│   ├── estado.js
-│   ├── rotas.js
-│   ├── dados/
-│   ├── componentes/
-│   └── telas/
-└── testes/
+└── scripts/testes-notas.mjs
 ```
+
+A estrutura atual é uma SPA estática compatível com GitHub Pages, sem etapa de build. O modo demonstração usa somente dados fictícios. O cliente Graph existe para autenticação MSAL e verificação estrutural das listas `NOTAS_*`, mas não grava em SharePoint e não contém dados reais embutidos.
 
 Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vite somente se houver uma estratégia aprovada para compilar e publicar sem quebrar o GitHub Pages da raiz. Não introduzir framework apenas para reproduzir componentes que HTML/CSS resolvem.
 
@@ -369,6 +366,8 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 9. **Configurações** — ano ativo, contrato de importação e parâmetros aprovados.
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
+
+Estado real em 07/07/2026: a SPA já possui visão geral, turmas, estudantes, importações e tela de POC/estrutura em modo demonstração. As telas de professores/planilhas, inconsistências, auditoria detalhada e configurações reais ainda dependem do provisionamento das listas `NOTAS_*` e do fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -569,7 +568,8 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 - medir latência e limites no tenant A1;
 - validar se a origem permanecerá no OneDrive da Secretaria ou migrará para biblioteca no mesmo site;
 - validar e fechar o contrato versão 1 após o teste online;
-- criar protótipo visual estático do dashboard e da visão de turma;
+- [x] criar protótipo funcional estático do dashboard, turmas, estudantes, importações e POC/estrutura em modo demonstração;
+- [x] criar fixtures fictícios e testes automatizados locais para o módulo web;
 - obter aprovação antes de provisionar.
 
 ### Fase 2 — infraestrutura controlada
@@ -582,12 +582,14 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 
 ### Fase 3 — aplicação mínima
 
-- implementar autenticação e acesso;
-- implementar cliente Graph modular;
-- visão geral, turmas, estudantes e importações;
-- estados de erro, carregamento e acessibilidade;
-- adicionar cartão Gestão de Notas no painel;
-- testar em notebook e celular.
+- [x] implementar entrada/autenticação inicial com MSAL configurado e fallback de demonstração;
+- [x] implementar cliente Graph modular para verificar a existência das listas `NOTAS_*`;
+- [x] implementar visão geral, turmas, estudantes e importações em modo demonstração;
+- [x] implementar estados básicos de estrutura ausente, demonstração, erro e sessão;
+- [x] adicionar cartão Gestão de Notas no painel;
+- [ ] testar visualmente em notebook e celular após servidor local ou publicação;
+- [ ] ligar consultas reais depois que as listas `NOTAS_*` forem provisionadas;
+- [ ] implementar professores/planilhas, inconsistências, auditoria e configurações reais.
 
 ### Fase 4 — piloto real
 
@@ -636,7 +638,21 @@ O projeto só poderá ser considerado concluído quando:
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
-- aprovar protótipo visual antes de desenvolver todas as telas.
+- validar o protótipo funcional `/notas/` com o responsável antes de ligar dados reais;
+- provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
+- substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
+
+### 17.1 Problemas comuns e soluções confirmadas
+
+- **Power Automate sem conexão Excel Online (Business)**: não adianta criar fluxo completo enquanto `Get-PowerAppConnection` não mostrar `shared_excelonlinebusiness`. Solução: criar/autorizar a conexão OAuth no portal do Power Automate e repetir `scripts/verificar-power-automate-notas.ps1`.
+- **Módulos Power Platform no PowerShell 7**: os módulos oficiais usados nesta etapa funcionaram no Windows PowerShell 5.1, não no `pwsh` 7. Solução: usar Windows PowerShell 5.1 e instalar antes o provider NuGet `2.8.5.201` quando solicitado.
+- **Graph lendo o OneDrive errado**: `/me/drive` abriu o OneDrive da conta autenticada, não o da Secretaria. Solução: acessar o drive por usuário, usando `v1.0/users/SECRETARIA@escolaieda.com/drive`, quando a origem estiver na conta da Secretaria.
+- **Arquivo POC bloqueado (`resourceLocked`)**: o item antigo pode permanecer bloqueado pelo Excel/Graph por alguns minutos. Solução: aguardar o bloqueio expirar ou subir uma nova cópia técnica de POC, sem alterar o arquivo original.
+- **Colunas nome/situação invertidas na guia `RELAÇÃO`**: não confiar apenas em par/ímpar fixo. Solução já aplicada em `scripts/preparar-poc-export-notas-v1.ps1`: inferir a coluna de nomes pela quantidade de células preenchidas.
+- **OneDrive local atrasado**: reparse points e sincronização local podem esconder a versão online real. Solução: validar pelo Graph ou pelo conector online antes de concluir que a cópia está disponível.
+- **Desenvolvimento web sem dados reais**: nunca copiar nomes, notas, CPF, INEP ou exportações para fixtures. Solução: manter `notas/js/demo-data.js` com estudantes e professores fictícios e rodar `node scripts/testes-notas.mjs`.
+- **Servidor local com `python` no Windows**: nesta máquina `python.exe` aponta para o atalho `WindowsApps`, que abre a orientação da Microsoft Store e não inicia servidor HTTP. Solução: usar `npx --yes http-server . -a 127.0.0.1 -p <porta> -c-1 --silent` ou instalar Python real fora do alias.
+- **SharePoint/Power Automate por impulso**: não criar listas, fluxos ou permissões para “testar rápido”. Solução: manter a SPA em modo demonstração, usar scripts de verificação e só provisionar com autorização explícita e rollback documentado.
 
 ## 18. Protocolo para futuras sessões com IA
 
@@ -659,6 +675,22 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — primeira SPA funcional do módulo de notas
+
+- Usuário autorizou avançar em uma etapa mais larga para ver o sistema funcionando, mantendo documentação nos AGENTS e commits frequentes.
+- Criada a primeira SPA estática em `/notas/`, compatível com GitHub Pages e sem build.
+- Arquivos principais criados: `notas/index.html`, `notas/css/tokens.css`, `notas/css/base.css`, `notas/css/layouts.css`, `notas/css/componentes.css`, `notas/js/config.js`, `notas/js/demo-data.js`, `notas/js/domain.js`, `notas/js/graph-client.js` e `notas/js/app.js`.
+- A SPA possui visão geral, turmas, estudantes, importações e POC/estrutura em modo demonstração.
+- O modo demonstração usa apenas dados fictícios (`Estudante 6A-01` etc.) e não contém notas reais, nomes reais, CPF, INEP, tokens ou exportações do SharePoint.
+- O cliente Graph foi limitado a autenticação MSAL e verificação estrutural das listas planejadas `NOTAS_*`; não cria, altera ou apaga recursos Microsoft 365.
+- Adicionado cartão `Gestão de Notas` no painel `/admin/`, apontando para `../notas/`.
+- Criado `scripts/testes-notas.mjs` para validar arquivos esperados, sintaxe JavaScript, referências HTML, fixtures fictícios e funções de domínio.
+- Validação executada: `node scripts/testes-notas.mjs` passou com 28 estudantes fictícios, 4 turmas fictícias e 140 lançamentos fictícios.
+- Validação de diff executada: `git diff --check` não apontou erro de whitespace; apenas avisos esperados de conversão LF/CRLF.
+- Validação HTTP executada com `npx --yes http-server`: `/notas/` e `/admin/` responderam HTTP 200 em servidor local.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, configuração Entra ID ou permissão Microsoft 365 foi criada ou alterada.
+- Próxima etapa correta: o responsável validar visualmente o protótipo local; em seguida, preparar script de provisionamento idempotente em modo simulação ou concluir a prova do conector Excel Online (Business), sem ligar dados reais ainda.
 
 ### 07/07/2026 — investigação Power Automate e conexão Excel
 

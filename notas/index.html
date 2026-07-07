@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#18424a">
+  <title>Gestao de Notas | Escola Ieda MCPM</title>
+  <link rel="icon" type="image/png" href="../imagens/favicon.png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layouts.css">
+  <link rel="stylesheet" href="css/componentes.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <div class="appShell">
+    <aside class="sidebar" aria-label="Navegacao do modulo de notas">
+      <a class="brand" href="../admin/" aria-label="Voltar ao painel administrativo">
+        <img src="../logo_escola.png" alt="" class="brandLogo">
+        <span>
+          <strong>Gestao de Notas</strong>
+          <small>Escola Ieda MCPM</small>
+        </span>
+      </a>
+
+      <nav class="navList" aria-label="Vistas principais">
+        <button class="navItem active" type="button" data-view="dashboard">Visao geral</button>
+        <button class="navItem" type="button" data-view="turmas">Turmas</button>
+        <button class="navItem" type="button" data-view="estudantes">Estudantes</button>
+        <button class="navItem" type="button" data-view="importacoes">Importacoes</button>
+        <button class="navItem" type="button" data-view="poc">POC e estrutura</button>
+      </nav>
+
+      <div class="sidebarStatus" id="sidebarStatus">
+        <span class="statusDot statusDotWarn"></span>
+        <span>Modo demonstracao</span>
+      </div>
+
+      <div class="sidebarActions">
+        <a class="secondaryButton" href="../admin/">Painel</a>
+        <button class="ghostButton" id="btnSair" type="button" hidden>Sair</button>
+      </div>
+    </aside>
+
+    <main class="mainArea">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Modulo interno</p>
+          <h1 id="viewTitle">Visao geral de notas</h1>
+          <p id="viewSubtitle">Painel funcional com dados ficticios ate o provisionamento das listas NOTAS_*.</p>
+        </div>
+        <div class="topbarActions">
+          <button class="secondaryButton" id="btnDemo" type="button">Usar demonstracao</button>
+          <button class="primaryButton" id="btnEntrar" type="button">Entrar com Microsoft</button>
+        </div>
+      </header>
+
+      <section class="systemBanner" id="systemBanner" aria-live="polite">
+        <div>
+          <strong id="bannerTitle">Ambiente de demonstracao</strong>
+          <span id="bannerText">Nenhuma lista NOTAS_* foi criada. Esta versao mostra a experiencia e os fluxos com dados ficticios.</span>
+        </div>
+        <button class="ghostButton compactButton" id="btnVerificarEstrutura" type="button">Verificar estrutura</button>
+      </section>
+
+      <section class="filtersBar" aria-label="Filtros de consulta">
+        <label>
+          <span>Buscar</span>
+          <input id="filtroBusca" type="search" placeholder="Estudante, turma ou componente">
+        </label>
+        <label>
+          <span>Turma</span>
+          <select id="filtroTurma"></select>
+        </label>
+        <label>
+          <span>Componente</span>
+          <select id="filtroComponente"></select>
+        </label>
+        <label>
+          <span>Situacao</span>
+          <select id="filtroSituacao">
+            <option value="todas">Todas</option>
+            <option value="regular">Regular</option>
+            <option value="atencao">Atencao</option>
+            <option value="critico">Critico</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="view active" id="view-dashboard">
+        <div class="metricGrid" id="metricGrid"></div>
+
+        <div class="workGrid">
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <h2>Turmas em acompanhamento</h2>
+                <p>Resumo por turma e risco academico.</p>
+              </div>
+            </div>
+            <div class="turmaList" id="listaTurmasResumo"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <h2>Importacoes recentes</h2>
+                <p>Fila tecnica que o Power Automate devera alimentar.</p>
+              </div>
+            </div>
+            <div class="timeline" id="timelineImportacoes"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-turmas">
+        <div class="tablePanel">
+          <div class="panelHeader">
+            <div>
+              <h2>Comparativo de turmas</h2>
+              <p>Consulta agregada sem carregar todos os lancamentos reais.</p>
+            </div>
+          </div>
+          <div class="responsiveTable">
+            <table>
+              <thead>
+                <tr>
+                  <th>Turma</th>
+                  <th>Estudantes</th>
+                  <th>Media</th>
+                  <th>Regular</th>
+                  <th>Atencao</th>
+                  <th>Critico</th>
+                  <th>Ultima sync</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaTurmas"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-estudantes">
+        <div class="tablePanel">
+          <div class="panelHeader">
+            <div>
+              <h2>Estudantes</h2>
+              <p>Lista de demonstracao com filtros e painel de detalhe.</p>
+            </div>
+          </div>
+          <div class="responsiveTable">
+            <table>
+              <thead>
+                <tr>
+                  <th>Estudante</th>
+                  <th>Turma</th>
+                  <th>Componentes</th>
+                  <th>Media</th>
+                  <th>Situacao</th>
+                  <th>Acao</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaEstudantes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-importacoes">
+        <div class="workGrid wideRight">
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <h2>Fila de importacao</h2>
+                <p>Modelo de estados do fluxo automatizado.</p>
+              </div>
+            </div>
+            <div class="importList" id="listaImportacoes"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <h2>Inconsistencias</h2>
+                <p>Erros que precisam ser visiveis e reprocessaveis.</p>
+              </div>
+            </div>
+            <div class="issueList" id="listaInconsistencias"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-poc">
+        <div class="pocGrid">
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <h2>Prova online</h2>
+                <p>Estado real registrado no projeto.</p>
+              </div>
+            </div>
+            <dl class="statusList" id="listaStatusPoc"></dl>
+          </section>
+
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <h2>Estrutura alvo</h2>
+                <p>Listas planejadas, ainda nao provisionadas.</p>
+              </div>
+            </div>
+            <div class="structureList" id="listaEstrutura"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <aside class="detailPanel" id="detailPanel" aria-labelledby="detailTitle" aria-hidden="true">
+      <div class="detailHeader">
+        <div>
+          <p class="eyebrow">Detalhe</p>
+          <h2 id="detailTitle">Estudante</h2>
+        </div>
+        <button class="iconButton" id="btnFecharDetalhe" type="button" aria-label="Fechar detalhe">X</button>
+      </div>
+      <div id="detailContent" class="detailContent"></div>
+    </aside>
+  </div>
+</body>
+</html>
