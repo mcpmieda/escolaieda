@@ -11,20 +11,22 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    linear-gradient(135deg, rgba(7, 23, 45, 0.98), rgba(10, 36, 66, 0.96) 44%, rgba(12, 53, 80, 0.94)),
-    url("../../arquivo-digital/assets/imagens/arquivo-digital-capa.jpg") center / cover fixed no-repeat;
+    linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 46%, #11233b 100%),
+    #071a33;
   color: var(--ink);
   font-family: var(--font);
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
+body[data-theme="claro"] {
   background:
-    radial-gradient(circle at 78% 12%, rgba(46, 124, 255, 0.22), transparent 32%),
-    linear-gradient(90deg, rgba(5, 15, 31, 0.68), transparent 42%);
+    linear-gradient(135deg, #f8fbff 0%, #eef6ff 52%, #d9ebff 100%),
+    #eef6ff;
+}
+
+body[data-theme="mono"] {
+  background:
+    linear-gradient(135deg, #050609 0%, #15171d 52%, #272a32 100%),
+    #08090d;
 }
 
 button,
@@ -58,8 +60,7 @@ img {
 h1,
 h2,
 h3,
-p,
-dl {
+p {
   margin-top: 0;
 }
 
@@ -69,11 +70,11 @@ h3 {
   letter-spacing: 0;
 }
 
-.view {
+.pageView {
   display: none;
 }
 
-.view.active {
+.pageView.active {
   display: block;
 }
 
@@ -82,7 +83,7 @@ h3 {
   margin-bottom: 6px;
   color: var(--brand);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -93,6 +94,10 @@ h3 {
 
 .muted {
   color: var(--muted);
+}
+
+.dangerText {
+  color: var(--error);
 }
 
 .srOnly {
@@ -107,4 +112,15 @@ h3 {
 :focus-visible {
   outline: 0;
   box-shadow: var(--focus);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

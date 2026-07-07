@@ -1,316 +1,363 @@
 .appShell {
-  position: relative;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 244px minmax(0, 1fr);
-  z-index: 1;
+  grid-template-columns: 98px minmax(0, 1fr);
 }
 
 .appRail {
-  min-height: 100vh;
-  padding: 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   border-right: 1px solid var(--line);
-  background: rgba(3, 15, 32, 0.72);
-  backdrop-filter: blur(18px);
+  background: rgba(2, 10, 22, 0.56);
+  backdrop-filter: blur(22px);
+  z-index: 5;
 }
 
-.brandLockup {
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+body[data-theme="claro"] .appRail {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.brandTile {
+  min-height: 74px;
+  padding: 8px 4px;
+  display: grid;
+  place-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   color: var(--ink);
+  text-align: center;
   text-decoration: none;
+  background: var(--surface-muted);
 }
 
 .brandLogo {
-  width: 52px;
-  height: 52px;
-  padding: 6px;
-  border-radius: var(--radius);
-  background: #ffffff;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
 }
 
-.brandLockup strong,
-.brandLockup small {
+.brandText strong,
+.brandText small {
   display: block;
 }
 
-.brandLockup strong {
-  font-size: 1.04rem;
+.brandText strong {
+  font-size: 0.74rem;
 }
 
-.brandLockup small {
+.brandText small {
   margin-top: 2px;
-  color: var(--ink-soft);
+  color: var(--muted);
+  font-size: 0.67rem;
 }
 
 .railNav {
   display: grid;
-  gap: 7px;
-}
-
-.railFooter {
-  margin-top: auto;
-  display: grid;
-  gap: 10px;
-}
-
-.sidebarActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
-.mainArea {
+.railStatus {
+  margin-top: auto;
+  min-height: 48px;
+  padding: 8px 6px;
+  display: grid;
+  place-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mainStage {
   min-width: 0;
-  width: min(1540px, 100%);
+  width: min(1680px, 100%);
   margin: 0 auto;
-  padding: 18px 22px 28px;
+  padding: 16px 18px 26px;
 }
 
 .systemBar {
-  min-height: 70px;
+  min-height: 72px;
   margin-bottom: 12px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.66fr);
+  grid-template-columns: minmax(260px, 1fr) minmax(520px, 0.9fr);
   gap: 16px;
   align-items: center;
 }
 
-.systemBar h1 {
+.systemTitle h1 {
   margin-bottom: 4px;
-  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  font-size: clamp(1.45rem, 2.6vw, 2.4rem);
   line-height: 1.02;
 }
 
-.systemBar p:last-child {
-  max-width: 780px;
+.systemTitle p:last-child {
   margin-bottom: 0;
   color: var(--ink-soft);
 }
 
 .commandCluster {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) auto auto;
+  grid-template-columns: minmax(190px, 1fr) auto minmax(180px, auto);
   gap: 8px;
+  align-items: center;
 }
 
-.classDeck {
+.screenHero {
   margin-bottom: 12px;
   padding: 14px;
+  min-height: 108px;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto auto;
-  gap: 14px;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  gap: 16px;
   align-items: center;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: linear-gradient(135deg, rgba(21, 63, 111, 0.84), rgba(12, 37, 68, 0.78));
-  box-shadow: var(--shadow-panel);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)),
+    var(--surface);
+  box-shadow: var(--shadow-soft);
 }
 
-.classIdentity {
-  min-width: 0;
+.screenHero h2 {
+  margin-bottom: 4px;
+  font-size: clamp(1.5rem, 3vw, 2.65rem);
+  line-height: 1;
+}
+
+.screenHero p:last-child {
+  margin-bottom: 0;
+  color: var(--ink-soft);
+}
+
+.movementHero {
+  background:
+    linear-gradient(135deg, rgba(29, 110, 242, 0.28), rgba(227, 38, 58, 0.12)),
+    var(--surface);
+}
+
+.notesHero {
+  background:
+    linear-gradient(135deg, rgba(17, 67, 118, 0.50), rgba(255, 255, 255, 0.04)),
+    var(--surface);
+}
+
+.boletimHero {
+  background:
+    linear-gradient(135deg, rgba(227, 38, 58, 0.16), rgba(29, 110, 242, 0.22)),
+    var(--surface);
+}
+
+.heroControls {
   display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.classIdentity strong,
-.classIdentity span {
-  display: block;
-}
-
-.classIdentity strong {
-  overflow-wrap: anywhere;
-  font-size: clamp(1.45rem, 2.6vw, 2.25rem);
-  line-height: 1.05;
-}
-
-.periodSelector {
-  display: flex;
-  gap: 6px;
   flex-wrap: wrap;
-  justify-content: center;
-}
-
-.classActions {
-  display: flex;
   gap: 8px;
   justify-content: flex-end;
+  align-items: end;
 }
 
-.filtersBar {
-  margin-bottom: 14px;
-  padding: 10px;
+.heroControls label,
+.controlColumn label {
   display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr));
-  gap: 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(14px);
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
-body[data-view="dashboard"] .filtersBar,
-body[data-view="banco"] .filtersBar,
-body[data-view="boletins"] .classDeck,
-body[data-view="boletins"] .syncStrip,
-body[data-view="boletins"] .filtersBar {
-  display: none;
-}
-
-body[data-view="boletins"] .systemBar {
-  min-height: 58px;
-  margin-bottom: 10px;
-}
-
-.overviewGrid,
-.workGrid,
-.studentGrid,
-.boletimGrid,
-.boletimWorkspace,
-.conselhoGrid,
-.reportGrid,
-.pocGrid {
+.movementGrid,
+.notesGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.42fr) minmax(330px, 0.58fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(315px, 0.55fr);
+  gap: 12px;
   align-items: start;
 }
 
-.bankGrid {
+.sideStack {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 
-.boletimWorkspace {
-  grid-template-columns: 1fr;
-}
-
-.workGrid.wideRight {
-  grid-template-columns: minmax(330px, 0.75fr) minmax(0, 1.25fr);
-}
-
-.insightStack {
+.statGrid {
+  margin-bottom: 12px;
   display: grid;
-  gap: 14px;
-}
-
-.panelWide {
-  min-width: 0;
-}
-
-.metricGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.heroMiniStats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(82px, 1fr));
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 8px;
 }
 
-.detailPanel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: min(520px, 100vw);
-  height: 100vh;
-  padding: 22px;
-  background: #07172d;
-  border-left: 1px solid var(--line);
-  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.32);
-  transform: translateX(105%);
-  transition: transform 0.24s ease;
-  z-index: 20;
-  overflow: auto;
+.classResultsPanel {
+  margin-top: 12px;
 }
 
-.detailPanel.open {
+.classResultGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.filterPanel {
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.statusFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.boletimLayout {
+  display: grid;
+  gap: 12px;
+}
+
+.boletimControls {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.8fr) minmax(190px, 0.55fr) minmax(360px, 1.25fr);
+  gap: 10px;
+}
+
+.controlColumn {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.wideControl {
+  grid-template-columns: 1fr;
+}
+
+.studentProfilePanel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(500px, 100vw);
+  padding: 18px;
+  overflow: auto;
+  border-left: 1px solid var(--line);
+  background: var(--surface-strong);
+  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.32);
+  transform: translateX(104%);
+  transition: transform 0.22s ease;
+  z-index: 30;
+}
+
+.studentProfilePanel.open {
   transform: translateX(0);
 }
 
-.detailHeader {
+.profilePanelHeader {
+  margin-bottom: 14px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
+  align-items: flex-start;
 }
 
-.detailHeader h2 {
+.profilePanelHeader h2 {
   margin-bottom: 0;
 }
 
 @media (max-width: 1180px) {
+  .systemBar,
+  .screenHero,
+  .movementGrid,
+  .notesGrid,
+  .filterPanel,
+  .boletimControls {
+    grid-template-columns: 1fr;
+  }
+
+  .heroControls,
+  .statusFilters {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 760px) {
   .appShell {
     grid-template-columns: 1fr;
   }
 
   .appRail {
+    position: sticky;
+    height: auto;
     min-height: 0;
-  }
-
-  .railNav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .railFooter {
-    margin-top: 0;
-    grid-template-columns: 1fr auto;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: 84px 1fr;
     align-items: center;
   }
 
-  .systemBar,
-  .classDeck,
-  .overviewGrid,
-    .workGrid,
-    .workGrid.wideRight,
-    .studentGrid,
-    .boletimGrid,
-    .boletimWorkspace,
-    .conselhoGrid,
-  .reportGrid,
-  .pocGrid {
+  .railNav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .railStatus {
+    display: none;
+  }
+
+  .mainStage {
+    padding: 12px;
+  }
+
+  .commandCluster,
+  .statGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroControls {
+    display: grid;
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 760px) {
-  .mainArea {
-    padding: 14px;
+@media print {
+  .appRail,
+  .systemBar,
+  .screenHero,
+  .boletimControls,
+  .panelHeader,
+  .studentProfilePanel {
+    display: none !important;
   }
 
-  .appRail {
-    padding: 14px;
+  .appShell,
+  .mainStage,
+  .boletimLayout,
+  .boletimPreviewPanel {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border: 0;
+    background: #fff;
   }
 
-  .railNav,
-  .filtersBar,
-  .metricGrid,
-  .heroMiniStats,
-  .commandCluster,
-  .railFooter,
-  .sidebarActions,
-  .classActions {
-    grid-template-columns: 1fr;
+  body {
+    background: #fff;
   }
 
-  .commandCluster,
-  .classActions {
-    display: grid;
+  .pageView {
+    display: none !important;
   }
 
-  .classIdentity {
-    align-items: flex-start;
+  #view-boletim {
+    display: block !important;
   }
 }

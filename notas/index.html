@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#07172d">
+  <meta name="theme-color" content="#071a33">
   <title>Gestão de Notas | Escola Iêda MCPM</title>
   <link rel="icon" type="image/png" href="../imagens/favicon.png">
   <link rel="stylesheet" href="css/tokens.css">
@@ -13,309 +13,301 @@
   <link rel="stylesheet" href="css/componentes.css">
   <script type="module" src="js/app.js"></script>
 </head>
-<body>
+<body data-theme="aurora">
   <div class="appShell">
-    <aside class="appRail" aria-label="Navegação do módulo de notas">
-      <a class="brandLockup" href="../admin/" aria-label="Voltar ao painel administrativo">
+    <aside class="appRail" aria-label="Navegação compacta do módulo de notas">
+      <a class="brandTile" href="../admin/" aria-label="Voltar ao painel administrativo">
         <img src="../logo_escola.png" alt="" class="brandLogo">
-        <span>
+        <span class="brandText">
           <strong>Escola Iêda</strong>
-          <small>Sistema de Notas</small>
+          <small>Notas 2026</small>
         </span>
       </a>
 
-      <nav class="railNav" aria-label="Áreas principais">
-        <button class="navItem active" type="button" data-view="dashboard"><span class="navIcon" aria-hidden="true">▦</span><span>Turma</span></button>
-        <button class="navItem" type="button" data-view="banco"><span class="navIcon" aria-hidden="true">▤</span><span>Banco</span></button>
-        <button class="navItem" type="button" data-view="estudantes"><span class="navIcon" aria-hidden="true">◎</span><span>Alunos</span></button>
-        <button class="navItem" type="button" data-view="boletins"><span class="navIcon" aria-hidden="true">◫</span><span>Boletim</span></button>
-        <button class="navItem" type="button" data-view="conselho"><span class="navIcon" aria-hidden="true">◈</span><span>Conselho</span></button>
-        <button class="navItem" type="button" data-view="relatorios"><span class="navIcon" aria-hidden="true">▧</span><span>Relatórios</span></button>
-        <button class="navItem" type="button" data-view="importacoes"><span class="navIcon" aria-hidden="true">⇅</span><span>Sync</span></button>
-        <button class="navItem" type="button" data-view="poc"><span class="navIcon" aria-hidden="true">⌁</span><span>Estrutura</span></button>
+      <nav class="railNav" aria-label="Áreas do sistema de notas">
+        <button class="navItem active" type="button" data-view="movimento" aria-label="Movimento estatístico trimestral">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 19V5"></path>
+            <path d="M4 19h16"></path>
+            <path d="M8 16v-5"></path>
+            <path d="M12 16V8"></path>
+            <path d="M16 16v-3"></path>
+            <path d="M20 9a7 7 0 0 0-7-7v7z"></path>
+          </svg>
+          <span>Movimento</span>
+        </button>
+        <button class="navItem" type="button" data-view="notas" aria-label="Notas">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <path d="M3 9h18"></path>
+            <path d="M8 4v16"></path>
+            <path d="M13 9v11"></path>
+            <path d="M18 9v11"></path>
+          </svg>
+          <span>Notas</span>
+        </button>
+        <button class="navItem" type="button" data-view="boletim" aria-label="Boletim">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 3h7l4 4v14H7z"></path>
+            <path d="M14 3v5h5"></path>
+            <path d="M9 13h8"></path>
+            <path d="M9 17h5"></path>
+            <path d="M5 7v14h12"></path>
+          </svg>
+          <span>Boletim</span>
+        </button>
       </nav>
 
-      <div class="railFooter">
-        <div class="sidebarStatus" id="sidebarStatus">
-          <span class="statusDot statusDotWarn"></span>
-          <span>Modo demonstração</span>
-        </div>
-        <div class="sidebarActions">
-          <a class="secondaryButton" href="../admin/">Painel</a>
-          <button class="ghostButton" id="btnSair" type="button" hidden>Sair</button>
-        </div>
+      <div class="railStatus">
+        <span class="statusDot" aria-hidden="true"></span>
+        <span>Demo visual</span>
       </div>
     </aside>
 
-    <main class="mainArea">
+    <main class="mainStage">
       <header class="systemBar">
-        <div>
+        <div class="systemTitle">
           <p class="eyebrow">Central pedagógica 2026</p>
           <h1 id="viewTitle">Movimento estatístico trimestral</h1>
-          <p id="viewSubtitle">Desempenho da turma por componente, ranking e síntese do I trimestre.</p>
+          <p id="viewSubtitle">Síntese por turma, período, componentes, ranking e aproveitamento.</p>
         </div>
+
         <div class="commandCluster">
           <label class="searchBox">
-            <span class="srOnly">Buscar aluno, turma ou componente</span>
-            <input id="filtroBusca" type="search" placeholder="Buscar aluno, turma ou componente">
+            <span class="srOnly">Buscar aluno, turma ou disciplina</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m16.5 16.5 4 4"></path>
+            </svg>
+            <input id="globalSearch" type="search" placeholder="Buscar aluno, turma ou disciplina">
           </label>
-          <button class="secondaryButton" id="btnDemo" type="button">Demo</button>
-          <button class="primaryButton" id="btnEntrar" type="button">Microsoft</button>
+
+          <div class="themePicker" aria-label="Tema visual">
+            <button class="themeDot themeAurora active" type="button" data-theme="aurora" aria-label="Tema azul e vermelho"></button>
+            <button class="themeDot themeClaro" type="button" data-theme="claro" aria-label="Tema branco e azul claro"></button>
+            <button class="themeDot themeMono" type="button" data-theme="mono" aria-label="Tema preto e cinza"></button>
+          </div>
+
+          <div class="profileBox">
+            <button class="profileButton" id="btnProfile" type="button" aria-expanded="false">
+              <span class="profileAvatar" aria-hidden="true">EI</span>
+              <span>
+                <strong>Gestão escolar</strong>
+                <small>Conta demonstrativa</small>
+              </span>
+            </button>
+            <div class="profileMenu" id="profileMenu" hidden>
+              <a href="../admin/">Painel administrativo</a>
+              <button id="btnLogout" type="button">Sair</button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <section class="classDeck" aria-label="Contexto atual de consulta">
-        <div class="classIdentity">
-          <span class="classGlyph" aria-hidden="true">▣</span>
+      <section class="pageView active" id="view-movimento" aria-labelledby="movimentoTitulo">
+        <div class="screenHero movementHero">
           <div>
-            <p class="eyebrow">Turma selecionada</p>
-            <strong id="classeTitulo">6A - Demonstração</strong>
-            <span id="classeSubtitulo">Ensino Fundamental Anos Finais · 40 alunos fictícios</span>
+            <p class="eyebrow">Movimento estatístico escolar</p>
+            <h2 id="movimentoTitulo">Panorama trimestral</h2>
+            <p id="movementClassLabel">8C - Demonstração · I trimestre</p>
+          </div>
+          <div class="heroControls">
+            <label>
+              <span>Turma</span>
+              <select id="movimentoTurma"></select>
+            </label>
+            <label>
+              <span>Período</span>
+              <select id="movimentoPeriodo">
+                <option value="T1">I trimestre</option>
+                <option value="T2">II trimestre</option>
+                <option value="T3">III trimestre</option>
+                <option value="geral">Visão geral</option>
+              </select>
+            </label>
+            <button class="actionButton" type="button" id="movementPrint">Imprimir relatório</button>
           </div>
         </div>
-        <div class="periodSelector" aria-label="Períodos">
-          <button class="periodChip active" type="button">Anual</button>
-          <button class="periodChip" type="button">I tri.</button>
-          <button class="periodChip" type="button">II tri.</button>
-          <button class="periodChip" type="button">III tri.</button>
-          <button class="periodChip" type="button">Rec.</button>
-        </div>
-        <div class="classActions">
-          <button class="secondaryButton compactButton" type="button" data-view="relatorios">Relatório</button>
-          <button class="primaryButton compactButton" type="button" data-view="boletins">Boletim</button>
-        </div>
-      </section>
 
-      <section class="syncStrip" id="systemBanner" aria-live="polite">
-        <div>
-          <strong id="bannerTitle">Ambiente de demonstração</strong>
-          <span id="bannerText">As listas NOTAS_* ainda não foram criadas. Os dados abaixo são fictícios.</span>
-        </div>
-        <button class="ghostButton compactButton" id="btnVerificarEstrutura" type="button">Verificar estrutura</button>
-      </section>
-
-      <section class="filtersBar" aria-label="Filtros de consulta">
-        <label>
-          <span>Turma</span>
-          <select id="filtroTurma"></select>
-        </label>
-        <label>
-          <span>Componente</span>
-          <select id="filtroComponente"></select>
-        </label>
-        <label>
-          <span>Situação</span>
-          <select id="filtroSituacao">
-            <option value="todas">Todas</option>
-            <option value="regular">Regular</option>
-            <option value="atencao">Atenção</option>
-            <option value="critico">Crítico</option>
-          </select>
-        </label>
-      </section>
-
-      <section class="view active" id="view-dashboard">
-        <div class="overviewGrid">
-          <section class="panel panelWide heroPanel">
+        <div class="movementGrid">
+          <section class="panel panelWide">
             <div class="panelHeader">
               <div>
-                <p class="sectionKicker">Aproveitamento</p>
-                <h2>Desempenho da turma</h2>
+                <p class="sectionKicker">Desempenho da turma</p>
+                <h3>Alunos acima e abaixo da média por disciplina</h3>
               </div>
-              <div class="heroMiniStats" aria-label="Resumo rápido">
-                <article><span>Média</span><strong id="heroMedia">0,0</strong></article>
-                <article><span>Atenção</span><strong id="heroAtencao">0</strong></article>
-                <article><span>Sync</span><strong id="heroSync">--</strong></article>
-              </div>
+              <span class="panelHint" id="movementDisciplineHint">Clique em uma disciplina para preparar a lista de alunos em vermelho.</span>
             </div>
-            <div class="metricGrid" id="metricGrid"></div>
-            <div class="disciplineBars" id="dashboardDisciplinas"></div>
+            <div class="statGrid" id="movementStats"></div>
+            <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
           </section>
 
-          <aside class="insightStack">
-            <section class="panel" id="rankingDestaques"></section>
-            <section class="panel" id="donutDesempenho"></section>
-            <section class="panel">
-              <div class="panelHeader">
-                <div>
-                  <p class="sectionKicker">Etapas</p>
-                  <h2>Regime de avaliação</h2>
-                </div>
-              </div>
-              <div class="stageGrid" id="painelTrimestres"></div>
-            </section>
+          <aside class="sideStack">
+            <section class="panel" id="movementDonut"></section>
+            <section class="panel" id="movementRanking"></section>
           </aside>
         </div>
+
+        <section class="panel classResultsPanel" id="movementClassPanel" hidden>
+          <div class="panelHeader">
+            <div>
+              <p class="sectionKicker">Resultado final quantitativo</p>
+              <h3>Todas as turmas</h3>
+            </div>
+          </div>
+          <div class="classResultGrid" id="movementClassCards"></div>
+        </section>
       </section>
 
-      <section class="view" id="view-banco">
-        <div class="bankGrid">
-          <section class="tablePanel panelWide excelPanel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Banco de notas</p>
-                <h2>Quadro trimestral de aproveitamento</h2>
-              </div>
-              <div class="bankToolbar" aria-label="Ações do banco de notas">
-                <label class="miniSearch">
-                  <span class="srOnly">Buscar aluno na tabela</span>
-                  <input type="search" placeholder="Buscar aluno na tabela">
-                </label>
-                <button class="secondaryButton compactButton" type="button">Filtros</button>
-                <button class="primaryButton compactButton" type="button">Imprimir aproveitamento</button>
-              </div>
-            </div>
-            <div class="excelBoardShell" id="quadroAproveitamento" aria-label="Quadro de aproveitamento escolar"></div>
-          </section>
+      <section class="pageView" id="view-notas" aria-labelledby="notasTitulo">
+        <div class="screenHero notesHero">
+          <div>
+            <p class="eyebrow">Notas</p>
+            <h2 id="notasTitulo">Banco de notas por turma</h2>
+            <p id="notesClassLabel">Quadro compacto no modelo do banco atual, com todas as disciplinas visíveis.</p>
+          </div>
+          <div class="heroControls">
+            <label>
+              <span>Turma</span>
+              <select id="notasTurma"></select>
+            </label>
+            <label>
+              <span>Período</span>
+              <select id="notasPeriodo">
+                <option value="T1">I trimestre</option>
+                <option value="T2">II trimestre</option>
+                <option value="T3">III trimestre</option>
+                <option value="geral">Visão geral</option>
+                <option value="recuperacao">Recuperação</option>
+              </select>
+            </label>
+          </div>
         </div>
-      </section>
 
-      <section class="view" id="view-estudantes">
-        <div class="studentGrid">
-          <section class="tablePanel panelWide">
+        <section class="panel filterPanel">
+          <div>
+            <p class="sectionKicker">Filtros imediatos</p>
+            <h3>Situação do aluno</h3>
+          </div>
+          <div class="statusFilters" id="notasStatusFilters">
+            <label><input type="checkbox" value="regular" checked> Regular</label>
+            <label><input type="checkbox" value="transferido" checked> Transferidos</label>
+            <label><input type="checkbox" value="desistente" checked> Desistentes</label>
+            <label><input type="checkbox" value="especial" checked> Especial</label>
+            <label><input type="checkbox" value="foi_para" checked> Foi para...</label>
+            <label><input type="checkbox" value="estava_no" checked> Estava no...</label>
+          </div>
+        </section>
+
+        <div class="notesGrid">
+          <section class="panel panelWide notesBoard">
             <div class="panelHeader">
               <div>
-                <p class="sectionKicker">Consulta</p>
-                <h2>Alunos e situação anual</h2>
+                <p class="sectionKicker">Ficha de notas</p>
+                <h3 id="notesTableTitle">I trimestre</h3>
               </div>
+              <div class="notesSummary" id="notesSummary"></div>
             </div>
-            <div class="responsiveTable">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Aluno</th>
-                    <th>Turma</th>
-                    <th>Componentes</th>
-                    <th>Média</th>
-                    <th>Resultado</th>
-                    <th>Ação</th>
-                  </tr>
-                </thead>
-                <tbody id="tabelaEstudantes"></tbody>
+            <div class="notesTableWrap" aria-label="Tabela compacta de notas">
+              <table class="notesTable">
+                <thead id="notasCabecalho"></thead>
+                <tbody id="notasTabela"></tbody>
               </table>
             </div>
           </section>
-          <aside class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Prioridade</p>
-                <h2>Mapa por turma</h2>
-              </div>
-            </div>
-            <div class="heatList" id="mapaAproveitamento"></div>
+
+          <aside class="sideStack">
+            <section class="panel" id="notasInsights"></section>
+            <section class="panel" id="notasRecovery"></section>
           </aside>
         </div>
       </section>
 
-      <section class="view" id="view-boletins">
-        <div class="boletimWorkspace">
-          <section class="boletimSheet" id="boletimPreview" aria-label="Configuração e prévia de boletim"></section>
+      <section class="pageView" id="view-boletim" aria-labelledby="boletimTitulo">
+        <div class="screenHero boletimHero">
+          <div>
+            <p class="eyebrow">Relatórios e impressão</p>
+            <h2 id="boletimTitulo">Boletim escolar</h2>
+            <p>Prévia em folha A4 com quatro boletins por página, recados, data e situações.</p>
+          </div>
+          <div class="heroControls">
+            <label>
+              <span>Turma</span>
+              <select id="boletimTurma"></select>
+            </label>
+            <label>
+              <span>Aluno</span>
+              <input id="boletimBuscaAluno" type="search" placeholder="Buscar aluno">
+            </label>
+            <button class="actionButton" type="button" id="boletimPrint">Imprimir</button>
+          </div>
         </div>
-      </section>
 
-      <section class="view" id="view-conselho">
-        <div class="conselhoGrid">
-          <section class="panel panelWide dangerFocus" id="conselhoAlunoFoco"></section>
-          <aside class="insightStack">
-            <section class="panel" id="conselhoResumo"></section>
-            <section class="panel" id="conselhoVotos"></section>
-          </aside>
-        </div>
-      </section>
-
-      <section class="view" id="view-relatorios">
-        <div class="reportGrid">
-          <section class="panel panelWide">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Aproveitamento escolar</p>
-                <h2>Componentes com maior atenção</h2>
-              </div>
+        <div class="boletimLayout">
+          <section class="panel boletimControls">
+            <div class="controlColumn">
+              <p class="sectionKicker">Configuração</p>
+              <label>
+                <span>Título</span>
+                <input id="boletimTituloInput" type="text" value="BOLETIM ESCOLAR 2026">
+              </label>
+              <label>
+                <span>Data de impressão</span>
+                <input id="boletimDataInput" type="date">
+              </label>
+              <label>
+                <span>Modo</span>
+                <select id="boletimModoCor">
+                  <option value="colorido">Colorido</option>
+                  <option value="preto">Preto e branco</option>
+                </select>
+              </label>
             </div>
-            <div class="chartList" id="relatorioAproveitamento"></div>
+
+            <div class="controlColumn">
+              <p class="sectionKicker">Situações</p>
+              <label class="toggleLine"><input id="boletimSituacaoDireto" type="checkbox" checked> Aprovado direto</label>
+              <label class="toggleLine"><input id="boletimSituacaoRec" type="checkbox" checked> Aprovado pela recuperação</label>
+              <label class="toggleLine"><input id="boletimSituacaoAcomp" type="checkbox" checked> Em acompanhamento</label>
+            </div>
+
+            <div class="controlColumn wideControl">
+              <p class="sectionKicker">Informações e recados</p>
+              <label>
+                <span>Recado</span>
+                <input id="boletimRecadoInput" type="text" value="Procure a secretaria em caso de dúvida sobre o resultado.">
+              </label>
+              <label>
+                <span>Rodapé</span>
+                <input id="boletimRodapeInput" type="text" value="Escola Municipal Profª Iêda Alves de Oliveira - Medeiros Neto - BA">
+              </label>
+            </div>
           </section>
 
-          <section class="panel">
+          <section class="panel boletimPreviewPanel">
             <div class="panelHeader">
               <div>
-                <p class="sectionKicker">Conselho</p>
-                <h2>Casos para acompanhamento</h2>
+                <p class="sectionKicker">Prévia da emissão</p>
+                <h3 id="boletimCount">4 resultados na página</h3>
               </div>
+              <span class="panelHint">Numeração segue a ordem do resultado filtrado.</span>
             </div>
-            <div class="issueList" id="relatorioConselho"></div>
-          </section>
-
-          <section class="panel panelWide">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Ata de resultados</p>
-                <h2>Síntese por turma</h2>
-              </div>
-            </div>
-            <div class="ataGrid" id="relatorioAta"></div>
-          </section>
-        </div>
-      </section>
-
-      <section class="view" id="view-importacoes">
-        <div class="workGrid wideRight">
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Automação</p>
-                <h2>Fila de importação</h2>
-              </div>
-            </div>
-            <div class="importList" id="listaImportacoes"></div>
-          </section>
-
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Qualidade</p>
-                <h2>Inconsistências</h2>
-              </div>
-            </div>
-            <div class="issueList" id="listaInconsistencias"></div>
-          </section>
-        </div>
-      </section>
-
-      <section class="view" id="view-poc">
-        <div class="pocGrid">
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Prova online</p>
-                <h2>Estado registrado</h2>
-              </div>
-            </div>
-            <dl class="statusList" id="listaStatusPoc"></dl>
-          </section>
-
-          <section class="panel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">SharePoint</p>
-                <h2>Estrutura alvo</h2>
-              </div>
-            </div>
-            <div class="structureList" id="listaEstrutura"></div>
+            <div class="a4Preview" id="boletimA4Preview" aria-label="Folha A4 com boletins"></div>
           </section>
         </div>
       </section>
     </main>
-
-    <aside class="detailPanel" id="detailPanel" aria-labelledby="detailTitle" aria-hidden="true">
-      <div class="detailHeader">
-        <div>
-          <p class="eyebrow">Ficha do aluno</p>
-          <h2 id="detailTitle">Aluno</h2>
-        </div>
-        <button class="iconButton" id="btnFecharDetalhe" type="button" aria-label="Fechar detalhe">X</button>
-      </div>
-      <div id="detailContent" class="detailContent"></div>
-    </aside>
   </div>
+
+  <aside class="studentProfilePanel" id="studentProfilePanel" aria-labelledby="studentProfileTitle" aria-hidden="true">
+    <div class="profilePanelHeader">
+      <div>
+        <p class="eyebrow">Perfil de aluno</p>
+        <h2 id="studentProfileTitle">Aluno</h2>
+      </div>
+      <button class="iconButton" id="studentProfileClose" type="button" aria-label="Fechar perfil">X</button>
+    </div>
+    <div id="studentProfileContent" class="studentProfileContent"></div>
+  </aside>
 </body>
 </html>

@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` reimaginada em modo demonstração com Turma, Banco, Alunos, Boletim, Conselho, Relatórios, Sync e Estrutura; em 07/07/2026 o visual de `Turma`, `Banco` e `Boletim` foi corrigido novamente para ficar mais fiel aos prints da pasta `imagens` e ao print real do Excel, com Banco sem rolagem horizontal e Boletim com controles de impressão/recados/data/situações; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 07/07/2026: a SPA já possui Turma, Banco de notas, Alunos, Boletim, Conselho, Relatórios, Sync e tela de POC/estrutura em modo demonstração. As telas de professores/planilhas, inconsistências com fluxo de resolução, auditoria detalhada e configurações reais ainda dependem do provisionamento das listas `NOTAS_*` e do fluxo piloto.
+Estado real em 07/07/2026: para a fase visual atual, a SPA foi reduzida a `Movimento`, `Notas` e `Boletim`. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -689,6 +689,31 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — remodelagem visual restrita a Movimento, Notas e Boletim
+
+- Usuário pediu para executar o comando escrito no Bloco de Notas aberto na tela, priorizando uma fase visual maior antes de conexões reais.
+- O conteúdo do Bloco de Notas orientou limpar a navegação e implantar somente três menus: `Movimento estatístico trimestral`, `Notas` e `Boletim`.
+- Foram reabertos os anexos principais em `C:\Users\Eugui\Desktop\imagens`, especialmente `anexo 3.png`, `anexo 5.png` e `anexo 7.png`, para comparar o protótipo com as referências da outra IA.
+- `notas/index.html` foi reescrito para uma experiência mais próxima de One UI em tela grande: rail compacto não expansível, ícones SVG, título do sistema, busca global, seletor de três temas e perfil de usuário demonstrativo.
+- `notas/js/app.js` foi refeito para renderizar apenas a fase visual atual, mantendo `demo-data.js` e `domain.js` como fonte de cálculo fictício.
+- A área `Movimento` passou a ter seleção de turma/período, métricas compactas, gráfico azul/vermelho por disciplina, donut, ranking top 3/top 10 e cartões quantitativos quando o recorte é geral/todas as turmas.
+- A área `Notas` passou a substituir o antigo Banco: tabela com todas as disciplinas visíveis em desktop, filtros `Regular`, `Transferidos`, `Desistentes`, `Especial`, `Foi para...` e `Estava no...`, além de perfil compacto do aluno ao clicar no nome e prévia 3x4 ao passar o mouse.
+- A área `Boletim` passou a ter controles de título, data de impressão, preto/colorido, situações, recado e rodapé; a prévia monta quatro boletins por A4 e numera conforme a ordem do resultado filtrado.
+- O mapeamento visual de componentes foi ajustado para o pedido atual: `P`, `M`, `C`, `G`, `H`, `A`, `RL` Ensino Religioso, `F`, `I`, `RD` Redação, `ET` Ética e Cidadania e `CPT` Computação.
+- `scripts/testes-notas.mjs` foi atualizado para validar somente as três guias atuais e bloquear a volta acidental de `Conselho`, `Relatórios` e `Importações` nesta fase.
+- Validação executada: `node scripts/testes-notas.mjs` passou com 40 estudantes fictícios, 4 turmas fictícias e 480 lançamentos fictícios.
+- Validação executada: `git diff --check` não apontou erro de whitespace; houve apenas avisos esperados de LF/CRLF no Windows.
+- Validação HTTP executada: `/notas/` respondeu 200 em `http://127.0.0.1:4177/notas/`.
+- Validação visual executada por Playwright CLI:
+  - desktop 1366×900 em `/notas/#movimento`;
+  - desktop 1366×900 em `/notas/#notas`;
+  - desktop 1366×900 em `/notas/#boletim`;
+  - mobile full-page 390×844 em `/notas/#notas` e `/notas/#boletim`.
+- Ajustes feitos após a primeira captura: coluna `Aluno` da tabela de notas ampliada sem criar rolagem horizontal desktop; checkboxes de situações do boletim compactados.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido; nomes reais dos anexos não foram copiados.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID ou recurso Microsoft 365 foi criado ou alterado.
+- Próxima etapa correta: publicar com commit/push para teste do responsável no GitHub Pages; depois decidir se o refinamento visual continua ou se volta para a prova pendente do conector Excel Online (Business).
 
 ### 07/07/2026 — foco em Turma, Banco e Boletim fiel ao print
 
