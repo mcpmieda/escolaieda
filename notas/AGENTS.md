@@ -1,7 +1,7 @@
 # Instruções do módulo de notas
 
-Antes de criar, alterar ou revisar qualquer arquivo dentro desta pasta, leia integralmente `AGENTS_NOTAS.md`.
+Antes de criar, alterar ou revisar qualquer arquivo dentro desta pasta, leia integralmente `AGENTS_NOTAS.md`, `ANALISE_PLANILHAS_2026.md` e, quando o trabalho envolver a prova online, `POC_EXCEL_ONLINE_2026.md`.
 
-O arquivo `AGENTS_NOTAS.md` é a fonte de verdade do projeto: contém decisões aprovadas, arquitetura, restrições, segurança, modelo de dados, direção visual, plano de implantação e o ponto exato de continuidade.
+O arquivo `AGENTS_NOTAS.md` é a fonte de verdade do projeto: contém decisões aprovadas, arquitetura, restrições, segurança, modelo de dados, direção visual, plano de implantação e o ponto exato de continuidade. `ANALISE_PLANILHAS_2026.md` registra o funcionamento confirmado nos arquivos reais e o contrato de integração proposto. `POC_EXCEL_ONLINE_2026.md` registra o roteiro operacional da prova controlada com Excel Online (Business) e o teste online já feito pela Microsoft Graph Workbook API.
 
 As regras do `AGENTS.md` da raiz do repositório também continuam válidas. Em caso de conflito, preserve o sistema operacional existente e peça confirmação antes de alterar autenticação, permissões, SharePoint, Microsoft Graph, Power Automate ou dados reais.

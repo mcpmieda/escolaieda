@@ -2,9 +2,9 @@
 
 > Documento operacional e fonte de verdade para pessoas e inteligências artificiais que trabalharem neste módulo.
 >
-> Última atualização: 06/07/2026
+> Última atualização: 07/07/2026
 >
-> Estado: fase 0 — pesquisa e arquitetura; nenhuma lista, biblioteca, fluxo ou aplicação de notas foi criado no Microsoft 365.
+> Estado: fase 1 — arquivos reais analisados, contrato de exportação proposto e preparação da cópia piloto automatizada; leitura online pelo Excel Online (Business) ainda pendente; nenhuma lista, biblioteca, fluxo definitivo ou aplicação de notas foi criado no Microsoft 365.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -12,12 +12,14 @@
 
 1. Leia este arquivo integralmente.
 2. Leia o `AGENTS.md` e o `README.md` da raiz.
-3. Antes de alterar autenticação ou Graph, leia `admin/admin.js`, `index.html` e o bloco `CONFIG` de `arquivo-digital/arquivo-digital.js`.
-4. Não presuma que uma decisão pendente já foi aprovada.
-5. Não crie recursos no SharePoint, Entra ID ou Power Automate sem autorização explícita do responsável pelo projeto.
-6. Não faça reescrita ampla do site existente. O Arquivo Digital está operacional e é uma referência, não uma área livre para refatoração.
-7. Nunca registre neste repositório notas reais, nomes de estudantes, tokens, senhas, segredos, arquivos de professores ou exportações do SharePoint.
-8. Ao terminar uma etapa, atualize as seções **Estado atual**, **Decisões**, **Pendências** e **Registro de continuidade** deste arquivo.
+3. Leia `ANALISE_PLANILHAS_2026.md` antes de alterar o contrato de importação, modelo de notas ou estratégia para as planilhas dos professores.
+4. Leia `POC_EXCEL_ONLINE_2026.md` antes de preparar ou avaliar a prova online com Excel Online (Business).
+5. Antes de alterar autenticação ou Graph, leia `admin/admin.js`, `index.html` e o bloco `CONFIG` de `arquivo-digital/arquivo-digital.js`.
+6. Não presuma que uma decisão pendente já foi aprovada.
+7. Não crie recursos no SharePoint, Entra ID ou Power Automate sem autorização explícita do responsável pelo projeto.
+8. Não faça reescrita ampla do site existente. O Arquivo Digital está operacional e é uma referência, não uma área livre para refatoração.
+9. Nunca registre neste repositório notas reais, nomes de estudantes, tokens, senhas, segredos, arquivos de professores ou exportações do SharePoint.
+10. Ao terminar uma etapa, atualize as seções **Estado atual**, **Decisões**, **Pendências** e **Registro de continuidade** deste arquivo.
 
 ## 2. Objetivo do projeto
 
@@ -121,6 +123,12 @@ O painel também conhece listas como `CONFIGURACOES_PORTAL`, `SERVICOS_PAINEL`, 
 ### 5.4 Microsoft 365 A1 e Power Automate
 
 Segundo a documentação vigente pesquisada em 06/07/2026, Office 365 A1 para docentes e estudantes inclui direitos limitados do Power Automate para fluxos automatizados, agendados e por botão, com conectores padrão. SharePoint, OneDrive for Business e Excel Online (Business) são conectores padrão. Conectores premium, gateway local, RPA e AI Builder não fazem parte dessa estratégia.
+
+Documentação oficial reconferida em 07/07/2026 para esta fase:
+
+- Excel Online (Business) mantém limite documentado de 25 MB por arquivo e pode bloquear arquivo para atualização/exclusão por até seis minutos após uso do conector.
+- Microsoft Graph Workbook API documenta suporte apenas a workbooks Office Open XML; portanto, `.xlsb` não deve virar dependência Graph sem prova real.
+- O conector SharePoint possui gatilhos para arquivo criado/modificado, mas gatilhos antigos por pasta têm limitações com subpastas; o desenho do fluxo precisa considerar a árvore real dos arquivos.
 
 Licenciamento e limites mudam. Antes de provisionar o fluxo real, confirmar no tenant:
 
@@ -536,24 +544,30 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 
 ## 15. Fases de implantação
 
-### Fase 0 — fundação documental — estado atual
+### Fase 0 — fundação documental — concluída
 
 - [x] estudar o repositório e o painel administrativo;
 - [x] identificar autenticação, site ID e padrão Graph atuais;
 - [x] decidir usar o mesmo site e os mesmos colaboradores;
 - [x] pesquisar Material 3 Expressive, One UI, acessibilidade e limites Microsoft 365;
 - [x] criar `notas/AGENTS.md` e `notas/AGENTS_NOTAS.md`;
-- [ ] receber e analisar a planilha/banco original e uma planilha representativa de professor;
-- [ ] confirmar regras pedagógicas e cálculos reais.
+- [x] receber e analisar a planilha/banco original e as planilhas de professores de 2026;
+- [x] confirmar estrutura, regras centrais de pontuação e cálculos de resultado;
+- [x] registrar a análise em `ANALISE_PLANILHAS_2026.md`.
 
 ### Fase 1 — descoberta e prova de conceito
 
-- mapear campos, guias, fórmulas, macros e chaves das planilhas;
-- escolher um arquivo de teste sem dados pessoais reais ou com cópia controlada;
-- comprovar leitura online de `TB_EXPORT_NOTAS`;
+- [x] mapear campos, guias, fórmulas, macros e chaves das planilhas;
+- [x] comparar estruturalmente os 18 arquivos de professores de 2026;
+- [x] criar e reabrir `TB_EXPORT_NOTAS` em uma cópia temporária local;
+- [x] criar ferramenta local para preparar uma cópia controlada com `TB_EXPORT_NOTAS`;
+- [x] preparar uma cópia controlada em pasta OneDrive de POC;
+- [x] comprovar leitura online de `TB_EXPORT_NOTAS` em `.xlsb` pela Microsoft Graph Workbook API;
+- [ ] confirmar no tenant que a cópia de POC está disponível para o conector Excel Online (Business);
+- [ ] comprovar leitura online de `TB_EXPORT_NOTAS` pelo conector Excel Online (Business);
 - medir latência e limites no tenant A1;
 - validar se a origem permanecerá no OneDrive da Secretaria ou migrará para biblioteca no mesmo site;
-- fechar o esquema de dados e o contrato versão 1;
+- validar e fechar o contrato versão 1 após o teste online;
 - criar protótipo visual estático do dashboard e da visão de turma;
 - obter aprovação antes de provisionar.
 
@@ -608,11 +622,14 @@ O projeto só poderá ser considerado concluído quando:
 
 ## 17. Pendências que bloqueiam a implementação real
 
-- analisar o arquivo `BANCO DE NOTAS 2026 TESTE` e suas guias/fórmulas;
-- localizar e analisar uma planilha real representativa de professor;
-- confirmar formatos, tamanhos e localização online atual dos arquivos;
-- definir códigos estáveis de aluno, turma, professor e componente;
-- documentar regras de média, recuperação, faltas, arredondamento e situação final;
+- executar a POC final pelo conector Excel Online (Business), pois a leitura online por Microsoft Graph Workbook API já foi comprovada em `.xlsb`;
+- confirmar no tenant que o conector Excel Online (Business) lista e lê `TB_EXPORT_NOTAS` dentro de `.xlsb`;
+- executar o teste Power Automate descrito em `POC_EXCEL_ONLINE_2026.md` usando cópia fora do repositório;
+- se `.xlsb` falhar, testar uma cópia `.xlsm` informada por identificador de arquivo, sem converter os originais;
+- definir e persistir um `AlunoId` estável; o fluxo atual usa principalmente nome/posição, embora a relação possua INEP e CPF na base interna;
+- confirmar a regra para nota apagada, estudante removido, transferido ou reposicionado na relação;
+- confirmar regras restantes de faltas, arredondamento e situações excepcionais;
+- decidir se `Total`, `TotalRec` e `NotaFinal` serão importados para conferência ou recalculados pelo sistema como fonte oficial;
 - decidir o que ocorre quando uma nota é apagada ou uma linha desaparece;
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
@@ -640,6 +657,59 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — leitura online por Graph e correção da POC
+
+- PnP.PowerShell 3.2.0 estava instalado; Microsoft Graph PowerShell e Power Platform PowerShell não estavam instalados.
+- `Connect-PnPOnline` passou a exigir `ClientId`; a conexão funcional usou o `ClientId` e `TenantId` já documentados no projeto, com `-PersistLogin`.
+- A sessão autenticou como conta administrativa institucional. `/me/drive` apontava para o OneDrive dessa conta, não para o OneDrive da Secretaria.
+- O OneDrive correto da Secretaria foi acessado por Graph via `v1.0/users/SECRETARIA@escolaieda.com/drive`.
+- A cópia POC inicial foi localizada online na pasta lógica `PEDAGÓGICO/CONTROLE DE NOTAS/_POC_NOTAS_EXPORT_2026`.
+- A primeira leitura online encontrou `TB_EXPORT_NOTAS`, mas expôs uma falha de contrato: `AlunoNome` e `SituacaoMatricula` estavam invertidos na tabela gerada.
+- A causa foi confirmada nos 18 arquivos `.xlsb` de 2026: nos pares da guia `RELAÇÃO`, a coluna par contém nomes e a coluna ímpar contém situação.
+- `scripts/preparar-poc-export-notas-v1.ps1` foi corrigido para inferir as colunas de nome/situação pela quantidade de células preenchidas, sem depender de par/ímpar fixo.
+- A cópia POC corrigida foi validada localmente: 138 linhas de dados, 16 colunas, `AlunoNome` presente/preenchido e `SituacaoMatricula` presente podendo estar vazia.
+- A sincronização local do OneDrive ficou atrasada e o Graph ainda lia uma versão antiga; a cópia corrigida foi enviada diretamente por Graph com nome técnico `POC_TB_EXPORT_NOTAS_CORRIGIDO_20260707.xlsb`.
+- Uma pasta POC duplicada criada por engano dentro de `CONTROLE DE NOTAS 2026` foi removida após validação de que continha somente a cópia POC gerada nesta sessão.
+- O item online antigo com nome derivado da agenda ainda retornou `Locked` ao tentar excluir; a prova válida deve usar o item técnico corrigido até a limpeza posterior do item antigo.
+- `scripts/testar-poc-export-notas-online.ps1` foi criado para repetir a leitura online sem imprimir nomes, notas ou amostras de linhas.
+- Resultado do script online: `TB_EXPORT_NOTAS` encontrada pela Microsoft Graph Workbook API em `.xlsb`, faixa `EXPORT_NOTAS_POC!A1:P139`, 138 linhas de dados, 16 colunas e cabeçalhos esperados.
+- Tentativa de sobrescrever o item online anterior retornou `resourceLocked`; solução registrada: aguardar expiração do bloqueio ou subir novo item POC técnico.
+- Ainda não foi executado o teste final no Power Automate com o conector Excel Online (Business): `Get tables` e `List rows present in a table` continuam pendentes.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, configuração Entra ID ou permissão Microsoft 365 foi criada ou alterada.
+- Próxima etapa correta: executar a prova final no Power Automate usando o arquivo técnico `POC_TB_EXPORT_NOTAS_CORRIGIDO_20260707.xlsb`, medir duração/erros e registrar o resultado.
+
+### 07/07/2026 — preparação operacional da POC online
+
+- `ANALISE_PLANILHAS_2026.md` foi enviado ao GitHub em `main` no commit `fad16da`.
+- Confirmado que a pasta do repositório é `C:\Users\Eugui\Desktop\PROJETO_ARQUIVO_DIGITAL\escolaieda`.
+- `git status --short --branch` indicou `main...origin/main` com alterações locais apenas em documentação do módulo `notas`.
+- Foram localizadas 18 agendas `.xlsb` de 2026 em OneDrive institucional na pasta de controle de notas.
+- Excel Desktop 16.0 foi confirmado disponível via COM.
+- Uma tentativa de leitura COM em uma agenda grande ficou presa por vínculos/cálculo; o processo oculto do Excel criado pela tentativa foi encerrado e nenhum arquivo real foi alterado.
+- Uma agenda menor abriu em modo somente leitura com macros/eventos desabilitados; confirmou-se que `CONFIGURAÇÃO` continua oculta, sem tabela Excel, e que `RELAÇÃO` possui pares de colunas compatíveis com as turmas.
+- Criado `scripts/preparar-poc-export-notas-v1.ps1` para gerar cópia POC fora do Git, adicionar `EXPORT_NOTAS_POC` e `TB_EXPORT_NOTAS`, validar reabertura e impedir destino dentro do repositório.
+- Criado `notas/POC_EXCEL_ONLINE_2026.md` com roteiro de execução manual no Power Automate/Excel Online (Business).
+- O script foi executado em uma agenda piloto menor, gerando cópia na pasta OneDrive institucional `_POC_NOTAS_EXPORT_2026`.
+- Resultado da cópia piloto: 3 grupos de turma/componente, 138 linhas, 16 colunas, guia `EXPORT_NOTAS_POC` muito oculta, tabela `TB_EXPORT_NOTAS` reaberta com sucesso e proteção estrutural preservada.
+- O arquivo local da cópia piloto aparece com atributo `ReparsePoint` do OneDrive; ainda falta confirmar pelo portal/conector que a versão online está disponível para leitura.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, configuração Entra ID ou permissão Microsoft 365 foi criada ou alterada.
+- Próxima etapa correta: aguardar/confirmar sincronização do OneDrive e testar `Get tables`/`List rows present in a table` no Excel Online (Business).
+
+### 06/07/2026 — análise dos arquivos e prova local do contrato
+
+- `BANCO DE NOTAS 2026 TESTE.xlsb` foi aberto em modo somente leitura, com macros, eventos e atualização de links desabilitados.
+- Foram analisadas as dez guias, fórmulas, 2.057 nomes, 19 vínculos externos, objetos visuais e 26 componentes VBA.
+- Foram visualizadas as telas de painel, aproveitamento, configurações, boletim, ficha individual, conselho, resultado final, ata e base de controle.
+- Os 18 arquivos `.xlsb` de professores de 2026 foram localizados no OneDrive institucional e comparados estruturalmente.
+- Confirmado: 180 atribuições de turma/componente, equivalentes a 15 turmas × 12 componentes.
+- Confirmado: cada atribuição usa nove campos consolidados e até 46 posições de estudante.
+- Confirmado: os arquivos não possuem tabela Excel de exportação; a integração atual usa faixas ocultas e vínculos célula a célula.
+- A relação anual foi analisada; existe tabela interna com INEP e CPF, mas esses identificadores não chegam ao vínculo de notas atual.
+- Em cópia temporária de uma planilha, foi criada `TB_EXPORT_NOTAS` com 690 linhas e 16 colunas; a guia ficou muito oculta, o arquivo reabriu e a proteção estrutural permaneceu ativa.
+- A cópia temporária foi removida. Nenhum arquivo real foi alterado.
+- A análise detalhada e o contrato proposto estão em `ANALISE_PLANILHAS_2026.md`.
+- Próxima etapa correta: prova online controlada do conector Excel Online (Business) com uma cópia `.xlsb`; nenhuma implantação em massa antes desse resultado.
 
 ### 06/07/2026 — criação da fundação
 
