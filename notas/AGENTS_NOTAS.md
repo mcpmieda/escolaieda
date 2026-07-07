@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -689,6 +689,23 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — correção por comparação visual com anexos
+
+- Usuário reforçou que o resultado deveria ser comparado visualmente com os anexos e corrigido até ficar fiel, especialmente no Boletim.
+- Referência principal do Boletim: anexos 5/6, nos quais cada boletim é uma peça horizontal de largura total. A prévia foi corrigida para manter quatro boletins por A4 em quatro faixas horizontais, não mais em grade 2×2.
+- Cada faixa do Boletim passou a usar cabeçalho institucional azul com logo, identificação do aluno/turma, foto 3x4 demonstrativa, três círculos de trimestre, situação, tabela de notas, data vertical, recado, rodapé e numeração.
+- A tela `Notas` foi ajustada para ficar mais próxima do anexo 3: hero com turma em destaque (`8º ANO C` no demo), ícone de capelo em SVG, subtítulo com etapa/turma/alunos/período, cartões de métricas antes da tabela e filtros mais compactos.
+- A tela `Movimento` foi conferida contra o anexo 7 e manteve a composição com seletores, cards, gráfico azul/vermelho, ranking e donut, com ranking acima do donut como no fluxo visual de referência.
+- Capturas geradas e comparadas visualmente:
+  - `diagnosticos/notas-movimento-fiel-v2.png`;
+  - `diagnosticos/notas-banco-fiel-v4.png`;
+  - `diagnosticos/notas-boletim-fiel-v2-full.png`.
+- Validação executada após os ajustes: `node scripts/testes-notas.mjs` passou.
+- Validação executada após os ajustes: `git diff --check` não apontou erro de whitespace; houve apenas avisos esperados de LF/CRLF no Windows.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido; os anexos foram usados apenas como referência visual.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID ou recurso Microsoft 365 foi criado ou alterado.
+- Próxima etapa correta: commit/push para teste do responsável no GitHub Pages.
 
 ### 07/07/2026 — remodelagem visual restrita a Movimento, Notas e Boletim
 

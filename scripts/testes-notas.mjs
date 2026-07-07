@@ -64,6 +64,7 @@ conferir(!/id=["']view-importacoes["']/.test(html), "view-importacoes deveria es
 conferir((html.match(/data-view=/g) || []).length === 3, "A navegacao deve conter somente 3 guias nesta fase.");
 conferir(/id=["']movementChart["']/.test(html), "movementChart nao encontrado.");
 conferir(/id=["']notasTabela["']/.test(html), "notasTabela nao encontrada.");
+conferir(/id=["']notesMetricStrip["']/.test(html), "notesMetricStrip nao encontrado.");
 conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontrado.");
 conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao encontrado.");
 
@@ -71,6 +72,7 @@ const appTexto = ler("notas/js/app.js");
 const cssComponentes = ler("notas/css/componentes.css");
 conferir(appTexto.includes("renderMovimento"), "renderMovimento nao encontrado em app.js.");
 conferir(appTexto.includes("renderNotesTable"), "renderNotesTable nao encontrado em app.js.");
+conferir(appTexto.includes("renderNotesMetricStrip"), "renderNotesMetricStrip nao encontrado em app.js.");
 conferir(appTexto.includes("criarMiniBoletim"), "criarMiniBoletim nao encontrado em app.js.");
 conferir(appTexto.includes("studentPeek"), "Previa compacta do aluno nao encontrada em app.js.");
 conferir(appTexto.includes("RL") && appTexto.includes("RD") && appTexto.includes("CPT"), "Mapeamento de componentes pedido nao encontrado.");
@@ -78,6 +80,7 @@ conferir(cssComponentes.includes(".movementBars"), "Estilo do movimento estatist
 conferir(cssComponentes.includes(".notesTable"), "Estilo da tabela de notas nao encontrado.");
 conferir(cssComponentes.includes(".a4Sheet"), "Estilo da folha A4 nao encontrado.");
 conferir(cssComponentes.includes(".miniBoletim"), "Estilo do mini boletim nao encontrado.");
+conferir(cssComponentes.includes("grid-template-rows: repeat(4, 1fr)"), "Boletim deve usar quatro faixas horizontais na folha A4.");
 conferir(cssComponentes.includes(".studentPeek"), "Estilo da previa de aluno nao encontrado.");
 
 const demoTexto = ler("notas/js/demo-data.js");

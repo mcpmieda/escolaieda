@@ -208,6 +208,41 @@ option {
   background: var(--surface-soft);
 }
 
+.heroIcon {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent),
+    var(--brand-strong);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(29, 110, 242, 0.26);
+}
+
+.heroIcon svg {
+  width: 36px;
+  height: 36px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.systemTitle {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.topBrandLogo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
 .actionButton {
   min-height: 36px;
   padding: 8px 12px;
@@ -292,8 +327,8 @@ option {
 }
 
 .statCard {
-  min-height: 88px;
-  padding: 10px;
+  min-height: 92px;
+  padding: 14px;
   display: grid;
   align-content: space-between;
   gap: 6px;
@@ -318,7 +353,7 @@ option {
 }
 
 .statCard strong {
-  font-size: 1.55rem;
+  font-size: 1.72rem;
 }
 
 .movementChart {
@@ -331,8 +366,8 @@ option {
 }
 
 .movementBars {
-  min-height: 290px;
-  padding: 16px 10px 8px;
+  min-height: 330px;
+  padding: 24px 20px 10px;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 6px;
@@ -356,7 +391,7 @@ option {
 }
 
 .barPair {
-  height: 190px;
+  height: 220px;
   display: flex;
   align-items: end;
   justify-content: center;
@@ -434,7 +469,7 @@ option {
 }
 
 .donutMeter {
-  width: min(205px, 76vw);
+  width: min(260px, 76vw);
   margin: 0 auto 12px;
 }
 
@@ -536,7 +571,7 @@ option {
 }
 
 .rankingItem {
-  padding: 9px;
+  padding: 12px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 9px;
@@ -620,6 +655,15 @@ option {
   color: var(--ink-soft);
   font-size: 0.72rem;
   font-weight: 900;
+}
+
+.filterPanel h3 {
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+.filterPanel .sectionKicker {
+  margin-bottom: 3px;
 }
 
 .statusFilters input,
@@ -869,16 +913,17 @@ option {
 .a4Sheet {
   width: min(100%, 1120px);
   aspect-ratio: 1 / 1.414;
-  padding: 18px;
+  padding: 14px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
   position: relative;
   border-radius: 5px;
   background:
-    linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(20, 31, 47, 0.18) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(0deg, transparent calc(50% - 0.5px), rgba(20, 31, 47, 0.18) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(0deg, transparent calc(25% - 0.5px), rgba(20, 31, 47, 0.16) calc(25% - 0.5px) calc(25% + 0.5px), transparent calc(25% + 0.5px)),
+    linear-gradient(0deg, transparent calc(50% - 0.5px), rgba(20, 31, 47, 0.16) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(0deg, transparent calc(75% - 0.5px), rgba(20, 31, 47, 0.16) calc(75% - 0.5px) calc(75% + 0.5px), transparent calc(75% + 0.5px)),
     #eef3f8;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
@@ -887,7 +932,7 @@ option {
   min-width: 0;
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: 36px 22px minmax(0, 1fr) 18px 16px;
   border: 1px solid #acbed2;
   border-radius: 3px;
   background: #f9fcff;
@@ -895,16 +940,16 @@ option {
 }
 
 .miniBoletimHeader {
-  min-height: 42px;
-  padding: 6px 10px;
+  min-height: 36px;
+  padding: 4px 10px;
   display: grid;
-  align-content: center;
-  gap: 2px;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0 42px, transparent 42px 84px),
-    #d7192f;
+    linear-gradient(90deg, #071f52 0%, #122f70 62%, #d9e1ef 100%);
   color: #fff;
-  text-align: center;
+  text-align: left;
 }
 
 .miniBoletimHeader strong,
@@ -913,18 +958,31 @@ option {
 }
 
 .miniBoletimHeader strong {
-  font-size: clamp(0.72rem, 1.15vw, 1rem);
+  overflow: hidden;
+  font-size: clamp(0.62rem, 1vw, 0.92rem);
   line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .miniBoletimHeader span {
-  font-size: clamp(0.45rem, 0.7vw, 0.62rem);
+  color: #ffffff;
+  font-size: clamp(0.46rem, 0.72vw, 0.62rem);
   font-weight: 900;
+  letter-spacing: 0;
+}
+
+.miniLogo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #fff;
 }
 
 .miniBoletimBand {
-  min-height: 31px;
-  padding: 5px 10px;
+  min-height: 22px;
+  padding: 3px 10px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
@@ -941,7 +999,7 @@ option {
 }
 
 .miniBoletimBand strong {
-  font-size: clamp(0.62rem, 0.9vw, 0.86rem);
+  font-size: clamp(0.56rem, 0.82vw, 0.72rem);
 }
 
 .miniBoletimBand span {
@@ -951,23 +1009,31 @@ option {
 
 .miniBoletimMain {
   min-height: 0;
-  padding: 7px 7px 4px;
+  padding: 5px 9px 3px;
   display: grid;
-  grid-template-columns: 118px 70px minmax(0, 1fr) 20px;
-  gap: 6px;
+  grid-template-columns: 250px minmax(0, 1fr) 20px;
+  gap: 10px;
   align-items: stretch;
+}
+
+.miniBoletimLeft {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: 5px;
 }
 
 .miniStudentBlock {
   min-width: 0;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
-  gap: 6px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 8px;
   align-content: start;
 }
 
 .photo3x4 {
-  width: 40px;
+  width: 48px;
   aspect-ratio: 3 / 4;
   display: grid;
   place-items: center;
@@ -1007,7 +1073,7 @@ option {
 }
 
 .miniStudentBlock strong {
-  font-size: 0.62rem;
+  font-size: 0.66rem;
   line-height: 1.08;
 }
 
@@ -1018,12 +1084,13 @@ option {
 
 .trimesterRings {
   display: grid;
-  gap: 5px;
+  grid-template-columns: repeat(3, 48px);
+  gap: 6px;
   align-content: start;
 }
 
 .ring {
-  width: 58px;
+  width: 48px;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -1040,7 +1107,7 @@ option {
 
 .ring strong {
   transform: translateY(-5px);
-  font-size: 0.62rem;
+  font-size: 0.52rem;
 }
 
 .ring span {
@@ -1050,22 +1117,39 @@ option {
   font-weight: 900;
 }
 
+.resultPill {
+  width: fit-content;
+  max-width: 210px;
+  min-height: 23px;
+  padding: 4px 10px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #d4dde8;
+  border-radius: 999px;
+  background: #edf3f9;
+  color: #102646;
+  font-size: 0.58rem;
+  font-weight: 900;
+}
+
 .miniBoletimTableWrap {
   min-width: 0;
   overflow: hidden;
+  display: flex;
 }
 
 .miniBoletimTable {
   width: 100%;
+  height: 100%;
   min-width: 0;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: clamp(0.39rem, 0.54vw, 0.56rem);
+  font-size: clamp(0.36rem, 0.50vw, 0.50rem);
 }
 
 .miniBoletimTable th,
 .miniBoletimTable td {
-  padding: 2px 2px;
+  padding: 1px 2px;
   border: 1px solid #9fb5ce;
   color: #091827;
   text-align: center;
@@ -1092,8 +1176,8 @@ option {
 }
 
 .miniNotice {
-  margin: 0 7px 5px;
-  padding: 4px 6px;
+  margin: 0 9px 3px;
+  padding: 2px 6px;
   background: #e8eef5;
   color: #091827;
   font-size: clamp(0.46rem, 0.64vw, 0.62rem);
@@ -1101,8 +1185,8 @@ option {
 }
 
 .miniBoletimFooter {
-  min-height: 24px;
-  padding: 4px 7px;
+  min-height: 16px;
+  padding: 2px 9px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;

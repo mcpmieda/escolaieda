@@ -110,11 +110,13 @@ const ui = {
   notasTurma: document.getElementById("notasTurma"),
   notasPeriodo: document.getElementById("notasPeriodo"),
   notasStatusFilters: document.getElementById("notasStatusFilters"),
+  notasTitulo: document.getElementById("notasTitulo"),
   notesClassLabel: document.getElementById("notesClassLabel"),
   notesTableTitle: document.getElementById("notesTableTitle"),
   notesSummary: document.getElementById("notesSummary"),
   notasCabecalho: document.getElementById("notasCabecalho"),
   notasTabela: document.getElementById("notasTabela"),
+  notesMetricStrip: document.getElementById("notesMetricStrip"),
   notasInsights: document.getElementById("notasInsights"),
   notasRecovery: document.getElementById("notasRecovery"),
   boletimTurma: document.getElementById("boletimTurma"),
@@ -280,8 +282,9 @@ function abrirView(view, updateHash = true) {
     button.classList.toggle("active", button.dataset.view === destino);
   });
   const [title, subtitle] = viewCopy[destino];
-  ui.viewTitle.textContent = title;
-  ui.viewSubtitle.textContent = subtitle;
+  document.title = `${title} | Escola Iêda MCPM`;
+  ui.viewTitle.textContent = "Escola Municipal";
+  ui.viewSubtitle.textContent = "Sistema Acadêmico";
   if (updateHash) history.replaceState(null, "", `#${destino}`);
 }
 
@@ -436,13 +439,30 @@ function renderNotas() {
   estudantes = estudantes.filter((estudante) => state.notas.situacoes.has(statusOperacional(estudante).status));
 
   const turma = obterTurma(state.notas.turma);
-  ui.notesClassLabel.textContent = `${turma?.nome || "Todas as turmas"} · ${periodo.rotulo}`;
+  ui.notasTitulo.textContent = turma ? turmaTituloAcademico(turma) : "Todas as turmas";
+  ui.notesClassLabel.textContent = turma ? `${turma.etapa} · Turma ${turma.codigo} · ${estudantes.length} alunos · ${periodo.rotulo}` : `${estudantes.length} alunos · ${periodo.rotulo}`;
   ui.notesTableTitle.textContent = periodo.rotulo;
 
+  renderNotesMetricStrip(estudantes, periodoCodigo);
   renderNotesSummary(estudantes, periodoCodigo);
   renderNotesTable(estudantes, periodoCodigo);
   renderNotesInsights(estudantes, periodoCodigo);
   renderNotesRecovery(estudantes);
+}
+
+function renderNotesMetricStrip(estudantes, periodoCodigo) {
+  const total = estudantes.length;
+  const abaixo = estudantes.filter((estudante) => estudanteTemVermelha(estudante, periodoCodigo)).length;
+  const novatos = estudantes.filter((estudante) => statusOperacional(estudante).status === "especial").length;
+  const transferidos = estudantes.filter((estudante) => statusOperacional(estudante).status === "transferido" || statusOperacional(estudante).status === "foi_para").length;
+  const mediaAtual = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, periodoCodigo)));
+  renderStats(ui.notesMetricStrip, [
+    ["Total de alunos", total, "alunos"],
+    ["Alunos abaixo da média", abaixo, `${Math.round((abaixo / Math.max(1, total)) * 100)}%`],
+    ["Novatos", novatos, "marcados"],
+    ["Transferidos / outra turma", transferidos, "movimento"],
+    ["Média geral da turma", formatarMedia(mediaAtual), mediaAtual >= periodos[periodoCodigo].minimo ? "Regular" : "Atenção"]
+  ]);
 }
 
 function renderNotesSummary(estudantes, periodoCodigo) {
@@ -562,12 +582,17 @@ function criarMiniBoletim(estudante, numero) {
   }
 
   const header = element("header", "miniBoletimHeader");
-  appendText(header, "strong", state.boletim.titulo || "BOLETIM ESCOLAR 2026");
-  appendText(header, "span", "ESCOLA MUNICIPAL PROFª IÊDA ALVES DE OLIVEIRA");
+  const logo = element("img", "miniLogo");
+  logo.src = "../logo_escola.png";
+  logo.alt = "";
+  const title = element("div");
+  appendText(title, "strong", "ESCOLA MUN. PROFª IÊDA ALVES DE OLIVEIRA MCPM");
+  appendText(title, "span", "★ ★ ★ ★ ★");
+  header.append(logo, title);
 
   const blueBand = element("div", "miniBoletimBand");
   appendText(blueBand, "strong", estudante.nome);
-  appendText(blueBand, "span", `${estudante.turma?.nome || ""} · Nº ${String(numero).padStart(2, "0")}`);
+  appendText(blueBand, "span", `${estudante.turma?.codigo || ""} · ${state.boletim.titulo || "BOLETIM ESCOLAR 2026"}`);
 
   const main = element("div", "miniBoletimMain");
   const student = element("section", "miniStudentBlock");
@@ -576,7 +601,7 @@ function criarMiniBoletim(estudante, numero) {
   const meta = element("div");
   appendText(meta, "span", "Aluno");
   appendText(meta, "strong", estudante.nome);
-  appendText(meta, "small", `${estudante.codigo} · ${estudante.resultadoFinal}`);
+  appendText(meta, "small", `${estudante.turma?.codigo || ""} · ${estudante.codigo}`);
   student.append(photo, meta);
 
   const rings = element("section", "trimesterRings");
@@ -588,6 +613,9 @@ function criarMiniBoletim(estudante, numero) {
     appendText(ring, "span", periodos[periodoCodigo].curto);
     rings.append(ring);
   });
+
+  const resultPill = element("div", "resultPill");
+  appendText(resultPill, "strong", estudante.resultadoFinal);
 
   const tableWrap = element("section", "miniBoletimTableWrap");
   const table = document.createElement("table");
@@ -613,7 +641,9 @@ function criarMiniBoletim(estudante, numero) {
   const date = element("aside", "miniDate");
   date.textContent = formatarDataBoletim(state.boletim.data);
 
-  main.append(student, rings, tableWrap, date);
+  const left = element("section", "miniBoletimLeft");
+  left.append(student, rings, resultPill);
+  main.append(left, tableWrap, date);
   const notice = element("div", "miniNotice");
   notice.textContent = state.boletim.recado;
   const footer = element("footer", "miniBoletimFooter");
@@ -710,6 +740,12 @@ function filtrarPorTurma(estudantes, turmaId) {
 function obterTurma(turmaId) {
   if (turmaId === "todas") return null;
   return demoData.turmas.find((turma) => turma.id === turmaId) || null;
+}
+
+function turmaTituloAcademico(turma) {
+  const match = String(turma.codigo || "").match(/^(\d)([A-Z])$/i);
+  if (!match) return turma.codigo || turma.nome || "Turma";
+  return `${match[1]}º ANO ${match[2].toUpperCase()}`;
 }
 
 function obterLancamento(estudante, componente) {

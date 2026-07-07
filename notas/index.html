@@ -67,9 +67,11 @@
     <main class="mainStage">
       <header class="systemBar">
         <div class="systemTitle">
-          <p class="eyebrow">Central pedagógica 2026</p>
-          <h1 id="viewTitle">Movimento estatístico trimestral</h1>
-          <p id="viewSubtitle">Síntese por turma, período, componentes, ranking e aproveitamento.</p>
+          <img src="../logo_escola.png" alt="" class="topBrandLogo">
+          <div>
+            <h1 id="viewTitle">Escola Municipal</h1>
+            <p id="viewSubtitle">Sistema Acadêmico</p>
+          </div>
         </div>
 
         <div class="commandCluster">
@@ -108,7 +110,7 @@
         <div class="screenHero movementHero">
           <div>
             <p class="eyebrow">Movimento estatístico escolar</p>
-            <h2 id="movimentoTitulo">Panorama trimestral</h2>
+            <h2 id="movimentoTitulo">MOVIMENTO ESTATÍSTICO ESCOLAR</h2>
             <p id="movementClassLabel">8C - Demonstração · I trimestre</p>
           </div>
           <div class="heroControls">
@@ -143,8 +145,8 @@
           </section>
 
           <aside class="sideStack">
-            <section class="panel" id="movementDonut"></section>
             <section class="panel" id="movementRanking"></section>
+            <section class="panel" id="movementDonut"></section>
           </aside>
         </div>
 
@@ -161,10 +163,19 @@
 
       <section class="pageView" id="view-notas" aria-labelledby="notasTitulo">
         <div class="screenHero notesHero">
-          <div>
-            <p class="eyebrow">Notas</p>
-            <h2 id="notasTitulo">Banco de notas por turma</h2>
-            <p id="notesClassLabel">Quadro compacto no modelo do banco atual, com todas as disciplinas visíveis.</p>
+          <div class="notesLead">
+            <span class="heroIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 8.5 12 4l9 4.5-9 4.5z"></path>
+                <path d="M7 11v4.2c0 1.6 2.2 2.8 5 2.8s5-1.2 5-2.8V11"></path>
+                <path d="M19 10.5v5"></path>
+              </svg>
+            </span>
+            <div>
+              <p class="eyebrow">Notas</p>
+              <h2 id="notasTitulo">Banco de notas por turma</h2>
+              <p id="notesClassLabel">Quadro compacto no modelo do banco atual, com todas as disciplinas visíveis.</p>
+            </div>
           </div>
           <div class="heroControls">
             <label>
@@ -183,6 +194,8 @@
             </label>
           </div>
         </div>
+
+        <div class="notesMetricStrip" id="notesMetricStrip"></div>
 
         <section class="panel filterPanel">
           <div>
