@@ -16,9 +16,9 @@ function classificarMedia(media) {
 function rotuloSituacao(situacao) {
   return {
     regular: "Regular",
-    atencao: "Atencao",
-    critico: "Critico"
-  }[situacao] || "Critico";
+    atencao: "Atenção",
+    critico: "Crítico"
+  }[situacao] || "Crítico";
 }
 
 function formatarMedia(valor) {
@@ -46,16 +46,18 @@ function listarEstudantesComResumo(dados) {
     const notas = dados.lancamentos.filter((lancamento) => lancamento.estudanteId === estudante.id);
     const mediaFinal = media(notas.map((nota) => Number(nota.notaFinal)));
     const situacao = classificarMedia(mediaFinal);
+    const lancamentos = notas.map((nota) => ({
+      ...nota,
+      componente: mapas.componentes.get(nota.componenteId)
+    }));
     return {
       ...estudante,
       turma: mapas.turmas.get(estudante.turmaId),
       componentes: notas.length,
       mediaFinal,
       situacao,
-      lancamentos: notas.map((nota) => ({
-        ...nota,
-        componente: mapas.componentes.get(nota.componenteId)
-      }))
+      resultadoFinal: calcularResultadoEstudante({ ...estudante, lancamentos }),
+      lancamentos
     };
   });
 }
@@ -65,13 +67,15 @@ function resumirTurmas(dados) {
   return dados.turmas.map((turma) => {
     const estudantesTurma = estudantesResumo.filter((estudante) => estudante.turmaId === turma.id);
     const contagem = contarSituacoes(estudantesTurma);
+    const resultados = contarResultados(estudantesTurma);
     return {
       ...turma,
       totalEstudantes: estudantesTurma.length,
       mediaFinal: media(estudantesTurma.map((estudante) => estudante.mediaFinal)),
       regular: contagem.regular,
       atencao: contagem.atencao,
-      critico: contagem.critico
+      critico: contagem.critico,
+      resultados
     };
   });
 }
@@ -83,11 +87,23 @@ function contarSituacoes(estudantes) {
   }, { regular: 0, atencao: 0, critico: 0 });
 }
 
+function contarResultados(estudantes) {
+  return estudantes.reduce((total, estudante) => {
+    total[estudante.resultadoFinal] = (total[estudante.resultadoFinal] || 0) + 1;
+    return total;
+  }, {
+    "APROVADO DIRETO": 0,
+    "APROVADO PELA RECUPERAÇÃO": 0,
+    "EM ACOMPANHAMENTO": 0
+  });
+}
+
 function filtrarEstudantes(estudantes, filtros) {
   const busca = normalizarTexto(filtros.busca);
   return estudantes.filter((estudante) => {
     const turmaCodigo = estudante.turma?.codigo || "";
-    const texto = normalizarTexto(`${estudante.nome} ${estudante.codigo} ${turmaCodigo}`);
+    const componentes = estudante.lancamentos.map((nota) => `${nota.componente?.codigo || ""} ${nota.componente?.nome || ""}`).join(" ");
+    const texto = normalizarTexto(`${estudante.nome} ${estudante.codigo} ${turmaCodigo} ${componentes}`);
     const combinaBusca = !busca || texto.includes(busca);
     const combinaTurma = filtros.turma === "todas" || estudante.turmaId === filtros.turma;
     const combinaSituacao = filtros.situacao === "todas" || estudante.situacao === filtros.situacao;
@@ -99,16 +115,19 @@ function filtrarEstudantes(estudantes, filtros) {
 function calcularResumoGeral(dados) {
   const estudantesResumo = listarEstudantesComResumo(dados);
   const contagem = contarSituacoes(estudantesResumo);
+  const resultados = contarResultados(estudantesResumo);
   const importacoesComProblema = dados.importacoes.filter((item) => item.status !== "concluido").length;
   return {
     totalTurmas: dados.turmas.length,
     totalEstudantes: estudantesResumo.length,
+    totalComponentes: dados.componentes.length,
     mediaGeral: media(estudantesResumo.map((estudante) => estudante.mediaFinal)),
     importacoesComProblema,
     inconsistencias: dados.inconsistencias.length,
     regular: contagem.regular,
     atencao: contagem.atencao,
-    critico: contagem.critico
+    critico: contagem.critico,
+    resultados
   };
 }
 
@@ -117,7 +136,48 @@ function filtrarTurmasPorEstudantes(turmas, estudantesFiltrados) {
   return turmas.filter((turma) => ids.has(turma.id));
 }
 
+function calcularResultadoEstudante(estudante) {
+  const notas = estudante.lancamentos || [];
+  if (!notas.length) return "EM ACOMPANHAMENTO";
+  const todasDiretas = notas.every((nota) => Number(nota.notaFinal) >= 60);
+  const todasComRecuperacao = notas.every((nota) => Number(nota.totalRec) >= 60 || Number(nota.notaFinal) >= 60);
+  if (todasDiretas) return "APROVADO DIRETO";
+  if (todasComRecuperacao) return "APROVADO PELA RECUPERAÇÃO";
+  return "EM ACOMPANHAMENTO";
+}
+
+function resumirEtapas(lancamentos) {
+  return [
+    { codigo: "T1", rotulo: "I trimestre", maximo: 30, media: media(lancamentos.map((nota) => Number(nota.notaT1))) },
+    { codigo: "T2", rotulo: "II trimestre", maximo: 30, media: media(lancamentos.map((nota) => Number(nota.notaT2))) },
+    { codigo: "T3", rotulo: "III trimestre", maximo: 40, media: media(lancamentos.map((nota) => Number(nota.notaT3))) },
+    { codigo: "TOT", rotulo: "Total anual", maximo: 100, media: media(lancamentos.map((nota) => Number(nota.total))) },
+    { codigo: "REC", rotulo: "Após recuperação", maximo: 100, media: media(lancamentos.map((nota) => Number(nota.totalRec))) }
+  ];
+}
+
+function resumirComponentes(dados, estudantesFiltrados = null) {
+  const estudantesIds = estudantesFiltrados ? new Set(estudantesFiltrados.map((estudante) => estudante.id)) : null;
+  return dados.componentes.map((componente) => {
+    const lancamentos = dados.lancamentos.filter((nota) => nota.componenteId === componente.id && (!estudantesIds || estudantesIds.has(nota.estudanteId)));
+    const situacoes = contarSituacoes(lancamentos.map((nota) => ({ situacao: classificarMedia(Number(nota.notaFinal)) })));
+    return {
+      ...componente,
+      lancamentos: lancamentos.length,
+      mediaT1: media(lancamentos.map((nota) => Number(nota.notaT1))),
+      mediaT2: media(lancamentos.map((nota) => Number(nota.notaT2))),
+      mediaT3: media(lancamentos.map((nota) => Number(nota.notaT3))),
+      mediaTotal: media(lancamentos.map((nota) => Number(nota.total))),
+      mediaFinal: media(lancamentos.map((nota) => Number(nota.notaFinal))),
+      regular: situacoes.regular,
+      atencao: situacoes.atencao,
+      critico: situacoes.critico
+    };
+  });
+}
+
 export {
+  calcularResultadoEstudante,
   calcularResumoGeral,
   classificarMedia,
   filtrarEstudantes,
@@ -125,6 +185,8 @@ export {
   formatarMedia,
   listarEstudantesComResumo,
   normalizarTexto,
+  resumirComponentes,
+  resumirEtapas,
   resumirTurmas,
   rotuloSituacao
 };

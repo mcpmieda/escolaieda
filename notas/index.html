@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#18424a">
-  <title>Gestao de Notas | Escola Ieda MCPM</title>
+  <meta name="theme-color" content="#10343c">
+  <title>Gestão de Notas | Escola Iêda MCPM</title>
   <link rel="icon" type="image/png" href="../imagens/favicon.png">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
@@ -15,51 +15,71 @@
 </head>
 <body>
   <div class="appShell">
-    <aside class="sidebar" aria-label="Navegacao do modulo de notas">
-      <a class="brand" href="../admin/" aria-label="Voltar ao painel administrativo">
+    <aside class="appRail" aria-label="Navegação do módulo de notas">
+      <a class="brandLockup" href="../admin/" aria-label="Voltar ao painel administrativo">
         <img src="../logo_escola.png" alt="" class="brandLogo">
         <span>
-          <strong>Gestao de Notas</strong>
-          <small>Escola Ieda MCPM</small>
+          <strong>Notas</strong>
+          <small>Escola Iêda MCPM</small>
         </span>
       </a>
 
-      <nav class="navList" aria-label="Vistas principais">
-        <button class="navItem active" type="button" data-view="dashboard">Visao geral</button>
-        <button class="navItem" type="button" data-view="turmas">Turmas</button>
-        <button class="navItem" type="button" data-view="estudantes">Estudantes</button>
-        <button class="navItem" type="button" data-view="importacoes">Importacoes</button>
-        <button class="navItem" type="button" data-view="poc">POC e estrutura</button>
+      <nav class="railNav" aria-label="Áreas principais">
+        <button class="navItem active" type="button" data-view="dashboard"><span>Início</span></button>
+        <button class="navItem" type="button" data-view="banco"><span>Banco</span></button>
+        <button class="navItem" type="button" data-view="estudantes"><span>Alunos</span></button>
+        <button class="navItem" type="button" data-view="boletins"><span>Boletins</span></button>
+        <button class="navItem" type="button" data-view="relatorios"><span>Relatórios</span></button>
+        <button class="navItem" type="button" data-view="importacoes"><span>Importações</span></button>
+        <button class="navItem" type="button" data-view="poc"><span>Estrutura</span></button>
       </nav>
 
-      <div class="sidebarStatus" id="sidebarStatus">
-        <span class="statusDot statusDotWarn"></span>
-        <span>Modo demonstracao</span>
-      </div>
-
-      <div class="sidebarActions">
-        <a class="secondaryButton" href="../admin/">Painel</a>
-        <button class="ghostButton" id="btnSair" type="button" hidden>Sair</button>
+      <div class="railFooter">
+        <div class="sidebarStatus" id="sidebarStatus">
+          <span class="statusDot statusDotWarn"></span>
+          <span>Modo demonstração</span>
+        </div>
+        <div class="sidebarActions">
+          <a class="secondaryButton" href="../admin/">Painel</a>
+          <button class="ghostButton" id="btnSair" type="button" hidden>Sair</button>
+        </div>
       </div>
     </aside>
 
     <main class="mainArea">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Modulo interno</p>
-          <h1 id="viewTitle">Visao geral de notas</h1>
-          <p id="viewSubtitle">Painel funcional com dados ficticios ate o provisionamento das listas NOTAS_*.</p>
+      <header class="workHeader">
+        <div class="heroSurface">
+          <div class="heroCopy">
+            <p class="eyebrow">Central pedagógica 2026</p>
+            <h1 id="viewTitle">Gestão de notas</h1>
+            <p id="viewSubtitle">Acompanhamento anual por turma, componente, aluno, boletim e resultado.</p>
+          </div>
+          <div class="heroStats" aria-label="Resumo rápido">
+            <article>
+              <span>Média geral</span>
+              <strong id="heroMedia">0,0</strong>
+            </article>
+            <article>
+              <span>Em atenção</span>
+              <strong id="heroAtencao">0</strong>
+            </article>
+            <article>
+              <span>Última sync</span>
+              <strong id="heroSync">--</strong>
+            </article>
+          </div>
         </div>
-        <div class="topbarActions">
-          <button class="secondaryButton" id="btnDemo" type="button">Usar demonstracao</button>
+
+        <div class="headerActions">
+          <button class="secondaryButton" id="btnDemo" type="button">Demonstração</button>
           <button class="primaryButton" id="btnEntrar" type="button">Entrar com Microsoft</button>
         </div>
       </header>
 
-      <section class="systemBanner" id="systemBanner" aria-live="polite">
+      <section class="syncStrip" id="systemBanner" aria-live="polite">
         <div>
-          <strong id="bannerTitle">Ambiente de demonstracao</strong>
-          <span id="bannerText">Nenhuma lista NOTAS_* foi criada. Esta versao mostra a experiencia e os fluxos com dados ficticios.</span>
+          <strong id="bannerTitle">Ambiente de demonstração</strong>
+          <span id="bannerText">As listas NOTAS_* ainda não foram criadas. Os dados abaixo são fictícios.</span>
         </div>
         <button class="ghostButton compactButton" id="btnVerificarEstrutura" type="button">Verificar estrutura</button>
       </section>
@@ -67,7 +87,7 @@
       <section class="filtersBar" aria-label="Filtros de consulta">
         <label>
           <span>Buscar</span>
-          <input id="filtroBusca" type="search" placeholder="Estudante, turma ou componente">
+          <input id="filtroBusca" type="search" placeholder="Aluno, turma ou componente">
         </label>
         <label>
           <span>Turma</span>
@@ -78,12 +98,12 @@
           <select id="filtroComponente"></select>
         </label>
         <label>
-          <span>Situacao</span>
+          <span>Situação</span>
           <select id="filtroSituacao">
             <option value="todas">Todas</option>
             <option value="regular">Regular</option>
-            <option value="atencao">Atencao</option>
-            <option value="critico">Critico</option>
+            <option value="atencao">Atenção</option>
+            <option value="critico">Crítico</option>
           </select>
         </label>
       </section>
@@ -91,53 +111,85 @@
       <section class="view active" id="view-dashboard">
         <div class="metricGrid" id="metricGrid"></div>
 
-        <div class="workGrid">
-          <section class="panel">
+        <div class="dashboardGrid">
+          <section class="panel panelWide">
             <div class="panelHeader">
               <div>
-                <h2>Turmas em acompanhamento</h2>
-                <p>Resumo por turma e risco academico.</p>
+                <p class="sectionKicker">Aproveitamento</p>
+                <h2>Mapa anual por turma</h2>
               </div>
             </div>
-            <div class="turmaList" id="listaTurmasResumo"></div>
+            <div class="heatList" id="mapaAproveitamento"></div>
           </section>
 
           <section class="panel">
             <div class="panelHeader">
               <div>
-                <h2>Importacoes recentes</h2>
-                <p>Fila tecnica que o Power Automate devera alimentar.</p>
+                <p class="sectionKicker">Rotina</p>
+                <h2>Importações recentes</h2>
               </div>
             </div>
             <div class="timeline" id="timelineImportacoes"></div>
           </section>
+
+          <section class="panel panelWide">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Etapas</p>
+                <h2>I, II, III trimestre e recuperação</h2>
+              </div>
+            </div>
+            <div class="stageGrid" id="painelTrimestres"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Turmas</p>
+                <h2>Prioridades</h2>
+              </div>
+            </div>
+            <div class="turmaList" id="listaTurmasResumo"></div>
+          </section>
         </div>
       </section>
 
-      <section class="view" id="view-turmas">
-        <div class="tablePanel">
-          <div class="panelHeader">
-            <div>
-              <h2>Comparativo de turmas</h2>
-              <p>Consulta agregada sem carregar todos os lancamentos reais.</p>
+      <section class="view" id="view-banco">
+        <div class="workGrid">
+          <section class="tablePanel panelWide">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Banco de notas</p>
+                <h2>Matriz por componente</h2>
+              </div>
             </div>
-          </div>
-          <div class="responsiveTable">
-            <table>
-              <thead>
-                <tr>
-                  <th>Turma</th>
-                  <th>Estudantes</th>
-                  <th>Media</th>
-                  <th>Regular</th>
-                  <th>Atencao</th>
-                  <th>Critico</th>
-                  <th>Ultima sync</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaTurmas"></tbody>
-            </table>
-          </div>
+            <div class="responsiveTable">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Componente</th>
+                    <th>I tri.</th>
+                    <th>II tri.</th>
+                    <th>III tri.</th>
+                    <th>Total</th>
+                    <th>Final</th>
+                    <th>Risco</th>
+                  </tr>
+                </thead>
+                <tbody id="matrizBancoNotas"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Leitura rápida</p>
+                <h2>Aproveitamento por área</h2>
+              </div>
+            </div>
+            <div class="areaList" id="painelAproveitamento"></div>
+          </section>
         </div>
       </section>
 
@@ -145,20 +197,20 @@
         <div class="tablePanel">
           <div class="panelHeader">
             <div>
-              <h2>Estudantes</h2>
-              <p>Lista de demonstracao com filtros e painel de detalhe.</p>
+              <p class="sectionKicker">Consulta</p>
+              <h2>Alunos e situação anual</h2>
             </div>
           </div>
           <div class="responsiveTable">
             <table>
               <thead>
                 <tr>
-                  <th>Estudante</th>
+                  <th>Aluno</th>
                   <th>Turma</th>
                   <th>Componentes</th>
-                  <th>Media</th>
-                  <th>Situacao</th>
-                  <th>Acao</th>
+                  <th>Média</th>
+                  <th>Resultado</th>
+                  <th>Ação</th>
                 </tr>
               </thead>
               <tbody id="tabelaEstudantes"></tbody>
@@ -167,13 +219,70 @@
         </div>
       </section>
 
+      <section class="view" id="view-boletins">
+        <div class="boletimGrid">
+          <section class="boletimSheet" id="boletimPreview" aria-label="Prévia de boletim"></section>
+          <aside class="panel">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Ficha</p>
+                <h2>Resumo individual</h2>
+              </div>
+            </div>
+            <div class="studentSnapshot" id="fichaAlunoResumo"></div>
+            <div class="panelDivider"></div>
+            <div class="panelHeader tight">
+              <div>
+                <p class="sectionKicker">Fila</p>
+                <h2>Boletins recentes</h2>
+              </div>
+            </div>
+            <div class="boletimQueue" id="listaBoletins"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-relatorios">
+        <div class="reportGrid">
+          <section class="panel panelWide">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Aproveitamento escolar</p>
+                <h2>Componentes com maior atenção</h2>
+              </div>
+            </div>
+            <div class="chartList" id="relatorioAproveitamento"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Conselho</p>
+                <h2>Casos para acompanhamento</h2>
+              </div>
+            </div>
+            <div class="issueList" id="relatorioConselho"></div>
+          </section>
+
+          <section class="panel panelWide">
+            <div class="panelHeader">
+              <div>
+                <p class="sectionKicker">Ata de resultados</p>
+                <h2>Síntese por turma</h2>
+              </div>
+            </div>
+            <div class="ataGrid" id="relatorioAta"></div>
+          </section>
+        </div>
+      </section>
+
       <section class="view" id="view-importacoes">
         <div class="workGrid wideRight">
           <section class="panel">
             <div class="panelHeader">
               <div>
-                <h2>Fila de importacao</h2>
-                <p>Modelo de estados do fluxo automatizado.</p>
+                <p class="sectionKicker">Automação</p>
+                <h2>Fila de importação</h2>
               </div>
             </div>
             <div class="importList" id="listaImportacoes"></div>
@@ -182,8 +291,8 @@
           <section class="panel">
             <div class="panelHeader">
               <div>
-                <h2>Inconsistencias</h2>
-                <p>Erros que precisam ser visiveis e reprocessaveis.</p>
+                <p class="sectionKicker">Qualidade</p>
+                <h2>Inconsistências</h2>
               </div>
             </div>
             <div class="issueList" id="listaInconsistencias"></div>
@@ -196,8 +305,8 @@
           <section class="panel">
             <div class="panelHeader">
               <div>
-                <h2>Prova online</h2>
-                <p>Estado real registrado no projeto.</p>
+                <p class="sectionKicker">Prova online</p>
+                <h2>Estado registrado</h2>
               </div>
             </div>
             <dl class="statusList" id="listaStatusPoc"></dl>
@@ -206,8 +315,8 @@
           <section class="panel">
             <div class="panelHeader">
               <div>
+                <p class="sectionKicker">SharePoint</p>
                 <h2>Estrutura alvo</h2>
-                <p>Listas planejadas, ainda nao provisionadas.</p>
               </div>
             </div>
             <div class="structureList" id="listaEstrutura"></div>
@@ -219,8 +328,8 @@
     <aside class="detailPanel" id="detailPanel" aria-labelledby="detailTitle" aria-hidden="true">
       <div class="detailHeader">
         <div>
-          <p class="eyebrow">Detalhe</p>
-          <h2 id="detailTitle">Estudante</h2>
+          <p class="eyebrow">Ficha do aluno</p>
+          <h2 id="detailTitle">Aluno</h2>
         </div>
         <button class="iconButton" id="btnFecharDetalhe" type="button" aria-label="Fechar detalhe">X</button>
       </div>

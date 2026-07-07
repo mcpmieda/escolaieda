@@ -4,7 +4,7 @@
 >
 > Última atualização: 07/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e primeira SPA local `/notas/` criada em modo demonstração; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` redesenhada em modo demonstração com início, banco, alunos, boletins, relatórios, importações e estrutura; leitura pelo conector Excel Online (Business) e provisionamento real das listas `NOTAS_*` ainda pendentes; nenhuma lista, biblioteca, fluxo definitivo ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -351,6 +351,8 @@ notas/
 
 A estrutura atual é uma SPA estática compatível com GitHub Pages, sem etapa de build. O modo demonstração usa somente dados fictícios. O cliente Graph existe para autenticação MSAL e verificação estrutural das listas `NOTAS_*`, mas não grava em SharePoint e não contém dados reais embutidos.
 
+Em 07/07/2026 a interface deixou de ser apenas prova técnica e passou a representar uma primeira visão de produto: navegação lateral com identidade própria, início com indicadores, banco/matriz de notas por componente, consulta de alunos, prévia de boletim, relatórios de aproveitamento/conselho/ata, importações e estrutura. O desenho se inspira em sistemas Android/One UI no sentido de superfícies leves, navegação clara, hierarquia tátil e adaptação a PC/celular, sem copiar marca, componente proprietário ou layout exato de fabricante.
+
 Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vite somente se houver uma estratégia aprovada para compilar e publicar sem quebrar o GitHub Pages da raiz. Não introduzir framework apenas para reproduzir componentes que HTML/CSS resolvem.
 
 ### 10.2 Telas mínimas
@@ -367,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 07/07/2026: a SPA já possui visão geral, turmas, estudantes, importações e tela de POC/estrutura em modo demonstração. As telas de professores/planilhas, inconsistências, auditoria detalhada e configurações reais ainda dependem do provisionamento das listas `NOTAS_*` e do fluxo piloto.
+Estado real em 07/07/2026: a SPA já possui início, banco de notas, alunos, boletins, relatórios, importações e tela de POC/estrutura em modo demonstração. As telas de professores/planilhas, inconsistências com fluxo de resolução, auditoria detalhada e configurações reais ainda dependem do provisionamento das listas `NOTAS_*` e do fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -569,6 +571,7 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 - validar se a origem permanecerá no OneDrive da Secretaria ou migrará para biblioteca no mesmo site;
 - validar e fechar o contrato versão 1 após o teste online;
 - [x] criar protótipo funcional estático do dashboard, turmas, estudantes, importações e POC/estrutura em modo demonstração;
+- [x] redesenhar o protótipo como central de notas com banco, boletim e relatórios inspirados no fluxo do Excel;
 - [x] criar fixtures fictícios e testes automatizados locais para o módulo web;
 - obter aprovação antes de provisionar.
 
@@ -585,9 +588,10 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 - [x] implementar entrada/autenticação inicial com MSAL configurado e fallback de demonstração;
 - [x] implementar cliente Graph modular para verificar a existência das listas `NOTAS_*`;
 - [x] implementar visão geral, turmas, estudantes e importações em modo demonstração;
+- [x] implementar banco/matriz por componente, boletim individual e relatórios de aproveitamento/conselho/ata em modo demonstração;
 - [x] implementar estados básicos de estrutura ausente, demonstração, erro e sessão;
 - [x] adicionar cartão Gestão de Notas no painel;
-- [ ] testar visualmente em notebook e celular após servidor local ou publicação;
+- [x] testar visualmente por captura Playwright em notebook e celular no servidor local;
 - [ ] ligar consultas reais depois que as listas `NOTAS_*` forem provisionadas;
 - [ ] implementar professores/planilhas, inconsistências, auditoria e configurações reais.
 
@@ -652,6 +656,8 @@ O projeto só poderá ser considerado concluído quando:
 - **OneDrive local atrasado**: reparse points e sincronização local podem esconder a versão online real. Solução: validar pelo Graph ou pelo conector online antes de concluir que a cópia está disponível.
 - **Desenvolvimento web sem dados reais**: nunca copiar nomes, notas, CPF, INEP ou exportações para fixtures. Solução: manter `notas/js/demo-data.js` com estudantes e professores fictícios e rodar `node scripts/testes-notas.mjs`.
 - **Servidor local com `python` no Windows**: nesta máquina `python.exe` aponta para o atalho `WindowsApps`, que abre a orientação da Microsoft Store e não inicia servidor HTTP. Solução: usar `npx --yes http-server . -a 127.0.0.1 -p <porta> -c-1 --silent` ou instalar Python real fora do alias.
+- **Playwright sem navegador instalado**: a CLI pode existir, mas a captura falha se o Chromium do Playwright não estiver baixado. Solução usada: `npx --yes playwright install chromium` e depois `npx --yes playwright screenshot ...`.
+- **Teste Playwright sem dependência local**: o runner não conseguiu resolver `@playwright/test`/`playwright/test` em arquivo temporário local sem instalar dependência no projeto. Solução nesta etapa: não adicionar dependência; usar `node scripts/testes-notas.mjs`, `git diff --check` e capturas Playwright CLI.
 - **SharePoint/Power Automate por impulso**: não criar listas, fluxos ou permissões para “testar rápido”. Solução: manter a SPA em modo demonstração, usar scripts de verificação e só provisionar com autorização explícita e rollback documentado.
 
 ## 18. Protocolo para futuras sessões com IA
@@ -675,6 +681,24 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — redesenho de produto do módulo de notas
+
+- Usuário avaliou que o design inicial estava distante do pedido e solicitou uma etapa maior, com personalidade própria, visual leve/moderno inspirado em sistema Android no PC e telas mais próximas do banco de notas em Excel.
+- A etapa foi tratada como redesenho de produto, não como integração real: nenhum dado real e nenhum recurso Microsoft 365 foi criado ou alterado.
+- A navegação da SPA passou a ter áreas `Início`, `Banco`, `Alunos`, `Boletins`, `Relatórios`, `Importações` e `Estrutura`.
+- O início recebeu cabeçalho institucional com imagem real do Arquivo Digital, indicadores de média/atenção/sincronização, cards operacionais, mapa anual por turma, etapas trimestrais e prioridades.
+- O banco de notas passou a exibir matriz por componente com I trimestre, II trimestre, III trimestre, total, final e risco, refletindo a organização confirmada no Excel.
+- A área de boletins passou a ter prévia individual com componentes, notas trimestrais, recuperação e resultado demonstrativo.
+- A área de relatórios passou a simular aproveitamento escolar, conselho de classe e ata de resultados por turma.
+- `notas/js/demo-data.js` foi ampliado para 4 turmas, 40 alunos fictícios, 12 componentes fictícios e 480 lançamentos fictícios, mantendo `origem: fixture-demo`.
+- `notas/js/domain.js` passou a calcular resultado demonstrativo, etapas e resumo por componente.
+- `scripts/testes-notas.mjs` foi atualizado para validar banco, boletins, relatórios, 12 componentes, etapas e resultado demonstrativo.
+- Validação executada: `node scripts/testes-notas.mjs` passou com 40 estudantes fictícios, 4 turmas fictícias e 480 lançamentos fictícios.
+- Validação executada: `git diff --check` não apontou erro de whitespace; apenas avisos esperados de conversão LF/CRLF.
+- Validação visual executada por Playwright CLI: capturas desktop 1366×900 e mobile 390×844 geradas com sucesso. O overflow de nomes longos em importações e a exibição indevida do botão oculto `Sair` no mobile foram corrigidos.
+- Tentativa de teste interativo com `@playwright/test` não foi mantida porque exigiria dependência local no projeto; não foi adicionada dependência npm ao repositório.
+- Próxima etapa correta: publicar com commit/push, o responsável testar no GitHub Pages e então decidir entre ajustes finos de UX ou script de provisionamento simulado das listas `NOTAS_*`.
 
 ### 07/07/2026 — primeira SPA funcional do módulo de notas
 

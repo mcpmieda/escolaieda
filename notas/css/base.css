@@ -4,12 +4,15 @@
 
 html {
   min-height: 100%;
+  background: var(--bg);
 }
 
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, rgba(237, 243, 241, 0.94), rgba(247, 250, 248, 0.98)),
+    url("../../fundo_logo_ieda.jpg") center top / cover fixed no-repeat;
   color: var(--ink);
   font-family: var(--font);
 }
@@ -38,11 +41,22 @@ img {
   max-width: 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 h1,
 h2,
 h3,
-p {
+p,
+dl {
   margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: 0;
 }
 
 .view {
@@ -53,11 +67,25 @@ p {
   display: block;
 }
 
-.eyebrow {
+.eyebrow,
+.sectionKicker {
   margin-bottom: 6px;
-  color: var(--teal);
-  font-size: 0.74rem;
+  color: var(--brand-3);
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.sectionKicker {
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus);
 }

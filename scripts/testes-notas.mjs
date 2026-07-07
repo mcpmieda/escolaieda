@@ -3,10 +3,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import {
+  calcularResultadoEstudante,
   calcularResumoGeral,
   classificarMedia,
   filtrarEstudantes,
   listarEstudantesComResumo,
+  resumirComponentes,
+  resumirEtapas,
   resumirTurmas
 } from "../notas/js/domain.js";
 import { demoData } from "../notas/js/demo-data.js";
@@ -53,7 +56,10 @@ const html = ler("notas/index.html");
 conferir(/<script\b[^>]*type=["']module["'][^>]*src=["']js\/app\.js["']/i.test(html), "notas/index.html nao carrega js/app.js como modulo.");
 conferir(/href=["']css\/tokens\.css["']/.test(html), "notas/index.html nao referencia css/tokens.css.");
 conferir(/id=["']view-dashboard["']/.test(html), "view-dashboard nao encontrada.");
+conferir(/id=["']view-banco["']/.test(html), "view-banco nao encontrada.");
 conferir(/id=["']view-estudantes["']/.test(html), "view-estudantes nao encontrada.");
+conferir(/id=["']view-boletins["']/.test(html), "view-boletins nao encontrada.");
+conferir(/id=["']view-relatorios["']/.test(html), "view-relatorios nao encontrada.");
 conferir(/id=["']view-importacoes["']/.test(html), "view-importacoes nao encontrada.");
 
 const demoTexto = ler("notas/js/demo-data.js");
@@ -69,6 +75,8 @@ conferir(classificarMedia(45) === "critico", "Media 45 deveria ser critico.");
 const estudantes = listarEstudantesComResumo(demoData);
 const turmas = resumirTurmas(demoData);
 const resumo = calcularResumoGeral(demoData);
+const componentes = resumirComponentes(demoData, estudantes);
+const etapas = resumirEtapas(demoData.lancamentos);
 const filtrados = filtrarEstudantes(estudantes, {
   busca: "estudante 6a",
   turma: "todas",
@@ -78,9 +86,13 @@ const filtrados = filtrarEstudantes(estudantes, {
 
 conferir(estudantes.length === demoData.estudantes.length, "Resumo de estudantes perdeu registros.");
 conferir(turmas.length === demoData.turmas.length, "Resumo de turmas perdeu registros.");
+conferir(componentes.length === demoData.componentes.length, "Resumo de componentes perdeu registros.");
+conferir(etapas.length === 5, "Resumo de etapas deveria conter trimestres, total e recuperacao.");
 conferir(resumo.totalEstudantes === demoData.estudantes.length, "Resumo geral com total de estudantes incorreto.");
 conferir(filtrados.length > 0, "Filtro de busca nao encontrou estudantes ficticios esperados.");
 conferir(demoData.lancamentos.every((item) => item.origem === "fixture-demo"), "Lancamentos de demo devem estar marcados como fixture-demo.");
+conferir(demoData.componentes.length >= 12, "Fixture deve representar a matriz anual de componentes.");
+conferir(["APROVADO DIRETO", "APROVADO PELA RECUPERAÇÃO", "EM ACOMPANHAMENTO"].includes(calcularResultadoEstudante(estudantes[0])), "Resultado demonstrativo inesperado.");
 
 if (erros.length) {
   console.error("Testes do modulo de notas falharam:");

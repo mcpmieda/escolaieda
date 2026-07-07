@@ -2,41 +2,46 @@
 .primaryButton,
 .secondaryButton,
 .ghostButton,
-.iconButton {
+.iconButton,
+.rowButton {
   min-height: 42px;
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-weight: 800;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .navItem {
   width: 100%;
-  padding: 11px 12px;
-  background: transparent;
-  color: #dce8eb;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #dceae8;
   text-align: left;
+}
+
+.navItem span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navItem:hover,
 .navItem:focus-visible,
 .navItem.active {
-  background: var(--sidebar-soft);
+  background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
-.primaryButton {
-  padding: 10px 15px;
-  background: var(--brand);
-  color: #ffffff;
+.navItem.active {
+  box-shadow: inset 3px 0 0 #9de2d0;
 }
 
-.primaryButton:hover,
-.primaryButton:focus-visible {
-  background: var(--brand-strong);
-}
-
+.primaryButton,
 .secondaryButton,
-.ghostButton {
+.ghostButton,
+.rowButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -44,10 +49,31 @@
   text-decoration: none;
 }
 
+.primaryButton {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.primaryButton:hover,
+.primaryButton:focus-visible {
+  background: var(--brand-2);
+  border-color: var(--brand-2);
+  box-shadow: 0 8px 18px rgba(16, 52, 60, 0.18);
+}
+
 .secondaryButton {
   border-color: var(--line);
   background: #ffffff;
   color: var(--brand);
+}
+
+.secondaryButton:hover,
+.secondaryButton:focus-visible,
+.rowButton:hover,
+.rowButton:focus-visible {
+  background: #eef6f3;
+  border-color: var(--line-strong);
 }
 
 .ghostButton {
@@ -70,33 +96,47 @@
   color: var(--brand);
 }
 
-.systemBanner {
-  margin-bottom: 18px;
-  padding: 14px 16px;
+.syncStrip {
+  margin-bottom: 14px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  border: 1px solid #e4d4aa;
+  border: 1px solid #ead8aa;
   border-radius: var(--radius);
-  background: #fff8e6;
-  color: #554116;
+  background: var(--cream);
+  color: #573c0d;
+  box-shadow: var(--shadow-soft);
 }
 
-.systemBanner strong,
-.systemBanner span {
+.syncStrip strong,
+.syncStrip span {
   display: block;
 }
 
-.systemBanner span {
+.syncStrip span {
   margin-top: 3px;
+}
+
+.sidebarStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.09);
+  color: #dce8eb;
+  font-size: 0.9rem;
 }
 
 .statusDot {
   width: 10px;
   height: 10px;
+  flex: 0 0 auto;
   border-radius: 999px;
-  background: var(--green);
+  background: var(--mint);
 }
 
 .statusDotWarn {
@@ -104,14 +144,14 @@
 }
 
 .statusDotError {
-  background: var(--red);
+  background: var(--coral);
 }
 
 .filtersBar label {
   display: grid;
   gap: 6px;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 800;
 }
 
@@ -126,21 +166,67 @@
   color: var(--ink);
 }
 
+.heroStats article,
 .metricCard,
 .panel,
-.tablePanel {
+.tablePanel,
+.boletimSheet {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 12px 32px rgba(28, 49, 61, 0.08);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-soft);
+}
+
+.heroStats article {
+  min-height: 94px;
+  padding: 13px;
+  display: grid;
+  align-content: space-between;
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.heroStats span {
+  color: #d7e7e5;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.heroStats strong {
+  font-size: 1.65rem;
 }
 
 .metricCard {
-  min-height: 126px;
+  min-height: 124px;
   padding: 16px;
   display: grid;
   align-content: space-between;
   gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.metricCard::before {
+  content: "";
+  width: 6px;
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--brand-3);
+}
+
+.metricCard.accentBlue::before {
+  background: var(--blue);
+}
+
+.metricCard.accentAmber::before {
+  background: var(--amber);
+}
+
+.metricCard.accentCoral::before {
+  background: var(--coral);
 }
 
 .metricCard span {
@@ -149,8 +235,8 @@
 }
 
 .metricCard strong {
-  font-size: 2rem;
   color: var(--brand);
+  font-size: 2rem;
 }
 
 .metricCard small {
@@ -158,7 +244,9 @@
 }
 
 .panel,
-.tablePanel {
+.tablePanel,
+.boletimSheet {
+  min-width: 0;
   padding: 18px;
 }
 
@@ -170,54 +258,134 @@
   gap: 12px;
 }
 
+.panelHeader.tight {
+  margin-top: 16px;
+}
+
 .panelHeader h2 {
-  margin-bottom: 4px;
-  font-size: 1.14rem;
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-size: 1.12rem;
 }
 
-.panelHeader p {
-  margin-bottom: 0;
-  color: var(--muted);
+.panelDivider {
+  height: 1px;
+  margin: 16px 0 4px;
+  background: var(--line);
 }
 
+.heatList,
 .turmaList,
 .timeline,
-.importList,
+.stageGrid,
+.areaList,
+.studentSnapshot,
+.boletimQueue,
+.chartList,
 .issueList,
+.ataGrid,
+.importList,
 .structureList,
 .detailContent {
   display: grid;
   gap: 10px;
 }
 
+.heatRow,
 .turmaCard,
 .timelineItem,
-.importItem,
+.stageCard,
+.areaCard,
+.queueItem,
+.chartRow,
 .issueItem,
+.ataCard,
+.importItem,
 .structureItem,
-.studentMiniCard {
+.studentMiniCard,
+.snapshotCard {
   padding: 13px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface-soft);
+  background: var(--surface-tint);
+}
+
+.heatRow {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.8fr) minmax(220px, 1.2fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.heatMeta strong,
+.turmaCard strong,
+.timelineItem strong,
+.areaCard strong,
+.queueItem strong,
+.issueItem strong,
+.ataCard strong,
+.importItem strong {
+  color: var(--brand);
+  overflow-wrap: anywhere;
+}
+
+.timelineItem p,
+.importItem p,
+.issueItem p,
+.queueItem p,
+.studentMiniCard p {
+  overflow-wrap: anywhere;
+}
+
+.heatTrack,
+.progressTrack,
+.chartTrack {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dce9e5;
+}
+
+.heatBar,
+.progressBar,
+.chartBar {
+  width: var(--progress);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mint);
+}
+
+.heatBar.warn,
+.chartBar.warn,
+.progressBar.warn {
+  background: var(--amber);
+}
+
+.heatBar.error,
+.chartBar.error,
+.progressBar.error {
+  background: var(--coral);
 }
 
 .turmaCard {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: 10px;
-  align-items: center;
 }
 
-.turmaCard strong,
-.timelineItem strong,
-.importItem strong,
-.issueItem strong {
+.stageGrid {
+  grid-template-columns: repeat(5, minmax(130px, 1fr));
+}
+
+.stageCard {
+  min-height: 118px;
+  display: grid;
+  align-content: space-between;
+}
+
+.stageCard strong {
+  font-size: 1.55rem;
   color: var(--brand);
-}
-
-.muted {
-  color: var(--muted);
 }
 
 .chipRow {
@@ -233,7 +401,7 @@
   padding: 4px 8px;
   border-radius: 999px;
   background: #e9f4f1;
-  color: var(--teal);
+  color: var(--mint);
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -245,7 +413,7 @@
 
 .chip.error {
   background: #fde9e6;
-  color: var(--red);
+  color: var(--coral);
 }
 
 .chip.info {
@@ -253,17 +421,9 @@
   color: var(--blue);
 }
 
-.progressTrack {
-  height: 8px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #dde8e5;
-}
-
-.progressBar {
-  height: 100%;
-  width: var(--progress);
-  background: var(--teal);
+.chip.violet {
+  background: #eeedfb;
+  color: var(--violet);
 }
 
 .responsiveTable {
@@ -272,7 +432,7 @@
 
 table {
   width: 100%;
-  min-width: 720px;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
@@ -286,7 +446,7 @@ td {
 
 th {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
 }
 
@@ -297,11 +457,71 @@ td {
 .rowButton {
   min-height: 34px;
   padding: 7px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-color: var(--line);
   background: #ffffff;
   color: var(--brand);
+}
+
+.areaCard,
+.chartRow,
+.ataCard {
+  display: grid;
+  gap: 8px;
+}
+
+.areaCard header,
+.chartRow header,
+.ataCard header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.boletimSheet {
+  background:
+    linear-gradient(180deg, #ffffff 0, #ffffff 72%, #f6faf8 100%);
+}
+
+.boletimTop {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  border-bottom: 2px solid var(--brand);
+}
+
+.boletimTop h2 {
+  margin-bottom: 4px;
+  font-size: 1.5rem;
+}
+
+.boletimSeal {
+  min-width: 124px;
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-tint);
+  color: var(--brand);
   font-weight: 800;
+  text-align: center;
+}
+
+.boletimTable table {
+  min-width: 680px;
+}
+
+.snapshotCard {
+  display: grid;
+  gap: 4px;
+}
+
+.snapshotCard strong {
+  color: var(--brand);
+  font-size: 1.4rem;
 }
 
 .statusList {
@@ -317,7 +537,7 @@ td {
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface-soft);
+  background: var(--surface-tint);
 }
 
 .statusList dt {
@@ -329,14 +549,19 @@ td {
   margin: 0;
 }
 
-@media (max-width: 660px) {
-  .systemBanner,
-  .turmaCard,
+@media (max-width: 760px) {
+  .syncStrip,
+  .heatRow,
+  .boletimTop,
   .statusList div {
     grid-template-columns: 1fr;
   }
 
-  .systemBanner {
+  .syncStrip {
     align-items: stretch;
+  }
+
+  .stageGrid {
+    grid-template-columns: 1fr;
   }
 }
