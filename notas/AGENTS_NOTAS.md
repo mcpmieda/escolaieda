@@ -563,6 +563,7 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 - [x] criar ferramenta local para preparar uma cópia controlada com `TB_EXPORT_NOTAS`;
 - [x] preparar uma cópia controlada em pasta OneDrive de POC;
 - [x] comprovar leitura online de `TB_EXPORT_NOTAS` em `.xlsb` pela Microsoft Graph Workbook API;
+- [x] inventariar ambiente Power Automate, conector Excel Online (Business) e conexões existentes;
 - [ ] confirmar no tenant que a cópia de POC está disponível para o conector Excel Online (Business);
 - [ ] comprovar leitura online de `TB_EXPORT_NOTAS` pelo conector Excel Online (Business);
 - medir latência e limites no tenant A1;
@@ -623,6 +624,7 @@ O projeto só poderá ser considerado concluído quando:
 ## 17. Pendências que bloqueiam a implementação real
 
 - executar a POC final pelo conector Excel Online (Business), pois a leitura online por Microsoft Graph Workbook API já foi comprovada em `.xlsb`;
+- criar/autorizar uma conexão `Excel Online (Business)` no ambiente padrão do Power Automate;
 - confirmar no tenant que o conector Excel Online (Business) lista e lê `TB_EXPORT_NOTAS` dentro de `.xlsb`;
 - executar o teste Power Automate descrito em `POC_EXCEL_ONLINE_2026.md` usando cópia fora do repositório;
 - se `.xlsb` falhar, testar uma cópia `.xlsm` informada por identificador de arquivo, sem converter os originais;
@@ -657,6 +659,29 @@ Ao concluir:
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
 ## 19. Registro de continuidade
+
+### 07/07/2026 — investigação Power Automate e conexão Excel
+
+- Usuário autorizou uma etapa longa com subetapas internas e commits frequentes.
+- Commit criado antes desta investigação: `0682f22` (`Adiciona POC online de exportacao de notas`), contendo documentação da POC Graph e scripts de preparação/verificação online.
+- Foram instalados em escopo `CurrentUser` os módulos oficiais:
+  - `Microsoft.PowerApps.Administration.PowerShell` 2.0.217;
+  - `Microsoft.PowerApps.PowerShell` 1.0.45.
+- A instalação em Windows PowerShell 5.1 exigiu instalar primeiro o provider NuGet `2.8.5.201`; `pwsh` 7 não é o caminho recomendado para esses módulos.
+- `Add-PowerAppsAccount -Endpoint prod -TenantID ...` autenticou e listou o ambiente padrão `ESCOLA IÊDA ALVES DE OLIVEIRA (default)`.
+- `Get-FlowEnvironment` localizou `Default-f04e0fa3-b8dc-4f77-be3c-7dfda0635188` em `southamerica`.
+- `Get-PowerAppConnector -ConnectorName shared_excelonlinebusiness -ReturnConnectorSwagger` confirmou:
+  - conector `Excel Online (Business)`;
+  - tier `Standard`;
+  - operação `GetTables` para `Get tables`;
+  - operação `GetItems` para `List rows present in a table`;
+  - runtime em Azure API Hub Brasil.
+- `Get-PowerAppConnection` encontrou apenas conexão OneDrive for Business da conta administrativa; nenhuma conexão `shared_excelonlinebusiness` existia.
+- `Get-Flow` e `Get-AdminFlow` não retornaram flows existentes no ambiente padrão.
+- Foi criada a ferramenta `scripts/verificar-power-automate-notas.ps1` para diagnosticar módulos, ambiente, conector, operações necessárias e existência da conexão Excel.
+- A página de conexões do Power Automate foi aberta pelo navegador, mas durante a janela de monitoramento a conexão `shared_excelonlinebusiness` não apareceu.
+- Conclusão real: a prova final do conector Power Automate está bloqueada somente pela ausência de conexão OAuth `Excel Online (Business)`. Após criar/autorizar essa conexão no portal, repetir `scripts/verificar-power-automate-notas.ps1` e então executar o fluxo temporário com `Get tables`/`List rows present in a table`.
+- Não criar Dataverse solution/cloud flow por API nesta fase apenas para contornar a UI: é mais pesado que a prova necessária e aumentaria o risco operacional sem ganho proporcional.
 
 ### 07/07/2026 — leitura online por Graph e correção da POC
 

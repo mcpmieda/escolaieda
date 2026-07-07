@@ -54,6 +54,36 @@ Esse teste comprova leitura online pela Microsoft Graph Workbook API. Ele não s
 
 Criar um fluxo manual temporário, preferencialmente no ambiente padrão e com uma conta institucional autorizada.
 
+Antes do fluxo, verificar o estado do ambiente e da conexão:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\scripts\verificar-power-automate-notas.ps1
+```
+
+Se os módulos oficiais ainda não existirem na máquina:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\scripts\verificar-power-automate-notas.ps1 -InstallModules
+```
+
+Para abrir a página de conexões e monitorar por quatro minutos:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\scripts\verificar-power-automate-notas.ps1 -OpenConnectionsPage -PollSeconds 240
+```
+
+Resultado conhecido em 07/07/2026:
+
+- ambiente padrão localizado: `Default-f04e0fa3-b8dc-4f77-be3c-7dfda0635188`;
+- conector `shared_excelonlinebusiness` confirmado como Standard;
+- operações necessárias confirmadas no swagger do tenant:
+  - `GetTables` — `Get tables`;
+  - `GetItems` — `List rows present in a table`;
+- nenhuma conexão `shared_excelonlinebusiness` estava criada no ambiente;
+- só havia conexão OneDrive for Business da conta administrativa;
+- nenhum flow existente foi retornado pelos cmdlets `Get-Flow`/`Get-AdminFlow`;
+- portanto, o teste final continua bloqueado até criar/autorizar a conexão Excel Online (Business).
+
 ## Execução local registrada
 
 Em 07/07/2026, o script foi executado em uma agenda piloto menor, fora do repositório Git, na pasta OneDrive institucional `_POC_NOTAS_EXPORT_2026`.
@@ -123,6 +153,22 @@ A POC deve ser considerada aprovada tecnicamente somente se:
 ### PnP pede Client ID
 
 `Connect-PnPOnline -Interactive` sem `ClientId` falha nas versões atuais do PnP.PowerShell. Usar o `ClientId` e `TenantId` já documentados no projeto, com `-PersistLogin`.
+
+### Cmdlets Power Platform exigem Windows PowerShell
+
+Os módulos `Microsoft.PowerApps.Administration.PowerShell` e `Microsoft.PowerApps.PowerShell` funcionaram em Windows PowerShell 5.1. Não usar `pwsh` 7 para essa etapa; executar por `powershell.exe`.
+
+### NuGet provider ausente
+
+Em Windows PowerShell 5.1, `Install-Module` pode falhar pedindo NuGet `2.8.5.201`. O script `verificar-power-automate-notas.ps1 -InstallModules` instala o provider e os módulos em `CurrentUser`.
+
+### Módulos não criam conexão OAuth do Excel
+
+Os cmdlets oficiais listam ambientes, conectores, conexões e flows, mas não oferecem `New-Flow`/`New-Connection` simples para essa prova. A conexão `Excel Online (Business)` precisa ser criada/consentida no portal Power Automate antes de testar `Get tables` e `List rows`.
+
+### Avisos de verbos não aprovados
+
+Os módulos Power Platform emitem avisos sobre verbos PowerShell não aprovados ao importar. Esses avisos não indicam falha de autenticação nem problema no ambiente.
 
 ### Login interativo cai na conta errada
 
