@@ -90,10 +90,12 @@ conferir(appTexto.includes("movementClassPanelTitle"), "Estatisticas deve atuali
 conferir(appTexto.includes("enhanceStatsSelects"), "Estatisticas deve substituir o select nativo por seletor customizado sincronizado.");
 conferir(appTexto.includes("openStatsSelect") && appTexto.includes("chooseStatsSelectOption"), "Seletor customizado de Estatisticas deve abrir e sincronizar opcoes.");
 conferir(appTexto.includes("statsSelectOptionMeta"), "Seletor customizado deve esconder codigos tecnicos como T1/T2/GERAL na descricao visual.");
+conferir(appTexto.includes("statsSelectIconName") && appTexto.includes("calendar"), "Seletores de Estatisticas devem renderizar icones de turma e periodo.");
 conferir(appTexto.includes("renderGlobalSearchResults") && appTexto.includes("closeGlobalSearchResults"), "Busca global deve usar painel proprio e fechar ao clicar fora.");
 conferir(appTexto.includes("somaPeriodoEstudante") && appTexto.includes("formatarSomaPontuacao"), "Estatisticas deve ranquear e exibir pontuacao por soma.");
 conferir(appTexto.includes("MÉDIA DA TURMA") && appTexto.includes("mediaTurma") && appTexto.includes("NOTAS AZUIS") && appTexto.includes("NOTAS VERMELHAS"), "Estatisticas deve usar notas azuis/vermelhas e media real da turma.");
 conferir(appTexto.includes("alunosVermelhos") && appTexto.includes("Relatório da disciplina"), "Clique em disciplina deve abrir relatorio de notas vermelhas.");
+conferir(appTexto.includes("calcularMaxEixoMovimento"), "Grafico de Estatisticas deve escalar o eixo pelo maior valor real do recorte.");
 conferir(!appTexto.includes("VER TOP 10 POR SOMA") && !appTexto.includes("SOMA DO RECORTE") && !appTexto.includes("ⓘ"), "Estatisticas nao deve manter textos antigos sem funcao.");
 conferir(appTexto.includes("imprimirRelatorioMovimento") && appTexto.includes('printView = "movimento"'), "Botao de impressao de Estatisticas deve imprimir a propria aba.");
 conferir(!appTexto.includes("movimentoAtualizacaoPadrao"), "Rodape de Estatisticas nao deve depender de data demonstrativa fixa.");
@@ -111,11 +113,13 @@ conferir(cssTokens.includes("--motion-standard") && cssTokens.includes("--motion
 conferir(cssBase.includes("@media (prefers-reduced-motion: reduce)"), "Modulo deve respeitar prefers-reduced-motion.");
 conferir(cssComponentes.includes(".statsSelectMenu") && cssComponentes.includes(".statsSelectOption"), "Seletor customizado de Estatisticas deve ter menu proprio.");
 conferir(cssComponentes.includes(".searchResultsPanel") && cssComponentes.includes("@keyframes searchResultsEnter"), "Busca global deve ter painel animado de resultados.");
+conferir(cssComponentes.includes("@keyframes profileMenuEnter"), "Menu de perfil deve ter entrada visual normalizada.");
+conferir(cssComponentes.includes(".statsSelectButton .movementIcon"), "Seletores de Estatisticas devem exibir icones no proprio controle.");
 conferir(cssComponentes.includes(".studentPhotoAvatar") && cssComponentes.includes(".rankingList.is-expanded"), "Ranking deve usar fotos ficticias e expansao interna.");
 conferir(cssComponentes.includes("scrollbar-gutter: stable"), "Ranking expandido deve reservar gutter para evitar deslocamento ao mostrar rolagem.");
 conferir(cssComponentes.includes("@keyframes statsBarGrow") && cssComponentes.includes("@keyframes donutBreathe"), "Graficos de Estatisticas devem ter animacoes de entrada e movimento leve.");
 conferir(cssComponentes.includes("@keyframes blueBarFlow") && cssComponentes.includes("@keyframes redBarFlow"), "Barras de Estatisticas devem ter transicao lenta de cor.");
-conferir(cssComponentes.includes("@keyframes donutGlowFlow"), "Donut de Estatisticas deve ter movimento de cor/profundidade sem girar o percentual.");
+conferir(cssComponentes.includes("@keyframes donutToneFlow"), "Donut de Estatisticas deve alternar tons no anel sem girar o percentual.");
 conferir(!/@keyframes donutBreathe[\s\S]*?rotate\s*:/m.test(cssComponentes), "Percentual do donut de Estatisticas nao deve girar.");
 conferir(cssComponentes.includes('body[data-theme="claro"][data-view="movimento"]') && cssComponentes.includes('body[data-theme="mono"][data-view="movimento"]'), "Temas claro e mono devem ter acabamento especifico em Estatisticas.");
 conferir(cssComponentes.includes(".notesTable"), "Estilo da tabela de notas nao encontrado.");

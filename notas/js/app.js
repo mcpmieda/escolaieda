@@ -420,13 +420,15 @@ function enhanceStatsSelects() {
     button.setAttribute("aria-haspopup", "listbox");
     button.setAttribute("aria-expanded", "false");
     button.setAttribute("aria-controls", menuId);
-    appendText(button, "strong", "", "statsSelectValue");
-    appendText(button, "span", label, "statsSelectCaption");
+    button.append(movementIcon(statsSelectIconName(select)));
+    const text = element("span", "statsSelectText");
+    appendText(text, "strong", "", "statsSelectValue");
+    appendText(text, "span", label, "statsSelectCaption");
     const chevron = element("i", "statsSelectChevron");
     chevron.setAttribute("aria-hidden", "true");
     const glow = element("i", "statsSelectGlow");
     glow.setAttribute("aria-hidden", "true");
-    button.append(chevron, glow);
+    button.append(text, chevron, glow);
 
     const menu = element("div", "statsSelectMenu");
     menu.id = menuId;
@@ -489,6 +491,10 @@ function statsSelectOptionMeta(select, option) {
     return option.value === "geral" ? "ano letivo completo" : "período letivo";
   }
   return option.value === "todas" ? "recorte completo" : "turma individual";
+}
+
+function statsSelectIconName(select) {
+  return select.id === "movimentoPeriodo" ? "calendar" : "users";
 }
 
 function syncStatsSelect(select) {
@@ -677,7 +683,7 @@ function criarRecorteMovimento() {
     somaRecorte,
     mediaTurma,
     atualizado,
-    maxEixo: Math.max(25, Math.ceil(Math.max(1, totalAlunos) / 5) * 5)
+    maxEixo: calcularMaxEixoMovimento(componentesResumo)
   };
 }
 
@@ -911,7 +917,8 @@ function movementIcon(name) {
     letters: '<path d="M4 18 9 6l5 12"></path><path d="M6 14h6"></path><path d="M16 18V9"></path><path d="M16 9h4"></path><path d="M16 13h3"></path>',
     pencil: '<path d="m4 20 4-1 11-11-3-3L5 16z"></path><path d="m14 6 3 3"></path>',
     scales: '<path d="M12 3v18"></path><path d="M5 6h14"></path><path d="m6 6-3 7h6z"></path><path d="m18 6-3 7h6z"></path>',
-    monitor: '<rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path>'
+    monitor: '<rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path>',
+    calendar: '<path d="M8 2v4"></path><path d="M16 2v4"></path><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path>'
   };
   const icon = element("span", `movementIcon ${name}`);
   icon.setAttribute("aria-hidden", "true");
@@ -1280,6 +1287,11 @@ function criarEscalaEixo(maximo) {
   const base = Math.max(5, Number(maximo) || 25);
   const passo = base / 5;
   return Array.from({ length: 6 }, (_, index) => Math.round(base - passo * index));
+}
+
+function calcularMaxEixoMovimento(componentesResumo) {
+  const maiorValor = componentesResumo.reduce((maior, componente) => Math.max(maior, componente.acima, componente.abaixo), 0);
+  return Math.max(5, Math.ceil(Math.max(1, maiorValor) / 5) * 5);
 }
 
 function formatarDataHoraMovimento(value) {

@@ -346,13 +346,18 @@ option {
   right: 0;
   top: calc(100% + 6px);
   width: 210px;
-  padding: 8px;
+  padding: 9px;
   display: grid;
   gap: 5px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface-strong);
-  box-shadow: var(--shadow-soft);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.055), transparent 42%),
+    var(--surface-strong);
+  box-shadow: var(--shadow-lifted);
+  backdrop-filter: blur(22px);
+  transform-origin: top right;
+  animation: profileMenuEnter 240ms var(--motion-emphasis) both;
   z-index: 20;
 }
 
@@ -366,11 +371,15 @@ option {
   color: var(--ink);
   text-align: left;
   text-decoration: none;
+  transition: transform var(--motion-quick), background var(--motion-quick), color var(--motion-quick);
 }
 
 .profileMenu a:hover,
-.profileMenu button:hover {
+.profileMenu a:focus-visible,
+.profileMenu button:hover,
+.profileMenu button:focus-visible {
   background: var(--surface-soft);
+  transform: translateX(2px);
 }
 
 .profileThemePanel .themeDot {
@@ -1745,8 +1754,9 @@ body[data-view="movimento"] .statsSelectButton {
   min-height: 82px;
   padding: 17px 56px 14px 20px;
   display: grid;
-  align-content: center;
-  gap: 7px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
   border: 0;
   border-radius: 12px;
   background:
@@ -1757,9 +1767,28 @@ body[data-view="movimento"] .statsSelectButton {
   overflow: hidden;
 }
 
-body[data-view="movimento"] .statsSelectButton strong {
+body[data-view="movimento"] .statsSelectButton .movementIcon {
   position: relative;
   z-index: 1;
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  border: 1px solid rgba(126, 177, 255, 0.24);
+  border-radius: 12px;
+  background: rgba(76, 155, 255, 0.12);
+  color: #8fc1ff;
+  filter: none;
+}
+
+body[data-view="movimento"] .statsSelectText {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+
+body[data-view="movimento"] .statsSelectButton strong {
   max-width: 100%;
   overflow: hidden;
   color: var(--stats-ink, #f8fbff);
@@ -1772,8 +1801,6 @@ body[data-view="movimento"] .statsSelectButton strong {
 }
 
 body[data-view="movimento"] .statsSelectCaption {
-  position: relative;
-  z-index: 1;
   color: var(--stats-muted, rgba(205, 221, 244, 0.82));
   font-size: 0.86rem;
 }
@@ -1954,10 +1981,10 @@ body[data-view="movimento"] .statsIntroBlock p {
 body[data-view="movimento"] .movementStatCard {
   height: 100%;
   min-height: 118px;
-  padding: 22px 13px;
+  padding: 20px 15px;
   display: grid;
-  grid-template-columns: 26px minmax(0, 1fr);
-  gap: 9px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 11px;
   align-items: center;
 }
 
@@ -1977,17 +2004,19 @@ body[data-view="movimento"] .movementStatCard .movementIcon.star {
 body[data-view="movimento"] .movementStatBody span {
   display: block;
   color: rgba(215, 226, 243, 0.86);
-  font-size: 0.62rem;
-  font-weight: 800;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.15;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 body[data-view="movimento"] .movementStatValue {
-  margin-top: 17px;
+  margin-top: 14px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 body[data-view="movimento"] .movementStatValue strong {
@@ -2026,6 +2055,15 @@ body[data-view="movimento"] .movementIcon {
   flex: 0 0 auto;
   border-radius: 10px;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.22));
+}
+
+body[data-view="movimento"] .movementStatCard .movementIcon {
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.055);
+  filter: none;
 }
 
 body[data-view="movimento"] .movementIcon svg {
@@ -2070,14 +2108,14 @@ body[data-view="movimento"] .statsPanelTitle h3 {
 
 body[data-view="movimento"] .rankingList {
   gap: 0;
-  min-height: 0;
-  max-height: 164px;
+  height: 164px;
+  min-height: 164px;
   overflow-x: hidden;
   overflow-y: hidden;
   overscroll-behavior: contain;
-  padding-right: 4px;
+  padding-right: 10px;
   scrollbar-color: rgba(126, 177, 255, 0.72) rgba(255, 255, 255, 0.06);
-  scrollbar-gutter: stable;
+  scrollbar-gutter: stable both-edges;
 }
 
 body[data-view="movimento"] .rankingList.is-expanded {
@@ -2121,6 +2159,8 @@ body[data-view="movimento"] .rankingItem.rankingExtra {
 
 body[data-view="movimento"] .rankingList.is-expanded .rankingItem.rankingExtra {
   display: grid;
+  animation: rankingExtraReveal 300ms var(--motion-emphasis) both;
+  animation-delay: calc((var(--rank-index) - 3) * 30ms);
 }
 
 body[data-view="movimento"] .rankingItem:hover {
@@ -2215,15 +2255,15 @@ body[data-view="movimento"] .legendDot {
   height: 13px;
   display: inline-block;
   border-radius: 999px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 0 14px currentColor;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 2px 7px rgba(0, 0, 0, 0.16);
 }
 
 body[data-view="movimento"] .legendDot.blue {
-  background: #266dff;
+  background: linear-gradient(145deg, #5aa8ff, #246dff);
 }
 
 body[data-view="movimento"] .legendDot.red {
-  background: #ff344c;
+  background: linear-gradient(145deg, #ff8491, #e3263a);
 }
 
 body[data-view="movimento"] .movementChart {
@@ -2348,11 +2388,11 @@ body[data-view="movimento"] .barPair i.isZero::before {
 }
 
 body[data-view="movimento"] .barBlue {
-  background: linear-gradient(180deg, #74c1ff 0%, #236bff 34%, #1156d6 62%, #66b8ff 100%);
-  background-size: 100% 260%;
-  box-shadow: 0 0 18px rgba(54, 123, 255, 0.25);
+  background: linear-gradient(180deg, #87ceff 0%, #3f8dff 24%, #1767ee 48%, #65b6ff 72%, #1459df 100%);
+  background-size: 100% 340%;
+  box-shadow: 0 8px 20px rgba(16, 69, 151, 0.18);
   animation-name: statsBarGrow, statsBarBreathe, blueBarFlow;
-  animation-duration: 760ms, 6.4s, 5.8s;
+  animation-duration: 760ms, 6.4s, 9.8s;
   animation-timing-function: var(--motion-emphasis), ease-in-out, ease-in-out;
   animation-iteration-count: 1, infinite, infinite;
   animation-delay:
@@ -2363,11 +2403,11 @@ body[data-view="movimento"] .barBlue {
 
 body[data-view="movimento"] .barRed {
   width: 18px;
-  background: linear-gradient(180deg, #ff9baa 0%, #ff3650 34%, #c90f28 66%, #ff7b8f 100%);
-  background-size: 100% 260%;
-  box-shadow: 0 0 18px rgba(255, 69, 89, 0.20);
+  background: linear-gradient(180deg, #ffabb5 0%, #ff5268 24%, #d81d34 50%, #ff8495 74%, #b91227 100%);
+  background-size: 100% 340%;
+  box-shadow: 0 8px 20px rgba(124, 18, 36, 0.16);
   animation-name: statsBarGrow, statsBarBreathe, redBarFlow;
-  animation-duration: 760ms, 6.4s, 6.2s;
+  animation-duration: 760ms, 6.4s, 10.6s;
   animation-timing-function: var(--motion-emphasis), ease-in-out, ease-in-out;
   animation-iteration-count: 1, infinite, infinite;
   animation-delay:
@@ -2437,19 +2477,16 @@ body[data-view="movimento"] .donutMeter {
   width: min(277px, 100%);
   margin: 0 auto;
   background:
-    radial-gradient(circle at 47% 42%, rgba(255, 255, 255, 0.10) 0 8%, transparent 9%),
-    radial-gradient(circle, #0a2548 0 47%, rgba(255, 255, 255, 0.08) 48%, transparent 50%),
-    conic-gradient(from -126deg, #f03048 0 calc(100% - var(--percent)), #236bff calc(100% - var(--percent)) 100%);
+    radial-gradient(circle, #0a2548 0 49%, rgba(10, 37, 72, 0.64) 50%, transparent 51%);
   transform-origin: center;
   animation:
     donutEnter 780ms var(--motion-emphasis) both,
     donutBreathe 7.4s ease-in-out infinite;
   animation-delay: 260ms, 1300ms;
   box-shadow:
-    inset -18px -22px 30px rgba(0, 0, 0, 0.24),
-    inset 12px 14px 26px rgba(255, 255, 255, 0.10),
-    0 24px 52px rgba(0, 0, 0, 0.24),
-    0 0 34px rgba(35, 107, 255, 0.16);
+    inset -14px -18px 26px rgba(0, 0, 0, 0.22),
+    inset 10px 12px 22px rgba(255, 255, 255, 0.07),
+    0 18px 42px rgba(0, 0, 0, 0.22);
 }
 
 body[data-view="movimento"] .donutMeter::before,
@@ -2461,27 +2498,30 @@ body[data-view="movimento"] .donutMeter::after {
 }
 
 body[data-view="movimento"] .donutMeter::before {
-  inset: -13px;
-  z-index: -1;
-  background: conic-gradient(from -126deg, rgba(255, 52, 76, 0.52), rgba(35, 107, 255, 0.68), rgba(255, 52, 76, 0.52));
-  filter: blur(18px) saturate(1.12);
-  opacity: 0.46;
-  animation: donutGlowFlow 7.2s ease-in-out infinite;
+  inset: 0;
+  z-index: 0;
+  background: conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #236bff calc(100% - var(--percent)) 100%);
+  filter: saturate(1.05) brightness(1);
+  opacity: 0.96;
+  -webkit-mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
+  mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
+  animation: donutToneFlow 10.8s ease-in-out infinite;
 }
 
 body[data-view="movimento"] .donutMeter::after {
-  inset: 9px;
-  z-index: 0;
+  inset: 0;
+  z-index: 1;
   background:
-    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.18), transparent 26%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 42%);
-  mix-blend-mode: screen;
-  opacity: 0.52;
+    radial-gradient(circle at 32% 20%, rgba(255, 255, 255, 0.12), transparent 25%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 46%);
+  opacity: 0.42;
+  -webkit-mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
+  mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
 }
 
 body[data-view="movimento"] .donutMeter strong {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   color: #f9fcff;
   transform: translateY(-13px);
   font-size: 3.12rem;
@@ -2490,7 +2530,7 @@ body[data-view="movimento"] .donutMeter strong {
 
 body[data-view="movimento"] .donutMeter span {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 145px;
   transform: translateY(42px);
   color: #f4f8ff;
@@ -2648,9 +2688,11 @@ body[data-theme="claro"][data-view="movimento"] .barPair i::before {
 
 body[data-theme="claro"][data-view="movimento"] .donutMeter {
   background:
-    radial-gradient(circle at 47% 42%, rgba(18, 105, 211, 0.10) 0 8%, transparent 9%),
-    radial-gradient(circle, rgba(255, 255, 255, 0.94) 0 47%, rgba(18, 105, 211, 0.08) 48%, transparent 50%),
-    conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #1269d3 calc(100% - var(--percent)) 100%);
+    radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 49%, rgba(18, 105, 211, 0.08) 50%, transparent 51%);
+}
+
+body[data-theme="claro"][data-view="movimento"] .donutMeter::before {
+  background: conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #1269d3 calc(100% - var(--percent)) 100%);
 }
 
 body[data-theme="claro"][data-view="movimento"] .donutMeter span,
@@ -2670,15 +2712,18 @@ body[data-theme="mono"][data-view="movimento"] .statsPrintButton {
 }
 
 body[data-theme="mono"][data-view="movimento"] .barBlue {
-  background: linear-gradient(180deg, #e9edf5 0%, #aeb6c4 45%, #737b89 72%, #f7f8fb 100%);
+  background: linear-gradient(180deg, #f7f8fb 0%, #c5cbd6 24%, #838b99 48%, #e9edf5 72%, #727a87 100%);
+  background-size: 100% 340%;
   box-shadow: 0 0 18px rgba(247, 248, 251, 0.16);
 }
 
 body[data-theme="mono"][data-view="movimento"] .donutMeter {
   background:
-    radial-gradient(circle at 47% 42%, rgba(255, 255, 255, 0.08) 0 8%, transparent 9%),
-    radial-gradient(circle, #15171d 0 47%, rgba(255, 255, 255, 0.07) 48%, transparent 50%),
-    conic-gradient(from -126deg, #c34958 0 calc(100% - var(--percent)), #d8dce6 calc(100% - var(--percent)) 100%);
+    radial-gradient(circle, #15171d 0 49%, rgba(255, 255, 255, 0.06) 50%, transparent 51%);
+}
+
+body[data-theme="mono"][data-view="movimento"] .donutMeter::before {
+  background: conic-gradient(from -126deg, #c34958 0 calc(100% - var(--percent)), #d8dce6 calc(100% - var(--percent)) 100%);
 }
 
 @keyframes statsRiseIn {
@@ -2702,6 +2747,20 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter {
     opacity: 0;
     transform: translateY(-8px) scale(0.96);
     filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes profileMenuEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.965);
+    filter: blur(9px);
   }
 
   to {
@@ -2766,6 +2825,18 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter {
   }
 }
 
+@keyframes rankingExtraReveal {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
 @keyframes statsBarGrow {
   from {
     opacity: 0;
@@ -2792,22 +2863,22 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter {
 @keyframes blueBarFlow {
   0%,
   100% {
-    background-position: 50% 0%;
+    background-position: 50% 8%;
   }
 
   50% {
-    background-position: 50% 100%;
+    background-position: 50% 82%;
   }
 }
 
 @keyframes redBarFlow {
   0%,
   100% {
-    background-position: 50% 100%;
+    background-position: 50% 82%;
   }
 
   50% {
-    background-position: 50% 0%;
+    background-position: 50% 12%;
   }
 }
 
@@ -2848,18 +2919,14 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter {
   }
 }
 
-@keyframes donutGlowFlow {
+@keyframes donutToneFlow {
   0%,
   100% {
-    opacity: 0.34;
-    scale: 0.985;
-    filter: blur(18px) saturate(1.02);
+    filter: saturate(1.02) brightness(0.98) hue-rotate(0deg);
   }
 
   50% {
-    opacity: 0.62;
-    scale: 1.025;
-    filter: blur(20px) saturate(1.32);
+    filter: saturate(1.18) brightness(1.06) hue-rotate(8deg);
   }
 }
 
