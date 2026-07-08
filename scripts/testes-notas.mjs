@@ -69,6 +69,7 @@ conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontr
 conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao encontrado.");
 
 const appTexto = ler("notas/js/app.js");
+const cssLayouts = ler("notas/css/layouts.css");
 const cssComponentes = ler("notas/css/componentes.css");
 conferir(appTexto.includes("renderMovimento"), "renderMovimento nao encontrado em app.js.");
 conferir(appTexto.includes("renderNotesTable"), "renderNotesTable nao encontrado em app.js.");
@@ -82,6 +83,8 @@ conferir(cssComponentes.includes(".a4Sheet"), "Estilo da folha A4 nao encontrado
 conferir(cssComponentes.includes(".miniBoletim"), "Estilo do mini boletim nao encontrado.");
 conferir(cssComponentes.includes("grid-template-rows: repeat(4, 1fr)"), "Boletim deve usar quatro faixas horizontais na folha A4.");
 conferir(cssComponentes.includes(".studentPeek"), "Estilo da previa de aluno nao encontrado.");
+conferir(cssLayouts.includes(".appRail"), "Menu lateral compacto nao encontrado no layout.");
+conferir(!/body\[data-view=["']movimento["']\]\s+\.appRail[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "A aba Estatisticas nao deve esconder o menu lateral compacto.");
 
 const demoTexto = ler("notas/js/demo-data.js");
 const termosProibidos = ["ALICE", "AMANDA", "ROSE MARCIA", "CPF", "INEP"];

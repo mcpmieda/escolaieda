@@ -4,7 +4,7 @@
 >
 > Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta foi reativada nessa view após o responsável apontar que ela fazia parte do projeto. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas`. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
+Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas`. O menu lateral compacto é parte obrigatória do shell do módulo e deve permanecer visível no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -691,6 +691,33 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 08/07/2026 — reativação do menu lateral em Estatísticas
+
+- Responsável informou que a aba `Estatísticas` ficou visualmente fiel ao `anexo 7.png`, mas perdeu as abas laterais esquerdas.
+- Foram relidos os documentos estruturantes do repositório e do módulo de notas:
+  - `AGENTS.md` da raiz;
+  - `README.md` da raiz;
+  - `notas/AGENTS.md`;
+  - `notas/AGENTS_NOTAS.md`;
+  - `notas/ANALISE_PLANILHAS_2026.md`;
+  - `notas/POC_EXCEL_ONLINE_2026.md`;
+  - READMEs de assets do Arquivo Digital, apenas para confirmar limites de escopo.
+- Conclusão de contexto: o menu lateral compacto faz parte do shell aprovado do módulo `/notas/`; a fidelidade ao anexo 7 deve ser aplicada ao conteúdo da aba, sem remover a navegação principal do sistema.
+- Causa do problema: o CSS específico de `body[data-view="movimento"]` estava transformando `.appShell` em bloco e escondendo `.appRail` junto com `.systemBar`.
+- Correção aplicada em `notas/css/layouts.css`:
+  - removido o override que transformava `.appShell` em `display: block` na view `movimento`;
+  - removido o hide de `.appRail` nessa view;
+  - mantido o hide somente de `.systemBar`, para preservar a tela estatística sem duplicar controles superiores;
+  - zeradas margens desktop (`margin-right` e `margin-left`) no breakpoint responsivo para evitar corte horizontal no mobile.
+- Ajuste aplicado em `notas/css/componentes.css`:
+  - tipografia/spacing dos cards métricos e do ranking compactados para caber com a largura reduzida pela barra lateral.
+- Capturas geradas:
+  - `diagnosticos/notas-estatisticas-com-abas-v3.png`;
+  - `diagnosticos/notas-estatisticas-com-abas-v4-mobile.png`.
+- Resultado visual: no desktop, a barra lateral esquerda voltou com `Estatísticas`, `Notas` e `Boletim`, e o dashboard continua próximo do anexo 7 dentro da área útil restante; no mobile, a navegação compacta aparece no topo e os cards não cortam à direita.
+- Nenhum dado real, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou configuração Microsoft 365 foi alterado.
+- Próxima etapa correta: responsável validar no GitHub Pages a presença da navegação lateral em `/notas/#movimento`; se aprovada, continuar o ciclo visual nas abas `Notas` e `Boletim`.
 
 ### 08/07/2026 — refinamento da aba Estatísticas contra o anexo 7
 

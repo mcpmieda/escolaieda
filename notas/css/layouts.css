@@ -362,11 +362,9 @@ body[data-view="movimento"] {
 }
 
 body[data-view="movimento"] .appShell {
-  display: block;
   min-height: 100vh;
 }
 
-body[data-view="movimento"] .appRail,
 body[data-view="movimento"] .systemBar {
   display: none;
 }
@@ -469,6 +467,14 @@ body[data-view="movimento"] .mainStage {
   .statsChartPanel,
   .statsDonutPanel {
     grid-area: auto;
+  }
+
+  .statsIntroBlock {
+    margin-right: 0;
+  }
+
+  .statsRankingPanel {
+    margin-left: 0;
   }
 
   .movementStatGrid {
