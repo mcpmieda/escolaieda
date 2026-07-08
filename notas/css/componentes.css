@@ -1193,6 +1193,609 @@ body[data-view="movimento"] .systemTitle p:last-child {
   background: var(--error);
 }
 
+body[data-view="notas"] {
+  background:
+    radial-gradient(circle at 78% 22%, rgba(44, 128, 255, 0.20), transparent 32%),
+    radial-gradient(circle at 18% 82%, rgba(61, 220, 151, 0.10), transparent 28%),
+    linear-gradient(136deg, #061631 0%, #081d38 52%, #06162d 100%);
+}
+
+body[data-view="notas"] .notesStudioHero,
+body[data-view="notas"] .notesMetricCard,
+body[data-view="notas"] .notesFilterPanel,
+body[data-view="notas"] .notesBoardModern,
+body[data-view="notas"] .notesSidePanel {
+  border: 1px solid rgba(122, 166, 225, 0.24);
+  background:
+    linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18);
+}
+
+body[data-view="notas"] .notesStudioHero,
+body[data-view="notas"] .notesMetricCard,
+body[data-view="notas"] .notesFilterPanel,
+body[data-view="notas"] .notesBoardModern,
+body[data-view="notas"] .notesSidePanel,
+body[data-view="notas"] .notesTable tbody tr {
+  animation: notesRiseIn 520ms var(--motion-emphasis) both;
+}
+
+body[data-view="notas"] .notesStudioHero {
+  min-height: 130px;
+  overflow: visible;
+  border-radius: 22px;
+}
+
+body[data-view="notas"] .notesLead .heroIcon {
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(99, 184, 255, 0.30), rgba(35, 107, 255, 0.90)),
+    rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 18px 34px rgba(35, 107, 255, 0.18);
+}
+
+body[data-view="notas"] .notesLead .eyebrow {
+  color: #68aaff;
+}
+
+body[data-view="notas"] .notesLead h2 {
+  font-size: clamp(1.65rem, 3vw, 2.28rem);
+  letter-spacing: 0;
+}
+
+body[data-view="notas"] .notesSelectRack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+body[data-view="notas"] .notesSelectCard {
+  position: relative;
+  min-width: 0;
+  min-height: 66px;
+  padding: 0;
+  overflow: visible;
+  border: 1px solid rgba(122, 166, 225, 0.24);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(34, 82, 137, 0.72), rgba(11, 39, 76, 0.78));
+  transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), border-color var(--motion-smooth);
+}
+
+body[data-view="notas"] .notesSelectCard:hover,
+body[data-view="notas"] .notesSelectCard:focus-within {
+  border-color: rgba(126, 177, 255, 0.56);
+  box-shadow: var(--shadow-lifted);
+  transform: translateY(-2px);
+}
+
+body[data-view="notas"] .notesSelectCard.is-open {
+  z-index: 28;
+  border-color: rgba(126, 177, 255, 0.72);
+}
+
+body[data-view="notas"] .statsSelectNative {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body[data-view="notas"] .statsSelectButton {
+  position: relative;
+  width: 100%;
+  min-height: 66px;
+  padding: 12px 42px 11px 14px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: #f7fbff;
+  text-align: left;
+  overflow: hidden;
+}
+
+body[data-view="notas"] .statsSelectButton .movementIcon {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border: 1px solid rgba(126, 177, 255, 0.22);
+  border-radius: 11px;
+  background: rgba(76, 155, 255, 0.12);
+  color: #93c5ff;
+  filter: none;
+}
+
+body[data-view="notas"] .statsSelectText {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+body[data-view="notas"] .statsSelectValue {
+  overflow: hidden;
+  color: #f7fbff;
+  font-size: 0.96rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-view="notas"] .statsSelectCaption {
+  color: rgba(205, 221, 244, 0.76);
+  font-size: 0.72rem;
+}
+
+body[data-view="notas"] .statsSelectChevron {
+  position: absolute;
+  right: 17px;
+  top: 27px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid #f5f8ff;
+  border-bottom: 2px solid #f5f8ff;
+  transform: rotate(45deg);
+  transition: transform var(--motion-smooth), top var(--motion-smooth);
+  z-index: 1;
+}
+
+body[data-view="notas"] .notesSelectCard.is-open .statsSelectChevron {
+  top: 31px;
+  transform: rotate(225deg);
+}
+
+body[data-view="notas"] .statsSelectGlow {
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 104px;
+  height: 104px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(76, 155, 255, 0.20), transparent 68%);
+  opacity: 0;
+  transition: opacity var(--motion-smooth), transform var(--motion-smooth);
+}
+
+body[data-view="notas"] .notesSelectCard:hover .statsSelectGlow,
+body[data-view="notas"] .notesSelectCard.is-open .statsSelectGlow {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+body[data-view="notas"] .movementIcon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.95;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body[data-view="notas"] .statsSelectMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  padding: 8px;
+  max-height: min(292px, calc(100vh - 150px));
+  display: grid;
+  gap: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(128, 177, 244, 0.30);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(23, 64, 112, 0.985), rgba(7, 24, 50, 0.985));
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(22px);
+  transform-origin: top;
+  animation: selectMenuEnter 260ms var(--motion-emphasis) both;
+  z-index: 30;
+}
+
+body[data-view="notas"] .statsSelectOption {
+  position: relative;
+  min-height: 46px;
+  padding: 9px 32px 9px 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #f6fbff;
+  text-align: left;
+  animation: selectOptionEnter 240ms var(--motion-emphasis) both;
+  animation-delay: calc(var(--option-index) * 28ms);
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick);
+}
+
+body[data-view="notas"] .statsSelectOption strong {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+body[data-view="notas"] .statsSelectOption span {
+  color: rgba(205, 221, 244, 0.70);
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+body[data-view="notas"] .statsSelectOption:hover,
+body[data-view="notas"] .statsSelectOption:focus-visible {
+  border-color: rgba(126, 177, 255, 0.40);
+  background: rgba(76, 155, 255, 0.16);
+  transform: translateX(3px);
+}
+
+body[data-view="notas"] .statsSelectOption.active {
+  border-color: rgba(76, 155, 255, 0.62);
+  background:
+    linear-gradient(135deg, rgba(76, 155, 255, 0.26), rgba(61, 220, 151, 0.08)),
+    rgba(255, 255, 255, 0.05);
+}
+
+body[data-view="notas"] .statsSelectOption.active::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 8px;
+  height: 14px;
+  border-right: 2px solid #7eb1ff;
+  border-bottom: 2px solid #7eb1ff;
+  transform: translateY(-58%) rotate(45deg);
+}
+
+body[data-view="notas"] .notesMetricStrip {
+  align-items: stretch;
+}
+
+body[data-view="notas"] .notesMetricCard {
+  min-height: 118px;
+  padding: 17px 14px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+}
+
+body[data-view="notas"] .notesMetricCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0 30%, rgba(255, 255, 255, 0.065) 44%, transparent 60% 100%);
+  background-size: 220% 100%;
+  opacity: 0.42;
+  animation: panelLightSweep 10s var(--motion-standard) infinite;
+  pointer-events: none;
+}
+
+body[data-view="notas"] .notesMetricCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+body[data-view="notas"] .notesMetricCard .movementIcon {
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.055);
+  filter: none;
+}
+
+body[data-view="notas"] .notesMetricCard.ok .movementIcon {
+  color: #37e788;
+}
+
+body[data-view="notas"] .notesMetricCard.error .movementIcon {
+  color: #ff5268;
+}
+
+body[data-view="notas"] .notesMetricCard.info .movementIcon,
+body[data-view="notas"] .notesMetricCard.warn .movementIcon {
+  color: #6aaaff;
+}
+
+body[data-view="notas"] .notesMetricBody span {
+  display: block;
+  color: rgba(215, 226, 243, 0.86);
+  font-size: 0.70rem;
+  font-weight: 900;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+body[data-view="notas"] .notesMetricValue {
+  margin-top: 12px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+body[data-view="notas"] .notesMetricValue strong {
+  color: #f9fcff;
+  font-size: 1.72rem;
+  line-height: 1;
+}
+
+body[data-view="notas"] .notesMetricBadge {
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: lowercase;
+}
+
+body[data-view="notas"] .notesMetricBadge.ok {
+  background: rgba(45, 204, 116, 0.18);
+  color: #38dd87;
+}
+
+body[data-view="notas"] .notesMetricBadge.error {
+  background: rgba(255, 54, 79, 0.16);
+  color: #ff6c7e;
+}
+
+body[data-view="notas"] .notesMetricBadge.info {
+  background: rgba(42, 125, 255, 0.18);
+  color: #63b0ff;
+}
+
+body[data-view="notas"] .notesMetricBadge.warn {
+  background: rgba(242, 184, 75, 0.16);
+  color: #ffd990;
+}
+
+body[data-view="notas"] .notesFilterPanel {
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: minmax(180px, auto) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border-radius: 18px;
+}
+
+body[data-view="notas"] .notesFilterPanel h3 {
+  font-size: 1rem;
+}
+
+body[data-view="notas"] .statusFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+body[data-view="notas"] .statusFilters label {
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+body[data-view="notas"] .statusFilters label:has(input:checked) {
+  border-color: rgba(126, 177, 255, 0.45);
+  background: rgba(76, 155, 255, 0.15);
+  color: #f6fbff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+body[data-view="notas"] .statusFilters label:hover {
+  transform: translateY(-1px);
+}
+
+body[data-view="notas"] .notesBoardModern,
+body[data-view="notas"] .notesSidePanel {
+  border-radius: 18px;
+}
+
+body[data-view="notas"] .notesBoardModern .panelHeader {
+  align-items: center;
+}
+
+body[data-view="notas"] .notesSummary .chip {
+  min-height: 28px;
+  padding: 6px 10px;
+}
+
+body[data-view="notas"] .notesTableWrap {
+  overflow: visible;
+}
+
+body[data-view="notas"] .notesTable {
+  border-collapse: separate;
+  border-spacing: 0 4px;
+}
+
+body[data-view="notas"] .notesTable th,
+body[data-view="notas"] .notesTable td {
+  border: 0;
+  background: rgba(255, 255, 255, 0.035);
+  transition: background var(--motion-quick), transform var(--motion-quick), color var(--motion-quick);
+}
+
+body[data-view="notas"] .notesTable th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(76, 155, 255, 0.16);
+  color: rgba(226, 238, 255, 0.86);
+  box-shadow: inset 0 -1px 0 rgba(126, 177, 255, 0.16);
+}
+
+body[data-view="notas"] .notesTable td:first-child,
+body[data-view="notas"] .notesTable th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+
+body[data-view="notas"] .notesTable td:last-child,
+body[data-view="notas"] .notesTable th:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+body[data-view="notas"] .notesTable tbody tr {
+  animation-delay: calc(var(--row-index, 0) * 26ms);
+}
+
+body[data-view="notas"] .notesTable tbody tr:nth-child(odd) td {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+body[data-view="notas"] .notesTable tbody tr:hover td {
+  background: rgba(76, 155, 255, 0.13);
+}
+
+body[data-view="notas"] .scoreCell {
+  color: #dbeaff;
+  font-weight: 800;
+}
+
+body[data-view="notas"] .scoreLow {
+  background:
+    linear-gradient(180deg, #ff6678, #d51f35) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+body[data-view="notas"] .studentNameButton {
+  color: #f6f9ff;
+}
+
+body[data-view="notas"] .studentNameButton:hover,
+body[data-view="notas"] .studentNameButton:focus-visible {
+  color: #87c5ff;
+}
+
+body[data-view="notas"] .insightItem,
+body[data-view="notas"] .recoveryItem {
+  border-color: rgba(126, 177, 255, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 48%),
+    rgba(255, 255, 255, 0.045);
+}
+
+body[data-view="notas"] .insightItem {
+  padding: 11px;
+  display: grid;
+  gap: 9px;
+}
+
+body[data-view="notas"] .insightItemTop {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+body[data-view="notas"] .insightItemTop .movementIcon {
+  width: 26px;
+  height: 26px;
+  color: #9fcaff;
+  filter: none;
+}
+
+body[data-view="notas"] .insightItemTop strong,
+body[data-view="notas"] .insightItemTop small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-view="notas"] .insightItemTop small {
+  justify-self: end;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+body[data-view="notas"] .progressTrack {
+  height: 9px;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+body[data-view="notas"] .progressTrack span {
+  background: linear-gradient(90deg, #37e788, #6bb5ff);
+  transition: width var(--motion-smooth);
+}
+
+body[data-view="notas"] .progressTrack span.error {
+  background: linear-gradient(90deg, #ff5268, #ff8d9c);
+}
+
+body[data-view="notas"] .recoveryItem {
+  min-height: 54px;
+  padding: 9px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+}
+
+body[data-view="notas"] .recoveryItem .chip {
+  white-space: nowrap;
+}
+
+@keyframes notesRiseIn {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+    scale: 0.988;
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: blur(0);
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-view="notas"] .notesSelectRack {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-view="notas"] .notesMetricCard {
+    min-height: 108px;
+  }
+
+  body[data-view="notas"] .notesFilterPanel {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-view="notas"] .statusFilters {
+    justify-content: flex-start;
+  }
+
+  body[data-view="notas"] .notesTableWrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  body[data-view="notas"] .notesTable {
+    min-width: 920px;
+  }
+}
+
 .boletimPreviewPanel {
   background: var(--surface);
 }

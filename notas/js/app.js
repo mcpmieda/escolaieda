@@ -494,7 +494,7 @@ function statsSelectOptionMeta(select, option) {
 }
 
 function statsSelectIconName(select) {
-  return select.id === "movimentoPeriodo" ? "calendar" : "users";
+  return select.id.endsWith("Periodo") ? "calendar" : "users";
 }
 
 function syncStatsSelect(select) {
@@ -638,8 +638,10 @@ function renderAll() {
 function renderMovimento() {
   const recorte = criarRecorteMovimento();
   ui.movementClassLabel.textContent = `${recorte.turmaRotulo} · ${recorte.periodo.rotulo} · ${recorte.estudantes.length} aluno(s) no recorte.`;
-  ui.viewTitle.textContent = "Movimento estatístico escolar";
-  ui.viewSubtitle.textContent = ui.movementClassLabel.textContent;
+  if (state.view === "movimento") {
+    ui.viewTitle.textContent = "Movimento estatístico escolar";
+    ui.viewSubtitle.textContent = ui.movementClassLabel.textContent;
+  }
   ui.movementFooterPeriod.textContent = `Dados referentes a ${recorte.periodo.rotulo.toUpperCase()}`;
   ui.movementFooterUpdated.textContent = `Atualizado em ${recorte.atualizado}`;
   renderMovementStats(recorte);
@@ -918,7 +920,8 @@ function movementIcon(name) {
     pencil: '<path d="m4 20 4-1 11-11-3-3L5 16z"></path><path d="m14 6 3 3"></path>',
     scales: '<path d="M12 3v18"></path><path d="M5 6h14"></path><path d="m6 6-3 7h6z"></path><path d="m18 6-3 7h6z"></path>',
     monitor: '<rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path>',
-    calendar: '<path d="M8 2v4"></path><path d="M16 2v4"></path><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path>'
+    calendar: '<path d="M8 2v4"></path><path d="M16 2v4"></path><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path>',
+    shuffle: '<path d="M16 3h5v5"></path><path d="M4 20 21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path>'
   };
   const icon = element("span", `movementIcon ${name}`);
   icon.setAttribute("aria-hidden", "true");
@@ -928,7 +931,7 @@ function movementIcon(name) {
 
 function renderNotas() {
   const periodoCodigo = state.notas.periodo;
-  const periodo = periodos[periodoCodigo];
+  const periodo = periodoNotasInfo(periodoCodigo);
   let estudantes = filtrarBusca(filtrarPorTurma(estudantesResumo, state.notas.turma));
   if (periodoCodigo === "recuperacao") estudantes = estudantes.filter(estudanteFezRecuperacao);
   estudantes = estudantes.filter((estudante) => state.notas.situacoes.has(statusOperacional(estudante).status));
@@ -937,6 +940,10 @@ function renderNotas() {
   ui.notasTitulo.textContent = turma ? turmaTituloAcademico(turma) : "Todas as turmas";
   ui.notesClassLabel.textContent = turma ? `${turma.etapa} · Turma ${turma.codigo} · ${estudantes.length} alunos · ${periodo.rotulo}` : `${estudantes.length} alunos · ${periodo.rotulo}`;
   ui.notesTableTitle.textContent = periodo.rotulo;
+  if (state.view === "notas") {
+    ui.viewTitle.textContent = "Notas";
+    ui.viewSubtitle.textContent = ui.notesClassLabel.textContent;
+  }
 
   renderNotesMetricStrip(estudantes, periodoCodigo);
   renderNotesSummary(estudantes, periodoCodigo);
@@ -951,13 +958,27 @@ function renderNotesMetricStrip(estudantes, periodoCodigo) {
   const novatos = estudantes.filter((estudante) => statusOperacional(estudante).status === "especial").length;
   const transferidos = estudantes.filter((estudante) => statusOperacional(estudante).status === "transferido" || statusOperacional(estudante).status === "foi_para").length;
   const mediaAtual = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, periodoCodigo)));
-  renderStats(ui.notesMetricStrip, [
-    ["Total de alunos", total, "alunos"],
-    ["Alunos abaixo do mínimo", abaixo, `${Math.round((abaixo / Math.max(1, total)) * 100)}%`],
-    ["Novatos", novatos, "marcados"],
-    ["Transferidos / outra turma", transferidos, "movimento"],
-    ["Média geral da turma", formatarMedia(mediaAtual), mediaAtual >= periodos[periodoCodigo].minimo ? "Regular" : "Atenção"]
+  const periodo = periodoNotasInfo(periodoCodigo);
+  replaceChildren(ui.notesMetricStrip, [
+    notesMetricCard("users", "Total de alunos", total, "alunos", "info"),
+    notesMetricCard("trendDown", "Notas vermelhas", abaixo, `${Math.round((abaixo / Math.max(1, total)) * 100)}%`, abaixo ? "error" : "ok"),
+    notesMetricCard("star", "Novatos", novatos, "marcados", "info"),
+    notesMetricCard("shuffle", "Transferidos", transferidos, "movimento", "warn"),
+    notesMetricCard("trendUp", "Média da turma", formatarMedia(mediaAtual), mediaAtual >= periodo.minimo ? "regular" : "atenção", mediaAtual >= periodo.minimo ? "ok" : "error")
   ]);
+}
+
+function notesMetricCard(iconName, label, value, badge, type) {
+  const card = element("article", `notesMetricCard ${type}`.trim());
+  card.append(movementIcon(iconName));
+  const body = element("div", "notesMetricBody");
+  appendText(body, "span", label);
+  const line = element("div", "notesMetricValue");
+  appendText(line, "strong", String(value));
+  appendText(line, "small", badge, `notesMetricBadge ${type}`);
+  body.append(line);
+  card.append(body);
+  return card;
 }
 
 function renderNotesSummary(estudantes, periodoCodigo) {
@@ -980,6 +1001,7 @@ function renderNotesTable(estudantes, periodoCodigo) {
   const rows = estudantes.map((estudante, index) => {
     const row = document.createElement("tr");
     row.dataset.estudanteId = estudante.id;
+    row.style.setProperty("--row-index", index);
     appendText(row, "td", String(index + 1).padStart(2, "0"), "notesIndex");
 
     const nameCell = element("td", "notesNameCell");
@@ -1026,8 +1048,11 @@ function renderNotesInsights(estudantes, periodoCodigo) {
 
   porDisciplina.slice(0, 5).forEach((item) => {
     const row = element("article", "insightItem");
-    appendText(row, "strong", `${item.codigo} · ${item.nome}`);
-    appendText(row, "span", `${item.abaixo} aluno(s) em vermelho`, item.abaixo ? "dangerText" : "muted");
+    const top = element("div", "insightItemTop");
+    top.append(movementIcon(item.icon));
+    appendText(top, "strong", `${item.codigo} · ${item.nome}`);
+    appendText(top, "small", `${item.abaixo} em vermelho`, item.abaixo ? "dangerText" : "muted");
+    row.append(top);
     row.append(progressTrack(item.abaixo / Math.max(1, estudantes.length) * 100, item.abaixo ? "error" : "ok"));
     list.append(row);
   });
@@ -1040,9 +1065,11 @@ function renderNotesRecovery(estudantes) {
   const list = element("div", "recoveryList");
   elegiveis.forEach((estudante) => {
     const item = element("article", "recoveryItem");
-    appendText(item, "strong", estudante.nome);
-    appendText(item, "span", `${estudante.turma?.codigo || ""} · final ${formatarMedia(estudante.mediaFinal)}`);
-    item.append(chip("ver perfil", "info"));
+    item.append(studentPhotoAvatar(estudante, estudante.linhaOrigem));
+    const text = element("div");
+    appendText(text, "strong", estudante.nome);
+    appendText(text, "span", `${estudante.turma?.codigo || ""} · final ${formatarMedia(estudante.mediaFinal)}`);
+    item.append(text, chip("ver perfil", "info"));
     item.addEventListener("click", () => abrirPerfilAluno(estudante.id));
     list.append(item);
   });
@@ -1287,6 +1314,10 @@ function criarEscalaEixo(maximo) {
   const base = Math.max(5, Number(maximo) || 25);
   const passo = base / 5;
   return Array.from({ length: 6 }, (_, index) => Math.round(base - passo * index));
+}
+
+function periodoNotasInfo(periodoCodigo) {
+  return periodos[periodoCodigo] || periodos.geral;
 }
 
 function calcularMaxEixoMovimento(componentesResumo) {

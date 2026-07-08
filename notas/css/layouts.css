@@ -274,12 +274,16 @@ body[data-theme="claro"] .appRail {
   background: var(--surface-strong);
   box-shadow: -18px 0 46px rgba(0, 0, 0, 0.32);
   transform: translateX(104%);
+  visibility: hidden;
+  pointer-events: none;
   transition: transform 0.22s ease;
   z-index: 30;
 }
 
 .studentProfilePanel.open {
   transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .profilePanelHeader {

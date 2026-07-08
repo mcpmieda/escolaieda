@@ -187,7 +187,7 @@
       </section>
 
       <section class="pageView" id="view-notas" aria-labelledby="notasTitulo">
-        <div class="screenHero notesHero">
+        <div class="screenHero notesHero notesStudioHero">
           <div class="notesLead">
             <span class="heroIcon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -202,13 +202,11 @@
               <p id="notesClassLabel">Quadro compacto no modelo do banco atual, com todas as disciplinas visíveis.</p>
             </div>
           </div>
-          <div class="heroControls">
-            <label>
-              <span>Turma</span>
+          <div class="heroControls notesSelectRack">
+            <div class="notesSelectCard statsSelectCard" data-stats-select-label="Turma">
               <select id="notasTurma"></select>
-            </label>
-            <label>
-              <span>Período</span>
+            </div>
+            <div class="notesSelectCard statsSelectCard" data-stats-select-label="Período">
               <select id="notasPeriodo">
                 <option value="T1">I trimestre</option>
                 <option value="T2">II trimestre</option>
@@ -216,13 +214,13 @@
                 <option value="geral">Visão geral</option>
                 <option value="recuperacao">Recuperação</option>
               </select>
-            </label>
+            </div>
           </div>
         </div>
 
         <div class="notesMetricStrip" id="notesMetricStrip"></div>
 
-        <section class="panel filterPanel">
+        <section class="panel filterPanel notesFilterPanel">
           <div>
             <p class="sectionKicker">Filtros imediatos</p>
             <h3>Situação do aluno</h3>
@@ -238,7 +236,7 @@
         </section>
 
         <div class="notesGrid">
-          <section class="panel panelWide notesBoard">
+          <section class="panel panelWide notesBoard notesBoardModern">
             <div class="panelHeader">
               <div>
                 <p class="sectionKicker">Ficha de notas</p>
@@ -255,8 +253,8 @@
           </section>
 
           <aside class="sideStack">
-            <section class="panel" id="notasInsights"></section>
-            <section class="panel" id="notasRecovery"></section>
+            <section class="panel notesSidePanel" id="notasInsights"></section>
+            <section class="panel notesSidePanel" id="notasRecovery"></section>
           </aside>
         </div>
       </section>
