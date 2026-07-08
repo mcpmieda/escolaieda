@@ -1732,8 +1732,8 @@ body[data-view="movimento"] .movementBars {
   height: 330px;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(11, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 6px;
   align-items: stretch;
   overflow: visible;
 }
@@ -1761,17 +1761,23 @@ body[data-view="movimento"] .movementBar {
   color: #f4f8ff;
 }
 
+body[data-view="movimento"] .movementBar.active {
+  border-radius: 10px;
+  background: rgba(46, 112, 226, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(84, 151, 255, 0.25);
+}
+
 body[data-view="movimento"] .barPair {
   height: 256px;
   align-self: end;
   display: flex;
   align-items: end;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 body[data-view="movimento"] .barPair i {
-  width: 28px;
+  width: 26px;
   height: var(--bar-height);
   position: relative;
   border-radius: 6px 6px 2px 2px;
@@ -1808,7 +1814,7 @@ body[data-view="movimento"] .barBlue {
 }
 
 body[data-view="movimento"] .barRed {
-  width: 19px;
+  width: 18px;
   background: linear-gradient(180deg, #ff5b71 0%, #d51631 100%);
 }
 
@@ -1835,10 +1841,15 @@ body[data-view="movimento"] .barLabel strong {
 }
 
 body[data-view="movimento"] .barLabel small {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
   color: rgba(207, 222, 244, 0.80);
-  font-size: 0.56rem;
+  font-size: 0.46rem;
   font-weight: 800;
-  line-height: 1.06;
+  line-height: 1.12;
+  overflow-wrap: normal;
+  word-break: normal;
   text-transform: uppercase;
 }
 
@@ -1935,9 +1946,15 @@ body[data-view="movimento"] .statsDonutNote .movementIcon {
   color: #2c7cff;
 }
 
+body[data-view="movimento"] .classResultsPanel {
+  margin-top: 12px;
+  border-color: rgba(122, 166, 225, 0.24);
+  background: linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
+}
+
 @media (max-width: 1120px) {
   body[data-view="movimento"] .movementBars {
-    grid-template-columns: repeat(11, minmax(62px, 1fr));
+    grid-template-columns: repeat(12, minmax(62px, 1fr));
     overflow-x: auto;
   }
 

@@ -4,7 +4,7 @@
 >
 > Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS`, `VISÃO GERAL` e detalhamento por disciplina com base nos dados fictícios do recorte selecionado. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, seletor de tema e perfil são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
+Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, seletor de tema e perfil são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. Ainda em 08/07/2026, a aba `Estatísticas` passou a recalcular métricas por turma/período/busca, incluir `TODAS AS TURMAS` e `VISÃO GERAL`, alternar ranking top 3/top 10, destacar disciplina clicada no gráfico, listar alunos fictícios abaixo da média por disciplina e exibir resumo quantitativo por turma quando o recorte for geral. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -642,7 +642,7 @@ O projeto só poderá ser considerado concluído quando:
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
-- validar com o responsável a versão visual refinada de `/notas/#estatisticas` contra o `anexo 7.png` antes de ligar dados reais;
+- validar com o responsável a versão funcional de `/notas/#estatisticas` contra o `anexo 7.png`, incluindo `TODAS AS TURMAS`, `VISÃO GERAL`, ranking top 3/top 10 e clique por disciplina, antes de ligar dados reais;
 - provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
 - substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
 
@@ -691,6 +691,46 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 08/07/2026 — funcionalização da aba Estatísticas
+
+- Responsável autorizou avançar com a recomendação de tornar `Estatísticas` funcional, mantendo a documentação permanente nos agents.
+- Confirmado que a regra de documentar mudanças já existia neste arquivo:
+  - seção 1, item 10: ao terminar uma etapa, atualizar **Estado atual**, **Decisões**, **Pendências** e **Registro de continuidade**;
+  - seção 18, bloco `Ao concluir`: registrar arquivos alterados/resultados, atualizar checklist/pendências/decisões e fazer commit/push por padrão em `/notas/`.
+- `notas/AGENTS.md` recebeu uma regra curta adicional de documentação para deixar explícito, logo na entrada do módulo, que toda etapa deve atualizar `AGENTS_NOTAS.md` antes do commit/push.
+- Ajustes feitos em `notas/index.html`:
+  - adicionada opção `VISÃO GERAL` ao seletor de período da aba `Estatísticas`;
+  - rodapé estatístico recebeu IDs para atualizar período e horário conforme o recorte;
+  - painel inferior passou a ter título, subtítulo e dica dinâmicos para detalhamento por disciplina ou resumo quantitativo.
+- Ajustes feitos em `notas/js/app.js`:
+  - criado o recorte calculado de `Estatísticas` por turma, período e busca global, usando os dados fictícios de `demo-data.js`/`domain.js`;
+  - adicionada a opção `TODAS AS TURMAS` no seletor da aba;
+  - cartões passaram a recalcular alunos acima/abaixo da média, total no recorte e média geral;
+  - gráfico por disciplina passou a recalcular azul/vermelho pelo recorte, destacar a disciplina clicada e abrir lista de alunos fictícios abaixo da média;
+  - donut passou a recalcular percentuais do recorte selecionado;
+  - ranking passou a alternar top 3/top 10, ordenar pela média do período e sinalizar nomes com nota vermelha;
+  - recorte `VISÃO GERAL` ou `TODAS AS TURMAS` passa a exibir resumo quantitativo por turma no painel inferior;
+  - removido o objeto estático antigo `movimentoReferencia`, mantendo apenas fallback de data/hora demonstrativo.
+- Ajustes feitos em `notas/css/componentes.css`:
+  - disciplina selecionada no gráfico recebeu destaque visual;
+  - painel de detalhamento quantitativo ganhou estilo próprio;
+  - grade do gráfico foi corrigida para 12 componentes, evitando que `CPT` caísse para outra linha no desktop;
+  - rótulos das disciplinas foram compactados para evitar sobreposição visual.
+- Ajustes feitos em `scripts/testes-notas.mjs`:
+  - travas para `VISÃO GERAL`, recorte calculado, seleção de disciplina, ranking top 3/top 10, painel de detalhamento, remoção de `movimentoReferencia`, destaque da barra ativa e estilo do painel.
+- Validações executadas:
+  - `node --check notas/js/app.js` passou;
+  - `node scripts/testes-notas.mjs` passou com 10 arquivos verificados, 40 estudantes fictícios, 4 turmas fictícias e 480 lançamentos fictícios;
+  - `git diff --check -- notas scripts/testes-notas.mjs` não apontou erros; apenas avisos esperados de LF/CRLF no Windows.
+- Capturas Playwright CLI geradas para comparação:
+  - `diagnosticos/notas-estatisticas-funcional-v5.png` em desktop 1420×941;
+  - `diagnosticos/notas-estatisticas-funcional-v3-mobile.png` em mobile 390×844;
+  - `diagnosticos/notas-estatisticas-funcional-v3-mobile-full.png` em mobile full-page.
+- Resultado visual: desktop mantém cabeçalho superior, navegação lateral, cards, ranking, gráfico com 12 disciplinas na mesma linha e donut; mobile mantém navegação compacta no topo e gráfico com rolagem horizontal.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido; os dados continuam fictícios.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID, Graph ou recurso Microsoft 365 foi criado ou alterado.
+- Próxima etapa correta: responsável validar a página publicada em `/notas/#estatisticas`; se aprovada, seguir para ajuste fino de `Notas`/`Boletim` ou retomar a POC final do conector Excel Online (Business), conforme prioridade.
 
 ### 08/07/2026 — restauração do cabeçalho superior e hash Estatísticas
 

@@ -118,6 +118,7 @@
                 <option value="T1">I TRIMESTRE</option>
                 <option value="T2">II TRIMESTRE</option>
                 <option value="T3">III TRIMESTRE</option>
+                <option value="geral">VISÃO GERAL</option>
               </select>
               <span>Período</span>
             </label>
@@ -173,18 +174,19 @@
               <path d="M3 10h18"></path>
               <rect x="3" y="4" width="18" height="18" rx="2"></rect>
             </svg>
-            <span>Dados referentes a I TRIMESTRE</span>
+            <span id="movementFooterPeriod">Dados referentes a I TRIMESTRE</span>
             <span>•</span>
-            <span>Atualizado em 07/07/2026 às 10:45</span>
+            <span id="movementFooterUpdated">Atualizado em 07/07/2026 às 10:45</span>
           </footer>
         </div>
 
         <section class="panel classResultsPanel" id="movementClassPanel" hidden>
           <div class="panelHeader">
             <div>
-              <p class="sectionKicker">Resultado final quantitativo</p>
-              <h3>Todas as turmas</h3>
+              <p class="sectionKicker" id="movementClassPanelKicker">Detalhamento</p>
+              <h3 id="movementClassPanelTitle">Disciplina selecionada</h3>
             </div>
+            <span class="panelHint" id="movementClassPanelHint">Clique em uma disciplina para listar alunos abaixo da média.</span>
           </div>
           <div class="classResultGrid" id="movementClassCards"></div>
         </section>

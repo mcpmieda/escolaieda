@@ -23,31 +23,7 @@ const componentes = [
   { source: "EO", codigo: "CPT", nome: "Computação" }
 ];
 
-const movimentoReferencia = {
-  totalAlunos: 20,
-  acima: 13,
-  abaixo: 7,
-  mediaGeral: "22,6",
-  atualizado: "07/07/2026 às 10:45",
-  componentes: [
-    { codigo: "P", nome: "Português", acima: 20, abaixo: 0, icon: "book" },
-    { codigo: "M", nome: "Matemática", acima: 20, abaixo: 0, icon: "sigma" },
-    { codigo: "C", nome: "Ciências", acima: 20, abaixo: 0, icon: "flask" },
-    { codigo: "G", nome: "Geografia", acima: 19, abaixo: 1, icon: "globe" },
-    { codigo: "H", nome: "História", acima: 17, abaixo: 3, icon: "columns" },
-    { codigo: "A", nome: "Artes", acima: 20, abaixo: 0, icon: "palette" },
-    { codigo: "EF", nome: "Ed. Física", acima: 20, abaixo: 0, icon: "runner" },
-    { codigo: "I", nome: "Inglês", acima: 20, abaixo: 0, icon: "letters" },
-    { codigo: "RD", nome: "Redação", acima: 20, abaixo: 0, icon: "pencil" },
-    { codigo: "ET", nome: "Ética", acima: 20, abaixo: 0, icon: "scales" },
-    { codigo: "CPT", nome: "Computação", acima: 20, abaixo: 0, icon: "monitor" }
-  ],
-  ranking: [
-    { nome: "CARLOS EDUARDO VIANA MOREIRA", media: "25,6" },
-    { nome: "ISABELLY FERNANDA DO VALE FERREIRA", media: "25,6" },
-    { nome: "AYALA DE OLIVEIRA RAPOSA", media: "25,3" }
-  ]
-};
+const movimentoAtualizacaoPadrao = "07/07/2026 às 10:45";
 
 const periodos = {
   T1: { rotulo: "I trimestre", curto: "I TRI.", campo: "notaT1", maximo: 30, minimo: 18 },
@@ -104,7 +80,8 @@ const state = {
   movimento: {
     turma: "turma-demo-8c",
     periodo: "T1",
-    rankingExpandido: false
+    rankingExpandido: false,
+    disciplinaSelecionada: ""
   },
   notas: {
     turma: "turma-demo-8c",
@@ -140,6 +117,11 @@ const ui = {
   movementClassPanel: document.getElementById("movementClassPanel"),
   movementClassCards: document.getElementById("movementClassCards"),
   movementDisciplineHint: document.getElementById("movementDisciplineHint"),
+  movementClassPanelKicker: document.getElementById("movementClassPanelKicker"),
+  movementClassPanelTitle: document.getElementById("movementClassPanelTitle"),
+  movementClassPanelHint: document.getElementById("movementClassPanelHint"),
+  movementFooterPeriod: document.getElementById("movementFooterPeriod"),
+  movementFooterUpdated: document.getElementById("movementFooterUpdated"),
   notasTurma: document.getElementById("notasTurma"),
   notasPeriodo: document.getElementById("notasPeriodo"),
   notasStatusFilters: document.getElementById("notasStatusFilters"),
@@ -208,10 +190,12 @@ function bindEvents() {
 
   ui.movimentoTurma.addEventListener("change", () => {
     state.movimento.turma = ui.movimentoTurma.value;
+    state.movimento.disciplinaSelecionada = "";
     renderMovimento();
   });
   ui.movimentoPeriodo.addEventListener("change", () => {
     state.movimento.periodo = ui.movimentoPeriodo.value;
+    state.movimento.disciplinaSelecionada = "";
     renderMovimento();
   });
 
@@ -284,7 +268,10 @@ function preencherSelects() {
     ["todas", "Todas as turmas"],
     ...demoData.turmas.map((turma) => [turma.id, turma.codigo])
   ];
-  const opcoesMovimento = demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()]);
+  const opcoesMovimento = [
+    ["todas", "TODAS AS TURMAS"],
+    ...demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()])
+  ];
   preencherSelect(ui.movimentoTurma, opcoesMovimento);
   preencherSelect(ui.notasTurma, opcoesTurma);
   preencherSelect(ui.boletimTurma, opcoesTurma);
@@ -329,22 +316,62 @@ function renderAll() {
 }
 
 function renderMovimento() {
-  ui.movementClassLabel.textContent = "Acompanhe o desempenho geral da turma por disciplina no período selecionado.";
-  renderMovementStats();
-  renderMovementChart();
-  renderMovementDonut();
-  renderMovementRanking();
-  renderClassResults();
+  const recorte = criarRecorteMovimento();
+  ui.movementClassLabel.textContent = `${recorte.turmaRotulo} · ${recorte.periodo.rotulo} · ${recorte.estudantes.length} aluno(s) no recorte.`;
+  ui.movementFooterPeriod.textContent = `Dados referentes a ${recorte.periodo.rotulo.toUpperCase()}`;
+  ui.movementFooterUpdated.textContent = `Atualizado em ${recorte.atualizado}`;
+  renderMovementStats(recorte);
+  renderMovementChart(recorte);
+  renderMovementDonut(recorte);
+  renderMovementRanking(recorte);
+  renderClassResults(recorte);
 }
 
-function renderMovementStats() {
-  const percentualAcima = Math.round((movimentoReferencia.acima / movimentoReferencia.totalAlunos) * 100);
-  const percentualAbaixo = Math.round((movimentoReferencia.abaixo / movimentoReferencia.totalAlunos) * 100);
+function criarRecorteMovimento() {
+  const estudantes = filtrarBusca(filtrarPorTurma(estudantesResumo, state.movimento.turma));
+  const turma = obterTurma(state.movimento.turma);
+  const periodo = periodos[state.movimento.periodo] || periodos.T1;
+  const totalAlunos = estudantes.length;
+  const componentesResumo = componentes.map((componente) => {
+    const alunosAbaixo = estudantes.filter((estudante) => notaAbaixo(obterLancamento(estudante, componente), state.movimento.periodo));
+    const abaixo = alunosAbaixo.length;
+    return {
+      ...componente,
+      nomeCurto: nomeComponenteCurto(componente),
+      icon: iconeComponente(componente.codigo),
+      acima: Math.max(0, totalAlunos - abaixo),
+      abaixo,
+      alunosAbaixo
+    };
+  });
+  const aprovados = estudantes.filter((estudante) => !estudanteTemVermelha(estudante, state.movimento.periodo)).length;
+  const abaixo = Math.max(0, totalAlunos - aprovados);
+  const mediaGeral = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, state.movimento.periodo)));
+  const atualizado = formatarDataHoraMovimento(turma?.ultimaSincronizacao || movimentoAtualizacaoPadrao);
+  return {
+    estudantes,
+    turma,
+    turmaRotulo: turma ? turmaTituloAcademico(turma) : "Todas as turmas",
+    periodo,
+    totalAlunos,
+    componentes: componentesResumo,
+    aprovados,
+    abaixo,
+    mediaGeral,
+    atualizado,
+    maxEixo: Math.max(25, Math.ceil(Math.max(1, totalAlunos) / 5) * 5)
+  };
+}
+
+function renderMovementStats(recorte) {
+  const total = Math.max(1, recorte.totalAlunos);
+  const percentualAcima = Math.round((recorte.aprovados / total) * 100);
+  const percentualAbaixo = Math.round((recorte.abaixo / total) * 100);
   replaceChildren(ui.movementStats, [
-    movementStatCard("trendUp", "ACIMA OU IGUAL À MÉDIA", movimentoReferencia.acima, `${percentualAcima}%`, "ok"),
-    movementStatCard("trendDown", "ABAIXO DA MÉDIA", movimentoReferencia.abaixo, `${percentualAbaixo}%`, "error"),
-    movementStatCard("users", "ALUNOS NA TURMA", movimentoReferencia.totalAlunos, "100%", "info"),
-    movementStatCard("star", "MÉDIA GERAL DA TURMA", movimentoReferencia.mediaGeral, "Bom", "ok")
+    movementStatCard("trendUp", "ACIMA OU IGUAL À MÉDIA", recorte.aprovados, `${percentualAcima}%`, "ok"),
+    movementStatCard("trendDown", "ABAIXO DA MÉDIA", recorte.abaixo, `${percentualAbaixo}%`, "error"),
+    movementStatCard("users", recorte.turma ? "ALUNOS NA TURMA" : "ALUNOS NO RECORTE", recorte.totalAlunos, "100%", "info"),
+    movementStatCard("star", "MÉDIA GERAL DA TURMA", formatarMedia(recorte.mediaGeral), recorte.mediaGeral >= recorte.periodo.minimo ? "Bom" : "Atenção", recorte.mediaGeral >= recorte.periodo.minimo ? "ok" : "error")
   ]);
 }
 
@@ -361,12 +388,12 @@ function movementStatCard(iconName, label, value, badge, type) {
   return card;
 }
 
-function renderMovementChart() {
-  const maxAltura = 25;
+function renderMovementChart(recorte) {
+  const maxAltura = recorte.maxEixo;
   const chart = element("div", "movementBars");
 
-  movimentoReferencia.componentes.forEach((componente) => {
-    const button = element("button", "movementBar");
+  recorte.componentes.forEach((componente) => {
+    const button = element("button", `movementBar ${state.movimento.disciplinaSelecionada === componente.codigo ? "active" : ""}`.trim());
     button.type = "button";
     button.dataset.codigo = componente.codigo;
     button.dataset.nome = componente.nome;
@@ -384,23 +411,27 @@ function renderMovementChart() {
     const label = element("span", "barLabel");
     label.append(movementIcon(componente.icon));
     appendText(label, "strong", componente.codigo);
-    appendText(label, "small", componente.nome);
+    appendText(label, "small", componente.nomeCurto);
     button.append(bars, label);
     button.addEventListener("click", () => {
+      state.movimento.disciplinaSelecionada = state.movimento.disciplinaSelecionada === componente.codigo ? "" : componente.codigo;
       ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) abaixo da média.`;
+      renderMovementChart(recorte);
+      renderClassResults(recorte);
     });
     chart.append(button);
   });
 
   const yAxis = element("div", "statsYAxis");
-  [25, 20, 15, 10, 5, 0].forEach((valor) => appendText(yAxis, "span", String(valor)));
+  criarEscalaEixo(recorte.maxEixo).forEach((valor) => appendText(yAxis, "span", String(valor)));
   const canvas = element("div", "statsChartCanvas");
   canvas.append(yAxis, chart);
   replaceChildren(ui.movementChart, [canvas]);
 }
 
-function renderMovementDonut() {
-  const percentual = Math.round((movimentoReferencia.acima / movimentoReferencia.totalAlunos) * 100);
+function renderMovementDonut(recorte) {
+  const total = Math.max(1, recorte.totalAlunos);
+  const percentual = Math.round((recorte.aprovados / total) * 100);
   const percentualAbaixo = 100 - percentual;
   const panel = document.createDocumentFragment();
   const header = element("div", "statsPanelHeader compact");
@@ -410,7 +441,7 @@ function renderMovementDonut() {
 
   const body = element("div", "statsDonutBody");
   const left = element("div", "statsDonutLegend left");
-  appendText(left, "span", `${movimentoReferencia.abaixo} alunos`);
+  appendText(left, "span", `${recorte.abaixo} aluno(s)`);
   appendText(left, "strong", `${percentualAbaixo}%`);
   appendText(left, "small", "Abaixo da média");
   left.prepend(dot("red"));
@@ -421,7 +452,7 @@ function renderMovementDonut() {
   appendText(donut, "span", "ACIMA OU IGUAL À MÉDIA");
 
   const right = element("div", "statsDonutLegend right");
-  appendText(right, "span", `${movimentoReferencia.acima} alunos`);
+  appendText(right, "span", `${recorte.aprovados} aluno(s)`);
   appendText(right, "strong", `${percentual}%`);
   appendText(right, "small", "Acima ou igual à média");
   right.prepend(dot("blue"));
@@ -429,38 +460,88 @@ function renderMovementDonut() {
 
   const note = element("div", "statsDonutNote");
   note.append(movementIcon("users"));
-  appendText(note, "span", `Dos ${movimentoReferencia.totalAlunos} alunos, ${movimentoReferencia.acima} ficaram com nota igual ou acima da média em todas as disciplinas.`);
+  appendText(note, "span", `Dos ${recorte.totalAlunos} aluno(s), ${recorte.aprovados} ficaram sem nota abaixo da média no recorte selecionado.`);
 
   panel.append(header, body, note);
   replaceChildren(ui.movementDonut, [panel]);
 }
 
-function renderMovementRanking() {
+function renderMovementRanking(recorte) {
   const header = element("div", "statsRankingHeader");
   header.append(movementIcon("trophy"));
   appendText(header, "h3", "DESTAQUES DA TURMA");
   const list = element("div", "rankingList");
-  movimentoReferencia.ranking.forEach((estudante, index) => {
+  const limite = state.movimento.rankingExpandido ? 10 : 3;
+  const ranking = [...recorte.estudantes]
+    .sort((a, b) => mediaPeriodoEstudante(b, state.movimento.periodo) - mediaPeriodoEstudante(a, state.movimento.periodo))
+    .slice(0, limite);
+  ranking.forEach((estudante, index) => {
     const item = element("article", "rankingItem");
     appendText(item, "span", String(index + 1), `rankBadge rank${Math.min(index + 1, 3)}`);
     const text = element("div");
-    appendText(text, "strong", estudante.nome);
-    appendText(item, "b", estudante.media);
+    const name = appendText(text, "strong", estudante.nome);
+    if (estudanteTemVermelha(estudante, state.movimento.periodo)) name.classList.add("studentAlertName");
+    appendText(text, "small", estudante.turma?.codigo || "");
+    appendText(item, "b", formatarMedia(mediaPeriodoEstudante(estudante, state.movimento.periodo)));
     item.insertBefore(text, item.lastChild);
     list.append(item);
   });
   const button = element("button", "statsRankingLink");
   button.type = "button";
-  button.innerHTML = "<span>VER RANKING COMPLETO</span><b aria-hidden=\"true\">›</b>";
+  button.innerHTML = state.movimento.rankingExpandido ? "<span>VER TOP 3</span><b aria-hidden=\"true\">›</b>" : "<span>VER RANKING COMPLETO</span><b aria-hidden=\"true\">›</b>";
   button.addEventListener("click", () => {
     state.movimento.rankingExpandido = !state.movimento.rankingExpandido;
+    renderMovementRanking(recorte);
   });
-  replaceChildren(ui.movementRanking, [header, list, button]);
+  replaceChildren(ui.movementRanking, [header, ranking.length ? list : emptyState("Nenhum aluno encontrado no recorte atual."), button]);
 }
 
-function renderClassResults() {
-  ui.movementClassPanel.hidden = true;
-  replaceChildren(ui.movementClassCards, []);
+function renderClassResults(recorte) {
+  const componente = recorte.componentes.find((item) => item.codigo === state.movimento.disciplinaSelecionada);
+  if (componente) {
+    ui.movementClassPanel.hidden = false;
+    ui.movementClassPanelKicker.textContent = "Alunos abaixo da média";
+    ui.movementClassPanelTitle.textContent = `${componente.codigo} · ${componente.nome}`;
+    ui.movementClassPanelHint.textContent = "Caminho preparado para abrir a lista detalhada do banco real por disciplina.";
+    const cards = componente.alunosAbaixo.map((estudante) => {
+      const nota = obterLancamento(estudante, componente);
+      const card = element("article", "classResultCard");
+      appendText(card, "span", estudante.turma?.codigo || "", "rankBadge rank3");
+      const body = element("div");
+      appendText(body, "strong", estudante.nome, "studentAlertName");
+      appendText(body, "span", `${recorte.periodo.rotulo}: ${formatarMedia(valorPeriodo(nota, state.movimento.periodo))} · mínimo ${recorte.periodo.minimo}`);
+      card.append(body);
+      return card;
+    });
+    replaceChildren(ui.movementClassCards, cards.length ? cards : [emptyState("Nenhum aluno abaixo da média nesta disciplina.")]);
+    return;
+  }
+
+  const mostrarTurmas = state.movimento.turma === "todas" || state.movimento.periodo === "geral";
+  ui.movementClassPanel.hidden = !mostrarTurmas;
+  if (!mostrarTurmas) {
+    replaceChildren(ui.movementClassCards, []);
+    return;
+  }
+
+  ui.movementClassPanelKicker.textContent = "Resultado quantitativo";
+  ui.movementClassPanelTitle.textContent = state.movimento.turma === "todas" ? "Todas as turmas" : recorte.turmaRotulo;
+  ui.movementClassPanelHint.textContent = "Resumo por turma do período selecionado.";
+  const cards = demoData.turmas.map((turma) => {
+    const estudantesTurma = filtrarBusca(filtrarPorTurma(estudantesResumo, turma.id));
+    const aprovados = estudantesTurma.filter((estudante) => !estudanteTemVermelha(estudante, state.movimento.periodo)).length;
+    const percentual = Math.round((aprovados / Math.max(1, estudantesTurma.length)) * 100);
+    const card = element("article", "classResultCard");
+    const mini = element("div", "smallDonut");
+    mini.style.setProperty("--percent", `${percentual}%`);
+    appendText(mini, "strong", `${percentual}%`);
+    const body = element("div");
+    appendText(body, "strong", turmaTituloAcademico(turma));
+    appendText(body, "span", `${aprovados} sem vermelha · ${estudantesTurma.length - aprovados} em atenção`);
+    card.append(mini, body);
+    return card;
+  });
+  replaceChildren(ui.movementClassCards, cards);
 }
 
 function dot(type) {
@@ -807,6 +888,60 @@ function turmaTituloAcademico(turma) {
   const match = String(turma.codigo || "").match(/^(\d)([A-Z])$/i);
   if (!match) return turma.codigo || turma.nome || "Turma";
   return `${match[1]}º ANO ${match[2].toUpperCase()}`;
+}
+
+function nomeComponenteCurto(componente) {
+  return {
+    "P": "Português",
+    "M": "Matemática",
+    "C": "Ciências",
+    "G": "Geografia",
+    "H": "História",
+    "A": "Artes",
+    "RL": "Ensino Religioso",
+    "F": "Ed. Física",
+    "I": "Inglês",
+    "RD": "Redação",
+    "ET": "Ética",
+    "CPT": "Computação"
+  }[componente.codigo] || componente.nome;
+}
+
+function iconeComponente(codigo) {
+  return {
+    P: "book",
+    M: "sigma",
+    C: "flask",
+    G: "globe",
+    H: "columns",
+    A: "palette",
+    F: "runner",
+    I: "letters",
+    RD: "pencil",
+    RL: "book",
+    ET: "scales",
+    CPT: "monitor"
+  }[codigo] || "star";
+}
+
+function criarEscalaEixo(maximo) {
+  const base = Math.max(5, Number(maximo) || 25);
+  const passo = base / 5;
+  return Array.from({ length: 6 }, (_, index) => Math.round(base - passo * index));
+}
+
+function formatarDataHoraMovimento(value) {
+  if (!value) return movimentoAtualizacaoPadrao;
+  if (String(value).includes("/")) return value;
+  const data = new Date(value);
+  if (Number.isNaN(data.getTime())) return movimentoAtualizacaoPadrao;
+  return data.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).replace(",", " às");
 }
 
 function obterLancamento(estudante, componente) {
