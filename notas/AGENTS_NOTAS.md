@@ -4,7 +4,7 @@
 >
 > Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta foi reativada nessa view após o responsável apontar que ela fazia parte do projeto. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas`. O menu lateral compacto é parte obrigatória do shell do módulo e deve permanecer visível no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
+Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, seletor de tema e perfil são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -642,7 +642,7 @@ O projeto só poderá ser considerado concluído quando:
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
-- validar com o responsável a versão visual refinada de `/notas/#movimento`/`Estatísticas` contra o `anexo 7.png` antes de ligar dados reais;
+- validar com o responsável a versão visual refinada de `/notas/#estatisticas` contra o `anexo 7.png` antes de ligar dados reais;
 - provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
 - substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
 
@@ -691,6 +691,31 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 08/07/2026 — restauração do cabeçalho superior e hash Estatísticas
+
+- Responsável apontou que, além das abas laterais, faltava a parte superior do corpo descrita no `comando notas.txt`.
+- O comando salvo foi relido e confirmou a regra geral do corpo da página: menu lateral esquerdo, título do site, caixa de pesquisa no canto superior direito, seletor de três temas e perfil do usuário com opção de sair devem compor todas as abas.
+- Foram comparadas as abas `Notas` e `Boletim`, que já mantinham o cabeçalho comum com logo/título, busca global, três bolinhas de tema e perfil demonstrativo.
+- Correção aplicada em `notas/css/layouts.css`:
+  - removida a regra que escondia `.systemBar` em `body[data-view="movimento"]`;
+  - removido o override de `.mainStage` específico de `movimento`, fazendo `Estatísticas` usar o mesmo corpo e espaçamento das demais abas;
+  - `statsDashboard` passou a começar abaixo do cabeçalho comum, com `min-height: calc(100vh - 100px)` e padding ajustado.
+- Correção aplicada em `notas/js/app.js`:
+  - adicionada rota canônica `#estatisticas` para a antiga view interna `movimento`;
+  - mantido `#movimento` como compatibilidade legada;
+  - cliques novos na aba `Estatísticas` agora escrevem `#estatisticas` na URL.
+- Teste de regressão atualizado em `scripts/testes-notas.mjs` para verificar:
+  - existência do alias `estatisticas`;
+  - hash canônico `movimento: "estatisticas"`;
+  - proibição de esconder `.appRail` e `.systemBar` em `Estatísticas`.
+- Capturas geradas:
+  - `diagnosticos/notas-estatisticas-cabecalho-v1.png`;
+  - `diagnosticos/notas-estatisticas-cabecalho-v1-mobile.png`;
+  - `diagnosticos/notas-estatisticas-alias-movimento.png`.
+- Resultado visual: `Estatísticas` agora mantém o mesmo cabeçalho superior de `Notas` e `Boletim`, preservando também a navegação lateral e o dashboard estatístico baseado no anexo 7.
+- Nenhum dado real, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou configuração Microsoft 365 foi alterado.
+- Próxima etapa correta: responsável validar `/notas/#estatisticas` no GitHub Pages; depois continuar a comparação visual das abas `Notas` e `Boletim`.
 
 ### 08/07/2026 — reativação do menu lateral em Estatísticas
 

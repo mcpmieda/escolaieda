@@ -365,20 +365,9 @@ body[data-view="movimento"] .appShell {
   min-height: 100vh;
 }
 
-body[data-view="movimento"] .systemBar {
-  display: none;
-}
-
-body[data-view="movimento"] .mainStage {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-}
-
 .statsDashboard {
-  min-height: 100vh;
-  padding: 28px 52px 22px 11px;
+  min-height: calc(100vh - 100px);
+  padding: 0 0 22px;
 }
 
 .statsTopRow {

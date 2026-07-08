@@ -72,6 +72,8 @@ const appTexto = ler("notas/js/app.js");
 const cssLayouts = ler("notas/css/layouts.css");
 const cssComponentes = ler("notas/css/componentes.css");
 conferir(appTexto.includes("renderMovimento"), "renderMovimento nao encontrado em app.js.");
+conferir(appTexto.includes('estatisticas: "movimento"'), "Hash #estatisticas deve abrir a aba Estatisticas.");
+conferir(appTexto.includes('movimento: "estatisticas"'), "A aba Estatisticas deve publicar URL canonica #estatisticas.");
 conferir(appTexto.includes("renderNotesTable"), "renderNotesTable nao encontrado em app.js.");
 conferir(appTexto.includes("renderNotesMetricStrip"), "renderNotesMetricStrip nao encontrado em app.js.");
 conferir(appTexto.includes("criarMiniBoletim"), "criarMiniBoletim nao encontrado em app.js.");
@@ -85,6 +87,7 @@ conferir(cssComponentes.includes("grid-template-rows: repeat(4, 1fr)"), "Boletim
 conferir(cssComponentes.includes(".studentPeek"), "Estilo da previa de aluno nao encontrado.");
 conferir(cssLayouts.includes(".appRail"), "Menu lateral compacto nao encontrado no layout.");
 conferir(!/body\[data-view=["']movimento["']\]\s+\.appRail[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "A aba Estatisticas nao deve esconder o menu lateral compacto.");
+conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "A aba Estatisticas deve manter o cabecalho superior do sistema.");
 
 const demoTexto = ler("notas/js/demo-data.js");
 const termosProibidos = ["ALICE", "AMANDA", "ROSE MARCIA", "CPF", "INEP"];

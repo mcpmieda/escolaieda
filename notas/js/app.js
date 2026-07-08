@@ -82,10 +82,17 @@ const viewCopy = {
 };
 
 const viewAliases = {
+  estatisticas: "movimento",
   dashboard: "movimento",
   turma: "movimento",
   banco: "notas",
   boletins: "boletim"
+};
+
+const viewHashes = {
+  movimento: "estatisticas",
+  notas: "notas",
+  boletim: "boletim"
 };
 
 const estudantesResumo = listarEstudantesComResumo(demoData);
@@ -312,7 +319,7 @@ function abrirView(view, updateHash = true) {
   document.title = `${title} | Escola Iêda MCPM`;
   ui.viewTitle.textContent = "Escola Municipal";
   ui.viewSubtitle.textContent = "Sistema Acadêmico";
-  if (updateHash) history.replaceState(null, "", `#${destino}`);
+  if (updateHash) history.replaceState(null, "", `#${viewHashes[destino] || destino}`);
 }
 
 function renderAll() {
