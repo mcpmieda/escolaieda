@@ -72,6 +72,7 @@ const viewHashes = {
 };
 
 const estudantesResumo = listarEstudantesComResumo(demoData);
+let activeStatsSelect = null;
 
 const state = {
   view: viewFromHash() || "movimento",
@@ -156,6 +157,7 @@ initialize();
 
 function initialize() {
   preencherSelects();
+  enhanceStatsSelects();
   aplicarTema(state.theme);
   bindEvents();
   abrirView(state.view, false);
@@ -261,6 +263,175 @@ function bindEvents() {
     const view = viewFromHash();
     if (view) abrirView(view, false);
   });
+}
+
+function enhanceStatsSelects() {
+  document.querySelectorAll(".statsSelectCard select").forEach((select) => {
+    if (select.dataset.enhancedStatsSelect === "true") {
+      syncStatsSelect(select);
+      return;
+    }
+    const host = select.closest(".statsSelectCard");
+    const label = host?.dataset.statsSelectLabel || select.getAttribute("aria-label") || "Selecionar";
+    const controlId = `${select.id}Control`;
+    const menuId = `${select.id}Menu`;
+
+    select.dataset.enhancedStatsSelect = "true";
+    select.classList.add("statsSelectNative");
+
+    const button = element("button", "statsSelectButton");
+    button.type = "button";
+    button.id = controlId;
+    button.setAttribute("aria-haspopup", "listbox");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-controls", menuId);
+    appendText(button, "strong", "", "statsSelectValue");
+    appendText(button, "span", label, "statsSelectCaption");
+    const chevron = element("i", "statsSelectChevron");
+    chevron.setAttribute("aria-hidden", "true");
+    const glow = element("i", "statsSelectGlow");
+    glow.setAttribute("aria-hidden", "true");
+    button.append(chevron, glow);
+
+    const menu = element("div", "statsSelectMenu");
+    menu.id = menuId;
+    menu.setAttribute("role", "listbox");
+    menu.setAttribute("aria-labelledby", controlId);
+    menu.hidden = true;
+
+    host.append(button, menu);
+    renderStatsSelectOptions(select);
+    syncStatsSelect(select);
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (host.classList.contains("is-open")) {
+        closeStatsSelect(select);
+      } else {
+        openStatsSelect(select);
+      }
+    });
+    button.addEventListener("keydown", (event) => handleStatsSelectButtonKeydown(event, select));
+    select.addEventListener("change", () => syncStatsSelect(select));
+  });
+
+  if (!enhanceStatsSelects.boundDocumentClick) {
+    document.addEventListener("click", () => closeStatsSelects());
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeStatsSelects(true);
+    });
+    enhanceStatsSelects.boundDocumentClick = true;
+  }
+}
+
+function renderStatsSelectOptions(select) {
+  const host = select.closest(".statsSelectCard");
+  const menu = host?.querySelector(".statsSelectMenu");
+  if (!menu) return;
+  replaceChildren(menu, [...select.options].map((option, index) => {
+    const item = element("button", "statsSelectOption");
+    item.type = "button";
+    item.id = `${select.id}Option${index}`;
+    item.dataset.value = option.value;
+    item.style.setProperty("--option-index", index);
+    item.setAttribute("role", "option");
+    item.setAttribute("aria-selected", "false");
+    appendText(item, "strong", option.textContent);
+    appendText(item, "span", option.value === "todas" ? "recorte completo" : option.value);
+    item.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      chooseStatsSelectOption(select, option.value);
+    });
+    item.addEventListener("keydown", (event) => handleStatsSelectOptionKeydown(event, select, index));
+    return item;
+  }));
+}
+
+function syncStatsSelect(select) {
+  const host = select.closest(".statsSelectCard");
+  const current = select.selectedOptions[0];
+  if (!host || !current) return;
+  const value = host.querySelector(".statsSelectValue");
+  if (value) value.textContent = current.textContent;
+  host.querySelectorAll(".statsSelectOption").forEach((item) => {
+    const active = item.dataset.value === select.value;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-selected", String(active));
+  });
+}
+
+function openStatsSelect(select) {
+  const host = select.closest(".statsSelectCard");
+  const menu = host?.querySelector(".statsSelectMenu");
+  const button = host?.querySelector(".statsSelectButton");
+  if (!host || !menu || !button) return;
+  closeStatsSelects();
+  activeStatsSelect = select;
+  host.classList.add("is-open");
+  menu.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+  const selected = menu.querySelector(".statsSelectOption.active") || menu.querySelector(".statsSelectOption");
+  if (selected) requestAnimationFrame(() => selected.focus({ preventScroll: true }));
+}
+
+function closeStatsSelect(select, restoreFocus = false) {
+  const host = select?.closest(".statsSelectCard");
+  const menu = host?.querySelector(".statsSelectMenu");
+  const button = host?.querySelector(".statsSelectButton");
+  if (!host || !menu || !button) return;
+  host.classList.remove("is-open");
+  menu.hidden = true;
+  button.setAttribute("aria-expanded", "false");
+  if (activeStatsSelect === select) activeStatsSelect = null;
+  if (restoreFocus) button.focus({ preventScroll: true });
+}
+
+function closeStatsSelects(restoreFocus = false) {
+  document.querySelectorAll(".statsSelectCard.is-open select").forEach((select) => closeStatsSelect(select, restoreFocus));
+}
+
+function chooseStatsSelectOption(select, value) {
+  if (select.value !== value) {
+    select.value = value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  closeStatsSelect(select, true);
+}
+
+function handleStatsSelectButtonKeydown(event, select) {
+  if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(event.key)) {
+    event.preventDefault();
+    openStatsSelect(select);
+  }
+}
+
+function handleStatsSelectOptionKeydown(event, select, index) {
+  const host = select.closest(".statsSelectCard");
+  const options = [...(host?.querySelectorAll(".statsSelectOption") || [])];
+  const focusOption = (nextIndex) => options[Math.max(0, Math.min(options.length - 1, nextIndex))]?.focus({ preventScroll: true });
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    focusOption(index + 1);
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    focusOption(index - 1);
+  } else if (event.key === "Home") {
+    event.preventDefault();
+    focusOption(0);
+  } else if (event.key === "End") {
+    event.preventDefault();
+    focusOption(options.length - 1);
+  } else if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    chooseStatsSelectOption(select, options[index].dataset.value);
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    closeStatsSelect(select, true);
+  } else if (event.key === "Tab") {
+    closeStatsSelect(select);
+  }
 }
 
 function preencherSelects() {
@@ -392,11 +563,12 @@ function renderMovementChart(recorte) {
   const maxAltura = recorte.maxEixo;
   const chart = element("div", "movementBars");
 
-  recorte.componentes.forEach((componente) => {
+  recorte.componentes.forEach((componente, index) => {
     const button = element("button", `movementBar ${state.movimento.disciplinaSelecionada === componente.codigo ? "active" : ""}`.trim());
     button.type = "button";
     button.dataset.codigo = componente.codigo;
     button.dataset.nome = componente.nome;
+    button.style.setProperty("--bar-index", index);
 
     const bars = element("span", "barPair");
     const blue = element("i", "barBlue");
@@ -477,6 +649,7 @@ function renderMovementRanking(recorte) {
     .slice(0, limite);
   ranking.forEach((estudante, index) => {
     const item = element("article", "rankingItem");
+    item.style.setProperty("--rank-index", index);
     appendText(item, "span", String(index + 1), `rankBadge rank${Math.min(index + 1, 3)}`);
     const text = element("div");
     const name = appendText(text, "strong", estudante.nome);

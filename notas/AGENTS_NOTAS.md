@@ -4,7 +4,7 @@
 >
 > Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS`, `VISÃO GERAL` e detalhamento por disciplina com base nos dados fictícios do recorte selecionado. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS`, `VISÃO GERAL` e detalhamento por disciplina com base nos dados fictícios do recorte selecionado. Depois, a aba recebeu camada de movimento/profundidade com seletor customizado para Turma/Período, área inteira clicável, animações de entrada, barras crescendo, donut com movimento lento, microinterações em botões/cards e fallback por `prefers-reduced-motion`. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -453,6 +453,8 @@ Regras do módulo:
 - manter foco e contexto ao abrir/fechar camadas;
 - respeitar `prefers-reduced-motion: reduce`, reduzindo ou removendo deslocamento, escala, parallax e blur animado.
 
+Decisão adicional em 08/07/2026: toda evolução visual nova do módulo deve considerar microinterações e movimento proporcional desde o início, não como acabamento posterior. Quando um `select` nativo gerar uma lista visualmente incompatível com o sistema, criar seletor customizado sincronizado com o controle real. Em dashboards, gráficos e indicadores devem ter entrada animada e movimento ambiente lento, desde que isso não reduza legibilidade, desempenho nem acessibilidade.
+
 ### 11.6 Acessibilidade obrigatória
 
 Meta mínima: WCAG 2.2 nível AA.
@@ -691,6 +693,43 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 08/07/2026 — movimento, microinterações e seletor customizado em Estatísticas
+
+- Responsável informou que a interface ainda parecia estática e pediu transições, animações em botões/cards, seletores mais bonitos e uma estética mais viva, com referência geral a Android/One UI.
+- Foi feita consulta em documentação oficial pública da Samsung One UI e Android/Material:
+  - One UI Motion Introduction;
+  - One UI Motion basics and usage;
+  - One UI Visual depth;
+  - One UI Layout design for large screens;
+  - Android Material 3 em Compose/large screens.
+- Não foi encontrada documentação oficial pública específica chamada `One UI 8.5`; a implementação foi baseada nos princípios oficiais atuais já usados no projeto: movimento com causa/efeito, profundidade leve, responsividade em telas grandes, foco na tarefa e respeito a acessibilidade.
+- Decisão visual registrada na seção 11.5: toda mudança visual nova no módulo deve considerar microinterações, movimento proporcional, seletor customizado quando o `select` nativo destoar, entrada animada de dashboards e `prefers-reduced-motion`.
+- Ajustes feitos em `notas/index.html`:
+  - os seletores de Turma e Período da aba `Estatísticas` passaram de `label` com `select` nativo visível para hosts `statsSelectCard` com `data-stats-select-label`;
+  - os `<select>` reais continuam no DOM e com `aria-label`, preservando sincronização, valores e lógica existente.
+- Ajustes feitos em `notas/js/app.js`:
+  - adicionado `enhanceStatsSelects()` para criar seletor customizado sincronizado com o `<select>` real;
+  - implementados abertura/fechamento, clique fora, tecla `Esc`, navegação por setas, `Home`, `End`, `Enter` e `Space`;
+  - seleção customizada dispara `change` no `<select>` real, reaproveitando o fluxo já existente de renderização;
+  - gráfico e ranking receberam índices CSS para animação escalonada.
+- Ajustes feitos em CSS:
+  - `notas/css/tokens.css` recebeu tokens de movimento e sombra elevada;
+  - `notas/css/base.css` recebeu transição de entrada para views e manteve fallback global por `prefers-reduced-motion`;
+  - `notas/css/componentes.css` recebeu microinterações globais em botões/cards, seletor customizado de `Estatísticas`, menu com blur/profundidade, entrada de painéis, brilho leve, crescimento das barras, movimento lento nas barras/donut e animação de ranking/detalhes.
+- Ajustes feitos em `scripts/testes-notas.mjs`:
+  - travas para hosts de seletor customizado, funções `enhanceStatsSelects`/`openStatsSelect`/`chooseStatsSelectOption`, tokens de movimento, `prefers-reduced-motion`, menu customizado e keyframes de gráfico/donut.
+- Validações executadas:
+  - `node --check notas/js/app.js` passou;
+  - `node scripts/testes-notas.mjs` passou com 10 arquivos verificados, 40 estudantes fictícios, 4 turmas fictícias e 480 lançamentos fictícios;
+  - `git diff --check -- notas scripts/testes-notas.mjs` não apontou erros; apenas avisos esperados de LF/CRLF no Windows.
+- Capturas Playwright CLI geradas:
+  - `diagnosticos/notas-estatisticas-motion-v2.png` em desktop 1420×941;
+  - `diagnosticos/notas-estatisticas-motion-v2-mobile.png` em mobile 390×844.
+- Limitação de validação: a CLI `playwright screenshot` não executa clique antes da captura; o pacote `playwright` não ficou resolvível por `npx --package` sem instalar dependência local. Não foi adicionada dependência ao projeto apenas para capturar o menu aberto.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido; os dados continuam fictícios.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID, Graph ou recurso Microsoft 365 foi criado ou alterado.
+- Próxima etapa correta: responsável testar no navegador a abertura dos seletores de Turma/Período em `/notas/#estatisticas`; se aprovado, aplicar a mesma regra de movimento aos controles restantes de `Notas` e `Boletim` conforme forem evoluídos.
 
 ### 08/07/2026 — funcionalização da aba Estatísticas
 

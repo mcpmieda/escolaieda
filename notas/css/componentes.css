@@ -6,7 +6,26 @@
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-weight: 900;
-  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform var(--motion-quick),
+    background var(--motion-quick),
+    border-color var(--motion-quick),
+    box-shadow var(--motion-quick),
+    filter var(--motion-quick);
+  will-change: transform;
+}
+
+.navItem:active,
+.actionButton:active,
+.textButton:active,
+.profileButton:active,
+.iconButton:active,
+.statsPrintButton:active,
+.statsMoreButton:active,
+.statsDropdown:active,
+.statsDots:active {
+  transform: translateY(1px) scale(0.985);
 }
 
 .navItem {
@@ -40,6 +59,7 @@
   color: var(--ink);
   background: rgba(76, 155, 255, 0.16);
   border-color: var(--line-strong);
+  transform: translateY(-1px);
 }
 
 .navItem.active {
@@ -150,6 +170,18 @@ option {
   background: var(--surface-soft);
   color: var(--ink);
   text-align: left;
+}
+
+.profileButton:hover,
+.profileButton:focus-visible,
+.textButton:hover,
+.textButton:focus-visible,
+.iconButton:hover,
+.iconButton:focus-visible {
+  border-color: var(--line-strong);
+  background: rgba(76, 155, 255, 0.12);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
 }
 
 .profileAvatar {
@@ -288,6 +320,8 @@ option {
   background: var(--surface);
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(18px);
+  transform: translate3d(0, 0, 0);
+  transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), border-color var(--motion-smooth), background var(--motion-smooth);
 }
 
 .panelWide {
@@ -324,6 +358,18 @@ option {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
+  transform: translate3d(0, 0, 0);
+  transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), border-color var(--motion-smooth), background var(--motion-smooth);
+}
+
+.statCard:hover,
+.rankingItem:hover,
+.insightItem:hover,
+.recoveryItem:hover,
+.classResultCard:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
 }
 
 .statCard {
@@ -1349,17 +1395,154 @@ body[data-view="movimento"] .statsMoreButton {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18);
 }
 
+body[data-view="movimento"] .statsSelectCard,
+body[data-view="movimento"] .statsPrintButton,
+body[data-view="movimento"] .statsMoreButton,
+body[data-view="movimento"] .statsGlass,
+body[data-view="movimento"] .movementStatCard,
+body[data-view="movimento"] .statsDashboardFooter,
+body[data-view="movimento"] .classResultsPanel {
+  animation: statsRiseIn 560ms var(--motion-emphasis) both;
+}
+
+body[data-view="movimento"] .statsTopRow > :nth-child(1) {
+  animation-delay: 40ms;
+}
+
+body[data-view="movimento"] .statsTopRow > :nth-child(2) {
+  animation-delay: 85ms;
+}
+
+body[data-view="movimento"] .statsTopRow > :nth-child(4) {
+  animation-delay: 130ms;
+}
+
+body[data-view="movimento"] .statsTopRow > :nth-child(5) {
+  animation-delay: 170ms;
+}
+
+body[data-view="movimento"] .movementStatCard:nth-child(1) {
+  animation-delay: 110ms;
+}
+
+body[data-view="movimento"] .movementStatCard:nth-child(2) {
+  animation-delay: 155ms;
+}
+
+body[data-view="movimento"] .movementStatCard:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+body[data-view="movimento"] .movementStatCard:nth-child(4) {
+  animation-delay: 245ms;
+}
+
+body[data-view="movimento"] .statsRankingPanel {
+  animation-delay: 170ms;
+}
+
+body[data-view="movimento"] .statsChartPanel {
+  animation-delay: 250ms;
+}
+
+body[data-view="movimento"] .statsDonutPanel {
+  animation-delay: 310ms;
+}
+
+body[data-view="movimento"] .statsGlass {
+  position: relative;
+  overflow: hidden;
+}
+
+body[data-view="movimento"] .statsGlass::before,
+body[data-view="movimento"] .movementStatCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 0 28%, rgba(255, 255, 255, 0.075) 42%, transparent 58% 100%);
+  background-size: 220% 100%;
+  opacity: 0.62;
+  animation: panelLightSweep 9s var(--motion-standard) infinite;
+}
+
+body[data-view="movimento"] .movementStatCard {
+  position: relative;
+  overflow: hidden;
+}
+
+body[data-view="movimento"] .movementStatCard > * {
+  position: relative;
+  z-index: 1;
+}
+
 body[data-view="movimento"] .statsSelectCard {
   position: relative;
   min-height: 82px;
-  padding: 18px 52px 14px 20px;
+  padding: 0;
+  overflow: visible;
+  transform: perspective(900px) rotateX(0deg) translate3d(0, 0, 0);
+  transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), border-color var(--motion-smooth);
+  z-index: 4;
+}
+
+body[data-view="movimento"] .statsSelectCard:hover,
+body[data-view="movimento"] .statsSelectCard:focus-within {
+  border-color: rgba(126, 177, 255, 0.56);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--shadow-lifted);
+  transform: perspective(900px) rotateX(1.5deg) translateY(-2px);
+}
+
+body[data-view="movimento"] .statsSelectCard.is-open {
+  border-color: rgba(126, 177, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 34px 90px rgba(0, 0, 0, 0.34);
+  z-index: 30;
+}
+
+body[data-view="movimento"] .statsSelectNative {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body[data-view="movimento"] .statsSelectButton {
+  position: relative;
+  width: 100%;
+  min-height: 82px;
+  padding: 17px 56px 14px 20px;
   display: grid;
   align-content: center;
   gap: 7px;
+  border: 0;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.10), transparent 45%),
+    transparent;
+  color: #f8fbff;
+  text-align: left;
+  overflow: hidden;
 }
 
-body[data-view="movimento"] .statsSelectCard::after {
-  content: "";
+body[data-view="movimento"] .statsSelectButton strong {
+  position: relative;
+  z-index: 1;
+  font-size: 1.48rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .statsSelectCaption {
+  position: relative;
+  z-index: 1;
+  color: rgba(205, 221, 244, 0.82);
+  font-size: 0.86rem;
+}
+
+body[data-view="movimento"] .statsSelectChevron {
   position: absolute;
   right: 25px;
   top: 34px;
@@ -1368,27 +1551,108 @@ body[data-view="movimento"] .statsSelectCard::after {
   border-right: 2px solid #f5f8ff;
   border-bottom: 2px solid #f5f8ff;
   transform: rotate(45deg);
-  pointer-events: none;
+  transition: transform var(--motion-smooth), top var(--motion-smooth);
+  z-index: 1;
 }
 
-body[data-view="movimento"] .statsSelectCard select {
-  width: 100%;
-  min-height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  appearance: none;
-  background: transparent;
-  color: #f8fbff;
-  font-size: 1.48rem;
+body[data-view="movimento"] .statsSelectGlow {
+  position: absolute;
+  right: -32px;
+  top: -42px;
+  width: 130px;
+  height: 130px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(76, 155, 255, 0.28), transparent 66%);
+  opacity: 0;
+  transform: scale(0.82);
+  transition: opacity var(--motion-smooth), transform var(--motion-smooth);
+}
+
+body[data-view="movimento"] .statsSelectCard:hover .statsSelectGlow,
+body[data-view="movimento"] .statsSelectCard.is-open .statsSelectGlow {
+  opacity: 1;
+  transform: scale(1);
+}
+
+body[data-view="movimento"] .statsSelectCard.is-open .statsSelectChevron {
+  top: 38px;
+  transform: rotate(225deg);
+}
+
+body[data-view="movimento"] .statsSelectMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(128, 177, 244, 0.30);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(23, 64, 112, 0.95), rgba(7, 24, 50, 0.94));
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(22px);
+  transform-origin: top;
+  animation: selectMenuEnter 260ms var(--motion-emphasis) both;
+}
+
+body[data-view="movimento"] .statsSelectOption {
+  position: relative;
+  min-height: 48px;
+  padding: 9px 34px 9px 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #f6fbff;
+  text-align: left;
+  animation: selectOptionEnter 240ms var(--motion-emphasis) both;
+  animation-delay: calc(var(--option-index) * 28ms);
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+body[data-view="movimento"] .statsSelectOption strong {
+  font-size: 0.86rem;
   font-weight: 900;
-  line-height: 1;
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .statsSelectCard span {
-  color: rgba(205, 221, 244, 0.82);
-  font-size: 0.86rem;
+body[data-view="movimento"] .statsSelectOption span {
+  color: rgba(205, 221, 244, 0.72);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .statsSelectOption:hover,
+body[data-view="movimento"] .statsSelectOption:focus-visible {
+  border-color: rgba(126, 177, 255, 0.40);
+  background: rgba(76, 155, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+body[data-view="movimento"] .statsSelectOption.active {
+  border-color: rgba(76, 155, 255, 0.62);
+  background:
+    linear-gradient(135deg, rgba(76, 155, 255, 0.28), rgba(227, 38, 58, 0.08)),
+    rgba(255, 255, 255, 0.05);
+}
+
+body[data-view="movimento"] .statsSelectOption.active::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 14px;
+  border-right: 2px solid #7eb1ff;
+  border-bottom: 2px solid #7eb1ff;
+  transform: translateY(-58%) rotate(45deg);
 }
 
 body[data-view="movimento"] .statsPrintButton {
@@ -1404,6 +1668,14 @@ body[data-view="movimento"] .statsPrintButton {
   font-size: 1.03rem;
   font-weight: 900;
   white-space: nowrap;
+  transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), filter var(--motion-smooth);
+}
+
+body[data-view="movimento"] .statsPrintButton:hover,
+body[data-view="movimento"] .statsPrintButton:focus-visible {
+  box-shadow: 0 22px 55px rgba(35, 107, 255, 0.36);
+  filter: saturate(1.12);
+  transform: translateY(-2px) scale(1.01);
 }
 
 body[data-view="movimento"] .statsPrintButton svg {
@@ -1423,6 +1695,15 @@ body[data-view="movimento"] .statsMoreButton {
   place-items: center;
   gap: 4px;
   background: rgba(16, 50, 91, 0.70);
+  transition: transform var(--motion-smooth), border-color var(--motion-smooth), box-shadow var(--motion-smooth), background var(--motion-smooth);
+}
+
+body[data-view="movimento"] .statsMoreButton:hover,
+body[data-view="movimento"] .statsMoreButton:focus-visible {
+  border-color: rgba(126, 177, 255, 0.50);
+  background: rgba(29, 83, 148, 0.78);
+  box-shadow: var(--shadow-lifted);
+  transform: translateY(-2px);
 }
 
 body[data-view="movimento"] .statsMoreButton span,
@@ -1573,6 +1854,14 @@ body[data-view="movimento"] .rankingItem {
   border-bottom: 1px solid rgba(143, 184, 239, 0.12);
   border-radius: 0;
   background: transparent;
+  animation: rankingItemEnter 420ms var(--motion-emphasis) both;
+  animation-delay: calc(220ms + var(--rank-index) * 55ms);
+  transition: transform var(--motion-quick), background var(--motion-quick);
+}
+
+body[data-view="movimento"] .rankingItem:hover {
+  background: rgba(255, 255, 255, 0.035);
+  transform: translateX(4px);
 }
 
 body[data-view="movimento"] .rankingItem strong {
@@ -1623,6 +1912,13 @@ body[data-view="movimento"] .statsRankingLink {
   color: #f5f8ff;
   font-size: 0.78rem;
   text-align: left;
+  transition: color var(--motion-quick), transform var(--motion-quick);
+}
+
+body[data-view="movimento"] .statsRankingLink:hover,
+body[data-view="movimento"] .statsRankingLink:focus-visible {
+  color: #8fc0ff;
+  transform: translateX(3px);
 }
 
 body[data-view="movimento"] .statsRankingLink b {
@@ -1691,6 +1987,15 @@ body[data-view="movimento"] .statsDropdown {
   background: rgba(19, 53, 95, 0.72);
   color: #eaf3ff;
   font-size: 0.78rem;
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+body[data-view="movimento"] .statsDropdown:hover,
+body[data-view="movimento"] .statsDropdown:focus-visible {
+  border-color: rgba(126, 177, 255, 0.42);
+  background: rgba(30, 75, 132, 0.82);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
 }
 
 body[data-view="movimento"] .statsDots {
@@ -1701,6 +2006,14 @@ body[data-view="movimento"] .statsDots {
   gap: 4px;
   border: 0;
   background: transparent;
+  transition: transform var(--motion-quick), background var(--motion-quick);
+}
+
+body[data-view="movimento"] .statsDots:hover,
+body[data-view="movimento"] .statsDots:focus-visible {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.065);
+  transform: translateY(-1px);
 }
 
 body[data-view="movimento"] .movementChart {
@@ -1759,6 +2072,13 @@ body[data-view="movimento"] .movementBar {
   border: 0;
   background: transparent;
   color: #f4f8ff;
+  transition: transform var(--motion-smooth), background var(--motion-smooth), box-shadow var(--motion-smooth), filter var(--motion-smooth);
+}
+
+body[data-view="movimento"] .movementBar:hover,
+body[data-view="movimento"] .movementBar:focus-visible {
+  transform: translateY(-4px);
+  filter: saturate(1.08);
 }
 
 body[data-view="movimento"] .movementBar.active {
@@ -1781,6 +2101,14 @@ body[data-view="movimento"] .barPair i {
   height: var(--bar-height);
   position: relative;
   border-radius: 6px 6px 2px 2px;
+  transform-origin: bottom;
+  animation:
+    statsBarGrow 760ms var(--motion-emphasis) both,
+    statsBarBreathe 6.4s ease-in-out infinite;
+  animation-delay:
+    calc(260ms + var(--bar-index) * 36ms),
+    calc(1500ms + var(--bar-index) * 110ms);
+  will-change: scale, translate;
 }
 
 body[data-view="movimento"] .barPair i::before {
@@ -1811,11 +2139,13 @@ body[data-view="movimento"] .barPair i.isZero::before {
 
 body[data-view="movimento"] .barBlue {
   background: linear-gradient(180deg, #367bff 0%, #1557d7 100%);
+  box-shadow: 0 0 18px rgba(54, 123, 255, 0.25);
 }
 
 body[data-view="movimento"] .barRed {
   width: 18px;
   background: linear-gradient(180deg, #ff5b71 0%, #d51631 100%);
+  box-shadow: 0 0 18px rgba(255, 69, 89, 0.20);
 }
 
 body[data-view="movimento"] .barLabel {
@@ -1825,6 +2155,8 @@ body[data-view="movimento"] .barLabel {
   gap: 3px;
   color: #ecf4ff;
   text-align: center;
+  animation: chartLabelEnter 500ms var(--motion-emphasis) both;
+  animation-delay: calc(420ms + var(--bar-index) * 34ms);
 }
 
 body[data-view="movimento"] .barLabel .movementIcon {
@@ -1877,6 +2209,12 @@ body[data-view="movimento"] .donutMeter {
   background:
     radial-gradient(circle, #0a2548 0 48%, transparent 49%),
     conic-gradient(from -126deg, #f03048 0 calc(100% - var(--percent)), #236bff calc(100% - var(--percent)) 100%);
+  transform-origin: center;
+  animation:
+    donutEnter 780ms var(--motion-emphasis) both,
+    donutBreathe 7.4s ease-in-out infinite;
+  animation-delay: 260ms, 1300ms;
+  box-shadow: 0 0 34px rgba(35, 107, 255, 0.12);
 }
 
 body[data-view="movimento"] .donutMeter strong {
@@ -1938,6 +2276,8 @@ body[data-view="movimento"] .statsDonutNote {
   color: rgba(224, 236, 252, 0.88);
   font-size: 0.86rem;
   line-height: 1.45;
+  animation: noteEnter 520ms var(--motion-emphasis) both;
+  animation-delay: 450ms;
 }
 
 body[data-view="movimento"] .statsDonutNote .movementIcon {
@@ -1950,6 +2290,171 @@ body[data-view="movimento"] .classResultsPanel {
   margin-top: 12px;
   border-color: rgba(122, 166, 225, 0.24);
   background: linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
+}
+
+body[data-view="movimento"] .classResultCard {
+  animation: resultCardEnter 420ms var(--motion-emphasis) both;
+}
+
+@keyframes statsRiseIn {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+    scale: 0.985;
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes selectMenuEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes selectOptionEnter {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes panelLightSweep {
+  0%,
+  56% {
+    background-position: 180% 0;
+    opacity: 0.10;
+  }
+
+  72% {
+    opacity: 0.58;
+  }
+
+  100% {
+    background-position: -60% 0;
+    opacity: 0.10;
+  }
+}
+
+@keyframes rankingItemEnter {
+  from {
+    opacity: 0;
+    translate: 14px 0;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes statsBarGrow {
+  from {
+    opacity: 0;
+    scale: 1 0.08;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1 1;
+  }
+}
+
+@keyframes statsBarBreathe {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+@keyframes chartLabelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes donutEnter {
+  from {
+    opacity: 0;
+    scale: 0.82;
+    rotate: -12deg;
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+    rotate: 0deg;
+    filter: blur(0);
+  }
+}
+
+@keyframes donutBreathe {
+  0%,
+  100% {
+    scale: 1;
+    rotate: 0deg;
+  }
+
+  50% {
+    scale: 1.018;
+    rotate: 1.4deg;
+  }
+}
+
+@keyframes noteEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes resultCardEnter {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+    scale: 0.98;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
 }
 
 @media (max-width: 1120px) {
@@ -1968,7 +2473,24 @@ body[data-view="movimento"] .classResultsPanel {
 @media (max-width: 600px) {
   body[data-view="movimento"] .statsSelectCard {
     min-height: 74px;
+  }
+
+  body[data-view="movimento"] .statsSelectButton {
+    min-height: 74px;
     padding: 15px 48px 12px 18px;
+  }
+
+  body[data-view="movimento"] .statsSelectButton strong {
+    font-size: 1.34rem;
+  }
+
+  body[data-view="movimento"] .statsSelectChevron {
+    right: 22px;
+    top: 30px;
+  }
+
+  body[data-view="movimento"] .statsSelectCard.is-open .statsSelectChevron {
+    top: 34px;
   }
 
   body[data-view="movimento"] .statsPrintButton,

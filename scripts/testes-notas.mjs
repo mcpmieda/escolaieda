@@ -64,12 +64,15 @@ conferir(!/id=["']view-importacoes["']/.test(html), "view-importacoes deveria es
 conferir((html.match(/data-view=/g) || []).length === 3, "A navegacao deve conter somente 3 guias nesta fase.");
 conferir(/id=["']movementChart["']/.test(html), "movementChart nao encontrado.");
 conferir(/<option value=["']geral["']>VISÃO GERAL<\/option>/.test(html), "Estatisticas deve oferecer a opcao VISÃO GERAL no periodo.");
+conferir(html.includes('data-stats-select-label="Turma"') && html.includes('data-stats-select-label="Período"'), "Estatisticas deve usar hosts para seletores customizados.");
 conferir(/id=["']notasTabela["']/.test(html), "notasTabela nao encontrada.");
 conferir(/id=["']notesMetricStrip["']/.test(html), "notesMetricStrip nao encontrado.");
 conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontrado.");
 conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao encontrado.");
 
 const appTexto = ler("notas/js/app.js");
+const cssBase = ler("notas/css/base.css");
+const cssTokens = ler("notas/css/tokens.css");
 const cssLayouts = ler("notas/css/layouts.css");
 const cssComponentes = ler("notas/css/componentes.css");
 conferir(appTexto.includes("renderMovimento"), "renderMovimento nao encontrado em app.js.");
@@ -79,6 +82,8 @@ conferir(appTexto.includes("criarRecorteMovimento"), "Estatisticas deve calcular
 conferir(appTexto.includes("disciplinaSelecionada"), "Estatisticas deve permitir selecionar disciplina no grafico.");
 conferir(appTexto.includes("rankingExpandido ? 10 : 3"), "Ranking de Estatisticas deve alternar entre top 3 e top 10.");
 conferir(appTexto.includes("movementClassPanelTitle"), "Estatisticas deve atualizar o painel de detalhamento por disciplina/turma.");
+conferir(appTexto.includes("enhanceStatsSelects"), "Estatisticas deve substituir o select nativo por seletor customizado sincronizado.");
+conferir(appTexto.includes("openStatsSelect") && appTexto.includes("chooseStatsSelectOption"), "Seletor customizado de Estatisticas deve abrir e sincronizar opcoes.");
 conferir(!appTexto.includes("movimentoReferencia"), "Estatisticas nao deve depender do objeto estatico antigo movimentoReferencia.");
 conferir(appTexto.includes("renderNotesTable"), "renderNotesTable nao encontrado em app.js.");
 conferir(appTexto.includes("renderNotesMetricStrip"), "renderNotesMetricStrip nao encontrado em app.js.");
@@ -88,6 +93,10 @@ conferir(appTexto.includes("RL") && appTexto.includes("RD") && appTexto.includes
 conferir(cssComponentes.includes(".movementBars"), "Estilo do movimento estatistico nao encontrado.");
 conferir(cssComponentes.includes(".movementBar.active"), "Estatisticas deve destacar disciplina selecionada no grafico.");
 conferir(cssComponentes.includes(".classResultsPanel"), "Estatisticas deve estilizar o painel de detalhamento quantitativo.");
+conferir(cssTokens.includes("--motion-standard") && cssTokens.includes("--motion-emphasis"), "Tokens de movimento devem existir para o modulo.");
+conferir(cssBase.includes("@media (prefers-reduced-motion: reduce)"), "Modulo deve respeitar prefers-reduced-motion.");
+conferir(cssComponentes.includes(".statsSelectMenu") && cssComponentes.includes(".statsSelectOption"), "Seletor customizado de Estatisticas deve ter menu proprio.");
+conferir(cssComponentes.includes("@keyframes statsBarGrow") && cssComponentes.includes("@keyframes donutBreathe"), "Graficos de Estatisticas devem ter animacoes de entrada e movimento leve.");
 conferir(cssComponentes.includes(".notesTable"), "Estilo da tabela de notas nao encontrado.");
 conferir(cssComponentes.includes(".a4Sheet"), "Estilo da folha A4 nao encontrado.");
 conferir(cssComponentes.includes(".miniBoletim"), "Estilo do mini boletim nao encontrado.");

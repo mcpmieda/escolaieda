@@ -109,19 +109,17 @@
       <section class="pageView active statsView" id="view-movimento" aria-labelledby="movimentoTitulo">
         <div class="statsDashboard">
           <div class="statsTopRow">
-            <label class="statsSelectCard">
-              <select id="movimentoTurma"></select>
-              <span>Turma</span>
-            </label>
-            <label class="statsSelectCard">
-              <select id="movimentoPeriodo">
+            <div class="statsSelectCard" data-stats-select-label="Turma">
+              <select id="movimentoTurma" aria-label="Turma"></select>
+            </div>
+            <div class="statsSelectCard" data-stats-select-label="Período">
+              <select id="movimentoPeriodo" aria-label="Período">
                 <option value="T1">I TRIMESTRE</option>
                 <option value="T2">II TRIMESTRE</option>
                 <option value="T3">III TRIMESTRE</option>
                 <option value="geral">VISÃO GERAL</option>
               </select>
-              <span>Período</span>
-            </label>
+            </div>
             <span class="statsTopSpacer" aria-hidden="true"></span>
             <button class="statsPrintButton" type="button" id="movementPrint">
               <svg viewBox="0 0 24 24" aria-hidden="true">

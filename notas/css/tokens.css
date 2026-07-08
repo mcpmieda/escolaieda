@@ -24,9 +24,14 @@
   --paper-ink: #101827;
   --shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.25);
   --shadow-panel: 0 24px 70px rgba(0, 0, 0, 0.34);
+  --shadow-lifted: 0 28px 70px rgba(0, 0, 0, 0.30);
   --radius: 8px;
   --radius-sm: 6px;
   --focus: 0 0 0 3px rgba(76, 155, 255, 0.34);
+  --motion-standard: cubic-bezier(0.22, 0.25, 0, 1);
+  --motion-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-quick: 160ms var(--motion-standard);
+  --motion-smooth: 420ms var(--motion-emphasis);
   --font: Arial, Helvetica, sans-serif;
 }
 
@@ -48,6 +53,7 @@ body[data-theme="claro"] {
   --brand-soft: #dceeff;
   --shadow-soft: 0 18px 44px rgba(30, 77, 128, 0.12);
   --shadow-panel: 0 24px 70px rgba(30, 77, 128, 0.16);
+  --shadow-lifted: 0 30px 72px rgba(30, 77, 128, 0.22);
 }
 
 body[data-theme="mono"] {
