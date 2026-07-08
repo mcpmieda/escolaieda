@@ -23,6 +23,32 @@ const componentes = [
   { source: "EO", codigo: "CPT", nome: "Computação" }
 ];
 
+const movimentoReferencia = {
+  totalAlunos: 20,
+  acima: 13,
+  abaixo: 7,
+  mediaGeral: "22,6",
+  atualizado: "07/07/2026 às 10:45",
+  componentes: [
+    { codigo: "P", nome: "Português", acima: 20, abaixo: 0, icon: "book" },
+    { codigo: "M", nome: "Matemática", acima: 20, abaixo: 0, icon: "sigma" },
+    { codigo: "C", nome: "Ciências", acima: 20, abaixo: 0, icon: "flask" },
+    { codigo: "G", nome: "Geografia", acima: 19, abaixo: 1, icon: "globe" },
+    { codigo: "H", nome: "História", acima: 17, abaixo: 3, icon: "columns" },
+    { codigo: "A", nome: "Artes", acima: 20, abaixo: 0, icon: "palette" },
+    { codigo: "EF", nome: "Ed. Física", acima: 20, abaixo: 0, icon: "runner" },
+    { codigo: "I", nome: "Inglês", acima: 20, abaixo: 0, icon: "letters" },
+    { codigo: "RD", nome: "Redação", acima: 20, abaixo: 0, icon: "pencil" },
+    { codigo: "ET", nome: "Ética", acima: 20, abaixo: 0, icon: "scales" },
+    { codigo: "CPT", nome: "Computação", acima: 20, abaixo: 0, icon: "monitor" }
+  ],
+  ranking: [
+    { nome: "CARLOS EDUARDO VIANA MOREIRA", media: "25,6" },
+    { nome: "ISABELLY FERNANDA DO VALE FERREIRA", media: "25,6" },
+    { nome: "AYALA DE OLIVEIRA RAPOSA", media: "25,3" }
+  ]
+};
+
 const periodos = {
   T1: { rotulo: "I trimestre", curto: "I TRI.", campo: "notaT1", maximo: 30, minimo: 18 },
   T2: { rotulo: "II trimestre", curto: "II TRI.", campo: "notaT2", maximo: 30, minimo: 18 },
@@ -42,8 +68,8 @@ const statusOperacionais = {
 
 const viewCopy = {
   movimento: [
-    "Movimento estatístico trimestral",
-    "Síntese por turma, período, componentes, ranking e aproveitamento."
+    "Estatísticas",
+    "Movimento estatístico escolar por turma e período."
   ],
   notas: [
     "Notas",
@@ -251,7 +277,8 @@ function preencherSelects() {
     ["todas", "Todas as turmas"],
     ...demoData.turmas.map((turma) => [turma.id, turma.codigo])
   ];
-  preencherSelect(ui.movimentoTurma, opcoesTurma);
+  const opcoesMovimento = demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()]);
+  preencherSelect(ui.movimentoTurma, opcoesMovimento);
   preencherSelect(ui.notasTurma, opcoesTurma);
   preencherSelect(ui.boletimTurma, opcoesTurma);
   ui.movimentoTurma.value = state.movimento.turma;
@@ -295,42 +322,43 @@ function renderAll() {
 }
 
 function renderMovimento() {
-  const estudantes = filtrarBusca(filtrarPorTurma(estudantesResumo, state.movimento.turma));
-  const turma = obterTurma(state.movimento.turma);
-  const periodo = periodos[state.movimento.periodo];
-  ui.movementClassLabel.textContent = `${turma?.nome || "Todas as turmas"} · ${periodo.rotulo}`;
-
-  const medias = estudantes.map((estudante) => mediaPeriodoEstudante(estudante, state.movimento.periodo));
-  const mediaGeral = media(medias);
-  const abaixo = estudantes.filter((estudante) => estudanteTemVermelha(estudante, state.movimento.periodo)).length;
-  const resumoGeral = calcularResumoGeral(demoData);
-  const etapas = resumirEtapas(estudantes.flatMap((estudante) => estudante.lancamentos));
-
-  renderStats(ui.movementStats, [
-    ["Alunos no recorte", estudantes.length, "matrículas fictícias"],
-    ["Média do período", formatarMedia(mediaGeral), periodo.maximo === 100 ? "escala 60-100" : `mínimo ${periodo.minimo}/${periodo.maximo}`],
-    ["Abaixo da média", abaixo, "qualquer disciplina em vermelho"],
-    ["Componentes", componentes.length, `${resumoGeral.totalTurmas} turmas de demo`]
-  ]);
-
-  renderMovementChart(estudantes, state.movimento.periodo);
-  renderMovementDonut(estudantes, state.movimento.periodo, etapas);
-  renderMovementRanking(estudantes, state.movimento.periodo);
-  renderClassResults(state.movimento.periodo);
+  ui.movementClassLabel.textContent = "Acompanhe o desempenho geral da turma por disciplina no período selecionado.";
+  renderMovementStats();
+  renderMovementChart();
+  renderMovementDonut();
+  renderMovementRanking();
+  renderClassResults();
 }
 
-function renderMovementChart(estudantes, periodoCodigo) {
-  const periodo = periodos[periodoCodigo];
-  const total = Math.max(1, estudantes.length);
-  const maxAltura = Math.max(1, estudantes.length);
+function renderMovementStats() {
+  const percentualAcima = Math.round((movimentoReferencia.acima / movimentoReferencia.totalAlunos) * 100);
+  const percentualAbaixo = Math.round((movimentoReferencia.abaixo / movimentoReferencia.totalAlunos) * 100);
+  replaceChildren(ui.movementStats, [
+    movementStatCard("trendUp", "ACIMA OU IGUAL À MÉDIA", movimentoReferencia.acima, `${percentualAcima}%`, "ok"),
+    movementStatCard("trendDown", "ABAIXO DA MÉDIA", movimentoReferencia.abaixo, `${percentualAbaixo}%`, "error"),
+    movementStatCard("users", "ALUNOS NA TURMA", movimentoReferencia.totalAlunos, "100%", "info"),
+    movementStatCard("star", "MÉDIA GERAL DA TURMA", movimentoReferencia.mediaGeral, "Bom", "ok")
+  ]);
+}
+
+function movementStatCard(iconName, label, value, badge, type) {
+  const card = element("article", `movementStatCard ${type}`);
+  card.append(movementIcon(iconName));
+  const body = element("div", "movementStatBody");
+  appendText(body, "span", label);
+  const line = element("div", "movementStatValue");
+  appendText(line, "strong", String(value));
+  appendText(line, "small", badge, `movementStatBadge ${type}`);
+  body.append(line);
+  card.append(body);
+  return card;
+}
+
+function renderMovementChart() {
+  const maxAltura = 25;
   const chart = element("div", "movementBars");
 
-  componentes.forEach((componente) => {
-    const acima = estudantes.filter((estudante) => {
-      const nota = obterLancamento(estudante, componente);
-      return nota && valorPeriodo(nota, periodoCodigo) >= periodo.minimo;
-    }).length;
-    const abaixo = Math.max(0, total - acima);
+  movimentoReferencia.componentes.forEach((componente) => {
     const button = element("button", "movementBar");
     button.type = "button";
     button.dataset.codigo = componente.codigo;
@@ -338,97 +366,123 @@ function renderMovementChart(estudantes, periodoCodigo) {
 
     const bars = element("span", "barPair");
     const blue = element("i", "barBlue");
-    blue.style.setProperty("--bar-height", `${Math.max(6, (acima / maxAltura) * 100)}%`);
-    blue.dataset.value = String(acima);
+    blue.style.setProperty("--bar-height", `${Math.max(6, (componente.acima / maxAltura) * 100)}%`);
+    blue.dataset.value = String(componente.acima);
     const red = element("i", "barRed");
-    red.style.setProperty("--bar-height", `${Math.max(abaixo ? 6 : 0, (abaixo / maxAltura) * 100)}%`);
-    red.dataset.value = String(abaixo);
+    red.style.setProperty("--bar-height", `${componente.abaixo ? Math.max(6, (componente.abaixo / maxAltura) * 100) : 0}%`);
+    red.dataset.value = String(componente.abaixo);
+    red.classList.toggle("isZero", componente.abaixo === 0);
     bars.append(blue, red);
 
     const label = element("span", "barLabel");
+    label.append(movementIcon(componente.icon));
     appendText(label, "strong", componente.codigo);
     appendText(label, "small", componente.nome);
     button.append(bars, label);
     button.addEventListener("click", () => {
-      ui.movementDisciplineHint.textContent = `${componente.nome}: ${abaixo} aluno(s) com nota abaixo de ${periodo.minimo}. Função preparada para abrir lista detalhada na fase de dados reais.`;
+      ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) abaixo da média.`;
     });
     chart.append(button);
   });
 
-  replaceChildren(ui.movementChart, [chart]);
+  const yAxis = element("div", "statsYAxis");
+  [25, 20, 15, 10, 5, 0].forEach((valor) => appendText(yAxis, "span", String(valor)));
+  const canvas = element("div", "statsChartCanvas");
+  canvas.append(yAxis, chart);
+  replaceChildren(ui.movementChart, [canvas]);
 }
 
-function renderMovementDonut(estudantes, periodoCodigo, etapas) {
-  const total = Math.max(1, estudantes.length);
-  const aprovados = estudantes.filter((estudante) => !estudanteTemVermelha(estudante, periodoCodigo)).length;
-  const percentual = Math.round((aprovados / total) * 100);
+function renderMovementDonut() {
+  const percentual = Math.round((movimentoReferencia.acima / movimentoReferencia.totalAlunos) * 100);
+  const percentualAbaixo = 100 - percentual;
   const panel = document.createDocumentFragment();
-  panel.append(panelTitle("Aprovação no recorte", "Síntese"));
+  const header = element("div", "statsPanelHeader compact");
+  const title = element("div", "statsPanelTitle");
+  appendText(title, "h3", "DESEMPENHO GERAL DA TURMA  ⓘ");
+  header.append(title);
+
+  const body = element("div", "statsDonutBody");
+  const left = element("div", "statsDonutLegend left");
+  appendText(left, "span", `${movimentoReferencia.abaixo} alunos`);
+  appendText(left, "strong", `${percentualAbaixo}%`);
+  appendText(left, "small", "Abaixo da média");
+  left.prepend(dot("red"));
+
   const donut = element("div", "donutMeter");
   donut.style.setProperty("--percent", `${percentual}%`);
   appendText(donut, "strong", `${percentual}%`);
-  appendText(donut, "span", "sem nota vermelha");
-  const chips = element("div", "chipRow");
-  chips.append(chip(`${aprovados} em azul`, "ok"), chip(`${total - aprovados} em vermelho`, "error"));
-  const stages = element("div", "miniStageList");
-  etapas.slice(0, 4).forEach((etapa) => {
-    const item = element("article");
-    appendText(item, "span", etapa.rotulo);
-    appendText(item, "strong", formatarMedia(etapa.media));
-    stages.append(item);
-  });
-  panel.append(donut, chips, stages);
+  appendText(donut, "span", "ACIMA OU IGUAL À MÉDIA");
+
+  const right = element("div", "statsDonutLegend right");
+  appendText(right, "span", `${movimentoReferencia.acima} alunos`);
+  appendText(right, "strong", `${percentual}%`);
+  appendText(right, "small", "Acima ou igual à média");
+  right.prepend(dot("blue"));
+  body.append(left, donut, right);
+
+  const note = element("div", "statsDonutNote");
+  note.append(movementIcon("users"));
+  appendText(note, "span", `Dos ${movimentoReferencia.totalAlunos} alunos, ${movimentoReferencia.acima} ficaram com nota igual ou acima da média em todas as disciplinas.`);
+
+  panel.append(header, body, note);
   replaceChildren(ui.movementDonut, [panel]);
 }
 
-function renderMovementRanking(estudantes, periodoCodigo) {
-  const limite = state.movimento.rankingExpandido ? 10 : 3;
-  const ranking = [...estudantes]
-    .sort((a, b) => mediaPeriodoEstudante(b, periodoCodigo) - mediaPeriodoEstudante(a, periodoCodigo))
-    .slice(0, limite);
-  const header = panelTitle("Ranking da turma", "Top desempenho");
+function renderMovementRanking() {
+  const header = element("div", "statsRankingHeader");
+  header.append(movementIcon("trophy"));
+  appendText(header, "h3", "DESTAQUES DA TURMA");
   const list = element("div", "rankingList");
-  ranking.forEach((estudante, index) => {
+  movimentoReferencia.ranking.forEach((estudante, index) => {
     const item = element("article", "rankingItem");
-    appendText(item, "span", String(index + 1).padStart(2, "0"), `rankBadge rank${Math.min(index + 1, 3)}`);
+    appendText(item, "span", String(index + 1), `rankBadge rank${Math.min(index + 1, 3)}`);
     const text = element("div");
-    const nome = appendText(text, "strong", estudante.nome);
-    if (estudanteTemVermelha(estudante, periodoCodigo)) nome.classList.add("studentAlertName");
-    appendText(text, "small", `${estudante.turma?.codigo || ""} · ${statusOperacionais[statusOperacional(estudante).status].rotulo}`);
-    appendText(item, "b", formatarMedia(mediaPeriodoEstudante(estudante, periodoCodigo)));
+    appendText(text, "strong", estudante.nome);
+    appendText(item, "b", estudante.media);
     item.insertBefore(text, item.lastChild);
     list.append(item);
   });
-  const button = element("button", "textButton");
+  const button = element("button", "statsRankingLink");
   button.type = "button";
-  button.textContent = state.movimento.rankingExpandido ? "Ver top 3" : "Expandir top 10";
+  button.innerHTML = "<span>VER RANKING COMPLETO</span><b aria-hidden=\"true\">›</b>";
   button.addEventListener("click", () => {
     state.movimento.rankingExpandido = !state.movimento.rankingExpandido;
-    renderMovementRanking(estudantes, periodoCodigo);
   });
   replaceChildren(ui.movementRanking, [header, list, button]);
 }
 
-function renderClassResults(periodoCodigo) {
-  const mostrar = state.movimento.turma === "todas" || periodoCodigo === "geral";
-  ui.movementClassPanel.hidden = !mostrar;
-  if (!mostrar) return;
+function renderClassResults() {
+  ui.movementClassPanel.hidden = true;
+  replaceChildren(ui.movementClassCards, []);
+}
 
-  const cards = resumirTurmas(demoData).map((turma) => {
-    const estudantes = filtrarPorTurma(estudantesResumo, turma.id);
-    const aprovados = estudantes.filter((estudante) => !estudanteTemVermelha(estudante, "geral")).length;
-    const percentual = Math.round((aprovados / Math.max(1, estudantes.length)) * 100);
-    const card = element("article", "classResultCard");
-    const mini = element("div", "smallDonut");
-    mini.style.setProperty("--percent", `${percentual}%`);
-    appendText(mini, "strong", `${percentual}%`);
-    const body = element("div");
-    appendText(body, "strong", turma.codigo);
-    appendText(body, "span", `${aprovados} aprovados · ${estudantes.length - aprovados} em atenção`);
-    card.append(mini, body);
-    return card;
-  });
-  replaceChildren(ui.movementClassCards, cards);
+function dot(type) {
+  return element("i", `legendDot ${type}`);
+}
+
+function movementIcon(name) {
+  const paths = {
+    trendUp: '<path d="m4 16 5-5 4 4 7-8"></path><path d="M15 7h5v5"></path>',
+    trendDown: '<path d="m4 8 5 5 4-4 7 8"></path><path d="M15 17h5v-5"></path>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+    star: '<path d="m12 3 2.9 5.88 6.5.95-4.7 4.58 1.1 6.47L12 17.82l-5.8 3.06 1.1-6.47-4.7-4.58 6.5-.95z"></path>',
+    trophy: '<path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M5 5H3v2a4 4 0 0 0 4 4"></path><path d="M19 5h2v2a4 4 0 0 1-4 4"></path>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H11V5H6.5A2.5 2.5 0 0 0 4 7.5z"></path><path d="M20 19.5A2.5 2.5 0 0 0 17.5 17H13V5h4.5A2.5 2.5 0 0 1 20 7.5z"></path><path d="M11 5v12"></path><path d="M13 5v12"></path>',
+    sigma: '<path d="M18 5H7l6 7-6 7h11"></path>',
+    flask: '<path d="M9 3h6"></path><path d="M10 3v5l-5 9a3 3 0 0 0 2.6 4.5h8.8A3 3 0 0 0 19 17l-5-9V3"></path><path d="M8 15h8"></path>',
+    globe: '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18"></path><path d="M12 3a14 14 0 0 0 0 18"></path>',
+    columns: '<path d="M4 21h16"></path><path d="M6 18V9"></path><path d="M10 18V9"></path><path d="M14 18V9"></path><path d="M18 18V9"></path><path d="M3 8l9-5 9 5z"></path>',
+    palette: '<path d="M12 3a9 9 0 0 0 0 18h1.5a2 2 0 0 0 1.4-3.4l-.5-.5A2 2 0 0 1 15.8 14H17a4 4 0 0 0 0-8z"></path><circle cx="7.5" cy="10" r="1"></circle><circle cx="10.5" cy="7.5" r="1"></circle><circle cx="14.5" cy="8" r="1"></circle>',
+    runner: '<circle cx="13" cy="4" r="2"></circle><path d="m6 21 3-6"></path><path d="m9 15 3-5 4 2 3-2"></path><path d="m12 10-3-2-3 3"></path><path d="m14 15 4 6"></path>',
+    letters: '<path d="M4 18 9 6l5 12"></path><path d="M6 14h6"></path><path d="M16 18V9"></path><path d="M16 9h4"></path><path d="M16 13h3"></path>',
+    pencil: '<path d="m4 20 4-1 11-11-3-3L5 16z"></path><path d="m14 6 3 3"></path>',
+    scales: '<path d="M12 3v18"></path><path d="M5 6h14"></path><path d="m6 6-3 7h6z"></path><path d="m18 6-3 7h6z"></path>',
+    monitor: '<rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path>'
+  };
+  const icon = element("span", `movementIcon ${name}`);
+  icon.setAttribute("aria-hidden", "true");
+  icon.innerHTML = `<svg viewBox="0 0 24 24" focusable="false">${paths[name] || paths.star}</svg>`;
+  return icon;
 }
 
 function renderNotas() {

@@ -2,9 +2,9 @@
 
 > Documento operacional e fonte de verdade para pessoas e inteligências artificiais que trabalharem neste módulo.
 >
-> Última atualização: 07/07/2026
+> Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 07/07/2026: para a fase visual atual, a SPA foi reduzida a `Movimento`, `Notas` e `Boletim`. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
+Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas`. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -642,7 +642,7 @@ O projeto só poderá ser considerado concluído quando:
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
-- validar o protótipo funcional `/notas/` com o responsável antes de ligar dados reais;
+- validar com o responsável a versão visual refinada de `/notas/#movimento`/`Estatísticas` contra o `anexo 7.png` antes de ligar dados reais;
 - provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
 - substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
 
@@ -685,10 +685,51 @@ Ao concluir:
 2. registrar arquivos alterados e resultados;
 3. atualizar checklist, pendências e decisões;
 4. não marcar uma fase como concluída com trabalho pendente;
-5. não fazer commit/push sem autorização da sessão, salvo quando o usuário já tiver pedido explicitamente;
+5. fazer commit dos arquivos necessários e push para `origin/main` por padrão ao concluir alterações no módulo `/notas/`;
 6. nunca provisionar ou apagar recursos Microsoft 365 por inferência.
 
+Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
+
 ## 19. Registro de continuidade
+
+### 08/07/2026 — refinamento da aba Estatísticas contra o anexo 7
+
+- Retomada da etapa interrompida pela IA anterior a partir das alterações locais não commitadas em `notas/index.html`, `notas/js/app.js`, `notas/css/layouts.css` e `notas/css/componentes.css`.
+- Confirmado que o comando salvo em `C:\Users\Eugui\Desktop\comando notas.txt` pedia fase visual antes das conexões reais, mantendo somente `Movimento`, `Notas` e `Boletim` e comparando as telas com os anexos da pasta `C:\Users\Eugui\Desktop\imagens`.
+- Confirmado que o foco atual do responsável era a antiga aba `Movimento`, agora apresentada ao usuário como `Estatísticas`, visualmente fiel ao `anexo 7.png`.
+- Comparação inicial usada:
+  - referência: `C:\Users\Eugui\Desktop\imagens\anexo 7.png`, 1420×941;
+  - captura local anterior: `diagnosticos/notas-estatisticas-anexo7-v1.png`.
+- Diferenças encontradas na captura anterior: botão `IMPRIMIR RELATÓRIO` quebrando em duas linhas, rótulos dos cards métricos quebrados, ranking e painéis inferiores cerca de 50 px fora da referência, donut menor/orientado diferente, rodapé fora ou com marcador textual, segundo nome do ranking truncado e problemas de overflow no mobile.
+- Ajustes feitos em `notas/css/layouts.css`:
+  - proporção da grade principal calibrada para aproximar gráfico e coluna direita do anexo;
+  - espaçamentos verticais reduzidos para alinhar ranking, gráfico, donut e rodapé;
+  - rodapé da tela estatística recebeu alinhamento com ícone e regras de quebra no mobile;
+  - `statsDashboard` passou a conter overflow horizontal em telas menores.
+- Ajustes feitos em `notas/css/componentes.css`:
+  - botão de impressão mantido em uma linha, com ícone maior;
+  - cards métricos compactados no desktop para manter rótulos em uma linha;
+  - ranking compactado para caber no painel do anexo e manter os nomes visíveis;
+  - donut aumentado para 277 px no desktop, reposicionado verticalmente e com segmento vermelho rotacionado para a área esquerda;
+  - exceções mobile adicionadas para permitir quebra de texto nos cards e evitar corte visual.
+- Ajustes feitos em `notas/index.html`:
+  - rodapé de `Estatísticas` trocou o marcador textual por SVG de calendário.
+- Ajuste feito em `notas/js/app.js`:
+  - ícone da disciplina Português alterado para livro aberto, aproximando do anexo 7.
+- Capturas geradas na comparação/ciclo:
+  - `diagnosticos/notas-estatisticas-anexo7-v2.png`;
+  - `diagnosticos/notas-estatisticas-anexo7-v3.png`;
+  - `diagnosticos/notas-estatisticas-anexo7-v4.png`;
+  - `diagnosticos/notas-estatisticas-anexo7-v5.png`;
+  - `diagnosticos/notas-estatisticas-anexo7-v6.png`;
+  - `diagnosticos/notas-estatisticas-anexo7-v6-mobile.png`.
+- Resultado visual da captura `v6`: desktop 1420×941 ficou alinhado ao anexo 7 na posição dos seletores, botão, ranking, cards, gráfico, donut e rodapé; mobile 390×844 deixou de cortar os textos dos cards métricos.
+- Validação executada: `node scripts/testes-notas.mjs` passou.
+- Validação executada: `git diff --check -- notas scripts/testes-notas.mjs` não apontou erros; houve apenas avisos esperados de LF/CRLF no Windows.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID, Graph ou recurso Microsoft 365 foi criado ou alterado.
+- Após a entrega visual, o responsável definiu nova regra permanente: sempre fazer commit e push das etapas concluídas do módulo `/notas/`, salvo pedido explícito para deixar local. A regra foi registrada em `notas/AGENTS.md` e no protocolo de futuras sessões deste arquivo.
+- Próxima etapa correta: responsável validar visualmente a aba `Estatísticas` local/GitHub Pages; se aprovada, repetir o mesmo ciclo de comparação para `Notas`/anexos 3 e 4 ou `Boletim`/anexos 5 e 6, conforme prioridade.
 
 ### 07/07/2026 — correção por comparação visual com anexos
 

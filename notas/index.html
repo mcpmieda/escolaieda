@@ -25,7 +25,7 @@
       </a>
 
       <nav class="railNav" aria-label="Áreas do sistema de notas">
-        <button class="navItem active" type="button" data-view="movimento" aria-label="Movimento estatístico trimestral">
+        <button class="navItem active" type="button" data-view="movimento" aria-label="Estatísticas">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 19V5"></path>
             <path d="M4 19h16"></path>
@@ -34,7 +34,7 @@
             <path d="M16 16v-3"></path>
             <path d="M20 9a7 7 0 0 0-7-7v7z"></path>
           </svg>
-          <span>Movimento</span>
+          <span>Estatísticas</span>
         </button>
         <button class="navItem" type="button" data-view="notas" aria-label="Notas">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -106,48 +106,77 @@
         </div>
       </header>
 
-      <section class="pageView active" id="view-movimento" aria-labelledby="movimentoTitulo">
-        <div class="screenHero movementHero">
-          <div>
-            <p class="eyebrow">Movimento estatístico escolar</p>
-            <h2 id="movimentoTitulo">MOVIMENTO ESTATÍSTICO ESCOLAR</h2>
-            <p id="movementClassLabel">8C - Demonstração · I trimestre</p>
-          </div>
-          <div class="heroControls">
-            <label>
-              <span>Turma</span>
+      <section class="pageView active statsView" id="view-movimento" aria-labelledby="movimentoTitulo">
+        <div class="statsDashboard">
+          <div class="statsTopRow">
+            <label class="statsSelectCard">
               <select id="movimentoTurma"></select>
+              <span>Turma</span>
             </label>
-            <label>
-              <span>Período</span>
+            <label class="statsSelectCard">
               <select id="movimentoPeriodo">
-                <option value="T1">I trimestre</option>
-                <option value="T2">II trimestre</option>
-                <option value="T3">III trimestre</option>
-                <option value="geral">Visão geral</option>
+                <option value="T1">I TRIMESTRE</option>
+                <option value="T2">II TRIMESTRE</option>
+                <option value="T3">III TRIMESTRE</option>
               </select>
+              <span>Período</span>
             </label>
-            <button class="actionButton" type="button" id="movementPrint">Imprimir relatório</button>
+            <span class="statsTopSpacer" aria-hidden="true"></span>
+            <button class="statsPrintButton" type="button" id="movementPrint">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 8V3h10v5"></path>
+                <path d="M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <path d="M7 14h10v7H7z"></path>
+              </svg>
+              <span>IMPRIMIR RELATÓRIO</span>
+            </button>
+            <button class="statsMoreButton" type="button" aria-label="Mais opções">
+              <span></span><span></span><span></span>
+            </button>
           </div>
-        </div>
 
-        <div class="movementGrid">
-          <section class="panel panelWide">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Desempenho da turma</p>
-                <h3>Alunos acima e abaixo da média por disciplina</h3>
+          <div class="statsMainGrid">
+            <section class="statsIntroBlock">
+              <h2 id="movimentoTitulo">MOVIMENTO ESTATÍSTICO ESCOLAR</h2>
+              <p id="movementClassLabel">Acompanhe o desempenho geral da turma por disciplina no período selecionado.</p>
+              <div class="statGrid movementStatGrid" id="movementStats"></div>
+            </section>
+
+            <section class="statsGlass statsRankingPanel" id="movementRanking"></section>
+
+            <section class="statsGlass statsChartPanel">
+              <div class="statsPanelHeader">
+                <div class="statsPanelTitle">
+                  <h3>DESEMPENHO POR DISCIPLINA <span aria-hidden="true">ⓘ</span></h3>
+                  <div class="statsLegend">
+                    <span><i class="legendDot blue"></i> ACIMA OU IGUAL À MÉDIA</span>
+                    <span><i class="legendDot red"></i> ABAIXO DA MÉDIA</span>
+                  </div>
+                </div>
+                <div class="statsPanelTools">
+                  <button class="statsDropdown" type="button">Exibir valores <span aria-hidden="true">⌄</span></button>
+                  <button class="statsDots" type="button" aria-label="Mais opções"><span></span><span></span><span></span></button>
+                </div>
               </div>
-              <span class="panelHint" id="movementDisciplineHint">Clique em uma disciplina para preparar a lista de alunos em vermelho.</span>
-            </div>
-            <div class="statGrid" id="movementStats"></div>
-            <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
-          </section>
+              <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para preparar a lista de alunos em vermelho.</span>
+              <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
+              <p class="statsChartFootnote">ⓘ Mínimo de 18 pontos para alcançar a média. Máximo de 30 pontos.</p>
+            </section>
 
-          <aside class="sideStack">
-            <section class="panel" id="movementRanking"></section>
-            <section class="panel" id="movementDonut"></section>
-          </aside>
+            <section class="statsGlass statsDonutPanel" id="movementDonut"></section>
+          </div>
+
+          <footer class="statsDashboardFooter">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 2v4"></path>
+              <path d="M16 2v4"></path>
+              <path d="M3 10h18"></path>
+              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            </svg>
+            <span>Dados referentes a I TRIMESTRE</span>
+            <span>•</span>
+            <span>Atualizado em 07/07/2026 às 10:45</span>
+          </footer>
         </div>
 
         <section class="panel classResultsPanel" id="movementClassPanel" hidden>

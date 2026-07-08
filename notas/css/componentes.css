@@ -1337,3 +1337,679 @@ option {
     break-inside: avoid;
   }
 }
+
+body[data-view="movimento"] .statsSelectCard,
+body[data-view="movimento"] .statsGlass,
+body[data-view="movimento"] .movementStatCard,
+body[data-view="movimento"] .statsPrintButton,
+body[data-view="movimento"] .statsMoreButton {
+  border: 1px solid rgba(122, 166, 225, 0.24);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18);
+}
+
+body[data-view="movimento"] .statsSelectCard {
+  position: relative;
+  min-height: 82px;
+  padding: 18px 52px 14px 20px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+}
+
+body[data-view="movimento"] .statsSelectCard::after {
+  content: "";
+  position: absolute;
+  right: 25px;
+  top: 34px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #f5f8ff;
+  border-bottom: 2px solid #f5f8ff;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+body[data-view="movimento"] .statsSelectCard select {
+  width: 100%;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  appearance: none;
+  background: transparent;
+  color: #f8fbff;
+  font-size: 1.48rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .statsSelectCard span {
+  color: rgba(205, 221, 244, 0.82);
+  font-size: 0.86rem;
+}
+
+body[data-view="movimento"] .statsPrintButton {
+  min-height: 70px;
+  padding: 0 26px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  border-color: rgba(82, 142, 252, 0.52);
+  background: linear-gradient(135deg, #236bff 0%, #1657d4 100%);
+  color: #fff;
+  font-size: 1.03rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+body[data-view="movimento"] .statsPrintButton svg {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 27px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body[data-view="movimento"] .statsMoreButton {
+  min-height: 70px;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  background: rgba(16, 50, 91, 0.70);
+}
+
+body[data-view="movimento"] .statsMoreButton span,
+body[data-view="movimento"] .statsDots span {
+  width: 4px;
+  height: 4px;
+  display: block;
+  border-radius: 999px;
+  background: #fff;
+}
+
+body[data-view="movimento"] .statsIntroBlock h2 {
+  margin-bottom: 12px;
+  color: #fbfdff;
+  font-size: 1.78rem;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .statsIntroBlock p {
+  margin-bottom: 0;
+  color: rgba(211, 225, 246, 0.82);
+  font-size: 1.02rem;
+}
+
+body[data-view="movimento"] .movementStatCard {
+  min-height: 118px;
+  padding: 22px 16px;
+  display: grid;
+  grid-template-columns: 29px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+}
+
+body[data-view="movimento"] .movementStatCard.ok .movementIcon {
+  color: #37e788;
+}
+
+body[data-view="movimento"] .movementStatCard.error .movementIcon {
+  color: #ff374f;
+}
+
+body[data-view="movimento"] .movementStatCard.info .movementIcon,
+body[data-view="movimento"] .movementStatCard .movementIcon.star {
+  color: #327dff;
+}
+
+body[data-view="movimento"] .movementStatBody span {
+  display: block;
+  color: rgba(215, 226, 243, 0.86);
+  font-size: 0.70rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+body[data-view="movimento"] .movementStatValue {
+  margin-top: 17px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+body[data-view="movimento"] .movementStatValue strong {
+  color: #f9fcff;
+  font-size: 1.72rem;
+  line-height: 1;
+}
+
+body[data-view="movimento"] .movementStatBadge {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+body[data-view="movimento"] .movementStatBadge.ok {
+  background: rgba(45, 204, 116, 0.18);
+  color: #38dd87;
+}
+
+body[data-view="movimento"] .movementStatBadge.error {
+  background: rgba(255, 54, 79, 0.16);
+  color: #ff3a52;
+}
+
+body[data-view="movimento"] .movementStatBadge.info {
+  background: rgba(42, 125, 255, 0.18);
+  color: #45a0ff;
+}
+
+body[data-view="movimento"] .movementIcon {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+body[data-view="movimento"] .movementIcon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.95;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body[data-view="movimento"] .statsRankingPanel {
+  padding: 21px 25px 9px;
+}
+
+body[data-view="movimento"] .statsRankingHeader {
+  margin-bottom: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+body[data-view="movimento"] .statsRankingHeader .movementIcon {
+  width: 18px;
+  height: 18px;
+  color: #ffbd22;
+}
+
+body[data-view="movimento"] .statsRankingHeader h3,
+body[data-view="movimento"] .statsPanelTitle h3 {
+  margin-bottom: 0;
+  color: #f4f8ff;
+  font-size: 1rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .rankingList {
+  gap: 0;
+}
+
+body[data-view="movimento"] .rankingItem {
+  min-height: 45px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 37px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid rgba(143, 184, 239, 0.12);
+  border-radius: 0;
+  background: transparent;
+}
+
+body[data-view="movimento"] .rankingItem strong {
+  color: #f6f9ff;
+  font-size: 0.80rem;
+  font-weight: 800;
+}
+
+body[data-view="movimento"] .rankingItem b {
+  min-width: 58px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(62, 105, 179, 0.33);
+  color: #e8f1ff;
+  font-size: 1rem;
+  text-align: center;
+}
+
+body[data-view="movimento"] .rankBadge {
+  width: 33px;
+  height: 33px;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 1rem;
+}
+
+body[data-view="movimento"] .rank1 {
+  background: linear-gradient(145deg, #ffc52d, #d59600);
+}
+
+body[data-view="movimento"] .rank2 {
+  background: linear-gradient(145deg, #c9d3de, #7a8798);
+}
+
+body[data-view="movimento"] .rank3 {
+  background: linear-gradient(145deg, #d68150, #a34f30);
+}
+
+body[data-view="movimento"] .statsRankingLink {
+  width: 100%;
+  min-height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  border: 0;
+  background: transparent;
+  color: #f5f8ff;
+  font-size: 0.78rem;
+  text-align: left;
+}
+
+body[data-view="movimento"] .statsRankingLink b {
+  font-size: 1.9rem;
+  line-height: 0.78;
+}
+
+body[data-view="movimento"] .statsChartPanel,
+body[data-view="movimento"] .statsDonutPanel {
+  padding: 22px 22px 13px;
+}
+
+body[data-view="movimento"] .statsPanelHeader {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+body[data-view="movimento"] .statsPanelHeader.compact {
+  margin-bottom: 0;
+}
+
+body[data-view="movimento"] .statsLegend {
+  margin-top: 17px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  color: #e3eefc;
+  font-size: 0.78rem;
+}
+
+body[data-view="movimento"] .statsLegend span {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+body[data-view="movimento"] .legendDot {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+  border-radius: 999px;
+}
+
+body[data-view="movimento"] .legendDot.blue {
+  background: #266dff;
+}
+
+body[data-view="movimento"] .legendDot.red {
+  background: #ff344c;
+}
+
+body[data-view="movimento"] .statsPanelTools {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+body[data-view="movimento"] .statsDropdown {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid rgba(142, 180, 232, 0.24);
+  border-radius: 8px;
+  background: rgba(19, 53, 95, 0.72);
+  color: #eaf3ff;
+  font-size: 0.78rem;
+}
+
+body[data-view="movimento"] .statsDots {
+  width: 28px;
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+}
+
+body[data-view="movimento"] .movementChart {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+body[data-view="movimento"] .statsChartCanvas {
+  height: 330px;
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  gap: 7px;
+}
+
+body[data-view="movimento"] .statsYAxis {
+  padding-top: 6px;
+  padding-bottom: 68px;
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  color: rgba(224, 236, 252, 0.92);
+  font-size: 0.83rem;
+}
+
+body[data-view="movimento"] .movementBars {
+  position: relative;
+  min-height: 0;
+  height: 330px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+  overflow: visible;
+}
+
+body[data-view="movimento"] .movementBars::before {
+  content: "";
+  position: absolute;
+  inset: 6px 0 68px 0;
+  background: linear-gradient(to bottom, rgba(129, 166, 219, 0.12) 1px, transparent 1px) 0 0 / 100% 25%;
+  border-bottom: 1px solid rgba(129, 166, 219, 0.17);
+  pointer-events: none;
+}
+
+body[data-view="movimento"] .movementBar {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 66px;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #f4f8ff;
+}
+
+body[data-view="movimento"] .barPair {
+  height: 256px;
+  align-self: end;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 4px;
+}
+
+body[data-view="movimento"] .barPair i {
+  width: 28px;
+  height: var(--bar-height);
+  position: relative;
+  border-radius: 6px 6px 2px 2px;
+}
+
+body[data-view="movimento"] .barPair i::before {
+  content: attr(data-value);
+  position: absolute;
+  left: 50%;
+  top: -28px;
+  transform: translateX(-50%);
+  min-width: 25px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(14, 31, 58, 0.88);
+  color: #f5f8ff;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 900;
+  text-align: center;
+}
+
+body[data-view="movimento"] .barPair i.isZero {
+  height: 0;
+}
+
+body[data-view="movimento"] .barPair i.isZero::before {
+  top: auto;
+  bottom: 3px;
+}
+
+body[data-view="movimento"] .barBlue {
+  background: linear-gradient(180deg, #367bff 0%, #1557d7 100%);
+}
+
+body[data-view="movimento"] .barRed {
+  width: 19px;
+  background: linear-gradient(180deg, #ff5b71 0%, #d51631 100%);
+}
+
+body[data-view="movimento"] .barLabel {
+  min-height: 66px;
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  color: #ecf4ff;
+  text-align: center;
+}
+
+body[data-view="movimento"] .barLabel .movementIcon {
+  width: 23px;
+  height: 23px;
+  margin: 0 auto 2px;
+  color: rgba(231, 241, 255, 0.88);
+}
+
+body[data-view="movimento"] .barLabel strong {
+  color: #f4f8ff;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+body[data-view="movimento"] .barLabel small {
+  color: rgba(207, 222, 244, 0.80);
+  font-size: 0.56rem;
+  font-weight: 800;
+  line-height: 1.06;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .statsChartFootnote {
+  margin: 11px -22px -13px;
+  min-height: 39px;
+  padding: 11px 21px;
+  border-top: 1px solid rgba(125, 164, 220, 0.13);
+  color: rgba(215, 229, 249, 0.78);
+  font-size: 0.75rem;
+}
+
+body[data-view="movimento"] .statsDonutBody {
+  min-height: 341px;
+  display: grid;
+  grid-template-columns: 70px 277px 82px;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+body[data-view="movimento"] .donutMeter {
+  width: min(277px, 100%);
+  margin: 0 auto;
+  background:
+    radial-gradient(circle, #0a2548 0 48%, transparent 49%),
+    conic-gradient(from -126deg, #f03048 0 calc(100% - var(--percent)), #236bff calc(100% - var(--percent)) 100%);
+}
+
+body[data-view="movimento"] .donutMeter strong {
+  color: #f9fcff;
+  transform: translateY(-13px);
+  font-size: 3.12rem;
+  line-height: 1;
+}
+
+body[data-view="movimento"] .donutMeter span {
+  width: 145px;
+  transform: translateY(42px);
+  color: #f4f8ff;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+body[data-view="movimento"] .statsDonutLegend {
+  display: grid;
+  gap: 5px;
+  color: #e8f2ff;
+}
+
+body[data-view="movimento"] .statsDonutLegend.left {
+  justify-items: start;
+}
+
+body[data-view="movimento"] .statsDonutLegend.right {
+  justify-items: start;
+}
+
+body[data-view="movimento"] .statsDonutLegend .legendDot {
+  margin-bottom: 8px;
+}
+
+body[data-view="movimento"] .statsDonutLegend span,
+body[data-view="movimento"] .statsDonutLegend small {
+  color: rgba(224, 236, 252, 0.87);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+body[data-view="movimento"] .statsDonutLegend strong {
+  color: #f8fbff;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+body[data-view="movimento"] .statsDonutNote {
+  min-height: 68px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  border: 1px solid rgba(133, 174, 230, 0.17);
+  border-radius: 12px;
+  background: rgba(12, 36, 72, 0.46);
+  color: rgba(224, 236, 252, 0.88);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+body[data-view="movimento"] .statsDonutNote .movementIcon {
+  width: 31px;
+  height: 31px;
+  color: #2c7cff;
+}
+
+@media (max-width: 1120px) {
+  body[data-view="movimento"] .movementBars {
+    grid-template-columns: repeat(11, minmax(62px, 1fr));
+    overflow-x: auto;
+  }
+
+  body[data-view="movimento"] .statsDonutBody {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  body[data-view="movimento"] .statsSelectCard {
+    min-height: 74px;
+    padding: 15px 48px 12px 18px;
+  }
+
+  body[data-view="movimento"] .statsPrintButton,
+  body[data-view="movimento"] .statsMoreButton {
+    min-height: 61px;
+  }
+
+  body[data-view="movimento"] .movementStatCard {
+    min-height: 104px;
+    padding: 18px 13px;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  body[data-view="movimento"] .movementStatBody span {
+    font-size: 0.61rem;
+    line-height: 1.15;
+    white-space: normal;
+  }
+
+  body[data-view="movimento"] .movementStatValue {
+    margin-top: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  body[data-view="movimento"] .movementStatValue strong {
+    font-size: 1.55rem;
+  }
+
+  body[data-view="movimento"] .movementStatBadge {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+
+  body[data-view="movimento"] .statsPanelHeader {
+    gap: 10px;
+  }
+
+  body[data-view="movimento"] .statsPanelTools {
+    gap: 8px;
+  }
+
+  body[data-view="movimento"] .statsDropdown {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.68rem;
+  }
+
+  body[data-view="movimento"] .statsChartPanel,
+  body[data-view="movimento"] .statsDonutPanel {
+    padding: 20px 18px 13px;
+  }
+
+  body[data-view="movimento"] .statsChartFootnote {
+    margin-right: -18px;
+    margin-left: -18px;
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+}

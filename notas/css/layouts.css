@@ -353,6 +353,145 @@ body[data-theme="claro"] .appRail {
   }
 }
 
+body[data-view="movimento"] {
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 74% 38%, rgba(32, 87, 159, 0.28), transparent 34%),
+    radial-gradient(circle at 30% 74%, rgba(18, 89, 168, 0.18), transparent 32%),
+    linear-gradient(136deg, #061631 0%, #071d3a 49%, #06162d 100%);
+}
+
+body[data-view="movimento"] .appShell {
+  display: block;
+  min-height: 100vh;
+}
+
+body[data-view="movimento"] .appRail,
+body[data-view="movimento"] .systemBar {
+  display: none;
+}
+
+body[data-view="movimento"] .mainStage {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.statsDashboard {
+  min-height: 100vh;
+  padding: 28px 52px 22px 11px;
+}
+
+.statsTopRow {
+  margin-bottom: 15px;
+  display: grid;
+  grid-template-columns: 297px 301px minmax(80px, 1fr) 278px 70px;
+  gap: 18px;
+  align-items: center;
+}
+
+.statsMainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(444px, 0.92fr);
+  grid-template-areas:
+    "intro ranking"
+    "chart donut";
+  column-gap: 12px;
+  row-gap: 10px;
+  align-items: stretch;
+}
+
+.statsIntroBlock {
+  grid-area: intro;
+  align-self: start;
+  margin-right: -28px;
+  padding-top: 22px;
+}
+
+.statsRankingPanel {
+  grid-area: ranking;
+  min-height: 253px;
+  margin-left: 28px;
+}
+
+.statsChartPanel {
+  grid-area: chart;
+  min-height: 474px;
+}
+
+.statsDonutPanel {
+  grid-area: donut;
+  min-height: 474px;
+}
+
+.movementStatGrid {
+  margin-top: 18px;
+  margin-bottom: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.statsDashboardFooter {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: rgba(212, 226, 247, 0.74);
+  font-size: 0.81rem;
+}
+
+.statsDashboardFooter svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 1120px) {
+  .statsDashboard {
+    padding: 18px;
+    overflow-x: hidden;
+  }
+
+  .statsTopRow,
+  .statsMainGrid {
+    grid-template-columns: 1fr;
+    grid-template-areas: none;
+  }
+
+  .statsIntroBlock,
+  .statsRankingPanel,
+  .statsChartPanel,
+  .statsDonutPanel {
+    grid-area: auto;
+  }
+
+  .movementStatGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .statsDashboard {
+    padding: 16px;
+  }
+
+  .statsTopRow {
+    gap: 16px;
+  }
+
+  .statsDashboardFooter {
+    flex-wrap: wrap;
+    row-gap: 4px;
+    line-height: 1.1;
+  }
+}
+
 @media print {
   .appRail,
   .systemBar,
