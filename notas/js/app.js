@@ -103,6 +103,7 @@ const ui = {
   viewTitle: document.getElementById("viewTitle"),
   viewSubtitle: document.getElementById("viewSubtitle"),
   globalSearch: document.getElementById("globalSearch"),
+  globalSearchResults: document.getElementById("globalSearchResults"),
   profileButton: document.getElementById("btnProfile"),
   profileMenu: document.getElementById("profileMenu"),
   logout: document.getElementById("btnLogout"),
@@ -172,20 +173,19 @@ function bindEvents() {
     button.addEventListener("click", () => aplicarTema(button.dataset.theme));
   });
 
-  ui.globalSearch.addEventListener("input", () => {
-    state.search = ui.globalSearch.value;
-    renderAll();
+  ui.globalSearch.addEventListener("input", renderGlobalSearchResults);
+  ui.globalSearch.addEventListener("focus", renderGlobalSearchResults);
+  ui.globalSearch.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeGlobalSearchResults(true);
   });
 
-  ui.profileButton.addEventListener("click", () => {
-    const expanded = ui.profileButton.getAttribute("aria-expanded") === "true";
-    ui.profileButton.setAttribute("aria-expanded", String(!expanded));
-    ui.profileMenu.hidden = expanded;
+  ui.profileButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleProfileMenu();
   });
 
   ui.logout.addEventListener("click", () => {
-    ui.profileMenu.hidden = true;
-    ui.profileButton.setAttribute("aria-expanded", "false");
+    closeProfileMenu();
   });
 
   ui.movimentoTurma.addEventListener("change", () => {
@@ -261,10 +261,143 @@ function bindEvents() {
     delete document.body.dataset.printView;
   });
 
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".profileBox")) closeProfileMenu();
+    if (!event.target.closest(".searchBox")) closeGlobalSearchResults(true);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeProfileMenu();
+      closeGlobalSearchResults(true);
+    }
+  });
+
   window.addEventListener("hashchange", () => {
     const view = viewFromHash();
     if (view) abrirView(view, false);
   });
+}
+
+function toggleProfileMenu() {
+  const expanded = ui.profileButton.getAttribute("aria-expanded") === "true";
+  ui.profileButton.setAttribute("aria-expanded", String(!expanded));
+  ui.profileMenu.hidden = expanded;
+}
+
+function closeProfileMenu() {
+  ui.profileMenu.hidden = true;
+  ui.profileButton.setAttribute("aria-expanded", "false");
+}
+
+function renderGlobalSearchResults() {
+  const termo = ui.globalSearch.value.trim();
+  const busca = normalizarTexto(termo);
+  if (!busca) {
+    closeGlobalSearchResults(false);
+    return;
+  }
+
+  const resultados = [
+    ...estudantesResumo
+      .filter((estudante) => normalizarTexto(`${estudante.nome} ${estudante.codigo} ${estudante.turma?.codigo || ""}`).includes(busca))
+      .slice(0, 5)
+      .map((estudante) => ({
+        tipo: "aluno",
+        titulo: estudante.nome,
+        detalhe: `${estudante.turma?.codigo || ""} · ficha demonstrativa`,
+        valor: estudante.id
+      })),
+    ...demoData.turmas
+      .filter((turma) => normalizarTexto(`${turma.codigo} ${turma.nome}`).includes(busca))
+      .slice(0, 2)
+      .map((turma) => ({
+        tipo: "turma",
+        titulo: turmaTituloAcademico(turma),
+        detalhe: `${turma.turno} · ${turma.sala}`,
+        valor: turma.id
+      })),
+    ...componentes
+      .filter((componente) => normalizarTexto(`${componente.codigo} ${componente.nome}`).includes(busca))
+      .slice(0, 3)
+      .map((componente) => ({
+        tipo: "disciplina",
+        titulo: componente.nome,
+        detalhe: `${componente.codigo} · destacar no gráfico`,
+        valor: componente.codigo
+      }))
+  ].slice(0, 8);
+
+  const itens = resultados.length
+    ? resultados.map((resultado) => criarResultadoBusca(resultado))
+    : [emptyState("Nenhum resultado encontrado para a busca atual.")];
+  replaceChildren(ui.globalSearchResults, itens);
+  ui.globalSearchResults.hidden = false;
+  ui.globalSearch.setAttribute("aria-expanded", "true");
+}
+
+function criarResultadoBusca(resultado) {
+  const button = element("button", "searchResultItem");
+  button.type = "button";
+  button.setAttribute("role", "option");
+  button.dataset.searchType = resultado.tipo;
+  const icon = appendText(button, "span", resultado.tipo.slice(0, 1).toUpperCase(), `searchResultIcon ${resultado.tipo}`);
+  icon.setAttribute("aria-hidden", "true");
+  const text = element("span", "searchResultText");
+  appendText(text, "strong", resultado.titulo);
+  appendText(text, "small", resultado.detalhe);
+  button.append(text);
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    ativarResultadoBusca(resultado);
+  });
+  return button;
+}
+
+function ativarResultadoBusca(resultado) {
+  closeGlobalSearchResults(true);
+  if (resultado.tipo === "aluno") {
+    abrirPerfilAluno(resultado.valor);
+    return;
+  }
+  if (resultado.tipo === "turma") {
+    selecionarTurmaPorBusca(resultado.valor);
+    return;
+  }
+  if (resultado.tipo === "disciplina") {
+    if (state.view !== "movimento") abrirView("movimento");
+    state.movimento.disciplinaSelecionada = resultado.valor;
+    renderMovimento();
+    ui.movementChart.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+function selecionarTurmaPorBusca(turmaId) {
+  if (state.view === "notas") {
+    state.notas.turma = turmaId;
+    ui.notasTurma.value = turmaId;
+    renderNotas();
+    return;
+  }
+  if (state.view === "boletim") {
+    state.boletim.turma = turmaId;
+    ui.boletimTurma.value = turmaId;
+    renderBoletim();
+    return;
+  }
+  state.movimento.turma = turmaId;
+  state.movimento.disciplinaSelecionada = "";
+  ui.movimentoTurma.value = turmaId;
+  syncStatsSelect(ui.movimentoTurma);
+  renderMovimento();
+}
+
+function closeGlobalSearchResults(clearInput = false) {
+  ui.globalSearchResults.hidden = true;
+  replaceChildren(ui.globalSearchResults, []);
+  ui.globalSearch.setAttribute("aria-expanded", "false");
+  if (clearInput) ui.globalSearch.value = "";
 }
 
 function enhanceStatsSelects() {
@@ -340,7 +473,7 @@ function renderStatsSelectOptions(select) {
     item.setAttribute("role", "option");
     item.setAttribute("aria-selected", "false");
     appendText(item, "strong", option.textContent);
-    appendText(item, "span", option.value === "todas" ? "recorte completo" : option.value);
+    appendText(item, "span", statsSelectOptionMeta(select, option));
     item.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -349,6 +482,13 @@ function renderStatsSelectOptions(select) {
     item.addEventListener("keydown", (event) => handleStatsSelectOptionKeydown(event, select, index));
     return item;
   }));
+}
+
+function statsSelectOptionMeta(select, option) {
+  if (select.id === "movimentoPeriodo") {
+    return option.value === "geral" ? "ano letivo completo" : "período letivo";
+  }
+  return option.value === "todas" ? "recorte completo" : "turma individual";
 }
 
 function syncStatsSelect(select) {
@@ -509,18 +649,21 @@ function criarRecorteMovimento() {
   const periodo = periodos[state.movimento.periodo] || periodos.T1;
   const totalAlunos = estudantes.length;
   const componentesResumo = componentes.map((componente) => {
-    const abaixo = estudantes.filter((estudante) => notaAbaixo(obterLancamento(estudante, componente), state.movimento.periodo)).length;
+    const alunosVermelhos = estudantes.filter((estudante) => notaAbaixo(obterLancamento(estudante, componente), state.movimento.periodo));
+    const abaixo = alunosVermelhos.length;
     return {
       ...componente,
       nomeCurto: nomeComponenteCurto(componente),
       icon: iconeComponente(componente.codigo),
       acima: Math.max(0, totalAlunos - abaixo),
-      abaixo
+      abaixo,
+      alunosVermelhos
     };
   });
   const aprovados = estudantes.filter((estudante) => !estudanteTemVermelha(estudante, state.movimento.periodo)).length;
   const abaixo = Math.max(0, totalAlunos - aprovados);
   const somaRecorte = estudantes.reduce((total, estudante) => total + somaPeriodoEstudante(estudante, state.movimento.periodo), 0);
+  const mediaTurma = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, state.movimento.periodo)));
   const atualizado = formatarDataHoraMovimento(new Date());
   return {
     estudantes,
@@ -532,6 +675,7 @@ function criarRecorteMovimento() {
     aprovados,
     abaixo,
     somaRecorte,
+    mediaTurma,
     atualizado,
     maxEixo: Math.max(25, Math.ceil(Math.max(1, totalAlunos) / 5) * 5)
   };
@@ -542,10 +686,10 @@ function renderMovementStats(recorte) {
   const percentualAcima = Math.round((recorte.aprovados / total) * 100);
   const percentualAbaixo = Math.round((recorte.abaixo / total) * 100);
   replaceChildren(ui.movementStats, [
-    movementStatCard("trendUp", "ACIMA OU IGUAL AO MÍNIMO", recorte.aprovados, `${percentualAcima}%`, "ok"),
-    movementStatCard("trendDown", "ABAIXO DO MÍNIMO", recorte.abaixo, `${percentualAbaixo}%`, "error"),
+    movementStatCard("trendUp", "NOTAS AZUIS", recorte.aprovados, `${percentualAcima}%`, "ok"),
+    movementStatCard("trendDown", "NOTAS VERMELHAS", recorte.abaixo, `${percentualAbaixo}%`, "error"),
     movementStatCard("users", recorte.turma ? "ALUNOS NA TURMA" : "ALUNOS NO RECORTE", recorte.totalAlunos, "100%", "info"),
-    movementStatCard("star", "SOMA DO RECORTE", formatarSomaPontuacao(recorte.somaRecorte), "pontos", "info")
+    movementStatCard("star", "MÉDIA DA TURMA", formatarMedia(recorte.mediaTurma), "média", "info")
   ]);
 }
 
@@ -590,7 +734,7 @@ function renderMovementChart(recorte) {
     button.append(bars, label);
     button.addEventListener("click", () => {
       state.movimento.disciplinaSelecionada = state.movimento.disciplinaSelecionada === componente.codigo ? "" : componente.codigo;
-      ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) abaixo do mínimo.`;
+      ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) com nota vermelha.`;
       renderMovementChart(recorte);
       renderClassResults(recorte);
     });
@@ -611,25 +755,25 @@ function renderMovementDonut(recorte) {
   const panel = document.createDocumentFragment();
   const header = element("div", "statsPanelHeader compact");
   const title = element("div", "statsPanelTitle");
-  appendText(title, "h3", "DESEMPENHO GERAL DA TURMA  ⓘ");
+  appendText(title, "h3", "DESEMPENHO GERAL DA TURMA");
   header.append(title);
 
   const body = element("div", "statsDonutBody");
   const left = element("div", "statsDonutLegend left");
   appendText(left, "span", `${recorte.abaixo} aluno(s)`);
   appendText(left, "strong", `${percentualAbaixo}%`);
-  appendText(left, "small", "Abaixo do mínimo");
+  appendText(left, "small", "Notas vermelhas");
   left.prepend(dot("red"));
 
   const donut = element("div", "donutMeter");
   donut.style.setProperty("--percent", `${percentual}%`);
   appendText(donut, "strong", `${percentual}%`);
-  appendText(donut, "span", "ACIMA OU IGUAL AO MÍNIMO");
+  appendText(donut, "span", "NOTAS AZUIS");
 
   const right = element("div", "statsDonutLegend right");
   appendText(right, "span", `${recorte.aprovados} aluno(s)`);
   appendText(right, "strong", `${percentual}%`);
-  appendText(right, "small", "Acima ou igual ao mínimo");
+  appendText(right, "small", "Notas azuis");
   right.prepend(dot("blue"));
   body.append(left, donut, right);
 
@@ -646,14 +790,13 @@ function renderMovementRanking(recorte) {
   header.append(movementIcon("trophy"));
   appendText(header, "h3", "DESTAQUES DA TURMA");
   const list = element("div", "rankingList");
-  const limite = state.movimento.rankingExpandido ? 10 : 3;
   const ranking = [...recorte.estudantes]
     .sort((a, b) => somaPeriodoEstudante(b, state.movimento.periodo) - somaPeriodoEstudante(a, state.movimento.periodo))
-    .slice(0, limite);
+    .slice(0, 10);
   ranking.forEach((estudante, index) => {
-    const item = element("article", "rankingItem");
+    const item = element("article", `rankingItem ${index >= 3 ? "rankingExtra" : ""}`.trim());
     item.style.setProperty("--rank-index", index);
-    appendText(item, "span", String(index + 1), `rankBadge rank${Math.min(index + 1, 3)}`);
+    item.append(studentPhotoAvatar(estudante, index));
     const text = element("div");
     const name = appendText(text, "strong", estudante.nome);
     const emAtencao = estudanteTemVermelha(estudante, state.movimento.periodo);
@@ -665,15 +808,61 @@ function renderMovementRanking(recorte) {
   });
   const button = element("button", "statsRankingLink");
   button.type = "button";
-  button.innerHTML = state.movimento.rankingExpandido ? "<span>RECOLHER PARA TOP 3</span><b aria-hidden=\"true\">↑</b>" : "<span>VER TOP 10 POR SOMA</span><b aria-hidden=\"true\">↓</b>";
+  button.dataset.rankingToggle = "true";
   button.addEventListener("click", () => {
     state.movimento.rankingExpandido = !state.movimento.rankingExpandido;
-    renderMovementRanking(recorte);
+    sincronizarRankingMovimento();
   });
   replaceChildren(ui.movementRanking, [header, ranking.length ? list : emptyState("Nenhum aluno encontrado no recorte atual."), button]);
+  sincronizarRankingMovimento();
+}
+
+function studentPhotoAvatar(estudante, index) {
+  const classePodio = index === 0 ? "gold" : index === 1 ? "silver" : index === 2 ? "bronze" : "";
+  const avatar = element("span", `studentPhotoAvatar ${classePodio}`.trim());
+  avatar.setAttribute("aria-hidden", "true");
+  avatar.style.setProperty("--avatar-hue", String((estudante.linhaOrigem * 29 + index * 41) % 360));
+  return avatar;
+}
+
+function sincronizarRankingMovimento() {
+  const expanded = state.movimento.rankingExpandido;
+  const list = ui.movementRanking.querySelector(".rankingList");
+  const button = ui.movementRanking.querySelector("[data-ranking-toggle]");
+  ui.movementRanking.classList.toggle("is-expanded", expanded);
+  list?.classList.toggle("is-expanded", expanded);
+  if (!button) return;
+  const label = expanded ? "RECOLHER PARA TOP 3" : "VER TOP 10";
+  const arrow = expanded ? "↑" : "↓";
+  replaceChildren(button, [element("span"), element("b")]);
+  button.querySelector("span").textContent = label;
+  const arrowNode = button.querySelector("b");
+  arrowNode.textContent = arrow;
+  arrowNode.setAttribute("aria-hidden", "true");
 }
 
 function renderClassResults(recorte) {
+  const componente = recorte.componentes.find((item) => item.codigo === state.movimento.disciplinaSelecionada);
+  if (componente) {
+    ui.movementClassPanel.hidden = false;
+    ui.movementClassPanelKicker.textContent = "Relatório da disciplina";
+    ui.movementClassPanelTitle.textContent = `${componente.codigo} · ${componente.nome}`;
+    ui.movementClassPanelHint.textContent = `${componente.alunosVermelhos.length} aluno(s) com nota vermelha em ${recorte.periodo.rotulo}.`;
+    const cards = componente.alunosVermelhos.map((estudante, index) => {
+      const nota = obterLancamento(estudante, componente);
+      const valor = valorPeriodo(nota, state.movimento.periodo);
+      const card = element("article", "classResultCard disciplineAlertCard");
+      card.append(studentPhotoAvatar(estudante, index + 3));
+      const body = element("div");
+      appendText(body, "strong", estudante.nome, "studentAlertName");
+      appendText(body, "span", `${estudante.turma?.codigo || ""} · ${formatarMedia(valor)} ponto(s) · mínimo ${recorte.periodo.minimo}`);
+      card.append(body);
+      return card;
+    });
+    replaceChildren(ui.movementClassCards, cards.length ? cards : [emptyState("Nenhuma nota vermelha nesta disciplina.")]);
+    return;
+  }
+
   const mostrarTurmas = state.movimento.turma === "todas" || state.movimento.periodo === "geral";
   ui.movementClassPanel.hidden = !mostrarTurmas;
   if (!mostrarTurmas) {

@@ -75,14 +75,15 @@
         </div>
 
         <div class="commandCluster">
-          <label class="searchBox">
-            <span class="srOnly">Buscar aluno, turma ou disciplina</span>
+          <div class="searchBox" role="search">
+            <label class="srOnly" for="globalSearch">Buscar aluno, turma ou disciplina</label>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="11" cy="11" r="7"></circle>
               <path d="m16.5 16.5 4 4"></path>
             </svg>
-            <input id="globalSearch" type="search" placeholder="Buscar aluno, turma ou disciplina">
-          </label>
+            <input id="globalSearch" type="search" placeholder="Buscar aluno, turma ou disciplina" autocomplete="off" aria-controls="globalSearchResults" aria-expanded="false">
+            <div class="searchResultsPanel" id="globalSearchResults" role="listbox" hidden></div>
+          </div>
 
           <div class="profileBox">
             <button class="profileButton" id="btnProfile" type="button" aria-expanded="false">
@@ -145,16 +146,16 @@
             <section class="statsGlass statsChartPanel">
               <div class="statsPanelHeader">
                 <div class="statsPanelTitle">
-                  <h3>DESEMPENHO POR DISCIPLINA <span aria-hidden="true">ⓘ</span></h3>
+                  <h3>DESEMPENHO POR DISCIPLINA</h3>
                   <div class="statsLegend">
-                    <span><i class="legendDot blue"></i> ACIMA OU IGUAL AO MÍNIMO</span>
-                    <span><i class="legendDot red"></i> ABAIXO DO MÍNIMO</span>
+                    <span><i class="legendDot blue"></i> NOTAS AZUIS</span>
+                    <span><i class="legendDot red"></i> NOTAS VERMELHAS</span>
                   </div>
                 </div>
               </div>
               <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para destacar seu desempenho no gráfico.</span>
               <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
-              <p class="statsChartFootnote">ⓘ Mínimo de 18 pontos no I/II trimestre e 24 no III trimestre. Máximo do período conforme etapa selecionada.</p>
+              <p class="statsChartFootnote">Mínimo de 18 pontos no I/II trimestre e 24 no III trimestre. Máximo do período conforme etapa selecionada.</p>
             </section>
 
             <section class="statsGlass statsDonutPanel" id="movementDonut"></section>

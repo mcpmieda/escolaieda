@@ -64,6 +64,7 @@
 }
 
 .searchBox {
+  position: relative;
   min-height: 42px;
   padding: 0 11px;
   display: grid;
@@ -73,6 +74,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
+  z-index: 18;
 }
 
 .searchBox:hover,
@@ -107,6 +109,105 @@ select {
   min-height: 40px;
   border: 0;
   background: transparent;
+}
+
+.searchResultsPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-lifted);
+  backdrop-filter: blur(22px);
+  transform-origin: top;
+  animation: searchResultsEnter 240ms var(--motion-emphasis) both;
+  z-index: 24;
+}
+
+.searchResultItem {
+  min-height: 48px;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  text-align: left;
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick);
+}
+
+.searchResultItem:hover,
+.searchResultItem:focus-visible {
+  border-color: var(--line-strong);
+  background: rgba(76, 155, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.searchResultIcon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(76, 155, 255, 0.16);
+  color: #99c8ff;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.searchResultIcon.aluno {
+  background: rgba(61, 220, 151, 0.16);
+  color: #92f1c8;
+}
+
+.searchResultIcon.turma {
+  background: rgba(242, 184, 75, 0.16);
+  color: #ffd991;
+}
+
+.searchResultIcon.disciplina {
+  background: rgba(154, 137, 255, 0.17);
+  color: #d5ceff;
+}
+
+.searchResultText strong,
+.searchResultText small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchResultText strong {
+  font-size: 0.84rem;
+}
+
+.searchResultText small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.searchResultsPanel .emptyState {
+  min-height: 52px;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.searchResultsPanel .emptyState strong {
+  font-size: 0.78rem;
+}
+
+.searchResultsPanel .emptyState span {
+  font-size: 0.7rem;
 }
 
 select,
@@ -191,10 +292,11 @@ option {
 
 .profileButton {
   width: 100%;
+  height: 42px;
   min-height: 42px;
-  padding: 5px 7px;
+  padding: 4px 7px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 32px minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   border-color: var(--line);
@@ -216,8 +318,8 @@ option {
 }
 
 .profileAvatar {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -269,6 +371,37 @@ option {
 .profileMenu a:hover,
 .profileMenu button:hover {
   background: var(--surface-soft);
+}
+
+.profileThemePanel .themeDot {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.36);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 7px 14px rgba(0, 0, 0, 0.18);
+}
+
+.profileThemePanel .themeDot:hover,
+.profileThemePanel .themeDot:focus-visible {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.profileThemePanel .themeDot.active {
+  border-color: var(--ink);
+}
+
+.profileThemePanel .themeDot.themeAurora {
+  background: linear-gradient(135deg, #1d6ef2 0 52%, #e3263a 52% 100%);
+}
+
+.profileThemePanel .themeDot.themeClaro {
+  background: linear-gradient(135deg, #ffffff 0 48%, #98d0ff 48% 100%);
+}
+
+.profileThemePanel .themeDot.themeMono {
+  background: linear-gradient(135deg, #050609 0 48%, #7b8492 48% 100%);
 }
 
 .heroIcon {
@@ -713,6 +846,57 @@ body[data-view="movimento"] .systemTitle p:last-child {
 .rank3 {
   background: #b35b45;
   color: #fff;
+}
+
+.studentPhotoAvatar {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: block;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 38%, hsl(var(--avatar-hue) 54% 82%) 0 19%, transparent 20%),
+    radial-gradient(circle at 50% 84%, hsl(calc(var(--avatar-hue) + 22) 54% 48%) 0 32%, transparent 33%),
+    linear-gradient(145deg, hsl(var(--avatar-hue) 58% 34%), hsl(calc(var(--avatar-hue) + 44) 64% 52%));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.30), 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.studentPhotoAvatar::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: hsl(var(--avatar-hue) 45% 86%);
+  transform: translateX(-50%);
+}
+
+.studentPhotoAvatar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 22px;
+  height: 13px;
+  border-radius: 999px 999px 6px 6px;
+  background: hsl(calc(var(--avatar-hue) + 35) 58% 42%);
+  transform: translateX(-50%);
+}
+
+.studentPhotoAvatar.gold {
+  border-color: #ffd34f;
+}
+
+.studentPhotoAvatar.silver {
+  border-color: #d9e1eb;
+}
+
+.studentPhotoAvatar.bronze {
+  border-color: #d88a55;
 }
 
 .studentAlertName {
@@ -1768,6 +1952,7 @@ body[data-view="movimento"] .statsIntroBlock p {
 }
 
 body[data-view="movimento"] .movementStatCard {
+  height: 100%;
   min-height: 118px;
   padding: 22px 13px;
   display: grid;
@@ -1855,6 +2040,10 @@ body[data-view="movimento"] .movementIcon svg {
 
 body[data-view="movimento"] .statsRankingPanel {
   padding: 19px 22px 10px;
+  min-height: 253px;
+  max-height: 253px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 34px;
 }
 
 body[data-view="movimento"] .statsRankingHeader {
@@ -1881,10 +2070,33 @@ body[data-view="movimento"] .statsPanelTitle h3 {
 
 body[data-view="movimento"] .rankingList {
   gap: 0;
-  max-height: 150px;
-  overflow-y: auto;
+  min-height: 0;
+  max-height: 164px;
+  overflow-x: hidden;
+  overflow-y: hidden;
   overscroll-behavior: contain;
   padding-right: 4px;
+  scrollbar-color: rgba(126, 177, 255, 0.72) rgba(255, 255, 255, 0.06);
+  scrollbar-gutter: stable;
+}
+
+body[data-view="movimento"] .rankingList.is-expanded {
+  overflow-y: auto;
+}
+
+body[data-view="movimento"] .rankingList::-webkit-scrollbar {
+  width: 8px;
+}
+
+body[data-view="movimento"] .rankingList::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body[data-view="movimento"] .rankingList::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(8, 30, 62, 0.82);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(126, 177, 255, 0.92), rgba(35, 107, 255, 0.70));
 }
 
 body[data-view="movimento"] .rankingItem {
@@ -1901,6 +2113,14 @@ body[data-view="movimento"] .rankingItem {
   animation: rankingItemEnter 420ms var(--motion-emphasis) both;
   animation-delay: calc(220ms + var(--rank-index) * 55ms);
   transition: transform var(--motion-quick), background var(--motion-quick);
+}
+
+body[data-view="movimento"] .rankingItem.rankingExtra {
+  display: none;
+}
+
+body[data-view="movimento"] .rankingList.is-expanded .rankingItem.rankingExtra {
+  display: grid;
 }
 
 body[data-view="movimento"] .rankingItem:hover {
@@ -1930,26 +2150,6 @@ body[data-view="movimento"] .rankingItem b {
   color: #e8f1ff;
   font-size: 1rem;
   text-align: center;
-}
-
-body[data-view="movimento"] .rankBadge {
-  width: 33px;
-  height: 33px;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  color: #fff;
-  font-size: 1rem;
-}
-
-body[data-view="movimento"] .rank1 {
-  background: linear-gradient(145deg, #ffc52d, #d59600);
-}
-
-body[data-view="movimento"] .rank2 {
-  background: linear-gradient(145deg, #c9d3de, #7a8798);
-}
-
-body[data-view="movimento"] .rank3 {
-  background: linear-gradient(145deg, #d68150, #a34f30);
 }
 
 body[data-view="movimento"] .statsRankingLink {
@@ -2015,6 +2215,7 @@ body[data-view="movimento"] .legendDot {
   height: 13px;
   display: inline-block;
   border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 0 14px currentColor;
 }
 
 body[data-view="movimento"] .legendDot.blue {
@@ -2147,24 +2348,32 @@ body[data-view="movimento"] .barPair i.isZero::before {
 }
 
 body[data-view="movimento"] .barBlue {
-  background: linear-gradient(180deg, #56a8ff 0%, #236bff 42%, #1557d7 72%, #63bbff 100%);
-  background-size: 100% 180%;
+  background: linear-gradient(180deg, #74c1ff 0%, #236bff 34%, #1156d6 62%, #66b8ff 100%);
+  background-size: 100% 260%;
   box-shadow: 0 0 18px rgba(54, 123, 255, 0.25);
   animation-name: statsBarGrow, statsBarBreathe, blueBarFlow;
-  animation-duration: 760ms, 6.4s, 8s;
+  animation-duration: 760ms, 6.4s, 5.8s;
   animation-timing-function: var(--motion-emphasis), ease-in-out, ease-in-out;
   animation-iteration-count: 1, infinite, infinite;
+  animation-delay:
+    calc(260ms + var(--bar-index) * 36ms),
+    calc(1500ms + var(--bar-index) * 110ms),
+    calc(900ms + var(--bar-index) * 95ms);
 }
 
 body[data-view="movimento"] .barRed {
   width: 18px;
-  background: linear-gradient(180deg, #ff7c8f 0%, #ff3650 45%, #c90f28 72%, #ff8798 100%);
-  background-size: 100% 180%;
+  background: linear-gradient(180deg, #ff9baa 0%, #ff3650 34%, #c90f28 66%, #ff7b8f 100%);
+  background-size: 100% 260%;
   box-shadow: 0 0 18px rgba(255, 69, 89, 0.20);
   animation-name: statsBarGrow, statsBarBreathe, redBarFlow;
-  animation-duration: 760ms, 6.4s, 8.6s;
+  animation-duration: 760ms, 6.4s, 6.2s;
   animation-timing-function: var(--motion-emphasis), ease-in-out, ease-in-out;
   animation-iteration-count: 1, infinite, infinite;
+  animation-delay:
+    calc(260ms + var(--bar-index) * 36ms),
+    calc(1500ms + var(--bar-index) * 110ms),
+    calc(1050ms + var(--bar-index) * 105ms);
 }
 
 body[data-view="movimento"] .barLabel {
@@ -2223,20 +2432,56 @@ body[data-view="movimento"] .statsDonutBody {
 }
 
 body[data-view="movimento"] .donutMeter {
+  position: relative;
+  isolation: isolate;
   width: min(277px, 100%);
   margin: 0 auto;
   background:
-    radial-gradient(circle, #0a2548 0 48%, transparent 49%),
+    radial-gradient(circle at 47% 42%, rgba(255, 255, 255, 0.10) 0 8%, transparent 9%),
+    radial-gradient(circle, #0a2548 0 47%, rgba(255, 255, 255, 0.08) 48%, transparent 50%),
     conic-gradient(from -126deg, #f03048 0 calc(100% - var(--percent)), #236bff calc(100% - var(--percent)) 100%);
   transform-origin: center;
   animation:
     donutEnter 780ms var(--motion-emphasis) both,
     donutBreathe 7.4s ease-in-out infinite;
   animation-delay: 260ms, 1300ms;
-  box-shadow: 0 0 34px rgba(35, 107, 255, 0.12);
+  box-shadow:
+    inset -18px -22px 30px rgba(0, 0, 0, 0.24),
+    inset 12px 14px 26px rgba(255, 255, 255, 0.10),
+    0 24px 52px rgba(0, 0, 0, 0.24),
+    0 0 34px rgba(35, 107, 255, 0.16);
+}
+
+body[data-view="movimento"] .donutMeter::before,
+body[data-view="movimento"] .donutMeter::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+body[data-view="movimento"] .donutMeter::before {
+  inset: -13px;
+  z-index: -1;
+  background: conic-gradient(from -126deg, rgba(255, 52, 76, 0.52), rgba(35, 107, 255, 0.68), rgba(255, 52, 76, 0.52));
+  filter: blur(18px) saturate(1.12);
+  opacity: 0.46;
+  animation: donutGlowFlow 7.2s ease-in-out infinite;
+}
+
+body[data-view="movimento"] .donutMeter::after {
+  inset: 9px;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.18), transparent 26%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 42%);
+  mix-blend-mode: screen;
+  opacity: 0.52;
 }
 
 body[data-view="movimento"] .donutMeter strong {
+  position: relative;
+  z-index: 1;
   color: #f9fcff;
   transform: translateY(-13px);
   font-size: 3.12rem;
@@ -2244,6 +2489,8 @@ body[data-view="movimento"] .donutMeter strong {
 }
 
 body[data-view="movimento"] .donutMeter span {
+  position: relative;
+  z-index: 1;
   width: 145px;
   transform: translateY(42px);
   color: #f4f8ff;
@@ -2313,6 +2560,14 @@ body[data-view="movimento"] .classResultsPanel {
 
 body[data-view="movimento"] .classResultCard {
   animation: resultCardEnter 420ms var(--motion-emphasis) both;
+}
+
+body[data-view="movimento"] .disciplineAlertCard {
+  grid-template-columns: 38px minmax(0, 1fr);
+  border-color: rgba(255, 79, 100, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 79, 100, 0.08), transparent 52%),
+    var(--surface-soft);
 }
 
 body[data-theme="claro"][data-view="movimento"] {
@@ -2393,7 +2648,8 @@ body[data-theme="claro"][data-view="movimento"] .barPair i::before {
 
 body[data-theme="claro"][data-view="movimento"] .donutMeter {
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.94) 0 48%, transparent 49%),
+    radial-gradient(circle at 47% 42%, rgba(18, 105, 211, 0.10) 0 8%, transparent 9%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.94) 0 47%, rgba(18, 105, 211, 0.08) 48%, transparent 50%),
     conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #1269d3 calc(100% - var(--percent)) 100%);
 }
 
@@ -2420,7 +2676,8 @@ body[data-theme="mono"][data-view="movimento"] .barBlue {
 
 body[data-theme="mono"][data-view="movimento"] .donutMeter {
   background:
-    radial-gradient(circle, #15171d 0 48%, transparent 49%),
+    radial-gradient(circle at 47% 42%, rgba(255, 255, 255, 0.08) 0 8%, transparent 9%),
+    radial-gradient(circle, #15171d 0 47%, rgba(255, 255, 255, 0.07) 48%, transparent 50%),
     conic-gradient(from -126deg, #c34958 0 calc(100% - var(--percent)), #d8dce6 calc(100% - var(--percent)) 100%);
 }
 
@@ -2445,6 +2702,20 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter {
     opacity: 0;
     transform: translateY(-8px) scale(0.96);
     filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes searchResultsEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    filter: blur(8px);
   }
 
   to {
@@ -2574,6 +2845,21 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter {
 
   50% {
     scale: 1.018;
+  }
+}
+
+@keyframes donutGlowFlow {
+  0%,
+  100% {
+    opacity: 0.34;
+    scale: 0.985;
+    filter: blur(18px) saturate(1.02);
+  }
+
+  50% {
+    opacity: 0.62;
+    scale: 1.025;
+    filter: blur(20px) saturate(1.32);
   }
 }
 

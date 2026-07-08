@@ -4,7 +4,7 @@
 >
 > Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS` e `VISÃO GERAL` com base nos dados fictícios do recorte selecionado. Na finalização de 08/07/2026, a aba foi ajustada para linguagem de soma/pontuação/mínimo, ranking por somatório, rodapé com horário atual, donut sem rotação do percentual, barras com transição lenta de cor, remoção da lista de alunos abaixo do mínimo, seletor customizado com rolagem, temas claro/mono mais abrangentes e impressão própria de relatório estatístico. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS` e `VISÃO GERAL` com base nos dados fictícios do recorte selecionado. Na finalização de 08/07/2026, a aba foi ajustada para linguagem de soma/pontuação/mínimo, ranking por somatório, rodapé com horário atual, donut sem rotação do percentual, barras com transição lenta de cor, remoção da lista nominal genérica de alunos abaixo do mínimo, seletor customizado com rolagem, temas claro/mono mais abrangentes e impressão própria de relatório estatístico. Na etapa `aqui2.txt`, a aba recebeu acabamento final de usabilidade: indicadores visuais sem função removidos, busca global com painel próprio e fechamento ao clicar fora, perfil com fechamento externo e pontos de tema visíveis, ranking top 10 expandindo dentro da própria caixa com rolagem moderna e avatares fictícios, cartões `NOTAS AZUIS`/`NOTAS VERMELHAS`/`MÉDIA DA TURMA`, donut com maior profundidade visual, barras com movimento de cor mais perceptível e relatório contextual de notas vermelhas ao clicar em uma disciplina. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, temas dentro do menu de perfil e conta demonstrativa são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. Ainda em 08/07/2026, a aba `Estatísticas` passou a recalcular métricas por turma/período/busca, incluir `TODAS AS TURMAS` e `VISÃO GERAL`, alternar ranking top 3/top 10 por soma de pontuação, destacar disciplina clicada no gráfico e exibir resumo quantitativo por turma quando o recorte for geral. A aba não deve exibir lista nominal de alunos abaixo do mínimo; esse detalhamento fica para telas próprias. O sistema de notas é baseado em somas/pontuações e mínimos por período; usar o termo `média` somente quando houver cálculo real de média. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
+Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, temas dentro do menu de perfil e conta demonstrativa são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. Ainda em 08/07/2026, a aba `Estatísticas` passou a recalcular métricas por turma/período/busca, incluir `TODAS AS TURMAS` e `VISÃO GERAL`, alternar ranking top 3/top 10 por soma de pontuação, destacar disciplina clicada no gráfico, exibir resumo quantitativo por turma quando o recorte for geral e abrir relatório contextual de alunos com nota vermelha somente quando uma disciplina for selecionada. A aba não deve voltar a exibir uma lista nominal genérica de alunos abaixo do mínimo fora desse contexto de disciplina. O sistema de notas é baseado em somas/pontuações e mínimos por período; usar o termo `média` somente quando houver cálculo real de média, como no cartão `MÉDIA DA TURMA`. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -454,6 +454,8 @@ Regras do módulo:
 - respeitar `prefers-reduced-motion: reduce`, reduzindo ou removendo deslocamento, escala, parallax e blur animado.
 
 Decisão adicional em 08/07/2026: toda evolução visual nova do módulo deve considerar microinterações e movimento proporcional desde o início, não como acabamento posterior. Quando um `select` nativo gerar uma lista visualmente incompatível com o sistema, criar seletor customizado sincronizado com o controle real. Em dashboards, gráficos e indicadores devem ter entrada animada e movimento ambiente lento, desde que isso não reduza legibilidade, desempenho nem acessibilidade. Toda decisão estética aprovada em uma aba deve orientar as próximas abas e recursos para preservar um ecossistema visual padronizado: squircles simulados por raios generosos, camadas translúcidas com blur controlado, hierarquia limpa, temas realmente abrangentes, estados pressionados/foco físicos, ilhas conceituais, carregamento escalonado e badges compactos.
+
+Decisão adicional em 08/07/2026 após `aqui2.txt`: menus, perfis, buscas e painéis flutuantes devem fechar ao clicar fora e, quando fizer sentido, limpar o estado digitado para não manter filtros invisíveis. Busca global deve mostrar resultados em camada própria, não re-renderizar a página enquanto o usuário digita. Rankings e listas expansíveis devem crescer dentro do próprio contêiner, com rolagem interna estável e sem deslocar a página. Relatórios nominais de alunos devem ser contextuais a uma ação clara, como clicar em uma disciplina, e não reaparecer como lista genérica permanente na aba.
 
 ### 11.6 Acessibilidade obrigatória
 
@@ -644,7 +646,7 @@ O projeto só poderá ser considerado concluído quando:
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
-- validar com o responsável a versão finalizada de `/notas/#estatisticas` contra o `anexo 7.png`, incluindo `TODAS AS TURMAS`, `VISÃO GERAL`, ranking top 3/top 10 por soma, linguagem de pontuação/mínimo, temas claro/mono e impressão própria, antes de ligar dados reais;
+- validar com o responsável a versão finalizada de `/notas/#estatisticas` contra o `anexo 7.png`, incluindo `TODAS AS TURMAS`, `VISÃO GERAL`, ranking top 3/top 10 com expansão interna, linguagem `NOTAS AZUIS`/`NOTAS VERMELHAS`/`MÉDIA DA TURMA`, busca global com painel próprio, relatório contextual por disciplina, temas claro/mono e impressão própria, antes de ligar dados reais;
 - provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
 - substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
 
@@ -693,6 +695,33 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 08/07/2026 — acabamento `aqui2.txt` da aba Estatísticas
+
+- Responsável pediu para ler `C:\Users\Eugui\Desktop\aqui2.txt` e concluir ações pendentes da aba `Estatísticas`, ainda sem avançar para dados reais.
+- O pedido foi tratado como refinamento visual/interativo local da SPA; nenhum recurso Microsoft 365, Graph, SharePoint, Power Automate, lista `NOTAS_*`, permissão ou dado real foi criado ou alterado.
+- Ajustes feitos em `notas/index.html`:
+  - busca global deixou de ser apenas campo visual e ganhou painel próprio `globalSearchResults`, com `aria-controls`, `aria-expanded` e fechamento controlado pelo script;
+  - removidos indicadores `ⓘ` sem função da seção `DESEMPENHO POR DISCIPLINA` e do rodapé do gráfico;
+  - legenda do gráfico passou para `NOTAS AZUIS` e `NOTAS VERMELHAS`.
+- Ajustes feitos em `notas/js/app.js`:
+  - busca global passou a abrir resultados de alunos, turmas e disciplinas em painel abaixo do campo, sem re-renderizar a página a cada tecla; clique fora fecha o painel e limpa o texto;
+  - menu de perfil passou a fechar ao clicar fora ou pressionar `Escape`;
+  - seletor customizado de `Estatísticas` deixou de exibir descrições técnicas como `T1`, `T2`, `T3` e `GERAL` no menu visual;
+  - cartões de dashboard passaram para `NOTAS AZUIS`, `NOTAS VERMELHAS`, total de alunos e `MÉDIA DA TURMA`, com cálculo real em `mediaTurma`;
+  - ranking `Destaques da turma` mantém top 10 no DOM, expande/recolhe dentro da própria caixa, usa texto `VER TOP 10` e substitui os círculos numerados por avatares fictícios com bordas ouro/prata/bronze no pódio;
+  - clique em disciplina no gráfico passou a abrir relatório contextual abaixo com alunos fictícios que possuem nota vermelha naquela disciplina/período.
+- Ajustes feitos em CSS:
+  - busca recebeu painel animado, estado vazio compacto e resultado com ícones por tipo;
+  - botão de perfil ficou alinhado à altura da busca, e os pontos de tema no menu voltaram a ficar visíveis;
+  - ranking ganhou altura fixa, rolagem vertical moderna somente quando expandido, sem barra horizontal e sem deslocamento da página;
+  - donut recebeu camadas de profundidade, brilho e movimento leve sem girar o percentual;
+  - barras azul/vermelha ganharam fluxo de cor mais perceptível, e o painel de disciplina recebeu card visual próprio para notas vermelhas;
+  - cards do dashboard foram alinhados à altura de `Destaques da turma` no desktop e preservados em duas colunas no mobile.
+- Capturas de conferência geradas:
+  - `diagnosticos/notas-estatisticas-aqui2-desktop.png`;
+  - `diagnosticos/notas-estatisticas-aqui2-mobile.png`.
+- Testes/travas atualizados em `scripts/testes-notas.mjs` para cobrir busca global, remoção dos indicadores sem função, ranking top 10 interno, seletor customizado sem códigos técnicos na descrição, linguagem de notas azuis/vermelhas, média real da turma, relatório por disciplina, rolagem estável do ranking e novo movimento/profundidade do donut.
 
 ### 08/07/2026 — finalização de Estatísticas por soma, temas e impressão própria
 
