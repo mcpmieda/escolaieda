@@ -108,7 +108,7 @@ body[data-theme="claro"] .appRail {
 
 .commandCluster {
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) auto minmax(180px, auto);
+  grid-template-columns: minmax(220px, 1fr) minmax(190px, auto);
   gap: 8px;
   align-items: center;
 }
@@ -361,6 +361,20 @@ body[data-view="movimento"] {
     linear-gradient(136deg, #061631 0%, #071d3a 49%, #06162d 100%);
 }
 
+body[data-theme="claro"][data-view="movimento"] {
+  background:
+    radial-gradient(circle at 76% 34%, rgba(132, 199, 255, 0.34), transparent 34%),
+    radial-gradient(circle at 28% 76%, rgba(227, 38, 58, 0.08), transparent 32%),
+    linear-gradient(136deg, #f8fbff 0%, #eef7ff 48%, #dceeff 100%);
+}
+
+body[data-theme="mono"][data-view="movimento"] {
+  background:
+    radial-gradient(circle at 76% 34%, rgba(216, 220, 230, 0.12), transparent 34%),
+    radial-gradient(circle at 28% 76%, rgba(122, 130, 144, 0.10), transparent 32%),
+    linear-gradient(136deg, #050609 0%, #15171d 50%, #08090d 100%);
+}
+
 body[data-view="movimento"] .appShell {
   min-height: 100vh;
 }
@@ -373,7 +387,7 @@ body[data-view="movimento"] .appShell {
 .statsTopRow {
   margin-bottom: 15px;
   display: grid;
-  grid-template-columns: 297px 301px minmax(80px, 1fr) 278px 70px;
+  grid-template-columns: 297px 301px minmax(80px, 1fr) 278px;
   gap: 18px;
   align-items: center;
 }
@@ -520,5 +534,72 @@ body[data-view="movimento"] .appShell {
 
   #view-boletim {
     display: block !important;
+  }
+
+  body[data-print-view="movimento"] {
+    background: #fff !important;
+    color: #10243e;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body[data-print-view="movimento"] .appRail,
+  body[data-print-view="movimento"] .systemBar,
+  body[data-print-view="movimento"] .statsTopRow,
+  body[data-print-view="movimento"] .classResultsPanel {
+    display: none !important;
+  }
+
+  body[data-print-view="movimento"] #view-boletim {
+    display: none !important;
+  }
+
+  body[data-print-view="movimento"] #view-movimento {
+    display: block !important;
+  }
+
+  body[data-print-view="movimento"] .appShell,
+  body[data-print-view="movimento"] .mainStage,
+  body[data-print-view="movimento"] .statsDashboard {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  body[data-print-view="movimento"] .statsMainGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "intro ranking"
+      "chart chart"
+      "donut donut";
+    gap: 8mm;
+    align-items: start;
+  }
+
+  body[data-print-view="movimento"] .statsIntroBlock,
+  body[data-print-view="movimento"] .statsRankingPanel,
+  body[data-print-view="movimento"] .statsChartPanel,
+  body[data-print-view="movimento"] .statsDonutPanel {
+    margin: 0;
+  }
+
+  body[data-print-view="movimento"] .statsIntroBlock h2,
+  body[data-print-view="movimento"] .statsIntroBlock > p {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+
+  body[data-print-view="movimento"] .statsDashboardFooter {
+    margin-top: 8mm;
+    color: #35516f;
   }
 }

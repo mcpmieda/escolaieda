@@ -4,7 +4,7 @@
 >
 > Última atualização: 08/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS`, `VISÃO GERAL` e detalhamento por disciplina com base nos dados fictícios do recorte selecionado. Depois, a aba recebeu camada de movimento/profundidade com seletor customizado para Turma/Período, área inteira clicável, animações de entrada, barras crescendo, donut com movimento lento, microinterações em botões/cards e fallback por `prefers-reduced-motion`. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS` e `VISÃO GERAL` com base nos dados fictícios do recorte selecionado. Na finalização de 08/07/2026, a aba foi ajustada para linguagem de soma/pontuação/mínimo, ranking por somatório, rodapé com horário atual, donut sem rotação do percentual, barras com transição lenta de cor, remoção da lista de alunos abaixo do mínimo, seletor customizado com rolagem, temas claro/mono mais abrangentes e impressão própria de relatório estatístico. A URL canônica da aba é `/notas/#estatisticas`, mantendo `#movimento` apenas como compatibilidade legada. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -369,7 +369,7 @@ Usar JavaScript moderno com JSDoc rigoroso inicialmente. Avaliar TypeScript + Vi
 
 Não implementar edição de notas na interface durante a primeira entrega sem uma decisão explícita sobre fonte de verdade e reconciliação com a planilha do professor.
 
-Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, seletor de tema e perfil são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. Ainda em 08/07/2026, a aba `Estatísticas` passou a recalcular métricas por turma/período/busca, incluir `TODAS AS TURMAS` e `VISÃO GERAL`, alternar ranking top 3/top 10, destacar disciplina clicada no gráfico, listar alunos fictícios abaixo da média por disciplina e exibir resumo quantitativo por turma quando o recorte for geral. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
+Estado real em 08/07/2026: para a fase visual atual, a SPA foi reduzida a `Estatísticas` (antiga `Movimento`), `Notas` e `Boletim`. A view técnica continua usando o identificador interno `movimento` para preservar código e testes, mas o rótulo exibido ao usuário é `Estatísticas` e a URL canônica é `#estatisticas`. O menu lateral compacto e o cabeçalho superior com título, busca, temas dentro do menu de perfil e conta demonstrativa são partes obrigatórias do shell do módulo e devem permanecer visíveis no desktop, inclusive em `Estatísticas`; no mobile, a navegação compacta aparece no topo e o cabeçalho comum empilha seus controles. Ainda em 08/07/2026, a aba `Estatísticas` passou a recalcular métricas por turma/período/busca, incluir `TODAS AS TURMAS` e `VISÃO GERAL`, alternar ranking top 3/top 10 por soma de pontuação, destacar disciplina clicada no gráfico e exibir resumo quantitativo por turma quando o recorte for geral. A aba não deve exibir lista nominal de alunos abaixo do mínimo; esse detalhamento fica para telas próprias. O sistema de notas é baseado em somas/pontuações e mínimos por período; usar o termo `média` somente quando houver cálculo real de média. As telas de alunos, conselho, relatórios, sync/importações, professores/planilhas, inconsistências, auditoria detalhada e configurações reais ficam fora desta etapa e dependem de nova autorização, provisionamento das listas `NOTAS_*` e fluxo piloto.
 
 ## 11. Direção visual: Android 16, Material 3 Expressive e One UI
 
@@ -453,7 +453,7 @@ Regras do módulo:
 - manter foco e contexto ao abrir/fechar camadas;
 - respeitar `prefers-reduced-motion: reduce`, reduzindo ou removendo deslocamento, escala, parallax e blur animado.
 
-Decisão adicional em 08/07/2026: toda evolução visual nova do módulo deve considerar microinterações e movimento proporcional desde o início, não como acabamento posterior. Quando um `select` nativo gerar uma lista visualmente incompatível com o sistema, criar seletor customizado sincronizado com o controle real. Em dashboards, gráficos e indicadores devem ter entrada animada e movimento ambiente lento, desde que isso não reduza legibilidade, desempenho nem acessibilidade.
+Decisão adicional em 08/07/2026: toda evolução visual nova do módulo deve considerar microinterações e movimento proporcional desde o início, não como acabamento posterior. Quando um `select` nativo gerar uma lista visualmente incompatível com o sistema, criar seletor customizado sincronizado com o controle real. Em dashboards, gráficos e indicadores devem ter entrada animada e movimento ambiente lento, desde que isso não reduza legibilidade, desempenho nem acessibilidade. Toda decisão estética aprovada em uma aba deve orientar as próximas abas e recursos para preservar um ecossistema visual padronizado: squircles simulados por raios generosos, camadas translúcidas com blur controlado, hierarquia limpa, temas realmente abrangentes, estados pressionados/foco físicos, ilhas conceituais, carregamento escalonado e badges compactos.
 
 ### 11.6 Acessibilidade obrigatória
 
@@ -644,7 +644,7 @@ O projeto só poderá ser considerado concluído quando:
 - confirmar conta institucional proprietária dos fluxos;
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
-- validar com o responsável a versão funcional de `/notas/#estatisticas` contra o `anexo 7.png`, incluindo `TODAS AS TURMAS`, `VISÃO GERAL`, ranking top 3/top 10 e clique por disciplina, antes de ligar dados reais;
+- validar com o responsável a versão finalizada de `/notas/#estatisticas` contra o `anexo 7.png`, incluindo `TODAS AS TURMAS`, `VISÃO GERAL`, ranking top 3/top 10 por soma, linguagem de pontuação/mínimo, temas claro/mono e impressão própria, antes de ligar dados reais;
 - provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
 - substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
 
@@ -693,6 +693,54 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 08/07/2026 — finalização de Estatísticas por soma, temas e impressão própria
+
+- Responsável pediu para ler `C:\Users\Eugui\Desktop\aqui.txt` e finalizar a aba `Estatísticas` antes de avançar para outras abas.
+- O pedido autorizou um pacote amplo de finalização/usabilidade e reforçou regras permanentes:
+  - o sistema de notas é baseado em soma/pontuação/mínimo; usar `média` somente quando houver cálculo real de média;
+  - mudanças visuais/estéticas aprovadas devem orientar futuras abas e recursos para padronizar o ecossistema;
+  - a aba `Estatísticas` não deve conter lista nominal de alunos abaixo do mínimo.
+- Referências oficiais revisadas para orientar a adaptação visual sem copiar marcas/ativos:
+  - Samsung One UI Motion Introduction e Motion basics;
+  - Samsung One UI Visual depth;
+  - Samsung One UI Layout design for large screens;
+  - Android Material 3 e Dynamic colors.
+- Não foi encontrada documentação oficial pública específica chamada `One UI 8.5`; a implementação continuou baseada nos princípios oficiais atuais: movimento com causa/efeito, profundidade leve, responsividade em telas grandes, foco na tarefa, cor adaptativa e acessibilidade.
+- Ajustes feitos em `notas/index.html`:
+  - removidos botões sem uso da área de Estatísticas: três pontos do topo e ferramentas `Exibir valores`/três pontos do gráfico;
+  - tema visual movido para dentro do menu de perfil;
+  - cabeçalho inicial trocado para `Movimento estatístico escolar`, evitando o texto antigo `Escola Municipal / Sistema Acadêmico`;
+  - rodapé deixou de carregar data demo fixa e passa a ser preenchido pela renderização atual.
+- Ajustes feitos em `notas/js/app.js`:
+  - rodapé `Atualizado em ...` passou a usar a data/hora atual da renderização;
+  - impressão de `Estatísticas` passou a usar `imprimirRelatorioMovimento()` e `body[data-print-view="movimento"]`, sem acionar a impressão de `Boletim`;
+  - cartões trocaram linguagem de média para `ACIMA OU IGUAL AO MÍNIMO`, `ABAIXO DO MÍNIMO` e `SOMA DO RECORTE`;
+  - ranking `Destaques da turma` passou a ordenar por `somaPeriodoEstudante()`, mostrar top 3/top 10 pelo mesmo botão e indicar recuperação em componente com texto compacto;
+  - lista nominal de alunos abaixo do mínimo foi removida da aba; permaneceu apenas o resumo quantitativo por turma quando o recorte pedir;
+  - `#estatisticas` segue como hash canônico e `#movimento` permanece compatível.
+- Ajustes feitos em CSS:
+  - topo de `Estatísticas` passou a usar o título/descrição da própria aba no `systemBar`, sem logo institucional nessa view;
+  - caixa de busca deixou de mudar borda/sombra ao focar;
+  - seletores customizados ganharam rolagem, menu menos transparente e padronização de altura/texto para `TODAS AS TURMAS`;
+  - cards/painéis receberam raios mais generosos, superfícies translúcidas, sombras e estados de pressão/hover consistentes;
+  - barras azul/vermelha ganharam transição lenta de cor via `blueBarFlow`/`redBarFlow`;
+  - percentual do donut deixou de girar; permanece apenas respiração leve do contêiner;
+  - temas claro e mono receberam overrides específicos para background, painéis, menus, textos, donut, barras e botão de impressão;
+  - relatório de impressão próprio para `Estatísticas` foi definido em `@media print`.
+- Ajustes feitos em `scripts/testes-notas.mjs`:
+  - travas para temas no perfil, remoção dos botões sem uso, ausência de data demo fixa, soma/pontuação/mínimo, impressão própria de Estatísticas, animações das barras, donut sem rotação e CSS de temas claro/mono.
+- Validações executadas:
+  - `node --check notas/js/app.js` passou;
+  - `node scripts/testes-notas.mjs` passou com 10 arquivos verificados, 40 estudantes fictícios, 4 turmas fictícias e 480 lançamentos fictícios;
+  - `git diff --check -- notas/index.html notas/js/app.js notas/css/componentes.css notas/css/layouts.css scripts/testes-notas.mjs` não apontou erros; apenas avisos esperados de LF/CRLF no Windows.
+- Capturas Playwright CLI geradas:
+  - `diagnosticos/notas-estatisticas-finalizacao-desktop.png` em desktop 1420×941;
+  - `diagnosticos/notas-estatisticas-finalizacao-mobile.png` em mobile 390×844.
+- Resultado visual observado: menu lateral e navegação mobile permanecem visíveis, o título está no cabeçalho superior, a busca/perfil ficam no shell comum, os seletores e botão de relatório ocupam o topo da aba, os cards/ranking/gráfico/donut renderizam sem sobreposição evidente.
+- Nenhum dado real de aluno, professor, CPF, INEP ou nota real foi inserido; os dados continuam fictícios.
+- Nenhuma lista `NOTAS_*`, biblioteca, fluxo Power Automate, permissão, configuração Entra ID, Graph ou recurso Microsoft 365 foi criado ou alterado.
+- Próxima etapa correta: responsável validar `/notas/#estatisticas` publicada; se aprovada, aplicar o mesmo padrão visual/movimento/seletores/temas nas próximas evoluções de `Notas` e `Boletim`.
 
 ### 08/07/2026 — movimento, microinterações e seletor customizado em Estatísticas
 

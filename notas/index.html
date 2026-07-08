@@ -69,8 +69,8 @@
         <div class="systemTitle">
           <img src="../logo_escola.png" alt="" class="topBrandLogo">
           <div>
-            <h1 id="viewTitle">Escola Municipal</h1>
-            <p id="viewSubtitle">Sistema Acadêmico</p>
+            <h1 id="viewTitle">Movimento estatístico escolar</h1>
+            <p id="viewSubtitle">Acompanhe o desempenho geral por turma e período.</p>
           </div>
         </div>
 
@@ -84,12 +84,6 @@
             <input id="globalSearch" type="search" placeholder="Buscar aluno, turma ou disciplina">
           </label>
 
-          <div class="themePicker" aria-label="Tema visual">
-            <button class="themeDot themeAurora active" type="button" data-theme="aurora" aria-label="Tema azul e vermelho"></button>
-            <button class="themeDot themeClaro" type="button" data-theme="claro" aria-label="Tema branco e azul claro"></button>
-            <button class="themeDot themeMono" type="button" data-theme="mono" aria-label="Tema preto e cinza"></button>
-          </div>
-
           <div class="profileBox">
             <button class="profileButton" id="btnProfile" type="button" aria-expanded="false">
               <span class="profileAvatar" aria-hidden="true">EI</span>
@@ -99,6 +93,14 @@
               </span>
             </button>
             <div class="profileMenu" id="profileMenu" hidden>
+              <div class="profileThemePanel" aria-label="Tema visual">
+                <span>Tema</span>
+                <div class="themePicker">
+                  <button class="themeDot themeAurora active" type="button" data-theme="aurora" aria-label="Tema azul e vermelho"></button>
+                  <button class="themeDot themeClaro" type="button" data-theme="claro" aria-label="Tema branco e azul claro"></button>
+                  <button class="themeDot themeMono" type="button" data-theme="mono" aria-label="Tema preto e cinza"></button>
+                </div>
+              </div>
               <a href="../admin/">Painel administrativo</a>
               <button id="btnLogout" type="button">Sair</button>
             </div>
@@ -129,9 +131,6 @@
               </svg>
               <span>IMPRIMIR RELATÓRIO</span>
             </button>
-            <button class="statsMoreButton" type="button" aria-label="Mais opções">
-              <span></span><span></span><span></span>
-            </button>
           </div>
 
           <div class="statsMainGrid">
@@ -148,18 +147,14 @@
                 <div class="statsPanelTitle">
                   <h3>DESEMPENHO POR DISCIPLINA <span aria-hidden="true">ⓘ</span></h3>
                   <div class="statsLegend">
-                    <span><i class="legendDot blue"></i> ACIMA OU IGUAL À MÉDIA</span>
-                    <span><i class="legendDot red"></i> ABAIXO DA MÉDIA</span>
+                    <span><i class="legendDot blue"></i> ACIMA OU IGUAL AO MÍNIMO</span>
+                    <span><i class="legendDot red"></i> ABAIXO DO MÍNIMO</span>
                   </div>
                 </div>
-                <div class="statsPanelTools">
-                  <button class="statsDropdown" type="button">Exibir valores <span aria-hidden="true">⌄</span></button>
-                  <button class="statsDots" type="button" aria-label="Mais opções"><span></span><span></span><span></span></button>
-                </div>
               </div>
-              <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para preparar a lista de alunos em vermelho.</span>
+              <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para destacar seu desempenho no gráfico.</span>
               <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
-              <p class="statsChartFootnote">ⓘ Mínimo de 18 pontos para alcançar a média. Máximo de 30 pontos.</p>
+              <p class="statsChartFootnote">ⓘ Mínimo de 18 pontos no I/II trimestre e 24 no III trimestre. Máximo do período conforme etapa selecionada.</p>
             </section>
 
             <section class="statsGlass statsDonutPanel" id="movementDonut"></section>
@@ -174,7 +169,7 @@
             </svg>
             <span id="movementFooterPeriod">Dados referentes a I TRIMESTRE</span>
             <span>•</span>
-            <span id="movementFooterUpdated">Atualizado em 07/07/2026 às 10:45</span>
+            <span id="movementFooterUpdated">Atualizado ao abrir a página</span>
           </footer>
         </div>
 
@@ -184,7 +179,7 @@
               <p class="sectionKicker" id="movementClassPanelKicker">Detalhamento</p>
               <h3 id="movementClassPanelTitle">Disciplina selecionada</h3>
             </div>
-            <span class="panelHint" id="movementClassPanelHint">Clique em uma disciplina para listar alunos abaixo da média.</span>
+            <span class="panelHint" id="movementClassPanelHint">Resumo quantitativo do recorte selecionado.</span>
           </div>
           <div class="classResultGrid" id="movementClassCards"></div>
         </section>

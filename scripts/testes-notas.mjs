@@ -65,6 +65,9 @@ conferir((html.match(/data-view=/g) || []).length === 3, "A navegacao deve conte
 conferir(/id=["']movementChart["']/.test(html), "movementChart nao encontrado.");
 conferir(/<option value=["']geral["']>VISÃO GERAL<\/option>/.test(html), "Estatisticas deve oferecer a opcao VISÃO GERAL no periodo.");
 conferir(html.includes('data-stats-select-label="Turma"') && html.includes('data-stats-select-label="Período"'), "Estatisticas deve usar hosts para seletores customizados.");
+conferir(html.includes("profileThemePanel"), "Temas visuais devem ficar dentro do menu de perfil.");
+conferir(!html.includes("statsMoreButton") && !html.includes("statsDots") && !html.includes("Exibir valores"), "Estatisticas nao deve manter botoes sem uso no topo/grafico.");
+conferir(!html.includes("07/07/2026"), "Estatisticas nao deve carregar data demonstrativa fixa no rodape.");
 conferir(/id=["']notasTabela["']/.test(html), "notasTabela nao encontrada.");
 conferir(/id=["']notesMetricStrip["']/.test(html), "notesMetricStrip nao encontrado.");
 conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontrado.");
@@ -84,6 +87,11 @@ conferir(appTexto.includes("rankingExpandido ? 10 : 3"), "Ranking de Estatistica
 conferir(appTexto.includes("movementClassPanelTitle"), "Estatisticas deve atualizar o painel de detalhamento por disciplina/turma.");
 conferir(appTexto.includes("enhanceStatsSelects"), "Estatisticas deve substituir o select nativo por seletor customizado sincronizado.");
 conferir(appTexto.includes("openStatsSelect") && appTexto.includes("chooseStatsSelectOption"), "Seletor customizado de Estatisticas deve abrir e sincronizar opcoes.");
+conferir(appTexto.includes("somaPeriodoEstudante") && appTexto.includes("formatarSomaPontuacao"), "Estatisticas deve ranquear e exibir pontuacao por soma.");
+conferir(appTexto.includes("SOMA DO RECORTE") && appTexto.includes("ACIMA OU IGUAL AO MÍNIMO"), "Estatisticas deve usar linguagem de soma/minimo, nao media.");
+conferir(appTexto.includes("imprimirRelatorioMovimento") && appTexto.includes('printView = "movimento"'), "Botao de impressao de Estatisticas deve imprimir a propria aba.");
+conferir(!appTexto.includes("movimentoAtualizacaoPadrao"), "Rodape de Estatisticas nao deve depender de data demonstrativa fixa.");
+conferir(!/abaixo da m[eé]dia/i.test(appTexto), "Estatisticas nao deve usar linguagem de abaixo da media.");
 conferir(!appTexto.includes("movimentoReferencia"), "Estatisticas nao deve depender do objeto estatico antigo movimentoReferencia.");
 conferir(appTexto.includes("renderNotesTable"), "renderNotesTable nao encontrado em app.js.");
 conferir(appTexto.includes("renderNotesMetricStrip"), "renderNotesMetricStrip nao encontrado em app.js.");
@@ -97,12 +105,16 @@ conferir(cssTokens.includes("--motion-standard") && cssTokens.includes("--motion
 conferir(cssBase.includes("@media (prefers-reduced-motion: reduce)"), "Modulo deve respeitar prefers-reduced-motion.");
 conferir(cssComponentes.includes(".statsSelectMenu") && cssComponentes.includes(".statsSelectOption"), "Seletor customizado de Estatisticas deve ter menu proprio.");
 conferir(cssComponentes.includes("@keyframes statsBarGrow") && cssComponentes.includes("@keyframes donutBreathe"), "Graficos de Estatisticas devem ter animacoes de entrada e movimento leve.");
+conferir(cssComponentes.includes("@keyframes blueBarFlow") && cssComponentes.includes("@keyframes redBarFlow"), "Barras de Estatisticas devem ter transicao lenta de cor.");
+conferir(!/@keyframes donutBreathe[\s\S]*?rotate\s*:/m.test(cssComponentes), "Percentual do donut de Estatisticas nao deve girar.");
+conferir(cssComponentes.includes('body[data-theme="claro"][data-view="movimento"]') && cssComponentes.includes('body[data-theme="mono"][data-view="movimento"]'), "Temas claro e mono devem ter acabamento especifico em Estatisticas.");
 conferir(cssComponentes.includes(".notesTable"), "Estilo da tabela de notas nao encontrado.");
 conferir(cssComponentes.includes(".a4Sheet"), "Estilo da folha A4 nao encontrado.");
 conferir(cssComponentes.includes(".miniBoletim"), "Estilo do mini boletim nao encontrado.");
 conferir(cssComponentes.includes("grid-template-rows: repeat(4, 1fr)"), "Boletim deve usar quatro faixas horizontais na folha A4.");
 conferir(cssComponentes.includes(".studentPeek"), "Estilo da previa de aluno nao encontrado.");
 conferir(cssLayouts.includes(".appRail"), "Menu lateral compacto nao encontrado no layout.");
+conferir(cssLayouts.includes('body[data-print-view="movimento"]') && cssLayouts.includes("#view-movimento"), "Impressao de Estatisticas deve ter layout proprio.");
 conferir(!/body\[data-view=["']movimento["']\]\s+\.appRail[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "A aba Estatisticas nao deve esconder o menu lateral compacto.");
 conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "A aba Estatisticas deve manter o cabecalho superior do sistema.");
 

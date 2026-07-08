@@ -21,10 +21,7 @@
 .textButton:active,
 .profileButton:active,
 .iconButton:active,
-.statsPrintButton:active,
-.statsMoreButton:active,
-.statsDropdown:active,
-.statsDots:active {
+.statsPrintButton:active {
   transform: translateY(1px) scale(0.985);
 }
 
@@ -78,6 +75,16 @@
   background: var(--surface-soft);
 }
 
+.searchBox:hover,
+.searchBox:focus-within {
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+.searchBox input:focus-visible {
+  box-shadow: none;
+}
+
 .searchBox svg {
   width: 19px;
   height: 19px;
@@ -129,6 +136,30 @@ option {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
+}
+
+.profileThemePanel {
+  padding: 8px 9px 10px;
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+}
+
+.profileThemePanel > span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.profileThemePanel .themePicker {
+  min-height: 34px;
+  padding: 0;
+  justify-content: flex-start;
+  border: 0;
+  background: transparent;
 }
 
 .themeDot {
@@ -273,6 +304,28 @@ option {
   width: 38px;
   height: 38px;
   object-fit: contain;
+}
+
+body[data-view="movimento"] .systemTitle {
+  gap: 0;
+}
+
+body[data-view="movimento"] .topBrandLogo {
+  display: none;
+}
+
+body[data-view="movimento"] .systemTitle h1 {
+  color: var(--stats-ink, var(--ink));
+  font-size: clamp(1rem, 1.7vw, 1.28rem);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+body[data-view="movimento"] .systemTitle p:last-child {
+  max-width: 760px;
+  color: var(--stats-muted, var(--ink-soft));
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 .actionButton {
@@ -1387,17 +1440,15 @@ option {
 body[data-view="movimento"] .statsSelectCard,
 body[data-view="movimento"] .statsGlass,
 body[data-view="movimento"] .movementStatCard,
-body[data-view="movimento"] .statsPrintButton,
-body[data-view="movimento"] .statsMoreButton {
-  border: 1px solid rgba(122, 166, 225, 0.24);
-  border-radius: 12px;
-  background: linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18);
+body[data-view="movimento"] .statsPrintButton {
+  border: 1px solid var(--stats-line, rgba(122, 166, 225, 0.24));
+  border-radius: 22px;
+  background: var(--stats-panel, linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66)));
+  box-shadow: var(--stats-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18));
 }
 
 body[data-view="movimento"] .statsSelectCard,
 body[data-view="movimento"] .statsPrintButton,
-body[data-view="movimento"] .statsMoreButton,
 body[data-view="movimento"] .statsGlass,
 body[data-view="movimento"] .movementStatCard,
 body[data-view="movimento"] .statsDashboardFooter,
@@ -1415,10 +1466,6 @@ body[data-view="movimento"] .statsTopRow > :nth-child(2) {
 
 body[data-view="movimento"] .statsTopRow > :nth-child(4) {
   animation-delay: 130ms;
-}
-
-body[data-view="movimento"] .statsTopRow > :nth-child(5) {
-  animation-delay: 170ms;
 }
 
 body[data-view="movimento"] .movementStatCard:nth-child(1) {
@@ -1488,13 +1535,13 @@ body[data-view="movimento"] .statsSelectCard {
 
 body[data-view="movimento"] .statsSelectCard:hover,
 body[data-view="movimento"] .statsSelectCard:focus-within {
-  border-color: rgba(126, 177, 255, 0.56);
+  border-color: var(--stats-line-strong, rgba(126, 177, 255, 0.56));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--shadow-lifted);
   transform: perspective(900px) rotateX(1.5deg) translateY(-2px);
 }
 
 body[data-view="movimento"] .statsSelectCard.is-open {
-  border-color: rgba(126, 177, 255, 0.72);
+  border-color: var(--stats-line-active, rgba(126, 177, 255, 0.72));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 34px 90px rgba(0, 0, 0, 0.34);
   z-index: 30;
 }
@@ -1521,7 +1568,7 @@ body[data-view="movimento"] .statsSelectButton {
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.10), transparent 45%),
     transparent;
-  color: #f8fbff;
+  color: var(--stats-ink, #f8fbff);
   text-align: left;
   overflow: hidden;
 }
@@ -1529,16 +1576,21 @@ body[data-view="movimento"] .statsSelectButton {
 body[data-view="movimento"] .statsSelectButton strong {
   position: relative;
   z-index: 1;
-  font-size: 1.48rem;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--stats-ink, #f8fbff);
+  font-size: 1.34rem;
   font-weight: 900;
   line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
 body[data-view="movimento"] .statsSelectCaption {
   position: relative;
   z-index: 1;
-  color: rgba(205, 221, 244, 0.82);
+  color: var(--stats-muted, rgba(205, 221, 244, 0.82));
   font-size: 0.86rem;
 }
 
@@ -1585,14 +1637,16 @@ body[data-view="movimento"] .statsSelectMenu {
   left: 0;
   right: 0;
   padding: 8px;
+  max-height: min(312px, calc(100vh - 160px));
   display: grid;
   gap: 6px;
-  border: 1px solid rgba(128, 177, 244, 0.30);
+  border: 1px solid var(--stats-menu-line, rgba(128, 177, 244, 0.30));
   border-radius: 14px;
-  background:
-    linear-gradient(145deg, rgba(23, 64, 112, 0.95), rgba(7, 24, 50, 0.94));
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.42);
+  background: var(--stats-menu, linear-gradient(145deg, rgba(23, 64, 112, 0.985), rgba(7, 24, 50, 0.985)));
+  box-shadow: var(--stats-menu-shadow, 0 28px 78px rgba(0, 0, 0, 0.42));
   backdrop-filter: blur(22px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   transform-origin: top;
   animation: selectMenuEnter 260ms var(--motion-emphasis) both;
 }
@@ -1689,38 +1743,22 @@ body[data-view="movimento"] .statsPrintButton svg {
   stroke-linejoin: round;
 }
 
-body[data-view="movimento"] .statsMoreButton {
-  min-height: 70px;
-  display: grid;
-  place-items: center;
-  gap: 4px;
-  background: rgba(16, 50, 91, 0.70);
-  transition: transform var(--motion-smooth), border-color var(--motion-smooth), box-shadow var(--motion-smooth), background var(--motion-smooth);
-}
-
-body[data-view="movimento"] .statsMoreButton:hover,
-body[data-view="movimento"] .statsMoreButton:focus-visible {
-  border-color: rgba(126, 177, 255, 0.50);
-  background: rgba(29, 83, 148, 0.78);
-  box-shadow: var(--shadow-lifted);
-  transform: translateY(-2px);
-}
-
-body[data-view="movimento"] .statsMoreButton span,
-body[data-view="movimento"] .statsDots span {
-  width: 4px;
-  height: 4px;
-  display: block;
-  border-radius: 999px;
-  background: #fff;
-}
-
 body[data-view="movimento"] .statsIntroBlock h2 {
   margin-bottom: 12px;
   color: #fbfdff;
   font-size: 1.78rem;
   line-height: 1.05;
   text-transform: uppercase;
+}
+
+body[data-view="movimento"] .statsIntroBlock h2,
+body[data-view="movimento"] .statsIntroBlock > p {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 body[data-view="movimento"] .statsIntroBlock p {
@@ -1801,6 +1839,8 @@ body[data-view="movimento"] .movementIcon {
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
+  border-radius: 10px;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.22));
 }
 
 body[data-view="movimento"] .movementIcon svg {
@@ -1814,7 +1854,7 @@ body[data-view="movimento"] .movementIcon svg {
 }
 
 body[data-view="movimento"] .statsRankingPanel {
-  padding: 21px 25px 9px;
+  padding: 19px 22px 10px;
 }
 
 body[data-view="movimento"] .statsRankingHeader {
@@ -1841,10 +1881,14 @@ body[data-view="movimento"] .statsPanelTitle h3 {
 
 body[data-view="movimento"] .rankingList {
   gap: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
 }
 
 body[data-view="movimento"] .rankingItem {
-  min-height: 45px;
+  min-height: 42px;
   padding: 0;
   display: grid;
   grid-template-columns: 35px minmax(0, 1fr) auto;
@@ -1870,9 +1914,17 @@ body[data-view="movimento"] .rankingItem strong {
   font-weight: 800;
 }
 
+body[data-view="movimento"] .rankingItem small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(204, 220, 244, 0.72);
+  font-size: 0.64rem;
+  line-height: 1.1;
+}
+
 body[data-view="movimento"] .rankingItem b {
-  min-width: 53px;
-  padding: 8px 9px;
+  min-width: 58px;
+  padding: 7px 8px;
   border-radius: 999px;
   background: rgba(62, 105, 179, 0.33);
   color: #e8f1ff;
@@ -1971,49 +2023,6 @@ body[data-view="movimento"] .legendDot.blue {
 
 body[data-view="movimento"] .legendDot.red {
   background: #ff344c;
-}
-
-body[data-view="movimento"] .statsPanelTools {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-body[data-view="movimento"] .statsDropdown {
-  min-height: 36px;
-  padding: 0 13px;
-  border: 1px solid rgba(142, 180, 232, 0.24);
-  border-radius: 8px;
-  background: rgba(19, 53, 95, 0.72);
-  color: #eaf3ff;
-  font-size: 0.78rem;
-  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
-}
-
-body[data-view="movimento"] .statsDropdown:hover,
-body[data-view="movimento"] .statsDropdown:focus-visible {
-  border-color: rgba(126, 177, 255, 0.42);
-  background: rgba(30, 75, 132, 0.82);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
-  transform: translateY(-1px);
-}
-
-body[data-view="movimento"] .statsDots {
-  width: 28px;
-  min-height: 36px;
-  display: grid;
-  place-items: center;
-  gap: 4px;
-  border: 0;
-  background: transparent;
-  transition: transform var(--motion-quick), background var(--motion-quick);
-}
-
-body[data-view="movimento"] .statsDots:hover,
-body[data-view="movimento"] .statsDots:focus-visible {
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.065);
-  transform: translateY(-1px);
 }
 
 body[data-view="movimento"] .movementChart {
@@ -2117,8 +2126,8 @@ body[data-view="movimento"] .barPair i::before {
   left: 50%;
   top: -28px;
   transform: translateX(-50%);
-  min-width: 25px;
-  padding: 4px 6px;
+  width: 28px;
+  padding: 4px 0;
   border-radius: 6px;
   background: rgba(14, 31, 58, 0.88);
   color: #f5f8ff;
@@ -2138,14 +2147,24 @@ body[data-view="movimento"] .barPair i.isZero::before {
 }
 
 body[data-view="movimento"] .barBlue {
-  background: linear-gradient(180deg, #367bff 0%, #1557d7 100%);
+  background: linear-gradient(180deg, #56a8ff 0%, #236bff 42%, #1557d7 72%, #63bbff 100%);
+  background-size: 100% 180%;
   box-shadow: 0 0 18px rgba(54, 123, 255, 0.25);
+  animation-name: statsBarGrow, statsBarBreathe, blueBarFlow;
+  animation-duration: 760ms, 6.4s, 8s;
+  animation-timing-function: var(--motion-emphasis), ease-in-out, ease-in-out;
+  animation-iteration-count: 1, infinite, infinite;
 }
 
 body[data-view="movimento"] .barRed {
   width: 18px;
-  background: linear-gradient(180deg, #ff5b71 0%, #d51631 100%);
+  background: linear-gradient(180deg, #ff7c8f 0%, #ff3650 45%, #c90f28 72%, #ff8798 100%);
+  background-size: 100% 180%;
   box-shadow: 0 0 18px rgba(255, 69, 89, 0.20);
+  animation-name: statsBarGrow, statsBarBreathe, redBarFlow;
+  animation-duration: 760ms, 6.4s, 8.6s;
+  animation-timing-function: var(--motion-emphasis), ease-in-out, ease-in-out;
+  animation-iteration-count: 1, infinite, infinite;
 }
 
 body[data-view="movimento"] .barLabel {
@@ -2288,12 +2307,121 @@ body[data-view="movimento"] .statsDonutNote .movementIcon {
 
 body[data-view="movimento"] .classResultsPanel {
   margin-top: 12px;
-  border-color: rgba(122, 166, 225, 0.24);
-  background: linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
+  border-color: var(--stats-line, rgba(122, 166, 225, 0.24));
+  background: var(--stats-panel, linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66)));
 }
 
 body[data-view="movimento"] .classResultCard {
   animation: resultCardEnter 420ms var(--motion-emphasis) both;
+}
+
+body[data-theme="claro"][data-view="movimento"] {
+  --stats-ink: #10243e;
+  --stats-muted: rgba(53, 81, 111, 0.78);
+  --stats-line: rgba(49, 105, 168, 0.18);
+  --stats-line-strong: rgba(18, 105, 211, 0.38);
+  --stats-line-active: rgba(18, 105, 211, 0.54);
+  --stats-panel: linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(233, 245, 255, 0.74));
+  --stats-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78), 0 24px 60px rgba(33, 88, 150, 0.13);
+  --stats-menu: linear-gradient(145deg, rgba(255, 255, 255, 0.992), rgba(229, 243, 255, 0.992));
+  --stats-menu-line: rgba(48, 105, 168, 0.24);
+  --stats-menu-shadow: 0 26px 70px rgba(44, 89, 138, 0.20);
+}
+
+body[data-theme="mono"][data-view="movimento"] {
+  --stats-ink: #f7f8fb;
+  --stats-muted: rgba(216, 220, 228, 0.74);
+  --stats-line: rgba(255, 255, 255, 0.17);
+  --stats-line-strong: rgba(255, 255, 255, 0.30);
+  --stats-line-active: rgba(255, 255, 255, 0.42);
+  --stats-panel: linear-gradient(145deg, rgba(42, 44, 52, 0.84), rgba(15, 16, 21, 0.76));
+  --stats-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.075), 0 24px 64px rgba(0, 0, 0, 0.30);
+  --stats-menu: linear-gradient(145deg, rgba(42, 44, 52, 0.992), rgba(10, 11, 15, 0.992));
+  --stats-menu-line: rgba(255, 255, 255, 0.22);
+  --stats-menu-shadow: 0 30px 78px rgba(0, 0, 0, 0.46);
+}
+
+body[data-theme="claro"][data-view="movimento"] .statsPanelTitle h3,
+body[data-theme="claro"][data-view="movimento"] .statsRankingHeader h3,
+body[data-theme="claro"][data-view="movimento"] .movementStatValue strong,
+body[data-theme="claro"][data-view="movimento"] .rankingItem strong,
+body[data-theme="claro"][data-view="movimento"] .donutMeter strong,
+body[data-theme="claro"][data-view="movimento"] .statsDonutLegend strong,
+body[data-theme="claro"][data-view="movimento"] .classResultCard strong,
+body[data-theme="claro"][data-view="movimento"] .barLabel strong {
+  color: var(--stats-ink);
+}
+
+body[data-theme="claro"][data-view="movimento"] .statsLegend,
+body[data-theme="claro"][data-view="movimento"] .statsYAxis,
+body[data-theme="claro"][data-view="movimento"] .movementStatBody span,
+body[data-theme="claro"][data-view="movimento"] .rankingItem small,
+body[data-theme="claro"][data-view="movimento"] .statsDonutLegend span,
+body[data-theme="claro"][data-view="movimento"] .statsDonutLegend small,
+body[data-theme="claro"][data-view="movimento"] .statsChartFootnote,
+body[data-theme="claro"][data-view="movimento"] .statsDashboardFooter,
+body[data-theme="claro"][data-view="movimento"] .barLabel small,
+body[data-theme="claro"][data-view="movimento"] .classResultCard span {
+  color: var(--stats-muted);
+}
+
+body[data-theme="claro"][data-view="movimento"] .statsSelectOption {
+  background: rgba(18, 105, 211, 0.055);
+  color: var(--stats-ink);
+}
+
+body[data-theme="claro"][data-view="movimento"] .statsSelectOption span {
+  color: rgba(53, 81, 111, 0.70);
+}
+
+body[data-theme="claro"][data-view="movimento"] .statsSelectOption:hover,
+body[data-theme="claro"][data-view="movimento"] .statsSelectOption:focus-visible,
+body[data-theme="claro"][data-view="movimento"] .statsSelectOption.active {
+  background: rgba(18, 105, 211, 0.13);
+}
+
+body[data-theme="claro"][data-view="movimento"] .movementBars::before {
+  background: linear-gradient(to bottom, rgba(49, 105, 168, 0.14) 1px, transparent 1px) 0 0 / 100% 25%;
+  border-bottom-color: rgba(49, 105, 168, 0.18);
+}
+
+body[data-theme="claro"][data-view="movimento"] .barPair i::before {
+  background: rgba(255, 255, 255, 0.92);
+  color: #10243e;
+  box-shadow: 0 8px 18px rgba(44, 89, 138, 0.12);
+}
+
+body[data-theme="claro"][data-view="movimento"] .donutMeter {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.94) 0 48%, transparent 49%),
+    conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #1269d3 calc(100% - var(--percent)) 100%);
+}
+
+body[data-theme="claro"][data-view="movimento"] .donutMeter span,
+body[data-theme="claro"][data-view="movimento"] .statsDonutNote {
+  color: var(--stats-ink);
+}
+
+body[data-theme="claro"][data-view="movimento"] .statsDonutNote {
+  border-color: rgba(49, 105, 168, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+body[data-theme="mono"][data-view="movimento"] .statsPrintButton {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: linear-gradient(135deg, #f3f5f8, #9aa2b1);
+  color: #090a0e;
+}
+
+body[data-theme="mono"][data-view="movimento"] .barBlue {
+  background: linear-gradient(180deg, #e9edf5 0%, #aeb6c4 45%, #737b89 72%, #f7f8fb 100%);
+  box-shadow: 0 0 18px rgba(247, 248, 251, 0.16);
+}
+
+body[data-theme="mono"][data-view="movimento"] .donutMeter {
+  background:
+    radial-gradient(circle, #15171d 0 48%, transparent 49%),
+    conic-gradient(from -126deg, #c34958 0 calc(100% - var(--percent)), #d8dce6 calc(100% - var(--percent)) 100%);
 }
 
 @keyframes statsRiseIn {
@@ -2390,6 +2518,28 @@ body[data-view="movimento"] .classResultCard {
   }
 }
 
+@keyframes blueBarFlow {
+  0%,
+  100% {
+    background-position: 50% 0%;
+  }
+
+  50% {
+    background-position: 50% 100%;
+  }
+}
+
+@keyframes redBarFlow {
+  0%,
+  100% {
+    background-position: 50% 100%;
+  }
+
+  50% {
+    background-position: 50% 0%;
+  }
+}
+
 @keyframes chartLabelEnter {
   from {
     opacity: 0;
@@ -2406,14 +2556,12 @@ body[data-view="movimento"] .classResultCard {
   from {
     opacity: 0;
     scale: 0.82;
-    rotate: -12deg;
     filter: blur(8px);
   }
 
   to {
     opacity: 1;
     scale: 1;
-    rotate: 0deg;
     filter: blur(0);
   }
 }
@@ -2422,12 +2570,10 @@ body[data-view="movimento"] .classResultCard {
   0%,
   100% {
     scale: 1;
-    rotate: 0deg;
   }
 
   50% {
     scale: 1.018;
-    rotate: 1.4deg;
   }
 }
 
@@ -2493,8 +2639,7 @@ body[data-view="movimento"] .classResultCard {
     top: 34px;
   }
 
-  body[data-view="movimento"] .statsPrintButton,
-  body[data-view="movimento"] .statsMoreButton {
+  body[data-view="movimento"] .statsPrintButton {
     min-height: 61px;
   }
 
@@ -2528,16 +2673,6 @@ body[data-view="movimento"] .classResultCard {
 
   body[data-view="movimento"] .statsPanelHeader {
     gap: 10px;
-  }
-
-  body[data-view="movimento"] .statsPanelTools {
-    gap: 8px;
-  }
-
-  body[data-view="movimento"] .statsDropdown {
-    min-height: 34px;
-    padding: 0 10px;
-    font-size: 0.68rem;
   }
 
   body[data-view="movimento"] .statsChartPanel,

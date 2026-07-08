@@ -23,8 +23,6 @@ const componentes = [
   { source: "EO", codigo: "CPT", nome: "Computação" }
 ];
 
-const movimentoAtualizacaoPadrao = "07/07/2026 às 10:45";
-
 const periodos = {
   T1: { rotulo: "I trimestre", curto: "I TRI.", campo: "notaT1", maximo: 30, minimo: 18 },
   T2: { rotulo: "II trimestre", curto: "II TRI.", campo: "notaT2", maximo: 30, minimo: 18 },
@@ -255,9 +253,13 @@ function bindEvents() {
     });
   });
 
-  document.getElementById("movementPrint").addEventListener("click", () => window.print());
+  document.getElementById("movementPrint").addEventListener("click", imprimirRelatorioMovimento);
   document.getElementById("boletimPrint").addEventListener("click", () => window.print());
   ui.studentProfileClose.addEventListener("click", fecharPerfilAluno);
+
+  window.addEventListener("afterprint", () => {
+    delete document.body.dataset.printView;
+  });
 
   window.addEventListener("hashchange", () => {
     const view = viewFromHash();
@@ -475,9 +477,10 @@ function abrirView(view, updateHash = true) {
   });
   const [title, subtitle] = viewCopy[destino];
   document.title = `${title} | Escola Iêda MCPM`;
-  ui.viewTitle.textContent = "Escola Municipal";
-  ui.viewSubtitle.textContent = "Sistema Acadêmico";
+  ui.viewTitle.textContent = title;
+  ui.viewSubtitle.textContent = subtitle;
   if (updateHash) history.replaceState(null, "", `#${viewHashes[destino] || destino}`);
+  if (destino === "movimento" && ui.movimentoTurma.value) renderMovimento();
 }
 
 function renderAll() {
@@ -489,6 +492,8 @@ function renderAll() {
 function renderMovimento() {
   const recorte = criarRecorteMovimento();
   ui.movementClassLabel.textContent = `${recorte.turmaRotulo} · ${recorte.periodo.rotulo} · ${recorte.estudantes.length} aluno(s) no recorte.`;
+  ui.viewTitle.textContent = "Movimento estatístico escolar";
+  ui.viewSubtitle.textContent = ui.movementClassLabel.textContent;
   ui.movementFooterPeriod.textContent = `Dados referentes a ${recorte.periodo.rotulo.toUpperCase()}`;
   ui.movementFooterUpdated.textContent = `Atualizado em ${recorte.atualizado}`;
   renderMovementStats(recorte);
@@ -504,21 +509,19 @@ function criarRecorteMovimento() {
   const periodo = periodos[state.movimento.periodo] || periodos.T1;
   const totalAlunos = estudantes.length;
   const componentesResumo = componentes.map((componente) => {
-    const alunosAbaixo = estudantes.filter((estudante) => notaAbaixo(obterLancamento(estudante, componente), state.movimento.periodo));
-    const abaixo = alunosAbaixo.length;
+    const abaixo = estudantes.filter((estudante) => notaAbaixo(obterLancamento(estudante, componente), state.movimento.periodo)).length;
     return {
       ...componente,
       nomeCurto: nomeComponenteCurto(componente),
       icon: iconeComponente(componente.codigo),
       acima: Math.max(0, totalAlunos - abaixo),
-      abaixo,
-      alunosAbaixo
+      abaixo
     };
   });
   const aprovados = estudantes.filter((estudante) => !estudanteTemVermelha(estudante, state.movimento.periodo)).length;
   const abaixo = Math.max(0, totalAlunos - aprovados);
-  const mediaGeral = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, state.movimento.periodo)));
-  const atualizado = formatarDataHoraMovimento(turma?.ultimaSincronizacao || movimentoAtualizacaoPadrao);
+  const somaRecorte = estudantes.reduce((total, estudante) => total + somaPeriodoEstudante(estudante, state.movimento.periodo), 0);
+  const atualizado = formatarDataHoraMovimento(new Date());
   return {
     estudantes,
     turma,
@@ -528,7 +531,7 @@ function criarRecorteMovimento() {
     componentes: componentesResumo,
     aprovados,
     abaixo,
-    mediaGeral,
+    somaRecorte,
     atualizado,
     maxEixo: Math.max(25, Math.ceil(Math.max(1, totalAlunos) / 5) * 5)
   };
@@ -539,10 +542,10 @@ function renderMovementStats(recorte) {
   const percentualAcima = Math.round((recorte.aprovados / total) * 100);
   const percentualAbaixo = Math.round((recorte.abaixo / total) * 100);
   replaceChildren(ui.movementStats, [
-    movementStatCard("trendUp", "ACIMA OU IGUAL À MÉDIA", recorte.aprovados, `${percentualAcima}%`, "ok"),
-    movementStatCard("trendDown", "ABAIXO DA MÉDIA", recorte.abaixo, `${percentualAbaixo}%`, "error"),
+    movementStatCard("trendUp", "ACIMA OU IGUAL AO MÍNIMO", recorte.aprovados, `${percentualAcima}%`, "ok"),
+    movementStatCard("trendDown", "ABAIXO DO MÍNIMO", recorte.abaixo, `${percentualAbaixo}%`, "error"),
     movementStatCard("users", recorte.turma ? "ALUNOS NA TURMA" : "ALUNOS NO RECORTE", recorte.totalAlunos, "100%", "info"),
-    movementStatCard("star", "MÉDIA GERAL DA TURMA", formatarMedia(recorte.mediaGeral), recorte.mediaGeral >= recorte.periodo.minimo ? "Bom" : "Atenção", recorte.mediaGeral >= recorte.periodo.minimo ? "ok" : "error")
+    movementStatCard("star", "SOMA DO RECORTE", formatarSomaPontuacao(recorte.somaRecorte), "pontos", "info")
   ]);
 }
 
@@ -587,7 +590,7 @@ function renderMovementChart(recorte) {
     button.append(bars, label);
     button.addEventListener("click", () => {
       state.movimento.disciplinaSelecionada = state.movimento.disciplinaSelecionada === componente.codigo ? "" : componente.codigo;
-      ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) abaixo da média.`;
+      ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) abaixo do mínimo.`;
       renderMovementChart(recorte);
       renderClassResults(recorte);
     });
@@ -615,24 +618,24 @@ function renderMovementDonut(recorte) {
   const left = element("div", "statsDonutLegend left");
   appendText(left, "span", `${recorte.abaixo} aluno(s)`);
   appendText(left, "strong", `${percentualAbaixo}%`);
-  appendText(left, "small", "Abaixo da média");
+  appendText(left, "small", "Abaixo do mínimo");
   left.prepend(dot("red"));
 
   const donut = element("div", "donutMeter");
   donut.style.setProperty("--percent", `${percentual}%`);
   appendText(donut, "strong", `${percentual}%`);
-  appendText(donut, "span", "ACIMA OU IGUAL À MÉDIA");
+  appendText(donut, "span", "ACIMA OU IGUAL AO MÍNIMO");
 
   const right = element("div", "statsDonutLegend right");
   appendText(right, "span", `${recorte.aprovados} aluno(s)`);
   appendText(right, "strong", `${percentual}%`);
-  appendText(right, "small", "Acima ou igual à média");
+  appendText(right, "small", "Acima ou igual ao mínimo");
   right.prepend(dot("blue"));
   body.append(left, donut, right);
 
   const note = element("div", "statsDonutNote");
   note.append(movementIcon("users"));
-  appendText(note, "span", `Dos ${recorte.totalAlunos} aluno(s), ${recorte.aprovados} ficaram sem nota abaixo da média no recorte selecionado.`);
+  appendText(note, "span", `Dos ${recorte.totalAlunos} aluno(s), ${recorte.aprovados} ficaram sem nota abaixo do mínimo no recorte selecionado.`);
 
   panel.append(header, body, note);
   replaceChildren(ui.movementDonut, [panel]);
@@ -645,7 +648,7 @@ function renderMovementRanking(recorte) {
   const list = element("div", "rankingList");
   const limite = state.movimento.rankingExpandido ? 10 : 3;
   const ranking = [...recorte.estudantes]
-    .sort((a, b) => mediaPeriodoEstudante(b, state.movimento.periodo) - mediaPeriodoEstudante(a, state.movimento.periodo))
+    .sort((a, b) => somaPeriodoEstudante(b, state.movimento.periodo) - somaPeriodoEstudante(a, state.movimento.periodo))
     .slice(0, limite);
   ranking.forEach((estudante, index) => {
     const item = element("article", "rankingItem");
@@ -653,15 +656,16 @@ function renderMovementRanking(recorte) {
     appendText(item, "span", String(index + 1), `rankBadge rank${Math.min(index + 1, 3)}`);
     const text = element("div");
     const name = appendText(text, "strong", estudante.nome);
-    if (estudanteTemVermelha(estudante, state.movimento.periodo)) name.classList.add("studentAlertName");
-    appendText(text, "small", estudante.turma?.codigo || "");
-    appendText(item, "b", formatarMedia(mediaPeriodoEstudante(estudante, state.movimento.periodo)));
+    const emAtencao = estudanteTemVermelha(estudante, state.movimento.periodo);
+    if (emAtencao) name.classList.add("studentAlertName");
+    appendText(text, "small", emAtencao ? `${estudante.turma?.codigo || ""} · recuperação em componente` : estudante.turma?.codigo || "");
+    appendText(item, "b", formatarSomaPontuacao(somaPeriodoEstudante(estudante, state.movimento.periodo)));
     item.insertBefore(text, item.lastChild);
     list.append(item);
   });
   const button = element("button", "statsRankingLink");
   button.type = "button";
-  button.innerHTML = state.movimento.rankingExpandido ? "<span>VER TOP 3</span><b aria-hidden=\"true\">›</b>" : "<span>VER RANKING COMPLETO</span><b aria-hidden=\"true\">›</b>";
+  button.innerHTML = state.movimento.rankingExpandido ? "<span>RECOLHER PARA TOP 3</span><b aria-hidden=\"true\">↑</b>" : "<span>VER TOP 10 POR SOMA</span><b aria-hidden=\"true\">↓</b>";
   button.addEventListener("click", () => {
     state.movimento.rankingExpandido = !state.movimento.rankingExpandido;
     renderMovementRanking(recorte);
@@ -670,26 +674,6 @@ function renderMovementRanking(recorte) {
 }
 
 function renderClassResults(recorte) {
-  const componente = recorte.componentes.find((item) => item.codigo === state.movimento.disciplinaSelecionada);
-  if (componente) {
-    ui.movementClassPanel.hidden = false;
-    ui.movementClassPanelKicker.textContent = "Alunos abaixo da média";
-    ui.movementClassPanelTitle.textContent = `${componente.codigo} · ${componente.nome}`;
-    ui.movementClassPanelHint.textContent = "Caminho preparado para abrir a lista detalhada do banco real por disciplina.";
-    const cards = componente.alunosAbaixo.map((estudante) => {
-      const nota = obterLancamento(estudante, componente);
-      const card = element("article", "classResultCard");
-      appendText(card, "span", estudante.turma?.codigo || "", "rankBadge rank3");
-      const body = element("div");
-      appendText(body, "strong", estudante.nome, "studentAlertName");
-      appendText(body, "span", `${recorte.periodo.rotulo}: ${formatarMedia(valorPeriodo(nota, state.movimento.periodo))} · mínimo ${recorte.periodo.minimo}`);
-      card.append(body);
-      return card;
-    });
-    replaceChildren(ui.movementClassCards, cards.length ? cards : [emptyState("Nenhum aluno abaixo da média nesta disciplina.")]);
-    return;
-  }
-
   const mostrarTurmas = state.movimento.turma === "todas" || state.movimento.periodo === "geral";
   ui.movementClassPanel.hidden = !mostrarTurmas;
   if (!mostrarTurmas) {
@@ -710,7 +694,7 @@ function renderClassResults(recorte) {
     appendText(mini, "strong", `${percentual}%`);
     const body = element("div");
     appendText(body, "strong", turmaTituloAcademico(turma));
-    appendText(body, "span", `${aprovados} sem vermelha · ${estudantesTurma.length - aprovados} em atenção`);
+    appendText(body, "span", `${aprovados} no mínimo · ${estudantesTurma.length - aprovados} em atenção`);
     card.append(mini, body);
     return card;
   });
@@ -773,7 +757,7 @@ function renderNotesMetricStrip(estudantes, periodoCodigo) {
   const mediaAtual = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, periodoCodigo)));
   renderStats(ui.notesMetricStrip, [
     ["Total de alunos", total, "alunos"],
-    ["Alunos abaixo da média", abaixo, `${Math.round((abaixo / Math.max(1, total)) * 100)}%`],
+    ["Alunos abaixo do mínimo", abaixo, `${Math.round((abaixo / Math.max(1, total)) * 100)}%`],
     ["Novatos", novatos, "marcados"],
     ["Transferidos / outra turma", transferidos, "movimento"],
     ["Média geral da turma", formatarMedia(mediaAtual), mediaAtual >= periodos[periodoCodigo].minimo ? "Regular" : "Atenção"]
@@ -1038,6 +1022,12 @@ function fecharPerfilAluno() {
   ui.studentProfilePanel.setAttribute("aria-hidden", "true");
 }
 
+function imprimirRelatorioMovimento() {
+  closeStatsSelects();
+  document.body.dataset.printView = "movimento";
+  requestAnimationFrame(() => window.print());
+}
+
 function filtrarBusca(estudantes) {
   const busca = normalizarTexto(state.search);
   if (!busca) return estudantes;
@@ -1104,10 +1094,10 @@ function criarEscalaEixo(maximo) {
 }
 
 function formatarDataHoraMovimento(value) {
-  if (!value) return movimentoAtualizacaoPadrao;
+  if (!value) return formatarDataHoraMovimento(new Date());
   if (String(value).includes("/")) return value;
   const data = new Date(value);
-  if (Number.isNaN(data.getTime())) return movimentoAtualizacaoPadrao;
+  if (Number.isNaN(data.getTime())) return formatarDataHoraMovimento(new Date());
   return data.toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -1115,6 +1105,12 @@ function formatarDataHoraMovimento(value) {
     hour: "2-digit",
     minute: "2-digit"
   }).replace(",", " às");
+}
+
+function formatarSomaPontuacao(value) {
+  return new Intl.NumberFormat("pt-BR", {
+    maximumFractionDigits: 1
+  }).format(Number(value) || 0);
 }
 
 function obterLancamento(estudante, componente) {
@@ -1133,6 +1129,13 @@ function notaAbaixo(nota, periodoCodigo) {
 
 function estudanteTemVermelha(estudante, periodoCodigo) {
   return componentes.some((componente) => notaAbaixo(obterLancamento(estudante, componente), periodoCodigo));
+}
+
+function somaPeriodoEstudante(estudante, periodoCodigo) {
+  return componentes.reduce((total, componente) => {
+    const nota = obterLancamento(estudante, componente);
+    return total + (nota ? valorPeriodo(nota, periodoCodigo) : 0);
+  }, 0);
 }
 
 function mediaPeriodoEstudante(estudante, periodoCodigo) {
