@@ -76,6 +76,7 @@ conferir(html.includes("notesSelectCard statsSelectCard"), "Aba Notas deve usar 
 conferir(/id=["']notasPrint["']/.test(html) && /id=["']notasFilterButton["']/.test(html), "Aba Notas deve ter impressao propria e filtro compacto na tabela.");
 conferir(!html.includes("notesSummary"), "Aba Notas nao deve manter resumo de cards no cabecalho da ficha.");
 conferir(html.includes("notesTableAnnotations") && html.includes('id="notesClassLabel" class="srOnly"'), "Aba Notas deve manter anotacoes compactas na tabela e contexto acessivel sem repetir cabecalho.");
+conferir(!html.includes("Regra demonstrativa") && !/<p class=["']sectionKicker["']>Ficha de notas<\/p>/i.test(html), "Aba Notas nao deve repetir o titulo nem exibir a regra demonstrativa na ficha.");
 conferir(!/Lista filtr[aá]vel/i.test(html), "Aba Notas nao deve manter texto de lista filtravel.");
 conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontrado.");
 conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao encontrado.");
@@ -140,8 +141,9 @@ conferir(cssComponentes.includes('body[data-view="notas"] .notesPrintButton') &&
 conferir(cssComponentes.includes('body[data-view="notas"] .notesTableWrap') && cssComponentes.includes("notesRiseIn") && cssComponentes.includes("scoreBreath"), "Aba Notas deve manter tabela responsiva e animacao de entrada/movimento.");
 conferir(cssComponentes.includes(".notesFilterPopover") && cssComponentes.includes(".statusPill") && cssComponentes.includes(".notesResultPill"), "Aba Notas deve ter filtro compacto e pílulas de status/resultado.");
 conferir(!cssComponentes.includes(".notesSummary") && cssComponentes.includes(".notesTableAnnotations"), "CSS de Notas deve remover dashboard antigo e estilizar anotacoes da tabela.");
-conferir(cssComponentes.includes(".notesNameCell:hover") && cssComponentes.includes("background: #031126") && cssComponentes.includes("z-index: 100"), "Hover do aluno deve ser opaco e ficar acima da tabela.");
-conferir(cssComponentes.includes("white-space: nowrap") && cssComponentes.includes("border-spacing: 0 3px"), "Tabela de Notas deve manter status em linha unica e densidade compacta.");
+conferir(cssComponentes.includes(".notesNameCell:hover") && cssComponentes.includes("background: #031126") && cssComponentes.includes("z-index: 520"), "Hover do aluno deve ser opaco e ficar acima da tabela.");
+conferir(cssComponentes.includes("white-space: nowrap") && cssComponentes.includes("border-spacing: 0 2px"), "Tabela de Notas deve manter status em linha unica e densidade compacta.");
+conferir(cssComponentes.includes("background: linear-gradient(180deg, #f8fbff") && cssComponentes.includes("z-index: 430"), "Filtro compacto de Notas deve usar painel de alto contraste acima da tabela.");
 conferir(cssComponentes.includes("grid-auto-rows: 42px") && cssComponentes.includes("height: 42px"), "Ranking de Estatisticas deve manter mesma altura de itens no top 3 e top 10.");
 conferir(cssComponentes.includes("padding-top: 34px") && cssComponentes.includes("height: 221px"), "Grafico de Estatisticas deve reservar respiro superior para rotulos das barras.");
 conferir(cssComponentes.includes("conic-gradient(from -126deg, rgba(255, 255, 255, 0.18)") && cssComponentes.includes("0 11px 0 rgba(4, 17, 37, 0.58)"), "Donut de Estatisticas deve manter relevo 3D sutil.");

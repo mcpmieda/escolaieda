@@ -1492,6 +1492,7 @@ body[data-view="notas"] .notesBoardHeader p:last-child {
 body[data-view="notas"] .notesFilterMenu {
   position: relative;
   justify-self: end;
+  z-index: 420;
 }
 
 body[data-view="notas"] .notesFilterButton {
@@ -1529,44 +1530,84 @@ body[data-view="notas"] .notesFilterButton svg {
 body[data-view="notas"] .notesFilterPopover {
   position: absolute;
   right: 0;
-  top: calc(100% + 10px);
-  width: min(330px, calc(100vw - 34px));
-  padding: 10px;
+  top: calc(100% + 12px);
+  width: min(260px, calc(100vw - 42px));
+  padding: 11px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  border: 1px solid rgba(128, 177, 244, 0.30);
-  border-radius: 16px;
-  background: linear-gradient(145deg, rgba(23, 64, 112, 0.985), rgba(7, 24, 50, 0.985));
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(22px);
+  grid-template-columns: 1fr;
+  gap: 9px;
+  border: 1px solid rgba(172, 206, 246, 0.92);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f8fbff 0%, #e8f2ff 100%);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.50), 0 0 0 1px rgba(255, 255, 255, 0.78) inset;
+  backdrop-filter: none;
+  isolation: isolate;
   transform-origin: top right;
   animation: selectMenuEnter 240ms var(--motion-emphasis) both;
-  z-index: 90;
+  z-index: 430;
 }
 
 body[data-view="notas"] .notesFilterPopover label {
-  min-height: 40px;
-  padding: 8px 9px;
+  min-height: 42px;
+  padding: 8px 10px;
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
   justify-content: flex-start;
-  border-radius: 11px;
-  background: rgba(255, 255, 255, 0.045);
-  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
+  border: 1px solid rgba(101, 146, 197, 0.24);
+  border-radius: 12px;
+  background: #eef6ff;
+  color: #09223e;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.05;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick), color var(--motion-quick);
+}
+
+body[data-view="notas"] .notesFilterPopover input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  appearance: none;
+  border: 1px solid rgba(160, 205, 255, 0.58);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.28);
+}
+
+body[data-view="notas"] .notesFilterPopover input:checked {
+  border-color: rgba(125, 194, 255, 0.92);
+  background:
+    linear-gradient(135deg, transparent 0 38%, #ffffff 39% 48%, transparent 49%),
+    linear-gradient(45deg, transparent 0 43%, #ffffff 44% 53%, transparent 54%),
+    linear-gradient(180deg, #49a4ff, #2477de);
+  box-shadow: 0 0 16px rgba(73, 164, 255, 0.28);
+}
+
+body[data-view="notas"] .notesFilterPopover span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 body[data-view="notas"] .notesFilterPopover label:has(input:checked) {
-  border-color: rgba(126, 177, 255, 0.45);
-  background: rgba(76, 155, 255, 0.15);
-  color: #f6fbff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  border-color: rgba(44, 120, 220, 0.42);
+  background: #dceeff;
+  color: #071a33;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.80), 0 12px 24px rgba(31, 92, 168, 0.14);
 }
 
 body[data-view="notas"] .notesFilterPopover label:hover {
+  border-color: rgba(44, 120, 220, 0.44);
+  background: #e3f1ff;
   transform: translateY(-1px);
 }
 
 body[data-view="notas"] .notesTableMeta {
-  margin: 8px 0 11px;
+  margin: 5px 0 8px;
+  position: relative;
+  z-index: 400;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
@@ -1594,6 +1635,8 @@ body[data-view="notas"] .notesTableAnnotations span:first-child {
 }
 
 body[data-view="notas"] .notesTableWrap {
+  position: relative;
+  z-index: 1;
   max-width: 100%;
   overflow: visible;
   border: 1px solid rgba(126, 177, 255, 0.16);
@@ -1604,7 +1647,7 @@ body[data-view="notas"] .notesTableWrap {
 
 body[data-view="notas"] .notesTable {
   border-collapse: separate;
-  border-spacing: 0 3px;
+  border-spacing: 0 2px;
   table-layout: fixed;
   font-size: clamp(0.58rem, 0.60vw, 0.72rem);
 }
@@ -1634,14 +1677,14 @@ body[data-view="notas"] .notesTable td {
   border: 0;
   background: rgba(255, 255, 255, 0.035);
   color: #dbeaff;
-  transition: background 90ms ease, box-shadow 90ms ease, color 90ms ease;
+  transition: background 120ms ease, box-shadow 120ms ease, color 120ms ease;
 }
 
 body[data-view="notas"] .notesTable th {
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 7px 4px;
+  padding: 6px 4px;
   background: rgba(37, 94, 167, 0.35);
   color: rgba(226, 238, 255, 0.90);
   font-size: 0.68rem;
@@ -1649,7 +1692,7 @@ body[data-view="notas"] .notesTable th {
 }
 
 body[data-view="notas"] .notesTable td {
-  padding: 3px 4px;
+  padding: 2px 4px;
 }
 
 body[data-view="notas"] .notesTable td:first-child,
@@ -1671,14 +1714,20 @@ body[data-view="notas"] .notesTable tbody tr:nth-child(odd) td {
 }
 
 body[data-view="notas"] .notesTable tbody tr:hover td {
-  background: rgba(76, 155, 255, 0.15);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(126, 177, 255, 0.10);
+  background: rgba(76, 155, 255, 0.105);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+body[data-view="notas"] .notesTable tbody tr:hover,
+body[data-view="notas"] .notesTable tbody tr:focus-within {
+  position: relative;
+  z-index: 120;
 }
 
 body[data-view="notas"] .notesTable th.is-column-hover,
 body[data-view="notas"] .notesTable td.is-column-hover {
-  background: rgba(76, 155, 255, 0.13);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), inset 0 -1px 0 rgba(126, 177, 255, 0.08);
+  background: rgba(127, 188, 255, 0.065);
+  box-shadow: inset 0 0 0 1px rgba(126, 177, 255, 0.035);
 }
 
 body[data-view="notas"] .notesIndex {
@@ -1696,8 +1745,8 @@ body[data-view="notas"] .scoreCell {
 body[data-view="notas"] .statusPill,
 body[data-view="notas"] .scorePill,
 body[data-view="notas"] .notesResultPill {
-  min-height: 20px;
-  padding: 3px 6px;
+  min-height: 18px;
+  padding: 2px 6px;
   display: inline-flex;
   width: 100%;
   align-items: center;
@@ -1719,7 +1768,7 @@ body[data-view="notas"] .statusPill {
 }
 
 body[data-view="notas"] .notesResultPill {
-  min-height: 24px;
+  min-height: 22px;
   padding-right: 5px;
   padding-left: 5px;
   font-size: 0.54rem;
@@ -1784,7 +1833,7 @@ body[data-view="notas"] .notesNameCell {
 
 body[data-view="notas"] .notesNameCell:hover,
 body[data-view="notas"] .notesNameCell:focus-within {
-  z-index: 70;
+  z-index: 500;
 }
 
 body[data-view="notas"] .studentNameButton {
@@ -1802,22 +1851,62 @@ body[data-view="notas"] .studentNameButton:focus-visible {
 }
 
 body[data-view="notas"] .studentPeek {
-  border-color: rgba(126, 177, 255, 0.52);
+  left: 0;
+  top: calc(100% + 8px);
+  width: min(360px, calc(100vw - 64px));
+  padding: 13px;
+  border-color: rgba(126, 177, 255, 0.68);
+  border-radius: 18px;
   background: #031126;
-  box-shadow: 0 32px 86px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(255, 255, 255, 0.055) inset;
+  color: #f7fbff;
+  box-shadow: 0 34px 92px rgba(0, 0, 0, 0.76), 0 0 0 1px rgba(255, 255, 255, 0.065) inset;
   backdrop-filter: none;
   animation: selectMenuEnter 220ms var(--motion-emphasis) both;
-  z-index: 100;
+  z-index: 520;
+}
+
+body[data-view="notas"] .peekTop {
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 11px;
+}
+
+body[data-view="notas"] .peekTop strong {
+  color: #ffffff;
+  font-size: 0.86rem;
+  line-height: 1.12;
+  letter-spacing: 0;
+  white-space: normal;
+}
+
+body[data-view="notas"] .peekTop small {
+  color: #b9d5f8;
+  font-size: 0.70rem;
+  font-weight: 800;
+  line-height: 1.24;
+  white-space: normal;
 }
 
 body[data-view="notas"] .studentPeekPhoto {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
+}
+
+body[data-view="notas"] .peekNotes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
 }
 
 body[data-view="notas"] .peekNotes span {
+  min-height: 28px;
+  padding: 6px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.105);
+  color: #ecf5ff;
+  font-size: 0.72rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 body[data-view="notas"] .profilePhoto {

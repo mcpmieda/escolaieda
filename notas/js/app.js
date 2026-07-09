@@ -1262,14 +1262,14 @@ function criarStudentPeek(estudante, periodoCodigo) {
   photo.classList.add("studentPeekPhoto");
   const text = element("div");
   appendText(text, "strong", estudante.nome);
-  appendText(text, "small", `${estudante.turma?.codigo || ""} · ${statusOperacional(estudante).rotulo.toLowerCase()} · ${formatarMedia(mediaPeriodoEstudante(estudante, periodoCodigo))}`);
+  appendText(text, "small", `${estudante.turma?.codigo || ""} · ${statusOperacional(estudante).rotulo} · Média ${formatarMedia(mediaPeriodoEstudante(estudante, periodoCodigo))}`);
   top.append(photo, text);
 
   const notes = element("div", "peekNotes");
   componentes.slice(0, 6).forEach((componente) => {
     const nota = obterLancamento(estudante, componente);
     const item = element("span");
-    item.textContent = `${componente.codigo} ${nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "--"}`;
+    item.textContent = `${componente.codigo}: ${nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "--"}`;
     if (notaAbaixo(nota, periodoCodigo)) item.classList.add("dangerText");
     notes.append(item);
   });
