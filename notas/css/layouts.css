@@ -196,6 +196,10 @@ body[data-theme="claro"] .appRail {
   align-items: start;
 }
 
+body[data-view="notas"] .notesGrid {
+  grid-template-columns: minmax(0, 1fr) minmax(282px, 0.34fr);
+}
+
 .sideStack {
   display: grid;
   gap: 12px;
@@ -298,6 +302,10 @@ body[data-theme="claro"] .appRail {
   .notesGrid,
   .filterPanel,
   .boletimControls {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-view="notas"] .notesGrid {
     grid-template-columns: 1fr;
   }
 

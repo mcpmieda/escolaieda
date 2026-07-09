@@ -434,7 +434,9 @@ function closeNotasFilterMenu(restoreFocus = false) {
 
 function highlightNotesColumn(index) {
   const table = ui.notasTabela.closest("table");
-  if (!table || index < 0) return clearNotesColumnHighlight();
+  const firstScoreColumn = 3;
+  const lastScoreColumn = firstScoreColumn + componentes.length - 1;
+  if (!table || index < firstScoreColumn || index > lastScoreColumn) return clearNotesColumnHighlight();
   table.querySelectorAll(".is-column-hover").forEach((cell) => cell.classList.remove("is-column-hover"));
   table.querySelectorAll("tr").forEach((row) => {
     row.children[index]?.classList.add("is-column-hover");
@@ -1100,8 +1102,7 @@ function renderNotesInsights(estudantes, periodoCodigo) {
     const text = element("div");
     appendText(text, "strong", estudante.nome);
     appendText(text, "span", vermelhas.map((item) => item.componente.codigo).join(", "));
-    appendText(row, "b", formatarMedia(menorNotaVermelha(vermelhas)));
-    row.insertBefore(text, row.lastChild);
+    row.append(text);
     row.addEventListener("click", () => abrirPerfilAluno(estudante.id));
     alertList.append(row);
   });

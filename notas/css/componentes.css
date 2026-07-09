@@ -1604,9 +1604,9 @@ body[data-view="notas"] .notesTableWrap {
 
 body[data-view="notas"] .notesTable {
   border-collapse: separate;
-  border-spacing: 0 6px;
+  border-spacing: 0 3px;
   table-layout: fixed;
-  font-size: clamp(0.62rem, 0.66vw, 0.78rem);
+  font-size: clamp(0.58rem, 0.60vw, 0.72rem);
 }
 
 body[data-view="notas"] .notesTable th:nth-child(1),
@@ -1616,17 +1616,17 @@ body[data-view="notas"] .notesTable td:nth-child(1) {
 
 body[data-view="notas"] .notesTable th:nth-child(2),
 body[data-view="notas"] .notesTable td:nth-child(2) {
-  width: 10%;
+  width: 11%;
 }
 
 body[data-view="notas"] .notesTable th:nth-child(3),
 body[data-view="notas"] .notesTable td:nth-child(3) {
-  width: 24%;
+  width: 23%;
 }
 
 body[data-view="notas"] .notesTable th:nth-last-child(1),
 body[data-view="notas"] .notesTable td:nth-last-child(1) {
-  width: 19%;
+  width: 18%;
 }
 
 body[data-view="notas"] .notesTable th,
@@ -1634,14 +1634,14 @@ body[data-view="notas"] .notesTable td {
   border: 0;
   background: rgba(255, 255, 255, 0.035);
   color: #dbeaff;
-  transition: background var(--motion-quick), box-shadow var(--motion-quick), color var(--motion-quick), transform var(--motion-quick);
+  transition: background 90ms ease, box-shadow 90ms ease, color 90ms ease;
 }
 
 body[data-view="notas"] .notesTable th {
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 10px 4px;
+  padding: 7px 4px;
   background: rgba(37, 94, 167, 0.35);
   color: rgba(226, 238, 255, 0.90);
   font-size: 0.68rem;
@@ -1649,7 +1649,7 @@ body[data-view="notas"] .notesTable th {
 }
 
 body[data-view="notas"] .notesTable td {
-  padding: 6px 4px;
+  padding: 3px 4px;
 }
 
 body[data-view="notas"] .notesTable td:first-child,
@@ -1663,7 +1663,7 @@ body[data-view="notas"] .notesTable th:last-child {
 }
 
 body[data-view="notas"] .notesTable tbody tr {
-  animation-delay: calc(var(--row-index, 0) * 22ms);
+  animation-delay: calc(var(--row-index, 0) * 10ms);
 }
 
 body[data-view="notas"] .notesTable tbody tr:nth-child(odd) td {
@@ -1677,7 +1677,8 @@ body[data-view="notas"] .notesTable tbody tr:hover td {
 
 body[data-view="notas"] .notesTable th.is-column-hover,
 body[data-view="notas"] .notesTable td.is-column-hover {
-  background: rgba(76, 155, 255, 0.20);
+  background: rgba(76, 155, 255, 0.13);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), inset 0 -1px 0 rgba(126, 177, 255, 0.08);
 }
 
 body[data-view="notas"] .notesIndex {
@@ -1695,8 +1696,8 @@ body[data-view="notas"] .scoreCell {
 body[data-view="notas"] .statusPill,
 body[data-view="notas"] .scorePill,
 body[data-view="notas"] .notesResultPill {
-  min-height: 24px;
-  padding: 5px 7px;
+  min-height: 20px;
+  padding: 3px 6px;
   display: inline-flex;
   width: 100%;
   align-items: center;
@@ -1704,7 +1705,7 @@ body[data-view="notas"] .notesResultPill {
   border: 0;
   border-radius: 999px;
   color: #f8fbff;
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   font-weight: 900;
   line-height: 1.05;
   text-align: center;
@@ -1713,11 +1714,15 @@ body[data-view="notas"] .notesResultPill {
   transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick);
 }
 
+body[data-view="notas"] .statusPill {
+  white-space: nowrap;
+}
+
 body[data-view="notas"] .notesResultPill {
-  min-height: 28px;
+  min-height: 24px;
   padding-right: 5px;
   padding-left: 5px;
-  font-size: 0.58rem;
+  font-size: 0.54rem;
 }
 
 body[data-view="notas"] .statusPill:hover,
@@ -1784,7 +1789,7 @@ body[data-view="notas"] .notesNameCell:focus-within {
 
 body[data-view="notas"] .studentNameButton {
   color: #f7fbff;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   line-height: 1.12;
   overflow: visible;
   text-overflow: clip;
@@ -1797,9 +1802,9 @@ body[data-view="notas"] .studentNameButton:focus-visible {
 }
 
 body[data-view="notas"] .studentPeek {
-  border-color: rgba(126, 177, 255, 0.44);
-  background: #071832;
-  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.58), 0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+  border-color: rgba(126, 177, 255, 0.52);
+  background: #031126;
+  box-shadow: 0 32px 86px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(255, 255, 255, 0.055) inset;
   backdrop-filter: none;
   animation: selectMenuEnter 220ms var(--motion-emphasis) both;
   z-index: 100;
@@ -1885,9 +1890,9 @@ body[data-view="notas"] .notesAttentionList {
 }
 
 body[data-view="notas"] .attentionStudent {
-  min-height: 34px;
+  min-height: 32px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   border-bottom: 1px solid rgba(143, 184, 239, 0.10);
@@ -1913,24 +1918,13 @@ body[data-view="notas"] .attentionStudent span {
 
 body[data-view="notas"] .attentionStudent strong {
   color: #f7fbff;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 body[data-view="notas"] .attentionStudent span {
   color: rgba(205, 221, 244, 0.70);
   font-size: 0.68rem;
   font-weight: 800;
-}
-
-body[data-view="notas"] .attentionStudent b {
-  min-width: 42px;
-  padding: 4px 7px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #7a3042, #5f2133);
-  color: #ffd4dc;
-  font-size: 0.72rem;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 body[data-view="notas"] .notesDisciplineList {
@@ -2946,6 +2940,8 @@ body[data-view="movimento"] .rankingList {
   gap: 0;
   height: 164px;
   min-height: 164px;
+  align-content: start;
+  grid-auto-rows: 42px;
   overflow-x: hidden;
   overflow-y: hidden;
   overscroll-behavior: contain;
@@ -2974,6 +2970,7 @@ body[data-view="movimento"] .rankingList::-webkit-scrollbar-thumb {
 }
 
 body[data-view="movimento"] .rankingItem {
+  height: 42px;
   min-height: 42px;
   padding: 0;
   display: grid;
@@ -3111,13 +3108,15 @@ body[data-view="movimento"] .movementChart {
 
 body[data-view="movimento"] .statsChartCanvas {
   height: 330px;
+  padding-top: 34px;
   display: grid;
   grid-template-columns: 31px minmax(0, 1fr);
   gap: 7px;
+  box-sizing: border-box;
 }
 
 body[data-view="movimento"] .statsYAxis {
-  padding-top: 6px;
+  padding-top: 0;
   padding-bottom: 68px;
   display: grid;
   grid-template-rows: repeat(6, 1fr);
@@ -3128,7 +3127,7 @@ body[data-view="movimento"] .statsYAxis {
 body[data-view="movimento"] .movementBars {
   position: relative;
   min-height: 0;
-  height: 330px;
+  height: 296px;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -3140,7 +3139,7 @@ body[data-view="movimento"] .movementBars {
 body[data-view="movimento"] .movementBars::before {
   content: "";
   position: absolute;
-  inset: 6px 0 68px 0;
+  inset: 0 0 66px 0;
   background: linear-gradient(to bottom, rgba(129, 166, 219, 0.12) 1px, transparent 1px) 0 0 / 100% 25%;
   border-bottom: 1px solid rgba(129, 166, 219, 0.17);
   pointer-events: none;
@@ -3153,8 +3152,8 @@ body[data-view="movimento"] .movementBar {
   height: 100%;
   padding: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) 66px;
-  gap: 8px;
+  grid-template-rows: minmax(0, 1fr) 61px;
+  gap: 6px;
   border: 0;
   background: transparent;
   color: #f4f8ff;
@@ -3174,7 +3173,7 @@ body[data-view="movimento"] .movementBar.active {
 }
 
 body[data-view="movimento"] .barPair {
-  height: 256px;
+  height: 221px;
   align-self: end;
   display: flex;
   align-items: end;
@@ -3201,10 +3200,10 @@ body[data-view="movimento"] .barPair i::before {
   content: attr(data-value);
   position: absolute;
   left: 50%;
-  top: -28px;
+  top: -24px;
   transform: translateX(-50%);
   width: 28px;
-  padding: 4px 0;
+  padding: 3px 0;
   border-radius: 6px;
   background: rgba(14, 31, 58, 0.88);
   color: #f5f8ff;
@@ -3320,9 +3319,11 @@ body[data-view="movimento"] .donutMeter {
     donutBreathe 7.4s ease-in-out infinite;
   animation-delay: 260ms, 1300ms;
   box-shadow:
+    0 0 0 1px rgba(156, 204, 255, 0.18),
+    0 11px 0 rgba(4, 17, 37, 0.58),
     inset -14px -18px 26px rgba(0, 0, 0, 0.22),
     inset 10px 12px 22px rgba(255, 255, 255, 0.07),
-    0 18px 42px rgba(0, 0, 0, 0.22);
+    0 26px 54px rgba(0, 0, 0, 0.30);
 }
 
 body[data-view="movimento"] .donutMeter::before,
@@ -3342,15 +3343,19 @@ body[data-view="movimento"] .donutMeter::before {
   -webkit-mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
   mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
   animation: donutToneFlow 10.8s ease-in-out infinite;
+  box-shadow:
+    inset 0 18px 18px rgba(255, 255, 255, 0.10),
+    inset 0 -22px 22px rgba(0, 0, 0, 0.28);
 }
 
 body[data-view="movimento"] .donutMeter::after {
   inset: 0;
   z-index: 1;
   background:
-    radial-gradient(circle at 32% 20%, rgba(255, 255, 255, 0.12), transparent 25%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 46%);
-  opacity: 0.42;
+    conic-gradient(from -126deg, rgba(255, 255, 255, 0.18) 0 10%, transparent 18% 39%, rgba(0, 0, 0, 0.24) 55% 75%, transparent 85% 100%),
+    radial-gradient(circle at 32% 20%, rgba(255, 255, 255, 0.18), transparent 25%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.10), transparent 46%);
+  opacity: 0.54;
   -webkit-mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
   mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
 }
