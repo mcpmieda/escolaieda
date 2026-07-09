@@ -109,7 +109,7 @@
         </div>
       </header>
 
-      <section class="pageView active statsView" id="view-movimento" aria-labelledby="movimentoTitulo">
+      <section class="pageView statsView" id="view-movimento" aria-labelledby="movimentoTitulo">
         <div class="statsDashboard">
           <div class="statsTopRow">
             <div class="statsSelectCard" data-stats-select-label="Turma">
@@ -190,15 +190,15 @@
         <div class="statsDashboard notesDashboard">
           <div class="statsTopRow notesTopRow">
             <div class="notesSelectCard statsSelectCard" data-stats-select-label="Turma">
-              <select id="notasTurma"></select>
+              <select id="notasTurma" aria-label="Turma"></select>
             </div>
             <div class="notesSelectCard statsSelectCard" data-stats-select-label="Período">
-              <select id="notasPeriodo">
-                <option value="T1">I trimestre</option>
-                <option value="T2">II trimestre</option>
-                <option value="T3">III trimestre</option>
-                <option value="geral">Visão geral</option>
-                <option value="recuperacao">Recuperação</option>
+              <select id="notasPeriodo" aria-label="Período">
+                <option value="T1">I TRIMESTRE</option>
+                <option value="T2">II TRIMESTRE</option>
+                <option value="T3">III TRIMESTRE</option>
+                <option value="geral">VISÃO GERAL</option>
+                <option value="recuperacao">RECUPERAÇÃO</option>
               </select>
             </div>
             <span class="statsTopSpacer" aria-hidden="true"></span>
@@ -217,34 +217,33 @@
               <div class="panelHeader notesBoardHeader">
                 <div>
                   <p class="sectionKicker">Ficha de notas</p>
-                  <h2 id="notasTitulo">Banco de notas por turma</h2>
-                  <p id="notesClassLabel">Turma, período e alunos do recorte atual.</p>
-                </div>
-                <div class="notesBoardActions">
-                  <div class="notesSummary" id="notesSummary"></div>
-                  <div class="notesFilterMenu">
-                    <button class="notesFilterButton" type="button" id="notasFilterButton" aria-expanded="false" aria-controls="notasStatusFilters">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 6h16"></path>
-                        <path d="M7 12h10"></path>
-                        <path d="M10 18h4"></path>
-                      </svg>
-                      <span>Filtros</span>
-                    </button>
-                    <div class="statusFilters notesFilterPopover" id="notasStatusFilters" hidden>
-                      <label><input type="checkbox" value="regular" checked> Regular</label>
-                      <label><input type="checkbox" value="transferido" checked> Transferidos</label>
-                      <label><input type="checkbox" value="desistente" checked> Desistentes</label>
-                      <label><input type="checkbox" value="especial" checked> Novatos</label>
-                      <label><input type="checkbox" value="foi_para" checked> Foi para...</label>
-                      <label><input type="checkbox" value="estava_no" checked> Estava no...</label>
-                    </div>
-                  </div>
+                  <h2 id="notasTitulo">Ficha de notas</h2>
+                  <p id="notesClassLabel" class="srOnly">Turma, período e alunos do recorte atual.</p>
                 </div>
               </div>
               <div class="notesTableMeta">
-                <span id="notesTableTitle">I trimestre</span>
-                <span>Regra demonstrativa: 18/30, 18/30, 24/40 e 60/100 no ano.</span>
+                <div class="notesTableAnnotations">
+                  <span id="notesTableTitle">I trimestre</span>
+                  <span>Regra demonstrativa: 18/30, 18/30, 24/40 e 60/100 no ano.</span>
+                </div>
+                <div class="notesFilterMenu">
+                  <button class="notesFilterButton" type="button" id="notasFilterButton" aria-expanded="false" aria-controls="notasStatusFilters">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 6h16"></path>
+                      <path d="M7 12h10"></path>
+                      <path d="M10 18h4"></path>
+                    </svg>
+                    <span>Filtros</span>
+                  </button>
+                  <div class="statusFilters notesFilterPopover" id="notasStatusFilters" hidden>
+                    <label><input type="checkbox" value="regular" checked> Regular</label>
+                    <label><input type="checkbox" value="transferido" checked> Transferidos</label>
+                    <label><input type="checkbox" value="desistente" checked> Desistentes</label>
+                    <label><input type="checkbox" value="especial" checked> Novatos</label>
+                    <label><input type="checkbox" value="foi_para" checked> Foi para...</label>
+                    <label><input type="checkbox" value="estava_no" checked> Estava no...</label>
+                  </div>
+                </div>
               </div>
               <div class="notesTableWrap" aria-label="Tabela compacta de notas">
                 <table class="notesTable">

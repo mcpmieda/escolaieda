@@ -732,8 +732,7 @@ body[data-view="movimento"] .systemTitle p:last-child {
   text-transform: uppercase;
 }
 
-.chipRow,
-.notesSummary {
+.chipRow {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1263,7 +1262,7 @@ body[data-view="notas"] .statsSelectButton strong {
   max-width: 100%;
   overflow: hidden;
   color: #f8fbff;
-  font-size: 1.18rem;
+  font-size: 1.34rem;
   font-weight: 900;
   line-height: 1;
   text-overflow: ellipsis;
@@ -1273,7 +1272,7 @@ body[data-view="notas"] .statsSelectButton strong {
 
 body[data-view="notas"] .statsSelectCaption {
   color: rgba(205, 221, 244, 0.82);
-  font-size: 0.82rem;
+  font-size: 0.86rem;
 }
 
 body[data-view="notas"] .statsSelectChevron {
@@ -1443,7 +1442,11 @@ body[data-view="notas"] .notesPrintButton svg {
   stroke-linejoin: round;
 }
 
-body[data-view="notas"] .notesBoardModern,
+body[data-view="notas"] .notesBoardModern {
+  position: relative;
+  overflow: visible;
+}
+
 body[data-view="notas"] .notesSidePanel {
   position: relative;
   overflow: hidden;
@@ -1486,25 +1489,9 @@ body[data-view="notas"] .notesBoardHeader p:last-child {
   font-size: 0.86rem;
 }
 
-body[data-view="notas"] .notesBoardActions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-}
-
-body[data-view="notas"] .notesSummary {
-  justify-content: flex-end;
-}
-
-body[data-view="notas"] .notesSummary .chip {
-  min-height: 30px;
-  padding: 6px 10px;
-  border: 1px solid rgba(126, 177, 255, 0.16);
-}
-
 body[data-view="notas"] .notesFilterMenu {
   position: relative;
+  justify-self: end;
 }
 
 body[data-view="notas"] .notesFilterButton {
@@ -1555,7 +1542,7 @@ body[data-view="notas"] .notesFilterPopover {
   backdrop-filter: blur(22px);
   transform-origin: top right;
   animation: selectMenuEnter 240ms var(--motion-emphasis) both;
-  z-index: 31;
+  z-index: 90;
 }
 
 body[data-view="notas"] .notesFilterPopover label {
@@ -1580,8 +1567,8 @@ body[data-view="notas"] .notesFilterPopover label:hover {
 
 body[data-view="notas"] .notesTableMeta {
   margin: 8px 0 11px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   color: rgba(211, 225, 246, 0.72);
@@ -1589,7 +1576,15 @@ body[data-view="notas"] .notesTableMeta {
   font-weight: 800;
 }
 
-body[data-view="notas"] .notesTableMeta span:first-child {
+body[data-view="notas"] .notesTableAnnotations {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+body[data-view="notas"] .notesTableAnnotations span:first-child {
   padding: 5px 9px;
   border-radius: 999px;
   background: rgba(76, 155, 255, 0.16);
@@ -1776,6 +1771,17 @@ body[data-view="notas"] .scorePill {
   animation-delay: calc(var(--row-index, 0) * 80ms);
 }
 
+body[data-view="notas"] .notesNameCell {
+  position: relative;
+  z-index: 3;
+  overflow: visible;
+}
+
+body[data-view="notas"] .notesNameCell:hover,
+body[data-view="notas"] .notesNameCell:focus-within {
+  z-index: 70;
+}
+
 body[data-view="notas"] .studentNameButton {
   color: #f7fbff;
   font-size: 0.88rem;
@@ -1791,10 +1797,12 @@ body[data-view="notas"] .studentNameButton:focus-visible {
 }
 
 body[data-view="notas"] .studentPeek {
-  border-color: rgba(126, 177, 255, 0.30);
-  background: linear-gradient(145deg, rgba(18, 54, 98, 0.98), rgba(7, 24, 50, 0.98));
-  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.38);
+  border-color: rgba(126, 177, 255, 0.44);
+  background: #071832;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.58), 0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+  backdrop-filter: none;
   animation: selectMenuEnter 220ms var(--motion-emphasis) both;
+  z-index: 100;
 }
 
 body[data-view="notas"] .studentPeekPhoto {
@@ -1819,26 +1827,28 @@ body[data-view="notas"] .notesSidePanel {
   animation-delay: 170ms;
 }
 
-body[data-view="notas"] .notesSidePanel .panelHeader h3 {
+body[data-view="notas"] .notesInsightsTitle h3 {
   margin-bottom: 0;
   color: #f6fbff;
+  font-size: 1.08rem;
+  line-height: 1.05;
   text-transform: none;
 }
 
 body[data-view="notas"] .notesInsightBlock {
-  padding: 12px;
+  padding: 13px;
   display: grid;
   gap: 10px;
-  border: 1px solid rgba(126, 177, 255, 0.18);
+  border: 1px solid rgba(126, 177, 255, 0.16);
   border-radius: 14px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 48%),
-    rgba(255, 255, 255, 0.045);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent 48%),
+    rgba(255, 255, 255, 0.035);
 }
 
 body[data-view="notas"] .notesInsightHeader {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(32px, auto);
   gap: 8px;
   align-items: center;
 }
@@ -1851,14 +1861,16 @@ body[data-view="notas"] .notesInsightHeader .movementIcon {
 
 body[data-view="notas"] .notesInsightHeader span {
   color: rgba(226, 238, 255, 0.88);
-  font-size: 0.78rem;
+  font-size: 0.77rem;
   font-weight: 900;
+  line-height: 1.12;
 }
 
 body[data-view="notas"] .notesInsightHeader strong {
   color: #ff6678;
-  font-size: 1.55rem;
+  font-size: 1.7rem;
   line-height: 1;
+  text-align: right;
 }
 
 body[data-view="notas"] .notesAttentionList {
@@ -2002,12 +2014,12 @@ body[data-view="notas"] .progressTrack span.error {
 
 @media (max-width: 760px) {
   body[data-view="notas"] .notesBoardHeader,
-  body[data-view="notas"] .notesBoardActions {
+  body[data-view="notas"] .notesTableMeta {
     grid-template-columns: 1fr;
   }
 
-  body[data-view="notas"] .notesSummary {
-    justify-content: flex-start;
+  body[data-view="notas"] .notesFilterMenu {
+    justify-self: start;
   }
 
   body[data-view="notas"] .notesFilterPopover {

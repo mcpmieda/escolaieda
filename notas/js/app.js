@@ -47,7 +47,7 @@ const viewCopy = {
   ],
   notas: [
     "Notas",
-    "Banco de notas compacto por turma, com filtros de situação e perfil do aluno."
+    "Ficha de notas por turma e período."
   ],
   boletim: [
     "Boletim",
@@ -128,7 +128,6 @@ const ui = {
   notasTitulo: document.getElementById("notasTitulo"),
   notesClassLabel: document.getElementById("notesClassLabel"),
   notesTableTitle: document.getElementById("notesTableTitle"),
-  notesSummary: document.getElementById("notesSummary"),
   notasFilterButton: document.getElementById("notasFilterButton"),
   notasCabecalho: document.getElementById("notasCabecalho"),
   notasTabela: document.getElementById("notasTabela"),
@@ -642,8 +641,12 @@ function preencherSelects() {
     ["todas", "TODAS AS TURMAS"],
     ...demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()])
   ];
+  const opcoesNotas = [
+    ["todas", "TODAS AS TURMAS"],
+    ...demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()])
+  ];
   preencherSelect(ui.movimentoTurma, opcoesMovimento);
-  preencherSelect(ui.notasTurma, opcoesTurma);
+  preencherSelect(ui.notasTurma, opcoesNotas);
   preencherSelect(ui.boletimTurma, opcoesTurma);
   ui.movimentoTurma.value = state.movimento.turma;
   ui.movimentoPeriodo.value = state.movimento.periodo;
@@ -999,29 +1002,18 @@ function renderNotas() {
   estudantes = estudantes.filter((estudante) => state.notas.situacoes.has(statusOperacional(estudante).status));
 
   const turma = obterTurma(state.notas.turma);
-  ui.notasTitulo.textContent = turma ? turmaTituloAcademico(turma) : "Todas as turmas";
-  ui.notesClassLabel.textContent = turma ? `${turma.etapa} · Turma ${turma.codigo} · ${estudantes.length} alunos · ${periodo.rotulo}` : `${estudantes.length} alunos · ${periodo.rotulo}`;
-  ui.notesTableTitle.textContent = periodo.rotulo;
+  const turmaRotulo = turma ? turmaTituloAcademico(turma) : "Todas as turmas";
+  const recorteRotulo = `${turmaRotulo} · ${periodo.rotulo} · ${estudantes.length} aluno(s) no recorte.`;
+  ui.notasTitulo.textContent = "Ficha de notas";
+  ui.notesClassLabel.textContent = recorteRotulo;
+  ui.notesTableTitle.textContent = `${periodo.rotulo} · ${estudantes.length} alunos`;
   if (state.view === "notas") {
     ui.viewTitle.textContent = "Notas";
-    ui.viewSubtitle.textContent = ui.notesClassLabel.textContent;
+    ui.viewSubtitle.textContent = recorteRotulo;
   }
 
-  renderNotesSummary(estudantes, periodoCodigo);
   renderNotesTable(estudantes, periodoCodigo);
   renderNotesInsights(estudantes, periodoCodigo);
-}
-
-function renderNotesSummary(estudantes, periodoCodigo) {
-  const abaixo = estudantes.filter((estudante) => estudanteTemVermelha(estudante, periodoCodigo)).length;
-  const mediaAtual = media(estudantes.map((estudante) => mediaPeriodoEstudante(estudante, periodoCodigo)));
-  const recuperacao = estudantes.filter(estudanteFezRecuperacao).length;
-  replaceChildren(ui.notesSummary, [
-    chip(`${estudantes.length} alunos`, "info"),
-    chip(`média ${formatarMedia(mediaAtual)}`, mediaAtual >= periodoNotasInfo(periodoCodigo).minimo ? "ok" : "error"),
-    chip(`${abaixo} atenção`, abaixo ? "error" : "ok"),
-    chip(`${recuperacao} recuperação`, recuperacao ? "warn" : "ok")
-  ]);
 }
 
 function renderNotesTable(estudantes, periodoCodigo) {
@@ -1084,7 +1076,8 @@ function renderNotesTable(estudantes, periodoCodigo) {
 }
 
 function renderNotesInsights(estudantes, periodoCodigo) {
-  const header = panelTitle("Insights da turma", "Leitura rápida");
+  const header = element("div", "notesInsightsTitle");
+  appendText(header, "h3", "Insights da turma");
   const alunosAtencao = estudantes
     .map((estudante) => ({
       estudante,
@@ -1096,7 +1089,7 @@ function renderNotesInsights(estudantes, periodoCodigo) {
   const alertBlock = element("section", "notesInsightBlock attentionBlock");
   const alertHead = element("div", "notesInsightHeader");
   alertHead.append(movementIcon("alert"));
-  appendText(alertHead, "span", "Alunos em atenção");
+  appendText(alertHead, "span", "Alunos em atenção (abaixo do mínimo)");
   appendText(alertHead, "strong", String(alunosAtencao.length));
   alertBlock.append(alertHead);
 

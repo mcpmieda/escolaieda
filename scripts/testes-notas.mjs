@@ -58,6 +58,7 @@ conferir(/href=["']css\/tokens\.css["']/.test(html), "notas/index.html nao refer
 conferir(/id=["']view-movimento["']/.test(html), "view-movimento nao encontrada.");
 conferir(/id=["']view-notas["']/.test(html), "view-notas nao encontrada.");
 conferir(/id=["']view-boletim["']/.test(html), "view-boletim nao encontrada.");
+conferir(!/class=["'][^"']*pageView active/i.test(html), "Views nao devem carregar com active fixo antes do roteamento JS.");
 conferir(!/id=["']view-conselho["']/.test(html), "view-conselho deveria estar fora desta fase visual.");
 conferir(!/id=["']view-relatorios["']/.test(html), "view-relatorios deveria estar fora desta fase visual.");
 conferir(!/id=["']view-importacoes["']/.test(html), "view-importacoes deveria estar fora desta fase visual.");
@@ -73,6 +74,8 @@ conferir(!html.includes("07/07/2026"), "Estatisticas nao deve carregar data demo
 conferir(/id=["']notasTabela["']/.test(html), "notasTabela nao encontrada.");
 conferir(html.includes("notesSelectCard statsSelectCard"), "Aba Notas deve usar seletores customizados no padrao visual aprovado.");
 conferir(/id=["']notasPrint["']/.test(html) && /id=["']notasFilterButton["']/.test(html), "Aba Notas deve ter impressao propria e filtro compacto na tabela.");
+conferir(!html.includes("notesSummary"), "Aba Notas nao deve manter resumo de cards no cabecalho da ficha.");
+conferir(html.includes("notesTableAnnotations") && html.includes('id="notesClassLabel" class="srOnly"'), "Aba Notas deve manter anotacoes compactas na tabela e contexto acessivel sem repetir cabecalho.");
 conferir(!/Lista filtr[aá]vel/i.test(html), "Aba Notas nao deve manter texto de lista filtravel.");
 conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontrado.");
 conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao encontrado.");
@@ -106,6 +109,8 @@ conferir(!appTexto.includes("movimentoReferencia"), "Estatisticas nao deve depen
 conferir(appTexto.includes("renderNotesTable"), "renderNotesTable nao encontrado em app.js.");
 conferir(appTexto.includes("highlightNotesColumn") && appTexto.includes("toggleNotasFilterMenu") && appTexto.includes("closeNotasFilterMenu"), "Aba Notas deve destacar coluna e usar filtro compacto.");
 conferir(appTexto.includes("resultadoPill") && appTexto.includes("statusPill") && appTexto.includes('state.view === "notas"'), "Aba Notas deve renderizar pílulas de status/resultado e preservar o cabecalho superior ativo.");
+conferir(!appTexto.includes("renderNotesSummary") && !appTexto.includes("notesSummary"), "Aba Notas nao deve recriar resumo/dashboard de cards na ficha.");
+conferir(appTexto.includes("notesInsightsTitle") && appTexto.includes("Alunos em atenção (abaixo do mínimo)"), "Insights de Notas devem seguir painel lateral limpo no estilo do anexo 10.");
 conferir(appTexto.includes("periodoNotasInfo") && appTexto.includes("recuperacao"), "Aba Notas deve tratar Recuperacao sem quebrar calculos de periodo.");
 conferir(appTexto.includes("imprimirRelatorioNotas") && appTexto.includes('printView = "notas"'), "Botao de impressao de Notas deve imprimir a propria ficha.");
 conferir(appTexto.includes("APROVADO APÓS RECUPERAÇÃO") && appTexto.includes("APROVADO PELO CONSELHO") && appTexto.includes("REPROVADO PELO CONSELHO"), "Aba Notas deve contemplar os resultados finais demonstrativos aprovados.");
@@ -132,6 +137,8 @@ conferir(cssComponentes.includes(".notesTable"), "Estilo da tabela de notas nao 
 conferir(cssComponentes.includes('body[data-view="notas"] .notesPrintButton') && cssComponentes.includes('body[data-view="notas"] .notesSelectCard'), "Aba Notas deve ter acabamento visual proprio para seletores e impressao.");
 conferir(cssComponentes.includes('body[data-view="notas"] .notesTableWrap') && cssComponentes.includes("notesRiseIn") && cssComponentes.includes("scoreBreath"), "Aba Notas deve manter tabela responsiva e animacao de entrada/movimento.");
 conferir(cssComponentes.includes(".notesFilterPopover") && cssComponentes.includes(".statusPill") && cssComponentes.includes(".notesResultPill"), "Aba Notas deve ter filtro compacto e pílulas de status/resultado.");
+conferir(!cssComponentes.includes(".notesSummary") && cssComponentes.includes(".notesTableAnnotations"), "CSS de Notas deve remover dashboard antigo e estilizar anotacoes da tabela.");
+conferir(cssComponentes.includes(".notesNameCell:hover") && cssComponentes.includes("background: #071832") && cssComponentes.includes("z-index: 100"), "Hover do aluno deve ser opaco e ficar acima da tabela.");
 conferir(cssComponentes.includes(".a4Sheet"), "Estilo da folha A4 nao encontrado.");
 conferir(cssComponentes.includes(".miniBoletim"), "Estilo do mini boletim nao encontrado.");
 conferir(cssComponentes.includes("grid-template-rows: repeat(4, 1fr)"), "Boletim deve usar quatro faixas horizontais na folha A4.");
@@ -171,6 +178,7 @@ conferir(resumo.totalEstudantes === demoData.estudantes.length, "Resumo geral co
 conferir(filtrados.length > 0, "Filtro de busca nao encontrou estudantes ficticios esperados.");
 conferir(demoData.lancamentos.every((item) => item.origem === "fixture-demo"), "Lancamentos de demo devem estar marcados como fixture-demo.");
 conferir(demoData.componentes.length >= 12, "Fixture deve representar a matriz anual de componentes.");
+conferir(demoData.estudantes.length === demoData.turmas.length * 35, "Fixture deve manter 35 alunos ficticios por turma.");
 const resultadosDemo = new Set(estudantes.map((estudante) => estudante.resultadoFinal));
 for (const resultado of ["APROVADO DIRETO", "APROVADO APÓS RECUPERAÇÃO", "APROVADO PELO CONSELHO", "REPROVADO PELO CONSELHO", "REPROVADO"]) {
   conferir(resultadosDemo.has(resultado), `Fixture deve conter resultado demonstrativo: ${resultado}`);

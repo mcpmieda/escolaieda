@@ -20,6 +20,8 @@ const componentes = [
   { id: "comp-demo-eo", codigo: "EO", nome: "Estudos Orientados", area: "Acompanhamento" }
 ];
 
+const alunosPorTurma = 35;
+
 const nomesFicticios = [
   "Beatriz Rocha Dantas",
   "Caio Henrique Lopes",
@@ -55,12 +57,45 @@ const nomesFicticios = [
   "Natália Fontes Brito",
   "Pedro Lucas Matos",
   "Raquel Fernandes Assis",
-  "Sofia Valença Moreira",
-  "Thiago Almeida Prado",
-  "Valentina Campos Neves",
-  "Wesley Brito Sampaio",
-  "Yuri Gabriel Azevedo",
-  "Zoe Martins Peixoto"
+  "Sofia Valença Moreira"
+];
+
+const sobrenomesVariacao = [
+  "Azevedo",
+  "Batista",
+  "Carneiro",
+  "Duarte",
+  "Esteves",
+  "Ferraz",
+  "Guimarães",
+  "Lacerda",
+  "Magalhães",
+  "Noronha",
+  "Oliveira",
+  "Peixoto",
+  "Queiroz",
+  "Rezende",
+  "Sales",
+  "Tavares",
+  "Uchôa",
+  "Valverde",
+  "Xavier",
+  "Zanin",
+  "Amaral",
+  "Borges",
+  "Coelho",
+  "Damasceno",
+  "Figueiredo",
+  "Gouveia",
+  "Holanda",
+  "Jardim",
+  "Leal",
+  "Mesquita",
+  "Novaes",
+  "Pacheco",
+  "Ribeiro",
+  "Sampaio",
+  "Viana"
 ];
 
 const perfisResultado = [
@@ -76,18 +111,27 @@ const perfisResultado = [
   "reprovado"
 ];
 
+function nomeFicticio(turmaIndex, index) {
+  const base = nomesFicticios[index % nomesFicticios.length];
+  if (turmaIndex === 0) return base;
+  const partes = base.split(" ");
+  const primeiroNomeComposto = partes.slice(0, Math.max(2, partes.length - 1)).join(" ");
+  const sobrenome = sobrenomesVariacao[(index + turmaIndex * 7) % sobrenomesVariacao.length];
+  return `${primeiroNomeComposto} ${sobrenome}`;
+}
+
 const estudantes = turmas.flatMap((turma, turmaIndex) =>
-  Array.from({ length: 10 }, (_, index) => {
+  Array.from({ length: alunosPorTurma }, (_, index) => {
     const perfilResultado = perfisResultado[(index + turmaIndex) % perfisResultado.length];
     return {
       id: `${turma.id}-est-${index + 1}`,
-      nome: nomesFicticios[turmaIndex * 10 + index],
+      nome: nomeFicticio(turmaIndex, index),
       codigo: `DEMO-${turma.codigo}-${String(index + 1).padStart(2, "0")}`,
       turmaId: turma.id,
       linhaOrigem: index + 1,
       perfilResultado,
       decisaoConselho: perfilResultado === "conselho_aprovado" ? "aprovado" : perfilResultado === "conselho_reprovado" ? "reprovado" : "",
-      situacaoMatricula: index === 9 && turmaIndex % 2 === 0 ? "transferência simulada" : "ativo"
+      situacaoMatricula: (index === 14 || index === 29) && turmaIndex % 2 === 0 ? "transferência simulada" : "ativo"
     };
   })
 );
