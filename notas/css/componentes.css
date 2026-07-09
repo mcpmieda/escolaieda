@@ -547,7 +547,6 @@ body[data-view="movimento"] .systemTitle p:last-child {
 .statCard,
 .rankingItem,
 .insightItem,
-.recoveryItem,
 .classResultCard,
 .emptyState {
   border: 1px solid var(--line);
@@ -560,7 +559,6 @@ body[data-view="movimento"] .systemTitle p:last-child {
 .statCard:hover,
 .rankingItem:hover,
 .insightItem:hover,
-.recoveryItem:hover,
 .classResultCard:hover {
   border-color: var(--line-strong);
   box-shadow: var(--shadow-soft);
@@ -805,8 +803,7 @@ body[data-view="movimento"] .systemTitle p:last-child {
 }
 
 .rankingList,
-.insightList,
-.recoveryList {
+.insightList {
   display: grid;
   gap: 8px;
 }
@@ -1057,31 +1054,6 @@ body[data-view="movimento"] .systemTitle p:last-child {
   font-weight: 900;
 }
 
-.statusCell {
-  font-size: 0.62rem;
-  font-weight: 900;
-}
-
-.statusCell.ok {
-  color: var(--ok);
-}
-
-.statusCell.warn {
-  color: var(--warn);
-}
-
-.statusCell.error {
-  color: var(--error);
-}
-
-.statusCell.info {
-  color: #8ecbff;
-}
-
-.statusCell.violet {
-  color: var(--violet);
-}
-
 .resultCell {
   overflow: hidden;
   color: var(--ink-soft);
@@ -1152,7 +1124,6 @@ body[data-view="movimento"] .systemTitle p:last-child {
 }
 
 .insightItem,
-.recoveryItem,
 .emptyState {
   padding: 9px;
   display: grid;
@@ -1160,7 +1131,6 @@ body[data-view="movimento"] .systemTitle p:last-child {
 }
 
 .insightItem strong,
-.recoveryItem strong,
 .emptyState strong {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1168,7 +1138,6 @@ body[data-view="movimento"] .systemTitle p:last-child {
 }
 
 .insightItem span,
-.recoveryItem span,
 .emptyState span {
   color: var(--muted);
   font-size: 0.74rem;
@@ -1195,84 +1164,50 @@ body[data-view="movimento"] .systemTitle p:last-child {
 
 body[data-view="notas"] {
   background:
-    radial-gradient(circle at 78% 22%, rgba(44, 128, 255, 0.20), transparent 32%),
-    radial-gradient(circle at 18% 82%, rgba(61, 220, 151, 0.10), transparent 28%),
-    linear-gradient(136deg, #061631 0%, #081d38 52%, #06162d 100%);
+    linear-gradient(150deg, rgba(10, 38, 74, 0.96) 0%, rgba(5, 21, 47, 0.98) 46%, rgba(7, 31, 67, 0.96) 100%),
+    #061631;
 }
 
-body[data-view="notas"] .notesStudioHero,
-body[data-view="notas"] .notesMetricCard,
-body[data-view="notas"] .notesFilterPanel,
+body[data-view="notas"] .notesSelectCard,
 body[data-view="notas"] .notesBoardModern,
-body[data-view="notas"] .notesSidePanel {
+body[data-view="notas"] .notesSidePanel,
+body[data-view="notas"] .notesPrintButton {
   border: 1px solid rgba(122, 166, 225, 0.24);
+  border-radius: 22px;
   background:
-    linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66));
+    linear-gradient(145deg, rgba(18, 54, 98, 0.80), rgba(8, 30, 62, 0.68));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18);
 }
 
-body[data-view="notas"] .notesStudioHero,
-body[data-view="notas"] .notesMetricCard,
-body[data-view="notas"] .notesFilterPanel,
+body[data-view="notas"] .notesSelectCard,
 body[data-view="notas"] .notesBoardModern,
 body[data-view="notas"] .notesSidePanel,
+body[data-view="notas"] .notesPrintButton,
 body[data-view="notas"] .notesTable tbody tr {
-  animation: notesRiseIn 520ms var(--motion-emphasis) both;
-}
-
-body[data-view="notas"] .notesStudioHero {
-  min-height: 130px;
-  overflow: visible;
-  border-radius: 22px;
-}
-
-body[data-view="notas"] .notesLead .heroIcon {
-  border-radius: 20px;
-  background:
-    linear-gradient(145deg, rgba(99, 184, 255, 0.30), rgba(35, 107, 255, 0.90)),
-    rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 18px 34px rgba(35, 107, 255, 0.18);
-}
-
-body[data-view="notas"] .notesLead .eyebrow {
-  color: #68aaff;
-}
-
-body[data-view="notas"] .notesLead h2 {
-  font-size: clamp(1.65rem, 3vw, 2.28rem);
-  letter-spacing: 0;
-}
-
-body[data-view="notas"] .notesSelectRack {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(150px, 1fr));
-  gap: 10px;
-  align-items: stretch;
+  animation: notesRiseIn 560ms var(--motion-emphasis) both;
 }
 
 body[data-view="notas"] .notesSelectCard {
   position: relative;
-  min-width: 0;
-  min-height: 66px;
+  min-height: 82px;
   padding: 0;
   overflow: visible;
-  border: 1px solid rgba(122, 166, 225, 0.24);
-  border-radius: 18px;
-  background:
-    linear-gradient(145deg, rgba(34, 82, 137, 0.72), rgba(11, 39, 76, 0.78));
+  transform: perspective(900px) rotateX(0deg) translate3d(0, 0, 0);
   transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), border-color var(--motion-smooth);
+  z-index: 4;
 }
 
 body[data-view="notas"] .notesSelectCard:hover,
 body[data-view="notas"] .notesSelectCard:focus-within {
-  border-color: rgba(126, 177, 255, 0.56);
-  box-shadow: var(--shadow-lifted);
-  transform: translateY(-2px);
+  border-color: rgba(126, 177, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--shadow-lifted);
+  transform: perspective(900px) rotateX(1.5deg) translateY(-2px);
 }
 
 body[data-view="notas"] .notesSelectCard.is-open {
-  z-index: 28;
-  border-color: rgba(126, 177, 255, 0.72);
+  border-color: rgba(126, 177, 255, 0.74);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 34px 90px rgba(0, 0, 0, 0.34);
+  z-index: 30;
 }
 
 body[data-view="notas"] .statsSelectNative {
@@ -1287,16 +1222,18 @@ body[data-view="notas"] .statsSelectNative {
 body[data-view="notas"] .statsSelectButton {
   position: relative;
   width: 100%;
-  min-height: 66px;
-  padding: 12px 42px 11px 14px;
+  min-height: 82px;
+  padding: 17px 56px 14px 20px;
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
   border: 0;
-  border-radius: 18px;
-  background: transparent;
-  color: #f7fbff;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.10), transparent 45%),
+    transparent;
+  color: #f8fbff;
   text-align: left;
   overflow: hidden;
 }
@@ -1304,13 +1241,13 @@ body[data-view="notas"] .statsSelectButton {
 body[data-view="notas"] .statsSelectButton .movementIcon {
   position: relative;
   z-index: 1;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 5px;
-  border: 1px solid rgba(126, 177, 255, 0.22);
-  border-radius: 11px;
+  border: 1px solid rgba(126, 177, 255, 0.24);
+  border-radius: 12px;
   background: rgba(76, 155, 255, 0.12);
-  color: #93c5ff;
+  color: #8fc1ff;
   filter: none;
 }
 
@@ -1319,29 +1256,32 @@ body[data-view="notas"] .statsSelectText {
   z-index: 1;
   min-width: 0;
   display: grid;
-  gap: 5px;
+  gap: 7px;
 }
 
-body[data-view="notas"] .statsSelectValue {
+body[data-view="notas"] .statsSelectButton strong {
+  max-width: 100%;
   overflow: hidden;
-  color: #f7fbff;
-  font-size: 0.96rem;
+  color: #f8fbff;
+  font-size: 1.18rem;
   font-weight: 900;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 body[data-view="notas"] .statsSelectCaption {
-  color: rgba(205, 221, 244, 0.76);
-  font-size: 0.72rem;
+  color: rgba(205, 221, 244, 0.82);
+  font-size: 0.82rem;
 }
 
 body[data-view="notas"] .statsSelectChevron {
   position: absolute;
-  right: 17px;
-  top: 27px;
-  width: 9px;
-  height: 9px;
+  right: 25px;
+  top: 34px;
+  width: 10px;
+  height: 10px;
   border-right: 2px solid #f5f8ff;
   border-bottom: 2px solid #f5f8ff;
   transform: rotate(45deg);
@@ -1350,26 +1290,35 @@ body[data-view="notas"] .statsSelectChevron {
 }
 
 body[data-view="notas"] .notesSelectCard.is-open .statsSelectChevron {
-  top: 31px;
+  top: 38px;
   transform: rotate(225deg);
 }
 
 body[data-view="notas"] .statsSelectGlow {
   position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 104px;
-  height: 104px;
+  right: -32px;
+  top: -42px;
+  width: 130px;
+  height: 130px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(76, 155, 255, 0.20), transparent 68%);
+  background: radial-gradient(circle, rgba(76, 155, 255, 0.26), transparent 66%);
   opacity: 0;
+  transform: scale(0.82);
   transition: opacity var(--motion-smooth), transform var(--motion-smooth);
 }
 
 body[data-view="notas"] .notesSelectCard:hover .statsSelectGlow,
 body[data-view="notas"] .notesSelectCard.is-open .statsSelectGlow {
   opacity: 1;
-  transform: scale(1.05);
+  transform: scale(1);
+}
+
+body[data-view="notas"] .movementIcon {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
 }
 
 body[data-view="notas"] .movementIcon svg {
@@ -1384,11 +1333,11 @@ body[data-view="notas"] .movementIcon svg {
 
 body[data-view="notas"] .statsSelectMenu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   left: 0;
   right: 0;
   padding: 8px;
-  max-height: min(292px, calc(100vh - 150px));
+  max-height: min(312px, calc(100vh - 160px));
   display: grid;
   gap: 6px;
   overflow-y: auto;
@@ -1405,11 +1354,11 @@ body[data-view="notas"] .statsSelectMenu {
 
 body[data-view="notas"] .statsSelectOption {
   position: relative;
-  min-height: 46px;
-  padding: 9px 32px 9px 12px;
+  min-height: 48px;
+  padding: 9px 34px 9px 12px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   border: 1px solid transparent;
   border-radius: 10px;
@@ -1418,17 +1367,18 @@ body[data-view="notas"] .statsSelectOption {
   text-align: left;
   animation: selectOptionEnter 240ms var(--motion-emphasis) both;
   animation-delay: calc(var(--option-index) * 28ms);
-  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick);
+  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
 }
 
 body[data-view="notas"] .statsSelectOption strong {
-  font-size: 0.82rem;
+  font-size: 0.86rem;
+  font-weight: 900;
   text-transform: uppercase;
 }
 
 body[data-view="notas"] .statsSelectOption span {
-  color: rgba(205, 221, 244, 0.70);
-  font-size: 0.66rem;
+  color: rgba(205, 221, 244, 0.72);
+  font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -1437,20 +1387,21 @@ body[data-view="notas"] .statsSelectOption:hover,
 body[data-view="notas"] .statsSelectOption:focus-visible {
   border-color: rgba(126, 177, 255, 0.40);
   background: rgba(76, 155, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transform: translateX(3px);
 }
 
 body[data-view="notas"] .statsSelectOption.active {
   border-color: rgba(76, 155, 255, 0.62);
   background:
-    linear-gradient(135deg, rgba(76, 155, 255, 0.26), rgba(61, 220, 151, 0.08)),
+    linear-gradient(135deg, rgba(76, 155, 255, 0.28), rgba(61, 220, 151, 0.08)),
     rgba(255, 255, 255, 0.05);
 }
 
 body[data-view="notas"] .statsSelectOption.active::after {
   content: "";
   position: absolute;
-  right: 13px;
+  right: 14px;
   top: 50%;
   width: 8px;
   height: 14px;
@@ -1459,275 +1410,547 @@ body[data-view="notas"] .statsSelectOption.active::after {
   transform: translateY(-58%) rotate(45deg);
 }
 
-body[data-view="notas"] .notesMetricStrip {
-  align-items: stretch;
-}
-
-body[data-view="notas"] .notesMetricCard {
-  min-height: 118px;
-  padding: 17px 14px;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 11px;
+body[data-view="notas"] .notesPrintButton {
+  min-height: 70px;
+  padding: 0 24px;
+  display: flex;
+  gap: 13px;
   align-items: center;
-  border-radius: 18px;
-  overflow: hidden;
-  position: relative;
+  justify-content: center;
+  border-color: rgba(82, 142, 252, 0.52);
+  background: linear-gradient(135deg, #236bff 0%, #1657d4 100%);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), filter var(--motion-smooth);
 }
 
-body[data-view="notas"] .notesMetricCard::before {
+body[data-view="notas"] .notesPrintButton:hover,
+body[data-view="notas"] .notesPrintButton:focus-visible {
+  box-shadow: 0 22px 55px rgba(35, 107, 255, 0.36);
+  filter: saturate(1.12);
+  transform: translateY(-2px) scale(1.01);
+}
+
+body[data-view="notas"] .notesPrintButton svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body[data-view="notas"] .notesBoardModern,
+body[data-view="notas"] .notesSidePanel {
+  position: relative;
+  overflow: hidden;
+}
+
+body[data-view="notas"] .notesBoardModern::before,
+body[data-view="notas"] .notesSidePanel::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 0 30%, rgba(255, 255, 255, 0.065) 44%, transparent 60% 100%);
-  background-size: 220% 100%;
-  opacity: 0.42;
-  animation: panelLightSweep 10s var(--motion-standard) infinite;
   pointer-events: none;
+  background: linear-gradient(115deg, transparent 0 30%, rgba(255, 255, 255, 0.055) 44%, transparent 60% 100%);
+  background-size: 220% 100%;
+  opacity: 0.52;
+  animation: panelLightSweep 10s var(--motion-standard) infinite;
 }
 
-body[data-view="notas"] .notesMetricCard > * {
+body[data-view="notas"] .notesBoardModern > *,
+body[data-view="notas"] .notesSidePanel > * {
   position: relative;
   z-index: 1;
 }
 
-body[data-view="notas"] .notesMetricCard .movementIcon {
-  width: 32px;
-  height: 32px;
-  padding: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.055);
-  filter: none;
+body[data-view="notas"] .notesBoardHeader {
+  gap: 14px;
+  align-items: start;
 }
 
-body[data-view="notas"] .notesMetricCard.ok .movementIcon {
-  color: #37e788;
-}
-
-body[data-view="notas"] .notesMetricCard.error .movementIcon {
-  color: #ff5268;
-}
-
-body[data-view="notas"] .notesMetricCard.info .movementIcon,
-body[data-view="notas"] .notesMetricCard.warn .movementIcon {
-  color: #6aaaff;
-}
-
-body[data-view="notas"] .notesMetricBody span {
-  display: block;
-  color: rgba(215, 226, 243, 0.86);
-  font-size: 0.70rem;
-  font-weight: 900;
-  line-height: 1.15;
+body[data-view="notas"] .notesBoardHeader h2 {
+  margin-bottom: 4px;
+  color: #f8fbff;
+  font-size: 1.3rem;
+  line-height: 1.08;
   text-transform: uppercase;
 }
 
-body[data-view="notas"] .notesMetricValue {
-  margin-top: 12px;
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  flex-wrap: wrap;
+body[data-view="notas"] .notesBoardHeader p:last-child {
+  margin-bottom: 0;
+  color: rgba(211, 225, 246, 0.82);
+  font-size: 0.86rem;
 }
 
-body[data-view="notas"] .notesMetricValue strong {
-  color: #f9fcff;
-  font-size: 1.72rem;
-  line-height: 1;
-}
-
-body[data-view="notas"] .notesMetricBadge {
-  padding: 5px 9px;
-  border-radius: 999px;
-  font-size: 0.76rem;
-  font-weight: 900;
-  text-transform: lowercase;
-}
-
-body[data-view="notas"] .notesMetricBadge.ok {
-  background: rgba(45, 204, 116, 0.18);
-  color: #38dd87;
-}
-
-body[data-view="notas"] .notesMetricBadge.error {
-  background: rgba(255, 54, 79, 0.16);
-  color: #ff6c7e;
-}
-
-body[data-view="notas"] .notesMetricBadge.info {
-  background: rgba(42, 125, 255, 0.18);
-  color: #63b0ff;
-}
-
-body[data-view="notas"] .notesMetricBadge.warn {
-  background: rgba(242, 184, 75, 0.16);
-  color: #ffd990;
-}
-
-body[data-view="notas"] .notesFilterPanel {
-  margin-bottom: 12px;
+body[data-view="notas"] .notesBoardActions {
   display: grid;
-  grid-template-columns: minmax(180px, auto) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
   align-items: center;
-  border-radius: 18px;
 }
 
-body[data-view="notas"] .notesFilterPanel h3 {
-  font-size: 1rem;
-}
-
-body[data-view="notas"] .statusFilters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+body[data-view="notas"] .notesSummary {
   justify-content: flex-end;
 }
 
-body[data-view="notas"] .statusFilters label {
-  min-height: 36px;
-  padding: 7px 10px;
+body[data-view="notas"] .notesSummary .chip {
+  min-height: 30px;
+  padding: 6px 10px;
+  border: 1px solid rgba(126, 177, 255, 0.16);
+}
+
+body[data-view="notas"] .notesFilterMenu {
+  position: relative;
+}
+
+body[data-view="notas"] .notesFilterButton {
+  min-height: 42px;
+  padding: 0 15px;
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid rgba(126, 177, 255, 0.24);
   border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  color: #f7fbff;
+  font-weight: 900;
+  transition: transform var(--motion-quick), border-color var(--motion-quick), background var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+body[data-view="notas"] .notesFilterButton:hover,
+body[data-view="notas"] .notesFilterButton:focus-visible,
+body[data-view="notas"] .notesFilterButton[aria-expanded="true"] {
+  border-color: rgba(126, 177, 255, 0.52);
+  background: rgba(76, 155, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.20);
+  transform: translateY(-1px);
+}
+
+body[data-view="notas"] .notesFilterButton svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+}
+
+body[data-view="notas"] .notesFilterPopover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: min(330px, calc(100vw - 34px));
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border: 1px solid rgba(128, 177, 244, 0.30);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(23, 64, 112, 0.985), rgba(7, 24, 50, 0.985));
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(22px);
+  transform-origin: top right;
+  animation: selectMenuEnter 240ms var(--motion-emphasis) both;
+  z-index: 31;
+}
+
+body[data-view="notas"] .notesFilterPopover label {
+  min-height: 40px;
+  padding: 8px 9px;
+  justify-content: flex-start;
+  border-radius: 11px;
   background: rgba(255, 255, 255, 0.045);
   transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
 }
 
-body[data-view="notas"] .statusFilters label:has(input:checked) {
+body[data-view="notas"] .notesFilterPopover label:has(input:checked) {
   border-color: rgba(126, 177, 255, 0.45);
   background: rgba(76, 155, 255, 0.15);
   color: #f6fbff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-body[data-view="notas"] .statusFilters label:hover {
+body[data-view="notas"] .notesFilterPopover label:hover {
   transform: translateY(-1px);
 }
 
-body[data-view="notas"] .notesBoardModern,
-body[data-view="notas"] .notesSidePanel {
-  border-radius: 18px;
-}
-
-body[data-view="notas"] .notesBoardModern .panelHeader {
+body[data-view="notas"] .notesTableMeta {
+  margin: 8px 0 11px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
+  color: rgba(211, 225, 246, 0.72);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
-body[data-view="notas"] .notesSummary .chip {
-  min-height: 28px;
-  padding: 6px 10px;
+body[data-view="notas"] .notesTableMeta span:first-child {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(76, 155, 255, 0.16);
+  color: #b9dcff;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 body[data-view="notas"] .notesTableWrap {
+  max-width: 100%;
   overflow: visible;
+  border: 1px solid rgba(126, 177, 255, 0.16);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(12, 47, 91, 0.70), rgba(5, 23, 52, 0.72));
 }
 
 body[data-view="notas"] .notesTable {
   border-collapse: separate;
-  border-spacing: 0 4px;
+  border-spacing: 0 6px;
+  table-layout: fixed;
+  font-size: clamp(0.62rem, 0.66vw, 0.78rem);
+}
+
+body[data-view="notas"] .notesTable th:nth-child(1),
+body[data-view="notas"] .notesTable td:nth-child(1) {
+  width: 4%;
+}
+
+body[data-view="notas"] .notesTable th:nth-child(2),
+body[data-view="notas"] .notesTable td:nth-child(2) {
+  width: 10%;
+}
+
+body[data-view="notas"] .notesTable th:nth-child(3),
+body[data-view="notas"] .notesTable td:nth-child(3) {
+  width: 24%;
+}
+
+body[data-view="notas"] .notesTable th:nth-last-child(1),
+body[data-view="notas"] .notesTable td:nth-last-child(1) {
+  width: 19%;
 }
 
 body[data-view="notas"] .notesTable th,
 body[data-view="notas"] .notesTable td {
   border: 0;
   background: rgba(255, 255, 255, 0.035);
-  transition: background var(--motion-quick), transform var(--motion-quick), color var(--motion-quick);
+  color: #dbeaff;
+  transition: background var(--motion-quick), box-shadow var(--motion-quick), color var(--motion-quick), transform var(--motion-quick);
 }
 
 body[data-view="notas"] .notesTable th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: rgba(76, 155, 255, 0.16);
-  color: rgba(226, 238, 255, 0.86);
-  box-shadow: inset 0 -1px 0 rgba(126, 177, 255, 0.16);
+  padding: 10px 4px;
+  background: rgba(37, 94, 167, 0.35);
+  color: rgba(226, 238, 255, 0.90);
+  font-size: 0.68rem;
+  box-shadow: inset 0 -1px 0 rgba(126, 177, 255, 0.18);
+}
+
+body[data-view="notas"] .notesTable td {
+  padding: 6px 4px;
 }
 
 body[data-view="notas"] .notesTable td:first-child,
 body[data-view="notas"] .notesTable th:first-child {
-  border-radius: 10px 0 0 10px;
+  border-radius: 11px 0 0 11px;
 }
 
 body[data-view="notas"] .notesTable td:last-child,
 body[data-view="notas"] .notesTable th:last-child {
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 11px 11px 0;
 }
 
 body[data-view="notas"] .notesTable tbody tr {
-  animation-delay: calc(var(--row-index, 0) * 26ms);
+  animation-delay: calc(var(--row-index, 0) * 22ms);
 }
 
 body[data-view="notas"] .notesTable tbody tr:nth-child(odd) td {
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(255, 255, 255, 0.048);
 }
 
 body[data-view="notas"] .notesTable tbody tr:hover td {
-  background: rgba(76, 155, 255, 0.13);
+  background: rgba(76, 155, 255, 0.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(126, 177, 255, 0.10);
 }
 
+body[data-view="notas"] .notesTable th.is-column-hover,
+body[data-view="notas"] .notesTable td.is-column-hover {
+  background: rgba(76, 155, 255, 0.20);
+}
+
+body[data-view="notas"] .notesIndex {
+  color: #f1f7ff;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+body[data-view="notas"] .notesStatusCell,
+body[data-view="notas"] .resultCell,
 body[data-view="notas"] .scoreCell {
-  color: #dbeaff;
-  font-weight: 800;
+  overflow: hidden;
 }
 
-body[data-view="notas"] .scoreLow {
-  background:
-    linear-gradient(180deg, #ff6678, #d51f35) !important;
-  color: #fff !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+body[data-view="notas"] .statusPill,
+body[data-view="notas"] .scorePill,
+body[data-view="notas"] .notesResultPill {
+  min-height: 24px;
+  padding: 5px 7px;
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: #f8fbff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: normal;
+  transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+body[data-view="notas"] .notesResultPill {
+  min-height: 28px;
+  padding-right: 5px;
+  padding-left: 5px;
+  font-size: 0.58rem;
+}
+
+body[data-view="notas"] .statusPill:hover,
+body[data-view="notas"] .scorePill:hover,
+body[data-view="notas"] .notesResultPill:hover {
+  filter: saturate(1.14);
+  transform: translateY(-1px);
+}
+
+body[data-view="notas"] .statusPill.ok,
+body[data-view="notas"] .notesResultPill.ok {
+  background: linear-gradient(180deg, #17895c, #0f6d47);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 18px rgba(8, 111, 73, 0.22);
+}
+
+body[data-view="notas"] .statusPill.warn,
+body[data-view="notas"] .notesResultPill.warn {
+  background: linear-gradient(180deg, #c7792a, #a35d18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(199, 121, 42, 0.20);
+}
+
+body[data-view="notas"] .statusPill.error,
+body[data-view="notas"] .notesResultPill.error,
+body[data-view="notas"] .scorePill.scoreLow {
+  background: linear-gradient(180deg, #f05f72, #c51f35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 18px rgba(197, 31, 53, 0.24);
+}
+
+body[data-view="notas"] .statusPill.info,
+body[data-view="notas"] .notesResultPill.info {
+  background: linear-gradient(180deg, #168c96, #0c6870);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 18px rgba(12, 104, 112, 0.22);
+}
+
+body[data-view="notas"] .statusPill.violet,
+body[data-view="notas"] .notesResultPill.violet {
+  background: linear-gradient(180deg, #7e6bf2, #5544ba);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 18px rgba(85, 68, 186, 0.22);
+}
+
+body[data-view="notas"] .statusPill.mutedChip {
+  background: linear-gradient(180deg, #c9732f, #a6531d);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(166, 83, 29, 0.20);
+}
+
+body[data-view="notas"] .scorePill {
+  background: rgba(255, 255, 255, 0.075);
+  color: #dbeaff;
+  font-variant-numeric: tabular-nums;
+  animation: scoreBreath 7.5s ease-in-out infinite;
+  animation-delay: calc(var(--row-index, 0) * 80ms);
 }
 
 body[data-view="notas"] .studentNameButton {
-  color: #f6f9ff;
+  color: #f7fbff;
+  font-size: 0.88rem;
+  line-height: 1.12;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 body[data-view="notas"] .studentNameButton:hover,
 body[data-view="notas"] .studentNameButton:focus-visible {
-  color: #87c5ff;
+  color: #8fc1ff;
 }
 
-body[data-view="notas"] .insightItem,
-body[data-view="notas"] .recoveryItem {
-  border-color: rgba(126, 177, 255, 0.18);
+body[data-view="notas"] .studentPeek {
+  border-color: rgba(126, 177, 255, 0.30);
+  background: linear-gradient(145deg, rgba(18, 54, 98, 0.98), rgba(7, 24, 50, 0.98));
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.38);
+  animation: selectMenuEnter 220ms var(--motion-emphasis) both;
+}
+
+body[data-view="notas"] .studentPeekPhoto {
+  width: 42px;
+  height: 42px;
+}
+
+body[data-view="notas"] .peekNotes span {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+body[data-view="notas"] .profilePhoto {
+  width: 86px;
+  height: 86px;
+}
+
+body[data-view="notas"] .notesSidePanel {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  animation-delay: 170ms;
+}
+
+body[data-view="notas"] .notesSidePanel .panelHeader h3 {
+  margin-bottom: 0;
+  color: #f6fbff;
+  text-transform: none;
+}
+
+body[data-view="notas"] .notesInsightBlock {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(126, 177, 255, 0.18);
+  border-radius: 14px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 48%),
     rgba(255, 255, 255, 0.045);
 }
 
-body[data-view="notas"] .insightItem {
-  padding: 11px;
+body[data-view="notas"] .notesInsightHeader {
   display: grid;
-  gap: 9px;
-}
-
-body[data-view="notas"] .insightItemTop {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
 }
 
-body[data-view="notas"] .insightItemTop .movementIcon {
-  width: 26px;
-  height: 26px;
-  color: #9fcaff;
-  filter: none;
+body[data-view="notas"] .notesInsightHeader .movementIcon {
+  width: 22px;
+  height: 22px;
+  color: #ff6678;
 }
 
-body[data-view="notas"] .insightItemTop strong,
-body[data-view="notas"] .insightItemTop small {
+body[data-view="notas"] .notesInsightHeader span {
+  color: rgba(226, 238, 255, 0.88);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+body[data-view="notas"] .notesInsightHeader strong {
+  color: #ff6678;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+body[data-view="notas"] .notesAttentionList {
+  max-height: 286px;
+  display: grid;
+  gap: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-color: rgba(126, 177, 255, 0.72) rgba(255, 255, 255, 0.06);
+  scrollbar-gutter: stable;
+}
+
+body[data-view="notas"] .attentionStudent {
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid rgba(143, 184, 239, 0.10);
+  background: transparent;
+  animation: notesRiseIn 420ms var(--motion-emphasis) both;
+  animation-delay: calc(180ms + var(--row-index) * 42ms);
+  cursor: pointer;
+  transition: transform var(--motion-quick), background var(--motion-quick);
+}
+
+body[data-view="notas"] .attentionStudent:hover {
+  background: rgba(76, 155, 255, 0.10);
+  transform: translateX(2px);
+}
+
+body[data-view="notas"] .attentionStudent strong,
+body[data-view="notas"] .attentionStudent span {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-body[data-view="notas"] .insightItemTop small {
-  justify-self: end;
+body[data-view="notas"] .attentionStudent strong {
+  color: #f7fbff;
+  font-size: 0.82rem;
+}
+
+body[data-view="notas"] .attentionStudent span {
+  color: rgba(205, 221, 244, 0.70);
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 800;
+}
+
+body[data-view="notas"] .attentionStudent b {
+  min-width: 42px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7a3042, #5f2133);
+  color: #ffd4dc;
+  font-size: 0.72rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-view="notas"] .notesDisciplineList {
+  display: grid;
+  gap: 8px;
+}
+
+body[data-view="notas"] .disciplineInsightRow {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(88px, 1fr) 24px;
+  gap: 8px;
+  align-items: center;
+  animation: notesRiseIn 420ms var(--motion-emphasis) both;
+  animation-delay: calc(220ms + var(--row-index) * 40ms);
+}
+
+body[data-view="notas"] .disciplineInsightRow span,
+body[data-view="notas"] .disciplineInsightRow strong {
+  overflow: hidden;
+  color: rgba(226, 238, 255, 0.88);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-view="notas"] .disciplineInsightRow strong {
+  color: #f8fbff;
+  text-align: right;
 }
 
 body[data-view="notas"] .progressTrack {
-  height: 9px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.10);
 }
 
@@ -1737,20 +1960,7 @@ body[data-view="notas"] .progressTrack span {
 }
 
 body[data-view="notas"] .progressTrack span.error {
-  background: linear-gradient(90deg, #ff5268, #ff8d9c);
-}
-
-body[data-view="notas"] .recoveryItem {
-  min-height: 54px;
-  padding: 9px;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  gap: 9px;
-  align-items: center;
-}
-
-body[data-view="notas"] .recoveryItem .chip {
-  white-space: nowrap;
+  background: linear-gradient(90deg, #2c7dff, #3e91ff);
 }
 
 @keyframes notesRiseIn {
@@ -1769,30 +1979,41 @@ body[data-view="notas"] .recoveryItem .chip {
   }
 }
 
-@media (max-width: 760px) {
-  body[data-view="notas"] .notesSelectRack {
-    grid-template-columns: 1fr;
+@keyframes scoreBreath {
+  0%,
+  100% {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
   }
 
-  body[data-view="notas"] .notesMetricCard {
-    min-height: 108px;
+  50% {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 12px rgba(76, 155, 255, 0.13);
   }
+}
 
-  body[data-view="notas"] .notesFilterPanel {
-    grid-template-columns: 1fr;
-  }
-
-  body[data-view="notas"] .statusFilters {
-    justify-content: flex-start;
-  }
-
+@media (max-width: 900px) {
   body[data-view="notas"] .notesTableWrap {
-    max-width: 100%;
     overflow-x: auto;
   }
 
   body[data-view="notas"] .notesTable {
-    min-width: 920px;
+    min-width: 980px;
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-view="notas"] .notesBoardHeader,
+  body[data-view="notas"] .notesBoardActions {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-view="notas"] .notesSummary {
+    justify-content: flex-start;
+  }
+
+  body[data-view="notas"] .notesFilterPopover {
+    left: 0;
+    right: auto;
+    grid-template-columns: 1fr;
   }
 }
 

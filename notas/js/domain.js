@@ -93,8 +93,10 @@ function contarResultados(estudantes) {
     return total;
   }, {
     "APROVADO DIRETO": 0,
-    "APROVADO PELA RECUPERAÇÃO": 0,
-    "EM ACOMPANHAMENTO": 0
+    "APROVADO APÓS RECUPERAÇÃO": 0,
+    "APROVADO PELO CONSELHO": 0,
+    "REPROVADO PELO CONSELHO": 0,
+    "REPROVADO": 0
   });
 }
 
@@ -138,12 +140,14 @@ function filtrarTurmasPorEstudantes(turmas, estudantesFiltrados) {
 
 function calcularResultadoEstudante(estudante) {
   const notas = estudante.lancamentos || [];
-  if (!notas.length) return "EM ACOMPANHAMENTO";
-  const todasDiretas = notas.every((nota) => Number(nota.notaFinal) >= 60);
-  const todasComRecuperacao = notas.every((nota) => Number(nota.totalRec) >= 60 || Number(nota.notaFinal) >= 60);
+  if (!notas.length) return "REPROVADO";
+  const todasDiretas = notas.every((nota) => Number(nota.total) >= 60);
+  const todasComRecuperacao = notas.every((nota) => Number(nota.total) >= 60 || Number(nota.totalRec) >= 60);
   if (todasDiretas) return "APROVADO DIRETO";
-  if (todasComRecuperacao) return "APROVADO PELA RECUPERAÇÃO";
-  return "EM ACOMPANHAMENTO";
+  if (todasComRecuperacao) return "APROVADO APÓS RECUPERAÇÃO";
+  if (estudante.decisaoConselho === "aprovado") return "APROVADO PELO CONSELHO";
+  if (estudante.decisaoConselho === "reprovado") return "REPROVADO PELO CONSELHO";
+  return "REPROVADO";
 }
 
 function resumirEtapas(lancamentos) {

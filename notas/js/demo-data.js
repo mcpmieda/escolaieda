@@ -20,15 +20,76 @@ const componentes = [
   { id: "comp-demo-eo", codigo: "EO", nome: "Estudos Orientados", area: "Acompanhamento" }
 ];
 
+const nomesFicticios = [
+  "Beatriz Rocha Dantas",
+  "Caio Henrique Lopes",
+  "Dara Vitória Melo",
+  "Enzo Gabriel Nunes",
+  "Fernanda Luz Pires",
+  "Gustavo Martins Souza",
+  "Heloísa Prado Lima",
+  "Igor Matheus Barreto",
+  "Júlia Andrade Costa",
+  "Kauã Rafael Moura",
+  "Laura Cristina Farias",
+  "Miguel Arantes Silva",
+  "Nicolas Porto Santana",
+  "Otávio Prado Ribeiro",
+  "Pietra Souza Carvalho",
+  "Rafaela Dias Teixeira",
+  "Samuel Correia Lima",
+  "Tainá Barbosa Reis",
+  "Victor Hugo Ramos",
+  "Yasmin Monteiro Alves",
+  "Bruno César Almeida",
+  "Camila Neves Rocha",
+  "Diego Vinícius Araújo",
+  "Eduarda Melo Torres",
+  "Fábio Henrique Macedo",
+  "Giovana Duarte Reis",
+  "Heitor Paiva Gomes",
+  "Isadora Lima Castro",
+  "João Vitor Cardoso",
+  "Larissa Queiroz Nunes",
+  "Marcos Paulo Vieira",
+  "Natália Fontes Brito",
+  "Pedro Lucas Matos",
+  "Raquel Fernandes Assis",
+  "Sofia Valença Moreira",
+  "Thiago Almeida Prado",
+  "Valentina Campos Neves",
+  "Wesley Brito Sampaio",
+  "Yuri Gabriel Azevedo",
+  "Zoe Martins Peixoto"
+];
+
+const perfisResultado = [
+  "direto",
+  "recuperacao",
+  "conselho_aprovado",
+  "conselho_reprovado",
+  "reprovado",
+  "direto",
+  "recuperacao",
+  "direto",
+  "conselho_aprovado",
+  "reprovado"
+];
+
 const estudantes = turmas.flatMap((turma, turmaIndex) =>
-  Array.from({ length: 10 }, (_, index) => ({
-    id: `${turma.id}-est-${index + 1}`,
-    nome: `Estudante ${turma.codigo}-${String(index + 1).padStart(2, "0")}`,
-    codigo: `DEMO-${turma.codigo}-${String(index + 1).padStart(2, "0")}`,
-    turmaId: turma.id,
-    linhaOrigem: index + 1,
-    situacaoMatricula: index === 9 && turmaIndex % 2 === 0 ? "transferência simulada" : "ativo"
-  }))
+  Array.from({ length: 10 }, (_, index) => {
+    const perfilResultado = perfisResultado[(index + turmaIndex) % perfisResultado.length];
+    return {
+      id: `${turma.id}-est-${index + 1}`,
+      nome: nomesFicticios[turmaIndex * 10 + index],
+      codigo: `DEMO-${turma.codigo}-${String(index + 1).padStart(2, "0")}`,
+      turmaId: turma.id,
+      linhaOrigem: index + 1,
+      perfilResultado,
+      decisaoConselho: perfilResultado === "conselho_aprovado" ? "aprovado" : perfilResultado === "conselho_reprovado" ? "reprovado" : "",
+      situacaoMatricula: index === 9 && turmaIndex % 2 === 0 ? "transferência simulada" : "ativo"
+    };
+  })
 );
 
 function limitar(valor, minimo, maximo) {
@@ -39,20 +100,78 @@ function umaCasa(valor) {
   return Math.round(valor * 10) / 10;
 }
 
+function gerarNotasDemo(estudante, estudanteIndex, componenteIndex) {
+  const assinatura = estudanteIndex * 11 + componenteIndex * 7 + estudante.linhaOrigem * 3;
+  const ajusteTransferencia = estudante.situacaoMatricula === "ativo" ? 0 : -4;
+  const perfil = estudante.perfilResultado;
+  const componenteCritico = componenteIndex % 4 === 0;
+  const componenteMuitoCritico = componenteIndex % 5 === 0;
+  let notaT1;
+  let notaT2;
+  let notaT3;
+  let recT1;
+  let recT2;
+  let recT3;
+
+  if (perfil === "direto") {
+    notaT1 = limitar(20 + (assinatura % 8), 0, 30);
+    notaT2 = limitar(20 + ((assinatura + 3) % 8), 0, 30);
+    notaT3 = limitar(25 + ((assinatura + 7) % 12) + ajusteTransferencia, 0, 40);
+  } else if (perfil === "recuperacao" && componenteCritico) {
+    notaT1 = limitar(14 + (assinatura % 3), 0, 30);
+    notaT2 = limitar(15 + ((assinatura + 2) % 3), 0, 30);
+    notaT3 = limitar(19 + ((assinatura + 4) % 4) + ajusteTransferencia, 0, 40);
+  } else if (perfil === "recuperacao") {
+    notaT1 = limitar(18 + (assinatura % 5), 0, 30);
+    notaT2 = limitar(18 + ((assinatura + 2) % 5), 0, 30);
+    notaT3 = limitar(24 + ((assinatura + 4) % 7) + ajusteTransferencia, 0, 40);
+  } else if (componenteMuitoCritico) {
+    notaT1 = limitar(10 + (assinatura % 4), 0, 30);
+    notaT2 = limitar(12 + ((assinatura + 2) % 4), 0, 30);
+    notaT3 = limitar(16 + ((assinatura + 4) % 5) + ajusteTransferencia, 0, 40);
+  } else {
+    notaT1 = limitar(17 + (assinatura % 6), 0, 30);
+    notaT2 = limitar(17 + ((assinatura + 2) % 6), 0, 30);
+    notaT3 = limitar(22 + ((assinatura + 4) % 8) + ajusteTransferencia, 0, 40);
+  }
+
+  const total = umaCasa(notaT1 + notaT2 + notaT3);
+  if (total < 60 && perfil === "recuperacao") {
+    recT1 = limitar(20 + (assinatura % 4), notaT1, 30);
+    recT2 = limitar(19 + ((assinatura + 2) % 4), notaT2, 30);
+    recT3 = limitar(24 + ((assinatura + 4) % 6), notaT3, 40);
+  } else if (total < 60) {
+    recT1 = limitar(notaT1 + 3, notaT1, 30);
+    recT2 = limitar(notaT2 + 3, notaT2, 30);
+    recT3 = limitar(notaT3 + 4, notaT3, 40);
+  } else {
+    recT1 = notaT1;
+    recT2 = notaT2;
+    recT3 = notaT3;
+  }
+
+  recT1 = umaCasa(recT1);
+  recT2 = umaCasa(recT2);
+  recT3 = umaCasa(recT3);
+  const totalRec = umaCasa(limitar(recT1 + recT2 + recT3, total, 100));
+  const notaFinal = umaCasa(total >= 60 ? total : Math.max(total, totalRec));
+  return {
+    notaT1: umaCasa(notaT1),
+    notaT2: umaCasa(notaT2),
+    notaT3: umaCasa(notaT3),
+    total,
+    recT1,
+    recT2,
+    recT3,
+    totalRec,
+    notaFinal,
+    faltas: (assinatura + estudanteIndex) % 8
+  };
+}
+
 const lancamentos = estudantes.flatMap((estudante, estudanteIndex) =>
   componentes.map((componente, componenteIndex) => {
-    const assinatura = estudanteIndex * 11 + componenteIndex * 7 + estudante.linhaOrigem * 3;
-    const vulnerabilidade = estudante.linhaOrigem % 9 === 0 ? -9 : estudante.linhaOrigem % 6 === 0 ? -5 : 0;
-    const ajusteTransferencia = estudante.situacaoMatricula === "ativo" ? 0 : -6;
-    const notaT1 = umaCasa(limitar(16 + (assinatura % 15) + vulnerabilidade, 8, 30));
-    const notaT2 = umaCasa(limitar(15 + ((assinatura + 5) % 16) + vulnerabilidade, 8, 30));
-    const notaT3 = umaCasa(limitar(21 + ((assinatura + 9) % 19) + vulnerabilidade + ajusteTransferencia, 10, 40));
-    const total = umaCasa(notaT1 + notaT2 + notaT3);
-    const recT1 = total < 60 ? umaCasa(limitar(notaT1 + 2 + (componenteIndex % 3), notaT1, 30)) : notaT1;
-    const recT2 = total < 60 ? umaCasa(limitar(notaT2 + 2 + (estudanteIndex % 3), notaT2, 30)) : notaT2;
-    const recT3 = total < 60 ? umaCasa(limitar(notaT3 + 3 + (assinatura % 4), notaT3, 40)) : notaT3;
-    const totalRec = umaCasa(limitar(recT1 + recT2 + recT3, total, 100));
-    const notaFinal = umaCasa(Math.max(total, totalRec));
+    const notas = gerarNotasDemo(estudante, estudanteIndex, componenteIndex);
 
     return {
       id: `${estudante.id}-${componente.id}`,
@@ -60,16 +179,7 @@ const lancamentos = estudantes.flatMap((estudante, estudanteIndex) =>
       turmaId: estudante.turmaId,
       componenteId: componente.id,
       periodo: "Anual",
-      notaT1,
-      notaT2,
-      notaT3,
-      total,
-      recT1,
-      recT2,
-      recT3,
-      totalRec,
-      notaFinal,
-      faltas: (assinatura + estudanteIndex) % 8,
+      ...notas,
       origem: "fixture-demo"
     };
   })

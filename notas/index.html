@@ -187,22 +187,8 @@
       </section>
 
       <section class="pageView" id="view-notas" aria-labelledby="notasTitulo">
-        <div class="screenHero notesHero notesStudioHero">
-          <div class="notesLead">
-            <span class="heroIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M3 8.5 12 4l9 4.5-9 4.5z"></path>
-                <path d="M7 11v4.2c0 1.6 2.2 2.8 5 2.8s5-1.2 5-2.8V11"></path>
-                <path d="M19 10.5v5"></path>
-              </svg>
-            </span>
-            <div>
-              <p class="eyebrow">Notas</p>
-              <h2 id="notasTitulo">Banco de notas por turma</h2>
-              <p id="notesClassLabel">Quadro compacto no modelo do banco atual, com todas as disciplinas visíveis.</p>
-            </div>
-          </div>
-          <div class="heroControls notesSelectRack">
+        <div class="statsDashboard notesDashboard">
+          <div class="statsTopRow notesTopRow">
             <div class="notesSelectCard statsSelectCard" data-stats-select-label="Turma">
               <select id="notasTurma"></select>
             </div>
@@ -215,47 +201,63 @@
                 <option value="recuperacao">Recuperação</option>
               </select>
             </div>
+            <span class="statsTopSpacer" aria-hidden="true"></span>
+            <button class="statsPrintButton notesPrintButton" type="button" id="notasPrint">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9V3h12v6"></path>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <path d="M6 14h12v7H6z"></path>
+              </svg>
+              <span>Imprimir ficha</span>
+            </button>
           </div>
-        </div>
 
-        <div class="notesMetricStrip" id="notesMetricStrip"></div>
-
-        <section class="panel filterPanel notesFilterPanel">
-          <div>
-            <p class="sectionKicker">Filtros imediatos</p>
-            <h3>Situação do aluno</h3>
-          </div>
-          <div class="statusFilters" id="notasStatusFilters">
-            <label><input type="checkbox" value="regular" checked> Regular</label>
-            <label><input type="checkbox" value="transferido" checked> Transferidos</label>
-            <label><input type="checkbox" value="desistente" checked> Desistentes</label>
-            <label><input type="checkbox" value="especial" checked> Especial</label>
-            <label><input type="checkbox" value="foi_para" checked> Foi para...</label>
-            <label><input type="checkbox" value="estava_no" checked> Estava no...</label>
-          </div>
-        </section>
-
-        <div class="notesGrid">
-          <section class="panel panelWide notesBoard notesBoardModern">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Ficha de notas</p>
-                <h3 id="notesTableTitle">I trimestre</h3>
+          <div class="notesGrid">
+            <section class="panel panelWide notesBoard notesBoardModern">
+              <div class="panelHeader notesBoardHeader">
+                <div>
+                  <p class="sectionKicker">Ficha de notas</p>
+                  <h2 id="notasTitulo">Banco de notas por turma</h2>
+                  <p id="notesClassLabel">Turma, período e alunos do recorte atual.</p>
+                </div>
+                <div class="notesBoardActions">
+                  <div class="notesSummary" id="notesSummary"></div>
+                  <div class="notesFilterMenu">
+                    <button class="notesFilterButton" type="button" id="notasFilterButton" aria-expanded="false" aria-controls="notasStatusFilters">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 6h16"></path>
+                        <path d="M7 12h10"></path>
+                        <path d="M10 18h4"></path>
+                      </svg>
+                      <span>Filtros</span>
+                    </button>
+                    <div class="statusFilters notesFilterPopover" id="notasStatusFilters" hidden>
+                      <label><input type="checkbox" value="regular" checked> Regular</label>
+                      <label><input type="checkbox" value="transferido" checked> Transferidos</label>
+                      <label><input type="checkbox" value="desistente" checked> Desistentes</label>
+                      <label><input type="checkbox" value="especial" checked> Novatos</label>
+                      <label><input type="checkbox" value="foi_para" checked> Foi para...</label>
+                      <label><input type="checkbox" value="estava_no" checked> Estava no...</label>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="notesSummary" id="notesSummary"></div>
-            </div>
-            <div class="notesTableWrap" aria-label="Tabela compacta de notas">
-              <table class="notesTable">
-                <thead id="notasCabecalho"></thead>
-                <tbody id="notasTabela"></tbody>
-              </table>
-            </div>
-          </section>
+              <div class="notesTableMeta">
+                <span id="notesTableTitle">I trimestre</span>
+                <span>Regra demonstrativa: 18/30, 18/30, 24/40 e 60/100 no ano.</span>
+              </div>
+              <div class="notesTableWrap" aria-label="Tabela compacta de notas">
+                <table class="notesTable">
+                  <thead id="notasCabecalho"></thead>
+                  <tbody id="notasTabela"></tbody>
+                </table>
+              </div>
+            </section>
 
-          <aside class="sideStack">
-            <section class="panel notesSidePanel" id="notasInsights"></section>
-            <section class="panel notesSidePanel" id="notasRecovery"></section>
-          </aside>
+            <aside class="sideStack notesInsightsStack">
+              <section class="panel notesSidePanel" id="notasInsights"></section>
+            </aside>
+          </div>
         </div>
       </section>
 
@@ -303,8 +305,8 @@
             <div class="controlColumn">
               <p class="sectionKicker">Situações</p>
               <label class="toggleLine"><input id="boletimSituacaoDireto" type="checkbox" checked> Aprovado direto</label>
-              <label class="toggleLine"><input id="boletimSituacaoRec" type="checkbox" checked> Aprovado pela recuperação</label>
-              <label class="toggleLine"><input id="boletimSituacaoAcomp" type="checkbox" checked> Em acompanhamento</label>
+              <label class="toggleLine"><input id="boletimSituacaoRec" type="checkbox" checked> Aprovado após recuperação</label>
+              <label class="toggleLine"><input id="boletimSituacaoAcomp" type="checkbox" checked> Conselho e reprovados</label>
             </div>
 
             <div class="controlColumn wideControl">
