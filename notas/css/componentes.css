@@ -1166,6 +1166,14 @@ body[data-view="notas"] {
   --notes-panel: linear-gradient(145deg, rgba(18, 54, 98, 0.80), rgba(8, 30, 62, 0.68));
   --notes-panel-line: rgba(122, 166, 225, 0.24);
   --notes-panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18);
+  --notes-select-menu: linear-gradient(145deg, rgba(23, 64, 112, 0.985), rgba(7, 24, 50, 0.985));
+  --notes-select-menu-line: rgba(128, 177, 244, 0.30);
+  --notes-select-menu-shadow: 0 28px 78px rgba(0, 0, 0, 0.42);
+  --notes-select-option-bg: rgba(255, 255, 255, 0.035);
+  --notes-select-option-ink: #f6fbff;
+  --notes-select-option-muted: rgba(205, 221, 244, 0.72);
+  --notes-select-option-hover: rgba(76, 155, 255, 0.16);
+  --notes-select-option-active: linear-gradient(135deg, rgba(76, 155, 255, 0.28), rgba(61, 220, 151, 0.08)), rgba(255, 255, 255, 0.05);
   --notes-ink: #f8fbff;
   --notes-muted: rgba(211, 225, 246, 0.76);
   --notes-soft: rgba(226, 238, 255, 0.88);
@@ -1199,6 +1207,14 @@ body[data-theme="claro"][data-view="notas"] {
   --notes-panel: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(226, 242, 255, 0.78));
   --notes-panel-line: rgba(49, 105, 168, 0.18);
   --notes-panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 22px 58px rgba(33, 88, 150, 0.12);
+  --notes-select-menu: linear-gradient(145deg, rgba(255, 255, 255, 0.992), rgba(229, 243, 255, 0.992));
+  --notes-select-menu-line: rgba(48, 105, 168, 0.24);
+  --notes-select-menu-shadow: 0 26px 70px rgba(44, 89, 138, 0.20);
+  --notes-select-option-bg: rgba(18, 105, 211, 0.055);
+  --notes-select-option-ink: #10243e;
+  --notes-select-option-muted: rgba(53, 81, 111, 0.70);
+  --notes-select-option-hover: rgba(18, 105, 211, 0.13);
+  --notes-select-option-active: rgba(18, 105, 211, 0.13);
   --notes-ink: #10243e;
   --notes-muted: rgba(53, 81, 111, 0.78);
   --notes-soft: rgba(37, 67, 102, 0.88);
@@ -1229,6 +1245,14 @@ body[data-theme="mono"][data-view="notas"] {
   --notes-panel: linear-gradient(145deg, rgba(42, 44, 52, 0.88), rgba(13, 14, 19, 0.78));
   --notes-panel-line: rgba(255, 255, 255, 0.18);
   --notes-panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 64px rgba(0, 0, 0, 0.30);
+  --notes-select-menu: linear-gradient(145deg, rgba(42, 44, 52, 0.992), rgba(10, 11, 15, 0.992));
+  --notes-select-menu-line: rgba(255, 255, 255, 0.22);
+  --notes-select-menu-shadow: 0 30px 78px rgba(0, 0, 0, 0.46);
+  --notes-select-option-bg: rgba(255, 255, 255, 0.040);
+  --notes-select-option-ink: #f7f8fb;
+  --notes-select-option-muted: rgba(216, 220, 228, 0.72);
+  --notes-select-option-hover: rgba(255, 255, 255, 0.105);
+  --notes-select-option-active: rgba(255, 255, 255, 0.125);
   --notes-ink: #f7f8fb;
   --notes-muted: rgba(216, 220, 228, 0.74);
   --notes-soft: rgba(231, 234, 240, 0.86);
@@ -1438,10 +1462,10 @@ body[data-view="notas"] .statsSelectMenu {
   gap: 6px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border: 1px solid var(--notes-panel-line);
+  border: 1px solid var(--notes-select-menu-line);
   border-radius: 14px;
-  background: var(--notes-panel);
-  box-shadow: var(--notes-panel-shadow);
+  background: var(--notes-select-menu);
+  box-shadow: var(--notes-select-menu-shadow);
   backdrop-filter: blur(22px);
   transform-origin: top;
   animation: selectMenuEnter 260ms var(--motion-emphasis) both;
@@ -1458,8 +1482,8 @@ body[data-view="notas"] .statsSelectOption {
   align-items: center;
   border: 1px solid transparent;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.035);
-  color: var(--notes-ink);
+  background: var(--notes-select-option-bg);
+  color: var(--notes-select-option-ink);
   text-align: left;
   animation: selectOptionEnter 240ms var(--motion-emphasis) both;
   animation-delay: calc(var(--option-index) * 28ms);
@@ -1473,7 +1497,7 @@ body[data-view="notas"] .statsSelectOption strong {
 }
 
 body[data-view="notas"] .statsSelectOption span {
-  color: var(--notes-muted);
+  color: var(--notes-select-option-muted);
   font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -1482,16 +1506,14 @@ body[data-view="notas"] .statsSelectOption span {
 body[data-view="notas"] .statsSelectOption:hover,
 body[data-view="notas"] .statsSelectOption:focus-visible {
   border-color: rgba(126, 177, 255, 0.40);
-  background: rgba(76, 155, 255, 0.16);
+  background: var(--notes-select-option-hover);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transform: translateX(3px);
 }
 
 body[data-view="notas"] .statsSelectOption.active {
   border-color: rgba(76, 155, 255, 0.62);
-  background:
-    linear-gradient(135deg, rgba(76, 155, 255, 0.28), rgba(61, 220, 151, 0.08)),
-    rgba(255, 255, 255, 0.05);
+  background: var(--notes-select-option-active);
 }
 
 body[data-view="notas"] .statsSelectOption.active::after {
