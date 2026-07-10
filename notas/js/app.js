@@ -28,7 +28,10 @@ const periodos = {
   T2: { rotulo: "II trimestre", curto: "II TRI.", campo: "notaT2", maximo: 30, minimo: 18 },
   T3: { rotulo: "III trimestre", curto: "III TRI.", campo: "notaT3", maximo: 40, minimo: 24 },
   geral: { rotulo: "Visão geral", curto: "GERAL", campo: "notaFinal", maximo: 100, minimo: 60 },
-  recuperacao: { rotulo: "Recuperação", curto: "REC.", campo: "totalRec", maximo: 100, minimo: 60 }
+  recT1: { rotulo: "Recuperação do I trimestre", curto: "REC. I", campo: "recT1", maximo: 30, minimo: 18, recuperacao: true, base: "T1" },
+  recT2: { rotulo: "Recuperação do II trimestre", curto: "REC. II", campo: "recT2", maximo: 30, minimo: 18, recuperacao: true, base: "T2" },
+  recT3: { rotulo: "Recuperação do III trimestre", curto: "REC. III", campo: "recT3", maximo: 40, minimo: 24, recuperacao: true, base: "T3" },
+  recuperacao: { rotulo: "Recuperação anual", curto: "REC. ANUAL", campo: "totalRec", maximo: 100, minimo: 60, recuperacao: true }
 };
 
 const statusOperacionais = {
@@ -41,13 +44,9 @@ const statusOperacionais = {
 };
 
 const viewCopy = {
-  movimento: [
-    "Estatísticas",
-    "Movimento estatístico escolar por turma e período."
-  ],
   notas: [
     "Notas",
-    "Ficha de notas por turma e período."
+    "Ficha de notas, insights e desempenho por turma e período."
   ],
   boletim: [
     "Boletim",
@@ -56,15 +55,15 @@ const viewCopy = {
 };
 
 const viewAliases = {
-  estatisticas: "movimento",
-  dashboard: "movimento",
-  turma: "movimento",
+  estatisticas: "notas",
+  movimento: "notas",
+  dashboard: "notas",
+  turma: "notas",
   banco: "notas",
   boletins: "boletim"
 };
 
 const viewHashes = {
-  movimento: "estatisticas",
   notas: "notas",
   boletim: "boletim"
 };
@@ -73,7 +72,7 @@ const estudantesResumo = listarEstudantesComResumo(demoData);
 let activeStatsSelect = null;
 
 const state = {
-  view: viewFromHash() || "movimento",
+  view: viewFromHash() || "notas",
   theme: localStorage.getItem("notas-theme") || "aurora",
   search: "",
   movimento: {
@@ -107,8 +106,6 @@ const ui = {
   profileButton: document.getElementById("btnProfile"),
   profileMenu: document.getElementById("profileMenu"),
   logout: document.getElementById("btnLogout"),
-  movimentoTurma: document.getElementById("movimentoTurma"),
-  movimentoPeriodo: document.getElementById("movimentoPeriodo"),
   movementClassLabel: document.getElementById("movementClassLabel"),
   movementStats: document.getElementById("movementStats"),
   movementChart: document.getElementById("movementChart"),
@@ -159,7 +156,7 @@ function initialize() {
   aplicarTema(state.theme);
   ui.boletimDataInput.value = state.boletim.data;
   bindEvents();
-  abrirView(state.view, false);
+  abrirView(state.view, true);
 }
 
 function bindEvents() {
@@ -186,23 +183,14 @@ function bindEvents() {
     closeProfileMenu();
   });
 
-  ui.movimentoTurma.addEventListener("change", () => {
-    state.movimento.turma = ui.movimentoTurma.value;
-    state.movimento.disciplinaSelecionada = "";
-    renderMovimento();
-  });
-  ui.movimentoPeriodo.addEventListener("change", () => {
-    state.movimento.periodo = ui.movimentoPeriodo.value;
-    state.movimento.disciplinaSelecionada = "";
-    renderMovimento();
-  });
-
   ui.notasTurma.addEventListener("change", () => {
     state.notas.turma = ui.notasTurma.value;
+    state.movimento.disciplinaSelecionada = "";
     renderNotas();
   });
   ui.notasPeriodo.addEventListener("change", () => {
     state.notas.periodo = ui.notasPeriodo.value;
+    state.movimento.disciplinaSelecionada = "";
     renderNotas();
   });
   ui.notasFilterButton.addEventListener("click", (event) => {
@@ -267,7 +255,6 @@ function bindEvents() {
     });
   });
 
-  document.getElementById("movementPrint").addEventListener("click", imprimirRelatorioMovimento);
   ui.notasPrint.addEventListener("click", imprimirRelatorioNotas);
   document.getElementById("boletimPrint").addEventListener("click", () => window.print());
   ui.studentProfileClose.addEventListener("click", fecharPerfilAluno);
@@ -280,6 +267,15 @@ function bindEvents() {
     if (!event.target.closest(".profileBox")) closeProfileMenu();
     if (!event.target.closest(".searchBox")) closeGlobalSearchResults(true);
     if (!event.target.closest(".notesFilterMenu")) closeNotasFilterMenu();
+    if (
+      ui.studentProfilePanel.classList.contains("open") &&
+      !event.target.closest("#studentProfilePanel") &&
+      !event.target.closest(".studentNameButton") &&
+      !event.target.closest(".attentionStudent") &&
+      !event.target.closest(".searchResultItem")
+    ) {
+      fecharPerfilAluno();
+    }
   });
 
   document.addEventListener("keydown", (event) => {
@@ -287,6 +283,7 @@ function bindEvents() {
       closeProfileMenu();
       closeGlobalSearchResults(true);
       closeNotasFilterMenu(true);
+      fecharPerfilAluno();
       clearNotesColumnHighlight();
     }
   });
@@ -322,8 +319,8 @@ function renderGlobalSearchResults() {
       .slice(0, 5)
       .map((estudante) => ({
         tipo: "aluno",
-        titulo: estudante.nome,
-        detalhe: `${estudante.turma?.codigo || ""} · ficha demonstrativa`,
+        titulo: nomeAluno(estudante),
+        detalhe: `${estudante.turma?.codigo || ""} · ficha do aluno`,
         valor: estudante.id
       })),
     ...demoData.turmas
@@ -384,18 +381,19 @@ function ativarResultadoBusca(resultado) {
     return;
   }
   if (resultado.tipo === "disciplina") {
-    if (state.view !== "movimento") abrirView("movimento");
+    if (state.view !== "notas") abrirView("notas");
     state.movimento.disciplinaSelecionada = resultado.valor;
-    renderMovimento();
+    renderNotas();
     ui.movementChart.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 }
 
 function selecionarTurmaPorBusca(turmaId) {
-  if (state.view === "notas") {
+  if (state.view === "notas" || state.view !== "boletim") {
     state.notas.turma = turmaId;
     ui.notasTurma.value = turmaId;
     syncStatsSelect(ui.notasTurma);
+    if (state.view !== "notas") abrirView("notas", true);
     renderNotas();
     return;
   }
@@ -405,11 +403,6 @@ function selecionarTurmaPorBusca(turmaId) {
     renderBoletim();
     return;
   }
-  state.movimento.turma = turmaId;
-  state.movimento.disciplinaSelecionada = "";
-  ui.movimentoTurma.value = turmaId;
-  syncStatsSelect(ui.movimentoTurma);
-  renderMovimento();
 }
 
 function closeGlobalSearchResults(clearInput = false) {
@@ -536,7 +529,10 @@ function renderStatsSelectOptions(select) {
 function statsSelectOptionMeta(select, option) {
   if (select.id.endsWith("Periodo")) {
     if (option.value === "geral") return "ano letivo completo";
-    if (option.value === "recuperacao") return "prova final de recuperação";
+    if (option.value === "recT1") return "recuperação do I";
+    if (option.value === "recT2") return "recuperação do II";
+    if (option.value === "recT3") return "recuperação do III";
+    if (option.value === "recuperacao") return "total após recuperação";
     if (option.value === "T1") return "0 a 30 pontos";
     if (option.value === "T2") return "0 a 30 pontos";
     if (option.value === "T3") return "0 a 40 pontos";
@@ -639,19 +635,12 @@ function preencherSelects() {
     ["todas", "Todas as turmas"],
     ...demoData.turmas.map((turma) => [turma.id, turma.codigo])
   ];
-  const opcoesMovimento = [
-    ["todas", "TODAS AS TURMAS"],
-    ...demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()])
-  ];
   const opcoesNotas = [
     ["todas", "TODAS AS TURMAS"],
     ...demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()])
   ];
-  preencherSelect(ui.movimentoTurma, opcoesMovimento);
   preencherSelect(ui.notasTurma, opcoesNotas);
   preencherSelect(ui.boletimTurma, opcoesTurma);
-  ui.movimentoTurma.value = state.movimento.turma;
-  ui.movimentoPeriodo.value = state.movimento.periodo;
   ui.notasTurma.value = state.notas.turma;
   ui.notasPeriodo.value = state.notas.periodo;
   ui.boletimTurma.value = state.boletim.turma;
@@ -692,9 +681,7 @@ function renderAll() {
 }
 
 function renderActiveView() {
-  if (state.view === "movimento") {
-    renderMovimento();
-  } else if (state.view === "notas") {
+  if (state.view === "notas") {
     renderNotas();
   } else if (state.view === "boletim") {
     renderBoletim();
@@ -704,10 +691,6 @@ function renderActiveView() {
 function renderMovimento() {
   const recorte = criarRecorteMovimento();
   ui.movementClassLabel.textContent = `${recorte.turmaRotulo} · ${recorte.periodo.rotulo} · ${recorte.estudantes.length} aluno(s) no recorte.`;
-  if (state.view === "movimento") {
-    ui.viewTitle.textContent = "Movimento estatístico escolar";
-    ui.viewSubtitle.textContent = ui.movementClassLabel.textContent;
-  }
   ui.movementFooterPeriod.textContent = `Dados referentes a ${recorte.periodo.rotulo.toUpperCase()}`;
   ui.movementFooterUpdated.textContent = `Atualizado em ${recorte.atualizado}`;
   renderMovementStats(recorte);
@@ -715,6 +698,11 @@ function renderMovimento() {
   renderMovementDonut(recorte);
   renderMovementRanking(recorte);
   renderClassResults(recorte);
+}
+
+function sincronizarAnaliseComNotas() {
+  state.movimento.turma = state.notas.turma;
+  state.movimento.periodo = state.notas.periodo;
 }
 
 function criarRecorteMovimento() {
@@ -809,7 +797,7 @@ function renderMovementChart(recorte) {
     button.addEventListener("click", () => {
       state.movimento.disciplinaSelecionada = state.movimento.disciplinaSelecionada === componente.codigo ? "" : componente.codigo;
       ui.movementDisciplineHint.textContent = `${componente.nome}: ${componente.abaixo} aluno(s) com nota vermelha.`;
-      renderMovementChart(recorte);
+      sincronizarGraficoMovimento();
       renderClassResults(recorte);
     });
     chart.append(button);
@@ -820,6 +808,12 @@ function renderMovementChart(recorte) {
   const canvas = element("div", "statsChartCanvas");
   canvas.append(yAxis, chart);
   replaceChildren(ui.movementChart, [canvas]);
+}
+
+function sincronizarGraficoMovimento() {
+  ui.movementChart.querySelectorAll(".movementBar").forEach((bar) => {
+    bar.classList.toggle("active", bar.dataset.codigo === state.movimento.disciplinaSelecionada);
+  });
 }
 
 function renderMovementDonut(recorte) {
@@ -872,7 +866,7 @@ function renderMovementRanking(recorte) {
     item.style.setProperty("--rank-index", index);
     item.append(studentPhotoAvatar(estudante, index));
     const text = element("div");
-    const name = appendText(text, "strong", estudante.nome);
+    const name = appendText(text, "strong", nomeAluno(estudante));
     const emAtencao = estudanteTemVermelha(estudante, state.movimento.periodo);
     if (emAtencao) name.classList.add("studentAlertName");
     appendText(text, "small", emAtencao ? `${estudante.turma?.codigo || ""} · recuperação em componente` : estudante.turma?.codigo || "");
@@ -928,7 +922,7 @@ function renderClassResults(recorte) {
       const card = element("article", "classResultCard disciplineAlertCard");
       card.append(studentPhotoAvatar(estudante, index + 3));
       const body = element("div");
-      appendText(body, "strong", estudante.nome, "studentAlertName");
+      appendText(body, "strong", nomeAluno(estudante), "studentAlertName");
       appendText(body, "span", `${estudante.turma?.codigo || ""} · ${formatarMedia(valor)} ponto(s) · mínimo ${recorte.periodo.minimo}`);
       card.append(body);
       return card;
@@ -999,26 +993,31 @@ function movementIcon(name) {
 function renderNotas() {
   const periodoCodigo = state.notas.periodo;
   const periodo = periodoNotasInfo(periodoCodigo);
-  let estudantes = filtrarBusca(filtrarPorTurma(estudantesResumo, state.notas.turma));
-  if (periodoCodigo === "recuperacao") estudantes = estudantes.filter(estudanteFezRecuperacao);
+  const turmaTodas = state.notas.turma === "todas";
+  let estudantes = turmaTodas ? [] : filtrarBusca(filtrarPorTurma(estudantesResumo, state.notas.turma));
+  if (periodo.recuperacao) estudantes = estudantes.filter(estudanteFezRecuperacao);
   estudantes = estudantes.filter((estudante) => state.notas.situacoes.has(statusOperacional(estudante).status));
 
   const turma = obterTurma(state.notas.turma);
   const turmaRotulo = turma ? turmaTituloAcademico(turma) : "Todas as turmas";
-  const recorteRotulo = `${turmaRotulo} · ${periodo.rotulo} · ${estudantes.length} aluno(s) no recorte.`;
+  const recorteRotulo = turmaTodas
+    ? `${turmaRotulo} · ${periodo.rotulo} · selecione uma turma individual para abrir a grade.`
+    : `${turmaRotulo} · ${periodo.rotulo} · ${estudantes.length} aluno(s) no recorte.`;
   ui.notasTitulo.textContent = "Ficha de notas";
   ui.notesClassLabel.textContent = recorteRotulo;
-  ui.notesTableTitle.textContent = `${periodo.rotulo} · ${estudantes.length} alunos`;
+  ui.notesTableTitle.textContent = turmaTodas ? `${periodo.rotulo} · aguardando turma individual` : `${periodo.rotulo} · ${estudantes.length} alunos`;
   if (state.view === "notas") {
     ui.viewTitle.textContent = "Notas";
     ui.viewSubtitle.textContent = recorteRotulo;
   }
 
-  renderNotesTable(estudantes, periodoCodigo);
-  renderNotesInsights(estudantes, periodoCodigo);
+  renderNotesTable(estudantes, periodoCodigo, turmaTodas);
+  renderNotesInsights(estudantes, periodoCodigo, turmaTodas);
+  sincronizarAnaliseComNotas();
+  renderMovimento();
 }
 
-function renderNotesTable(estudantes, periodoCodigo) {
+function renderNotesTable(estudantes, periodoCodigo, turmaTodas = false) {
   const headRow = document.createElement("tr");
   [["Nº", "Número de ordem"], ["Status", "Situação do aluno"], ["Aluno", "Nome completo do aluno"]].forEach(([label, title]) => {
     const th = appendText(headRow, "th", label);
@@ -1046,7 +1045,7 @@ function renderNotesTable(estudantes, periodoCodigo) {
     const nameCell = element("td", "notesNameCell");
     const nameButton = element("button", "studentNameButton");
     nameButton.type = "button";
-    nameButton.textContent = estudante.nome;
+    nameButton.textContent = nomeAluno(estudante);
     nameButton.addEventListener("click", () => abrirPerfilAluno(estudante.id));
     const peek = criarStudentPeek(estudante, periodoCodigo);
     nameCell.append(nameButton, peek);
@@ -1068,7 +1067,12 @@ function renderNotesTable(estudantes, periodoCodigo) {
     return row;
   });
 
-  if (!rows.length) {
+  if (turmaTodas) {
+    const row = document.createElement("tr");
+    const cell = appendText(row, "td", "Selecione uma turma individual para visualizar a grade de notas.", "emptyTableCell notesTableNotice");
+    cell.colSpan = componentes.length + 4;
+    rows.push(row);
+  } else if (!rows.length) {
     const row = document.createElement("tr");
     const cell = appendText(row, "td", "Nenhum aluno encontrado para os filtros atuais.", "emptyTableCell");
     cell.colSpan = componentes.length + 4;
@@ -1077,9 +1081,15 @@ function renderNotesTable(estudantes, periodoCodigo) {
   replaceChildren(ui.notasTabela, rows);
 }
 
-function renderNotesInsights(estudantes, periodoCodigo) {
+function renderNotesInsights(estudantes, periodoCodigo, turmaTodas = false) {
   const header = element("div", "notesInsightsTitle");
   appendText(header, "h3", "Insights da turma");
+  if (turmaTodas) {
+    const alertBlock = notesInsightEmptyBlock("alert", "Alunos em atenção (abaixo do mínimo)", "Selecione uma turma individual para calcular os alunos em atenção.");
+    const disciplineBlock = notesInsightEmptyBlock("trendDown", "Disciplinas com mais notas abaixo do mínimo", "O ranking de disciplinas aparece depois que uma turma específica for selecionada.");
+    replaceChildren(ui.notasInsights, [header, alertBlock, disciplineBlock]);
+    return;
+  }
   const alunosAtencao = estudantes
     .map((estudante) => ({
       estudante,
@@ -1100,7 +1110,7 @@ function renderNotesInsights(estudantes, periodoCodigo) {
     const row = element("article", "attentionStudent");
     row.style.setProperty("--row-index", index);
     const text = element("div");
-    appendText(text, "strong", estudante.nome);
+    appendText(text, "strong", nomeAluno(estudante));
     appendText(text, "span", vermelhas.map((item) => item.componente.codigo).join(", "));
     row.append(text);
     row.addEventListener("click", () => abrirPerfilAluno(estudante.id));
@@ -1130,6 +1140,15 @@ function renderNotesInsights(estudantes, periodoCodigo) {
   });
   disciplineBlock.append(disciplineList);
   replaceChildren(ui.notasInsights, [header, alertBlock, disciplineBlock]);
+}
+
+function notesInsightEmptyBlock(iconName, title, message) {
+  const block = element("section", "notesInsightBlock");
+  const head = element("div", "notesInsightHeader");
+  head.append(movementIcon(iconName));
+  appendText(head, "span", title);
+  block.append(head, emptyState(message));
+  return block;
 }
 
 function notasVermelhasEstudante(estudante, periodoCodigo) {
@@ -1192,7 +1211,7 @@ function criarMiniBoletim(estudante, numero) {
   header.append(logo, title);
 
   const blueBand = element("div", "miniBoletimBand");
-  appendText(blueBand, "strong", estudante.nome);
+  appendText(blueBand, "strong", nomeAluno(estudante));
   appendText(blueBand, "span", `${estudante.turma?.codigo || ""} · ${state.boletim.titulo || "BOLETIM ESCOLAR 2026"}`);
 
   const main = element("div", "miniBoletimMain");
@@ -1201,7 +1220,7 @@ function criarMiniBoletim(estudante, numero) {
   photo.textContent = iniciais(estudante.nome);
   const meta = element("div");
   appendText(meta, "span", "Aluno");
-  appendText(meta, "strong", estudante.nome);
+  appendText(meta, "strong", nomeAluno(estudante));
   appendText(meta, "small", `${estudante.turma?.codigo || ""} · ${estudante.codigo}`);
   student.append(photo, meta);
 
@@ -1257,37 +1276,24 @@ function criarMiniBoletim(estudante, numero) {
 
 function criarStudentPeek(estudante, periodoCodigo) {
   const peek = element("aside", "studentPeek");
-  const top = element("div", "peekTop");
   const photo = studentPhotoAvatar(estudante, estudante.linhaOrigem + 12);
   photo.classList.add("studentPeekPhoto");
-  const text = element("div");
-  appendText(text, "strong", estudante.nome);
-  appendText(text, "small", `${estudante.turma?.codigo || ""} · ${statusOperacional(estudante).rotulo} · Média ${formatarMedia(mediaPeriodoEstudante(estudante, periodoCodigo))}`);
-  top.append(photo, text);
-
-  const notes = element("div", "peekNotes");
-  componentes.slice(0, 6).forEach((componente) => {
-    const nota = obterLancamento(estudante, componente);
-    const item = element("span");
-    item.textContent = `${componente.codigo}: ${nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "--"}`;
-    if (notaAbaixo(nota, periodoCodigo)) item.classList.add("dangerText");
-    notes.append(item);
-  });
-  peek.append(top, notes);
+  photo.setAttribute("aria-label", `Foto de ${nomeAluno(estudante)}`);
+  peek.append(photo);
   return peek;
 }
 
 function abrirPerfilAluno(estudanteId) {
   const estudante = estudantesResumo.find((item) => item.id === estudanteId);
   if (!estudante) return;
-  ui.studentProfileTitle.textContent = estudante.nome;
+  ui.studentProfileTitle.textContent = nomeAluno(estudante);
 
   const header = element("section", "studentProfileCard");
   const photo = studentPhotoAvatar(estudante, estudante.linhaOrigem + 20);
   photo.classList.add("profilePhoto");
   const meta = element("div");
-  appendText(meta, "strong", estudante.nome);
-  appendText(meta, "span", `${estudante.turma?.nome || ""} · ${estudante.codigo}`);
+  appendText(meta, "strong", nomeAluno(estudante));
+  appendText(meta, "span", `${estudante.turma ? turmaTituloAcademico(estudante.turma) : ""} · ${estudante.codigo}`);
   meta.append(chip(estudante.resultadoFinal, resultadoClasse(estudante.resultadoFinal)));
   header.append(photo, meta);
 
@@ -1303,13 +1309,14 @@ function abrirPerfilAluno(estudanteId) {
     const row = document.createElement("tr");
     appendText(row, "td", componente.codigo);
     ["T1", "T2", "T3"].forEach((periodoCodigo) => {
-      const cell = appendText(row, "td", nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "--");
-      if (notaAbaixo(nota, periodoCodigo)) cell.classList.add("scoreLow");
+      const cell = element("td");
+      const pill = appendText(cell, "span", nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "--", "scorePill profileScorePill");
+      if (notaAbaixo(nota, periodoCodigo)) pill.classList.add("scoreLow");
+      row.append(cell);
     });
-    appendText(row, "td", nota ? formatarMedia(nota.total) : "--");
-    appendText(row, "td", nota ? formatarMedia(nota.totalRec) : "--");
-    const finalCell = appendText(row, "td", nota ? formatarMedia(nota.notaFinal) : "--");
-    if (notaAbaixo(nota, "geral")) finalCell.classList.add("scoreLow");
+    appendProfileScore(row, nota ? nota.total : null, nota && Number(nota.total) < 60);
+    appendProfileScore(row, nota ? nota.totalRec : null, nota && Number(nota.totalRec) < 60);
+    appendProfileScore(row, nota ? nota.notaFinal : null, notaAbaixo(nota, "geral"));
     body.append(row);
   });
   table.append(head, body);
@@ -1322,12 +1329,6 @@ function abrirPerfilAluno(estudanteId) {
 function fecharPerfilAluno() {
   ui.studentProfilePanel.classList.remove("open");
   ui.studentProfilePanel.setAttribute("aria-hidden", "true");
-}
-
-function imprimirRelatorioMovimento() {
-  closeStatsSelects();
-  document.body.dataset.printView = "movimento";
-  requestAnimationFrame(() => window.print());
 }
 
 function imprimirRelatorioNotas() {
@@ -1437,12 +1438,12 @@ function obterLancamento(estudante, componente) {
 
 function valorPeriodo(nota, periodoCodigo) {
   if (!nota) return 0;
-  return Number(nota[periodos[periodoCodigo].campo] || 0);
+  return Number(nota[periodoNotasInfo(periodoCodigo).campo] || 0);
 }
 
 function notaAbaixo(nota, periodoCodigo) {
   if (!nota) return false;
-  return valorPeriodo(nota, periodoCodigo) < periodos[periodoCodigo].minimo;
+  return valorPeriodo(nota, periodoCodigo) < periodoNotasInfo(periodoCodigo).minimo;
 }
 
 function estudanteTemVermelha(estudante, periodoCodigo) {
@@ -1465,7 +1466,7 @@ function mediaPeriodoEstudante(estudante, periodoCodigo) {
 
 function percentualPeriodo(estudante, periodoCodigo) {
   const valor = mediaPeriodoEstudante(estudante, periodoCodigo);
-  return Math.max(0, Math.min(100, (valor / periodos[periodoCodigo].maximo) * 100));
+  return Math.max(0, Math.min(100, (valor / periodoNotasInfo(periodoCodigo).maximo) * 100));
 }
 
 function estudanteFezRecuperacao(estudante) {
@@ -1487,6 +1488,17 @@ function resultadoClasse(resultado) {
   if (resultado === "APROVADO PELO CONSELHO") return "info";
   if (resultado === "REPROVADO PELO CONSELHO") return "violet";
   return "error";
+}
+
+function nomeAluno(estudante) {
+  return String(estudante?.nome || "").toLocaleUpperCase("pt-BR");
+}
+
+function appendProfileScore(row, value, low = false) {
+  const cell = element("td");
+  const pill = appendText(cell, "span", value == null ? "--" : formatarMedia(value), "scorePill profileScorePill");
+  if (low) pill.classList.add("scoreLow");
+  row.append(cell);
 }
 
 function preencherSelect(select, options) {

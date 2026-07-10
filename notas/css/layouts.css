@@ -264,17 +264,19 @@ body[data-view="notas"] .notesGrid {
 .studentProfilePanel {
   position: fixed;
   inset: 0 0 0 auto;
-  width: min(500px, 100vw);
-  padding: 18px;
+  width: min(560px, 100vw);
+  padding: 20px;
   overflow: auto;
-  border-left: 1px solid var(--line);
-  background: var(--surface-strong);
-  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.32);
+  border-left: 1px solid rgba(126, 177, 255, 0.34);
+  background:
+    linear-gradient(150deg, rgba(8, 28, 58, 0.992), rgba(3, 13, 30, 0.992)),
+    #061631;
+  box-shadow: -24px 0 80px rgba(0, 0, 0, 0.58);
   transform: translateX(104%);
   visibility: hidden;
   pointer-events: none;
-  transition: transform 0.22s ease;
-  z-index: 30;
+  transition: transform var(--motion-smooth), visibility var(--motion-smooth);
+  z-index: 900;
 }
 
 .studentProfilePanel.open {
@@ -292,7 +294,11 @@ body[data-view="notas"] .notesGrid {
 }
 
 .profilePanelHeader h2 {
+  color: #f8fbff;
+  font-size: 1.28rem;
+  line-height: 1.08;
   margin-bottom: 0;
+  text-transform: uppercase;
 }
 
 @media (max-width: 1180px) {
@@ -352,32 +358,6 @@ body[data-view="notas"] .notesGrid {
     display: grid;
     grid-template-columns: 1fr;
   }
-}
-
-body[data-view="movimento"] {
-  overflow-x: hidden;
-  background:
-    radial-gradient(circle at 74% 38%, rgba(32, 87, 159, 0.28), transparent 34%),
-    radial-gradient(circle at 30% 74%, rgba(18, 89, 168, 0.18), transparent 32%),
-    linear-gradient(136deg, #061631 0%, #071d3a 49%, #06162d 100%);
-}
-
-body[data-theme="claro"][data-view="movimento"] {
-  background:
-    radial-gradient(circle at 76% 34%, rgba(132, 199, 255, 0.34), transparent 34%),
-    radial-gradient(circle at 28% 76%, rgba(227, 38, 58, 0.08), transparent 32%),
-    linear-gradient(136deg, #f8fbff 0%, #eef7ff 48%, #dceeff 100%);
-}
-
-body[data-theme="mono"][data-view="movimento"] {
-  background:
-    radial-gradient(circle at 76% 34%, rgba(216, 220, 230, 0.12), transparent 34%),
-    radial-gradient(circle at 28% 76%, rgba(122, 130, 144, 0.10), transparent 32%),
-    linear-gradient(136deg, #050609 0%, #15171d 50%, #08090d 100%);
-}
-
-body[data-view="movimento"] .appShell {
-  min-height: 100vh;
 }
 
 .statsDashboard {
@@ -539,73 +519,6 @@ body[data-view="movimento"] .appShell {
     display: block !important;
   }
 
-  body[data-print-view="movimento"] {
-    background: #fff !important;
-    color: #10243e;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  body[data-print-view="movimento"] .appRail,
-  body[data-print-view="movimento"] .systemBar,
-  body[data-print-view="movimento"] .statsTopRow,
-  body[data-print-view="movimento"] .classResultsPanel {
-    display: none !important;
-  }
-
-  body[data-print-view="movimento"] #view-boletim {
-    display: none !important;
-  }
-
-  body[data-print-view="movimento"] #view-movimento {
-    display: block !important;
-  }
-
-  body[data-print-view="movimento"] .appShell,
-  body[data-print-view="movimento"] .mainStage,
-  body[data-print-view="movimento"] .statsDashboard {
-    display: block;
-    width: 100%;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-    background: #fff;
-    box-shadow: none;
-  }
-
-  body[data-print-view="movimento"] .statsMainGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "intro ranking"
-      "chart chart"
-      "donut donut";
-    gap: 8mm;
-    align-items: start;
-  }
-
-  body[data-print-view="movimento"] .statsIntroBlock,
-  body[data-print-view="movimento"] .statsRankingPanel,
-  body[data-print-view="movimento"] .statsChartPanel,
-  body[data-print-view="movimento"] .statsDonutPanel {
-    margin: 0;
-  }
-
-  body[data-print-view="movimento"] .statsIntroBlock h2,
-  body[data-print-view="movimento"] .statsIntroBlock > p {
-    position: static !important;
-    width: auto !important;
-    height: auto !important;
-    overflow: visible !important;
-    clip: auto !important;
-    white-space: normal !important;
-  }
-
-  body[data-print-view="movimento"] .statsDashboardFooter {
-    margin-top: 8mm;
-    color: #35516f;
-  }
-
   body[data-print-view="notas"] {
     background: #fff !important;
     color: #10243e;
@@ -613,8 +526,7 @@ body[data-view="movimento"] .appShell {
     -webkit-print-color-adjust: exact;
   }
 
-  body[data-print-view="notas"] #view-boletim,
-  body[data-print-view="notas"] #view-movimento {
+  body[data-print-view="notas"] #view-boletim {
     display: none !important;
   }
 

@@ -448,22 +448,22 @@ option {
   object-fit: contain;
 }
 
-body[data-view="movimento"] .systemTitle {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .systemTitle {
   gap: 0;
 }
 
-body[data-view="movimento"] .topBrandLogo {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .topBrandLogo {
   display: none;
 }
 
-body[data-view="movimento"] .systemTitle h1 {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .systemTitle h1 {
   color: var(--stats-ink, var(--ink));
   font-size: clamp(1rem, 1.7vw, 1.28rem);
   font-weight: 900;
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .systemTitle p:last-child {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .systemTitle p:last-child {
   max-width: 760px;
   color: var(--stats-muted, var(--ink-soft));
   font-size: 0.86rem;
@@ -1477,7 +1477,7 @@ body[data-view="notas"] .statsSelectOption {
   min-height: 48px;
   padding: 9px 34px 9px 12px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(86px, auto);
   gap: 10px;
   align-items: center;
   border: 1px solid transparent;
@@ -1491,15 +1491,25 @@ body[data-view="notas"] .statsSelectOption {
 }
 
 body[data-view="notas"] .statsSelectOption strong {
+  min-width: 0;
+  overflow: hidden;
   font-size: 0.86rem;
   font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
 body[data-view="notas"] .statsSelectOption span {
+  min-width: 0;
+  justify-self: end;
+  overflow: hidden;
   color: var(--notes-select-option-muted);
   font-size: 0.68rem;
   font-weight: 900;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
@@ -1569,6 +1579,11 @@ body[data-view="notas"] .notesBoardModern {
 body[data-view="notas"] .notesSidePanel {
   position: relative;
   overflow: hidden;
+}
+
+body[data-view="notas"] .notesStatsSection {
+  margin-top: 16px;
+  padding-top: 2px;
 }
 
 body[data-view="notas"] .notesBoardModern::before,
@@ -1954,6 +1969,7 @@ body[data-view="notas"] .studentNameButton {
   line-height: 1.12;
   overflow: visible;
   text-overflow: clip;
+  text-transform: uppercase;
   white-space: normal;
 }
 
@@ -1965,10 +1981,13 @@ body[data-view="notas"] .studentNameButton:focus-visible {
 body[data-view="notas"] .studentPeek {
   left: 0;
   top: calc(100% + 8px);
-  width: min(360px, calc(100vw - 64px));
-  padding: 13px;
+  width: 132px;
+  min-height: 150px;
+  padding: 12px;
+  display: grid;
+  place-items: center;
   border-color: rgba(126, 177, 255, 0.68);
-  border-radius: 18px;
+  border-radius: 24px;
   background: var(--notes-peek-bg);
   color: var(--notes-peek-ink);
   box-shadow: 0 34px 92px rgba(0, 0, 0, 0.76), 0 0 0 1px rgba(255, 255, 255, 0.065) inset;
@@ -1999,31 +2018,15 @@ body[data-view="notas"] .peekTop small {
 }
 
 body[data-view="notas"] .studentPeekPhoto {
-  width: 48px;
-  height: 48px;
-}
-
-body[data-view="notas"] .peekNotes {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-}
-
-body[data-view="notas"] .peekNotes span {
-  min-height: 28px;
-  padding: 6px 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: var(--notes-score-bg);
-  color: var(--notes-soft);
-  font-size: 0.72rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  width: 108px;
+  height: 126px;
+  border-radius: 20px;
 }
 
 body[data-view="notas"] .profilePhoto {
-  width: 86px;
-  height: 86px;
+  width: 94px;
+  height: 110px;
+  border-radius: 22px;
 }
 
 body[data-view="notas"] .notesSidePanel {
@@ -2552,14 +2555,16 @@ body[data-view="notas"] .progressTrack span.error {
 
 .studentProfileCard {
   margin-bottom: 12px;
-  padding: 10px;
+  padding: 14px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px;
+  gap: 14px;
   align-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface-soft);
+  border: 1px solid rgba(126, 177, 255, 0.24);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 52%),
+    rgba(255, 255, 255, 0.035);
 }
 
 .studentProfileCard strong,
@@ -2569,27 +2574,54 @@ body[data-view="notas"] .progressTrack span.error {
 
 .studentProfileCard span {
   margin: 2px 0 7px;
-  color: var(--muted);
+  color: rgba(211, 225, 246, 0.76);
+}
+
+.studentProfileCard strong {
+  color: #f8fbff;
+  font-size: 1.02rem;
+  line-height: 1.08;
+  text-transform: uppercase;
 }
 
 .profileNotesTable {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 0.76rem;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  table-layout: fixed;
+  font-size: 0.74rem;
 }
 
 .profileNotesTable th,
 .profileNotesTable td {
-  padding: 6px 5px;
-  border: 1px solid var(--line);
-  color: var(--ink);
+  padding: 5px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e8f1ff;
   text-align: center;
 }
 
 .profileNotesTable th {
-  background: var(--surface-soft);
-  color: var(--muted);
+  background: rgba(37, 94, 167, 0.28);
+  color: rgba(226, 238, 255, 0.86);
   text-transform: uppercase;
+}
+
+.profileNotesTable td:first-child,
+.profileNotesTable th:first-child {
+  border-radius: 12px 0 0 12px;
+  color: #f8fbff;
+  font-weight: 900;
+}
+
+.profileNotesTable td:last-child,
+.profileNotesTable th:last-child {
+  border-radius: 0 12px 12px 0;
+}
+
+.profileScorePill {
+  min-height: 24px;
+  font-size: 0.66rem;
 }
 
 @media (max-width: 1180px) {
@@ -2661,72 +2693,72 @@ body[data-view="notas"] .progressTrack span.error {
   }
 }
 
-body[data-view="movimento"] .statsSelectCard,
-body[data-view="movimento"] .statsGlass,
-body[data-view="movimento"] .movementStatCard,
-body[data-view="movimento"] .statsPrintButton {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsGlass,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton {
   border: 1px solid var(--stats-line, rgba(122, 166, 225, 0.24));
   border-radius: 22px;
   background: var(--stats-panel, linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66)));
   box-shadow: var(--stats-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 22px 58px rgba(0, 0, 0, 0.18));
 }
 
-body[data-view="movimento"] .statsSelectCard,
-body[data-view="movimento"] .statsPrintButton,
-body[data-view="movimento"] .statsGlass,
-body[data-view="movimento"] .movementStatCard,
-body[data-view="movimento"] .statsDashboardFooter,
-body[data-view="movimento"] .classResultsPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsGlass,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDashboardFooter,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .classResultsPanel {
   animation: statsRiseIn 560ms var(--motion-emphasis) both;
 }
 
-body[data-view="movimento"] .statsTopRow > :nth-child(1) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsTopRow > :nth-child(1) {
   animation-delay: 40ms;
 }
 
-body[data-view="movimento"] .statsTopRow > :nth-child(2) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsTopRow > :nth-child(2) {
   animation-delay: 85ms;
 }
 
-body[data-view="movimento"] .statsTopRow > :nth-child(4) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsTopRow > :nth-child(4) {
   animation-delay: 130ms;
 }
 
-body[data-view="movimento"] .movementStatCard:nth-child(1) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard:nth-child(1) {
   animation-delay: 110ms;
 }
 
-body[data-view="movimento"] .movementStatCard:nth-child(2) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard:nth-child(2) {
   animation-delay: 155ms;
 }
 
-body[data-view="movimento"] .movementStatCard:nth-child(3) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard:nth-child(3) {
   animation-delay: 200ms;
 }
 
-body[data-view="movimento"] .movementStatCard:nth-child(4) {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard:nth-child(4) {
   animation-delay: 245ms;
 }
 
-body[data-view="movimento"] .statsRankingPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingPanel {
   animation-delay: 170ms;
 }
 
-body[data-view="movimento"] .statsChartPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsChartPanel {
   animation-delay: 250ms;
 }
 
-body[data-view="movimento"] .statsDonutPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutPanel {
   animation-delay: 310ms;
 }
 
-body[data-view="movimento"] .statsGlass {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsGlass {
   position: relative;
   overflow: hidden;
 }
 
-body[data-view="movimento"] .statsGlass::before,
-body[data-view="movimento"] .movementStatCard::before {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsGlass::before,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -2737,17 +2769,17 @@ body[data-view="movimento"] .movementStatCard::before {
   animation: panelLightSweep 9s var(--motion-standard) infinite;
 }
 
-body[data-view="movimento"] .movementStatCard {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard {
   position: relative;
   overflow: hidden;
 }
 
-body[data-view="movimento"] .movementStatCard > * {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard > * {
   position: relative;
   z-index: 1;
 }
 
-body[data-view="movimento"] .statsSelectCard {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard {
   position: relative;
   min-height: 82px;
   padding: 0;
@@ -2757,20 +2789,20 @@ body[data-view="movimento"] .statsSelectCard {
   z-index: 4;
 }
 
-body[data-view="movimento"] .statsSelectCard:hover,
-body[data-view="movimento"] .statsSelectCard:focus-within {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard:hover,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard:focus-within {
   border-color: var(--stats-line-strong, rgba(126, 177, 255, 0.56));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--shadow-lifted);
   transform: perspective(900px) rotateX(1.5deg) translateY(-2px);
 }
 
-body[data-view="movimento"] .statsSelectCard.is-open {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard.is-open {
   border-color: var(--stats-line-active, rgba(126, 177, 255, 0.72));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 34px 90px rgba(0, 0, 0, 0.34);
   z-index: 30;
 }
 
-body[data-view="movimento"] .statsSelectNative {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectNative {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2779,7 +2811,7 @@ body[data-view="movimento"] .statsSelectNative {
   pointer-events: none;
 }
 
-body[data-view="movimento"] .statsSelectButton {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectButton {
   position: relative;
   width: 100%;
   min-height: 82px;
@@ -2798,7 +2830,7 @@ body[data-view="movimento"] .statsSelectButton {
   overflow: hidden;
 }
 
-body[data-view="movimento"] .statsSelectButton .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectButton .movementIcon {
   position: relative;
   z-index: 1;
   width: 32px;
@@ -2811,7 +2843,7 @@ body[data-view="movimento"] .statsSelectButton .movementIcon {
   filter: none;
 }
 
-body[data-view="movimento"] .statsSelectText {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectText {
   position: relative;
   z-index: 1;
   min-width: 0;
@@ -2819,7 +2851,7 @@ body[data-view="movimento"] .statsSelectText {
   gap: 7px;
 }
 
-body[data-view="movimento"] .statsSelectButton strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectButton strong {
   max-width: 100%;
   overflow: hidden;
   color: var(--stats-ink, #f8fbff);
@@ -2831,12 +2863,12 @@ body[data-view="movimento"] .statsSelectButton strong {
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .statsSelectCaption {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCaption {
   color: var(--stats-muted, rgba(205, 221, 244, 0.82));
   font-size: 0.86rem;
 }
 
-body[data-view="movimento"] .statsSelectChevron {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectChevron {
   position: absolute;
   right: 25px;
   top: 34px;
@@ -2849,7 +2881,7 @@ body[data-view="movimento"] .statsSelectChevron {
   z-index: 1;
 }
 
-body[data-view="movimento"] .statsSelectGlow {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectGlow {
   position: absolute;
   right: -32px;
   top: -42px;
@@ -2862,18 +2894,18 @@ body[data-view="movimento"] .statsSelectGlow {
   transition: opacity var(--motion-smooth), transform var(--motion-smooth);
 }
 
-body[data-view="movimento"] .statsSelectCard:hover .statsSelectGlow,
-body[data-view="movimento"] .statsSelectCard.is-open .statsSelectGlow {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard:hover .statsSelectGlow,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard.is-open .statsSelectGlow {
   opacity: 1;
   transform: scale(1);
 }
 
-body[data-view="movimento"] .statsSelectCard.is-open .statsSelectChevron {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard.is-open .statsSelectChevron {
   top: 38px;
   transform: rotate(225deg);
 }
 
-body[data-view="movimento"] .statsSelectMenu {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectMenu {
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
@@ -2893,7 +2925,7 @@ body[data-view="movimento"] .statsSelectMenu {
   animation: selectMenuEnter 260ms var(--motion-emphasis) both;
 }
 
-body[data-view="movimento"] .statsSelectOption {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption {
   position: relative;
   min-height: 48px;
   padding: 9px 34px 9px 12px;
@@ -2911,35 +2943,35 @@ body[data-view="movimento"] .statsSelectOption {
   transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), box-shadow var(--motion-quick);
 }
 
-body[data-view="movimento"] .statsSelectOption strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption strong {
   font-size: 0.86rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .statsSelectOption span {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption span {
   color: rgba(205, 221, 244, 0.72);
   font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .statsSelectOption:hover,
-body[data-view="movimento"] .statsSelectOption:focus-visible {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption:hover,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption:focus-visible {
   border-color: rgba(126, 177, 255, 0.40);
   background: rgba(76, 155, 255, 0.16);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transform: translateX(3px);
 }
 
-body[data-view="movimento"] .statsSelectOption.active {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption.active {
   border-color: rgba(76, 155, 255, 0.62);
   background:
     linear-gradient(135deg, rgba(76, 155, 255, 0.28), rgba(227, 38, 58, 0.08)),
     rgba(255, 255, 255, 0.05);
 }
 
-body[data-view="movimento"] .statsSelectOption.active::after {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectOption.active::after {
   content: "";
   position: absolute;
   right: 14px;
@@ -2951,7 +2983,7 @@ body[data-view="movimento"] .statsSelectOption.active::after {
   transform: translateY(-58%) rotate(45deg);
 }
 
-body[data-view="movimento"] .statsPrintButton {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton {
   min-height: 70px;
   padding: 0 26px;
   display: flex;
@@ -2967,14 +2999,14 @@ body[data-view="movimento"] .statsPrintButton {
   transition: transform var(--motion-smooth), box-shadow var(--motion-smooth), filter var(--motion-smooth);
 }
 
-body[data-view="movimento"] .statsPrintButton:hover,
-body[data-view="movimento"] .statsPrintButton:focus-visible {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton:hover,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton:focus-visible {
   box-shadow: 0 22px 55px rgba(35, 107, 255, 0.36);
   filter: saturate(1.12);
   transform: translateY(-2px) scale(1.01);
 }
 
-body[data-view="movimento"] .statsPrintButton svg {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton svg {
   width: 27px;
   height: 27px;
   flex: 0 0 27px;
@@ -2985,7 +3017,7 @@ body[data-view="movimento"] .statsPrintButton svg {
   stroke-linejoin: round;
 }
 
-body[data-view="movimento"] .statsIntroBlock h2 {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsIntroBlock h2 {
   margin-bottom: 12px;
   color: #fbfdff;
   font-size: 1.78rem;
@@ -2993,8 +3025,8 @@ body[data-view="movimento"] .statsIntroBlock h2 {
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .statsIntroBlock h2,
-body[data-view="movimento"] .statsIntroBlock > p {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsIntroBlock h2,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsIntroBlock > p {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -3003,13 +3035,13 @@ body[data-view="movimento"] .statsIntroBlock > p {
   white-space: nowrap;
 }
 
-body[data-view="movimento"] .statsIntroBlock p {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsIntroBlock p {
   margin-bottom: 0;
   color: rgba(211, 225, 246, 0.82);
   font-size: 1.02rem;
 }
 
-body[data-view="movimento"] .movementStatCard {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard {
   height: 100%;
   min-height: 118px;
   padding: 20px 15px;
@@ -3019,20 +3051,20 @@ body[data-view="movimento"] .movementStatCard {
   align-items: center;
 }
 
-body[data-view="movimento"] .movementStatCard.ok .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard.ok .movementIcon {
   color: #37e788;
 }
 
-body[data-view="movimento"] .movementStatCard.error .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard.error .movementIcon {
   color: #ff374f;
 }
 
-body[data-view="movimento"] .movementStatCard.info .movementIcon,
-body[data-view="movimento"] .movementStatCard .movementIcon.star {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard.info .movementIcon,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard .movementIcon.star {
   color: #327dff;
 }
 
-body[data-view="movimento"] .movementStatBody span {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBody span {
   display: block;
   color: rgba(215, 226, 243, 0.86);
   font-size: 0.72rem;
@@ -3042,7 +3074,7 @@ body[data-view="movimento"] .movementStatBody span {
   white-space: normal;
 }
 
-body[data-view="movimento"] .movementStatValue {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatValue {
   margin-top: 14px;
   display: flex;
   gap: 10px;
@@ -3050,35 +3082,35 @@ body[data-view="movimento"] .movementStatValue {
   flex-wrap: wrap;
 }
 
-body[data-view="movimento"] .movementStatValue strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatValue strong {
   color: #f9fcff;
   font-size: 1.72rem;
   line-height: 1;
 }
 
-body[data-view="movimento"] .movementStatBadge {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBadge {
   padding: 5px 10px;
   border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 900;
 }
 
-body[data-view="movimento"] .movementStatBadge.ok {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBadge.ok {
   background: rgba(45, 204, 116, 0.18);
   color: #38dd87;
 }
 
-body[data-view="movimento"] .movementStatBadge.error {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBadge.error {
   background: rgba(255, 54, 79, 0.16);
   color: #ff3a52;
 }
 
-body[data-view="movimento"] .movementStatBadge.info {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBadge.info {
   background: rgba(42, 125, 255, 0.18);
   color: #45a0ff;
 }
 
-body[data-view="movimento"] .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementIcon {
   width: 26px;
   height: 26px;
   display: inline-grid;
@@ -3088,7 +3120,7 @@ body[data-view="movimento"] .movementIcon {
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.22));
 }
 
-body[data-view="movimento"] .movementStatCard .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard .movementIcon {
   width: 32px;
   height: 32px;
   padding: 5px;
@@ -3097,7 +3129,7 @@ body[data-view="movimento"] .movementStatCard .movementIcon {
   filter: none;
 }
 
-body[data-view="movimento"] .movementIcon svg {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementIcon svg {
   width: 100%;
   height: 100%;
   fill: none;
@@ -3107,7 +3139,7 @@ body[data-view="movimento"] .movementIcon svg {
   stroke-linejoin: round;
 }
 
-body[data-view="movimento"] .statsRankingPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingPanel {
   padding: 19px 22px 10px;
   min-height: 253px;
   max-height: 253px;
@@ -3115,21 +3147,21 @@ body[data-view="movimento"] .statsRankingPanel {
   grid-template-rows: auto minmax(0, 1fr) 34px;
 }
 
-body[data-view="movimento"] .statsRankingHeader {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingHeader {
   margin-bottom: 14px;
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
-body[data-view="movimento"] .statsRankingHeader .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingHeader .movementIcon {
   width: 18px;
   height: 18px;
   color: #ffbd22;
 }
 
-body[data-view="movimento"] .statsRankingHeader h3,
-body[data-view="movimento"] .statsPanelTitle h3 {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingHeader h3,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPanelTitle h3 {
   margin-bottom: 0;
   color: #f4f8ff;
   font-size: 1rem;
@@ -3137,7 +3169,7 @@ body[data-view="movimento"] .statsPanelTitle h3 {
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .rankingList {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingList {
   gap: 0;
   height: 164px;
   min-height: 164px;
@@ -3151,26 +3183,26 @@ body[data-view="movimento"] .rankingList {
   scrollbar-gutter: stable both-edges;
 }
 
-body[data-view="movimento"] .rankingList.is-expanded {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingList.is-expanded {
   overflow-y: auto;
 }
 
-body[data-view="movimento"] .rankingList::-webkit-scrollbar {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingList::-webkit-scrollbar {
   width: 8px;
 }
 
-body[data-view="movimento"] .rankingList::-webkit-scrollbar-track {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingList::-webkit-scrollbar-track {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
 }
 
-body[data-view="movimento"] .rankingList::-webkit-scrollbar-thumb {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingList::-webkit-scrollbar-thumb {
   border: 2px solid rgba(8, 30, 62, 0.82);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(126, 177, 255, 0.92), rgba(35, 107, 255, 0.70));
 }
 
-body[data-view="movimento"] .rankingItem {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingItem {
   height: 42px;
   min-height: 42px;
   padding: 0;
@@ -3187,28 +3219,28 @@ body[data-view="movimento"] .rankingItem {
   transition: transform var(--motion-quick), background var(--motion-quick);
 }
 
-body[data-view="movimento"] .rankingItem.rankingExtra {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingItem.rankingExtra {
   display: none;
 }
 
-body[data-view="movimento"] .rankingList.is-expanded .rankingItem.rankingExtra {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingList.is-expanded .rankingItem.rankingExtra {
   display: grid;
   animation: rankingExtraReveal 300ms var(--motion-emphasis) both;
   animation-delay: calc((var(--rank-index) - 3) * 30ms);
 }
 
-body[data-view="movimento"] .rankingItem:hover {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingItem:hover {
   background: rgba(255, 255, 255, 0.035);
   transform: translateX(4px);
 }
 
-body[data-view="movimento"] .rankingItem strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingItem strong {
   color: #f6f9ff;
   font-size: 0.71rem;
   font-weight: 800;
 }
 
-body[data-view="movimento"] .rankingItem small {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingItem small {
   display: block;
   margin-top: 2px;
   color: rgba(204, 220, 244, 0.72);
@@ -3216,7 +3248,7 @@ body[data-view="movimento"] .rankingItem small {
   line-height: 1.1;
 }
 
-body[data-view="movimento"] .rankingItem b {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .rankingItem b {
   min-width: 58px;
   padding: 7px 8px;
   border-radius: 999px;
@@ -3226,7 +3258,7 @@ body[data-view="movimento"] .rankingItem b {
   text-align: center;
 }
 
-body[data-view="movimento"] .statsRankingLink {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingLink {
   width: 100%;
   min-height: 34px;
   padding: 0;
@@ -3241,23 +3273,23 @@ body[data-view="movimento"] .statsRankingLink {
   transition: color var(--motion-quick), transform var(--motion-quick);
 }
 
-body[data-view="movimento"] .statsRankingLink:hover,
-body[data-view="movimento"] .statsRankingLink:focus-visible {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingLink:hover,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingLink:focus-visible {
   color: #8fc0ff;
   transform: translateX(3px);
 }
 
-body[data-view="movimento"] .statsRankingLink b {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsRankingLink b {
   font-size: 1.9rem;
   line-height: 0.78;
 }
 
-body[data-view="movimento"] .statsChartPanel,
-body[data-view="movimento"] .statsDonutPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsChartPanel,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutPanel {
   padding: 22px 22px 13px;
 }
 
-body[data-view="movimento"] .statsPanelHeader {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPanelHeader {
   margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
@@ -3265,11 +3297,11 @@ body[data-view="movimento"] .statsPanelHeader {
   align-items: flex-start;
 }
 
-body[data-view="movimento"] .statsPanelHeader.compact {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPanelHeader.compact {
   margin-bottom: 0;
 }
 
-body[data-view="movimento"] .statsLegend {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsLegend {
   margin-top: 17px;
   display: flex;
   flex-wrap: wrap;
@@ -3278,13 +3310,13 @@ body[data-view="movimento"] .statsLegend {
   font-size: 0.78rem;
 }
 
-body[data-view="movimento"] .statsLegend span {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsLegend span {
   display: inline-flex;
   gap: 8px;
   align-items: center;
 }
 
-body[data-view="movimento"] .legendDot {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .legendDot {
   width: 13px;
   height: 13px;
   display: inline-block;
@@ -3292,22 +3324,22 @@ body[data-view="movimento"] .legendDot {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 2px 7px rgba(0, 0, 0, 0.16);
 }
 
-body[data-view="movimento"] .legendDot.blue {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .legendDot.blue {
   background: linear-gradient(145deg, #5aa8ff, #246dff);
 }
 
-body[data-view="movimento"] .legendDot.red {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .legendDot.red {
   background: linear-gradient(145deg, #ff8491, #e3263a);
 }
 
-body[data-view="movimento"] .movementChart {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementChart {
   overflow: visible;
   border: 0;
   border-radius: 0;
   background: transparent;
 }
 
-body[data-view="movimento"] .statsChartCanvas {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsChartCanvas {
   height: 330px;
   padding-top: 34px;
   display: grid;
@@ -3316,7 +3348,7 @@ body[data-view="movimento"] .statsChartCanvas {
   box-sizing: border-box;
 }
 
-body[data-view="movimento"] .statsYAxis {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsYAxis {
   padding-top: 0;
   padding-bottom: 68px;
   display: grid;
@@ -3325,7 +3357,7 @@ body[data-view="movimento"] .statsYAxis {
   font-size: 0.83rem;
 }
 
-body[data-view="movimento"] .movementBars {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBars {
   position: relative;
   min-height: 0;
   height: 296px;
@@ -3337,7 +3369,7 @@ body[data-view="movimento"] .movementBars {
   overflow: visible;
 }
 
-body[data-view="movimento"] .movementBars::before {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBars::before {
   content: "";
   position: absolute;
   inset: 0 0 66px 0;
@@ -3346,7 +3378,7 @@ body[data-view="movimento"] .movementBars::before {
   pointer-events: none;
 }
 
-body[data-view="movimento"] .movementBar {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBar {
   position: relative;
   z-index: 1;
   min-height: 0;
@@ -3361,19 +3393,19 @@ body[data-view="movimento"] .movementBar {
   transition: transform var(--motion-smooth), background var(--motion-smooth), box-shadow var(--motion-smooth), filter var(--motion-smooth);
 }
 
-body[data-view="movimento"] .movementBar:hover,
-body[data-view="movimento"] .movementBar:focus-visible {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBar:hover,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBar:focus-visible {
   transform: translateY(-4px);
   filter: saturate(1.08);
 }
 
-body[data-view="movimento"] .movementBar.active {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBar.active {
   border-radius: 10px;
   background: rgba(46, 112, 226, 0.14);
   box-shadow: inset 0 0 0 1px rgba(84, 151, 255, 0.25);
 }
 
-body[data-view="movimento"] .barPair {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barPair {
   height: 221px;
   align-self: end;
   display: flex;
@@ -3382,7 +3414,7 @@ body[data-view="movimento"] .barPair {
   gap: 3px;
 }
 
-body[data-view="movimento"] .barPair i {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barPair i {
   width: 26px;
   height: var(--bar-height);
   position: relative;
@@ -3397,7 +3429,7 @@ body[data-view="movimento"] .barPair i {
   will-change: scale, translate;
 }
 
-body[data-view="movimento"] .barPair i::before {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barPair i::before {
   content: attr(data-value);
   position: absolute;
   left: 50%;
@@ -3414,16 +3446,16 @@ body[data-view="movimento"] .barPair i::before {
   text-align: center;
 }
 
-body[data-view="movimento"] .barPair i.isZero {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barPair i.isZero {
   height: 0;
 }
 
-body[data-view="movimento"] .barPair i.isZero::before {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barPair i.isZero::before {
   top: auto;
   bottom: 3px;
 }
 
-body[data-view="movimento"] .barBlue {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barBlue {
   background: linear-gradient(180deg, #87ceff 0%, #3f8dff 24%, #1767ee 48%, #65b6ff 72%, #1459df 100%);
   background-size: 100% 340%;
   box-shadow: 0 8px 20px rgba(16, 69, 151, 0.18);
@@ -3437,7 +3469,7 @@ body[data-view="movimento"] .barBlue {
     calc(900ms + var(--bar-index) * 95ms);
 }
 
-body[data-view="movimento"] .barRed {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barRed {
   width: 18px;
   background: linear-gradient(180deg, #ffabb5 0%, #ff5268 24%, #d81d34 50%, #ff8495 74%, #b91227 100%);
   background-size: 100% 340%;
@@ -3452,7 +3484,7 @@ body[data-view="movimento"] .barRed {
     calc(1050ms + var(--bar-index) * 105ms);
 }
 
-body[data-view="movimento"] .barLabel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barLabel {
   min-height: 66px;
   display: grid;
   align-content: start;
@@ -3463,20 +3495,20 @@ body[data-view="movimento"] .barLabel {
   animation-delay: calc(420ms + var(--bar-index) * 34ms);
 }
 
-body[data-view="movimento"] .barLabel .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barLabel .movementIcon {
   width: 23px;
   height: 23px;
   margin: 0 auto 2px;
   color: rgba(231, 241, 255, 0.88);
 }
 
-body[data-view="movimento"] .barLabel strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barLabel strong {
   color: #f4f8ff;
   font-size: 0.68rem;
   font-weight: 900;
 }
 
-body[data-view="movimento"] .barLabel small {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .barLabel small {
   display: block;
   width: 100%;
   margin: 0 auto;
@@ -3489,7 +3521,7 @@ body[data-view="movimento"] .barLabel small {
   text-transform: uppercase;
 }
 
-body[data-view="movimento"] .statsChartFootnote {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsChartFootnote {
   margin: 11px -22px -13px;
   min-height: 39px;
   padding: 11px 21px;
@@ -3498,7 +3530,7 @@ body[data-view="movimento"] .statsChartFootnote {
   font-size: 0.75rem;
 }
 
-body[data-view="movimento"] .statsDonutBody {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutBody {
   min-height: 341px;
   display: grid;
   grid-template-columns: 70px 277px 82px;
@@ -3507,7 +3539,7 @@ body[data-view="movimento"] .statsDonutBody {
   justify-content: center;
 }
 
-body[data-view="movimento"] .donutMeter {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter {
   position: relative;
   isolation: isolate;
   width: min(277px, 100%);
@@ -3527,15 +3559,15 @@ body[data-view="movimento"] .donutMeter {
     0 26px 54px rgba(0, 0, 0, 0.30);
 }
 
-body[data-view="movimento"] .donutMeter::before,
-body[data-view="movimento"] .donutMeter::after {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter::before,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter::after {
   content: "";
   position: absolute;
   border-radius: 999px;
   pointer-events: none;
 }
 
-body[data-view="movimento"] .donutMeter::before {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter::before {
   inset: 0;
   z-index: 0;
   background: conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #236bff calc(100% - var(--percent)) 100%);
@@ -3549,7 +3581,7 @@ body[data-view="movimento"] .donutMeter::before {
     inset 0 -22px 22px rgba(0, 0, 0, 0.28);
 }
 
-body[data-view="movimento"] .donutMeter::after {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter::after {
   inset: 0;
   z-index: 1;
   background:
@@ -3561,7 +3593,7 @@ body[data-view="movimento"] .donutMeter::after {
   mask: radial-gradient(circle, transparent 0 48%, #000 49% 100%);
 }
 
-body[data-view="movimento"] .donutMeter strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter strong {
   position: relative;
   z-index: 2;
   color: #f9fcff;
@@ -3570,7 +3602,7 @@ body[data-view="movimento"] .donutMeter strong {
   line-height: 1;
 }
 
-body[data-view="movimento"] .donutMeter span {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .donutMeter span {
   position: relative;
   z-index: 2;
   width: 145px;
@@ -3580,38 +3612,38 @@ body[data-view="movimento"] .donutMeter span {
   line-height: 1.35;
 }
 
-body[data-view="movimento"] .statsDonutLegend {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend {
   display: grid;
   gap: 5px;
   color: #e8f2ff;
 }
 
-body[data-view="movimento"] .statsDonutLegend.left {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend.left {
   justify-items: start;
 }
 
-body[data-view="movimento"] .statsDonutLegend.right {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend.right {
   justify-items: start;
 }
 
-body[data-view="movimento"] .statsDonutLegend .legendDot {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend .legendDot {
   margin-bottom: 8px;
 }
 
-body[data-view="movimento"] .statsDonutLegend span,
-body[data-view="movimento"] .statsDonutLegend small {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend span,
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend small {
   color: rgba(224, 236, 252, 0.87);
   font-size: 0.82rem;
   line-height: 1.25;
 }
 
-body[data-view="movimento"] .statsDonutLegend strong {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutLegend strong {
   color: #f8fbff;
   font-size: 1.5rem;
   line-height: 1;
 }
 
-body[data-view="movimento"] .statsDonutNote {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutNote {
   min-height: 68px;
   padding: 14px 18px;
   display: grid;
@@ -3628,23 +3660,23 @@ body[data-view="movimento"] .statsDonutNote {
   animation-delay: 450ms;
 }
 
-body[data-view="movimento"] .statsDonutNote .movementIcon {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutNote .movementIcon {
   width: 31px;
   height: 31px;
   color: #2c7cff;
 }
 
-body[data-view="movimento"] .classResultsPanel {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .classResultsPanel {
   margin-top: 12px;
   border-color: var(--stats-line, rgba(122, 166, 225, 0.24));
   background: var(--stats-panel, linear-gradient(145deg, rgba(18, 54, 98, 0.78), rgba(8, 30, 62, 0.66)));
 }
 
-body[data-view="movimento"] .classResultCard {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .classResultCard {
   animation: resultCardEnter 420ms var(--motion-emphasis) both;
 }
 
-body[data-view="movimento"] .disciplineAlertCard {
+:is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .disciplineAlertCard {
   grid-template-columns: 38px minmax(0, 1fr);
   border-color: rgba(255, 79, 100, 0.18);
   background:
@@ -3652,7 +3684,7 @@ body[data-view="movimento"] .disciplineAlertCard {
     var(--surface-soft);
 }
 
-body[data-theme="claro"][data-view="movimento"] {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) {
   --stats-ink: #10243e;
   --stats-muted: rgba(53, 81, 111, 0.78);
   --stats-line: rgba(49, 105, 168, 0.18);
@@ -3665,7 +3697,7 @@ body[data-theme="claro"][data-view="movimento"] {
   --stats-menu-shadow: 0 26px 70px rgba(44, 89, 138, 0.20);
 }
 
-body[data-theme="mono"][data-view="movimento"] {
+:is(body[data-theme="mono"][data-view="movimento"], body[data-theme="mono"][data-view="notas"] .notesStatsSection) {
   --stats-ink: #f7f8fb;
   --stats-muted: rgba(216, 220, 228, 0.74);
   --stats-line: rgba(255, 255, 255, 0.17);
@@ -3678,93 +3710,93 @@ body[data-theme="mono"][data-view="movimento"] {
   --stats-menu-shadow: 0 30px 78px rgba(0, 0, 0, 0.46);
 }
 
-body[data-theme="claro"][data-view="movimento"] .statsPanelTitle h3,
-body[data-theme="claro"][data-view="movimento"] .statsRankingHeader h3,
-body[data-theme="claro"][data-view="movimento"] .movementStatValue strong,
-body[data-theme="claro"][data-view="movimento"] .rankingItem strong,
-body[data-theme="claro"][data-view="movimento"] .donutMeter strong,
-body[data-theme="claro"][data-view="movimento"] .statsDonutLegend strong,
-body[data-theme="claro"][data-view="movimento"] .classResultCard strong,
-body[data-theme="claro"][data-view="movimento"] .barLabel strong {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsPanelTitle h3,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsRankingHeader h3,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .movementStatValue strong,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .rankingItem strong,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .donutMeter strong,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsDonutLegend strong,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .classResultCard strong,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .barLabel strong {
   color: var(--stats-ink);
 }
 
-body[data-theme="claro"][data-view="movimento"] .statsLegend,
-body[data-theme="claro"][data-view="movimento"] .statsYAxis,
-body[data-theme="claro"][data-view="movimento"] .movementStatBody span,
-body[data-theme="claro"][data-view="movimento"] .rankingItem small,
-body[data-theme="claro"][data-view="movimento"] .statsDonutLegend span,
-body[data-theme="claro"][data-view="movimento"] .statsDonutLegend small,
-body[data-theme="claro"][data-view="movimento"] .statsChartFootnote,
-body[data-theme="claro"][data-view="movimento"] .statsDashboardFooter,
-body[data-theme="claro"][data-view="movimento"] .barLabel small,
-body[data-theme="claro"][data-view="movimento"] .classResultCard span {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsLegend,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsYAxis,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .movementStatBody span,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .rankingItem small,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsDonutLegend span,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsDonutLegend small,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsChartFootnote,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsDashboardFooter,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .barLabel small,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .classResultCard span {
   color: var(--stats-muted);
 }
 
-body[data-theme="claro"][data-view="movimento"] .statsSelectOption {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsSelectOption {
   background: rgba(18, 105, 211, 0.055);
   color: var(--stats-ink);
 }
 
-body[data-theme="claro"][data-view="movimento"] .statsSelectOption span {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsSelectOption span {
   color: rgba(53, 81, 111, 0.70);
 }
 
-body[data-theme="claro"][data-view="movimento"] .statsSelectOption:hover,
-body[data-theme="claro"][data-view="movimento"] .statsSelectOption:focus-visible,
-body[data-theme="claro"][data-view="movimento"] .statsSelectOption.active {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsSelectOption:hover,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsSelectOption:focus-visible,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsSelectOption.active {
   background: rgba(18, 105, 211, 0.13);
 }
 
-body[data-theme="claro"][data-view="movimento"] .movementBars::before {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .movementBars::before {
   background: linear-gradient(to bottom, rgba(49, 105, 168, 0.14) 1px, transparent 1px) 0 0 / 100% 25%;
   border-bottom-color: rgba(49, 105, 168, 0.18);
 }
 
-body[data-theme="claro"][data-view="movimento"] .barPair i::before {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .barPair i::before {
   background: rgba(255, 255, 255, 0.92);
   color: #10243e;
   box-shadow: 0 8px 18px rgba(44, 89, 138, 0.12);
 }
 
-body[data-theme="claro"][data-view="movimento"] .donutMeter {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .donutMeter {
   background:
     radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 49%, rgba(18, 105, 211, 0.08) 50%, transparent 51%);
 }
 
-body[data-theme="claro"][data-view="movimento"] .donutMeter::before {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .donutMeter::before {
   background: conic-gradient(from -126deg, #e3263a 0 calc(100% - var(--percent)), #1269d3 calc(100% - var(--percent)) 100%);
 }
 
-body[data-theme="claro"][data-view="movimento"] .donutMeter span,
-body[data-theme="claro"][data-view="movimento"] .statsDonutNote {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .donutMeter span,
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsDonutNote {
   color: var(--stats-ink);
 }
 
-body[data-theme="claro"][data-view="movimento"] .statsDonutNote {
+:is(body[data-theme="claro"][data-view="movimento"], body[data-theme="claro"][data-view="notas"] .notesStatsSection) .statsDonutNote {
   border-color: rgba(49, 105, 168, 0.16);
   background: rgba(255, 255, 255, 0.62);
 }
 
-body[data-theme="mono"][data-view="movimento"] .statsPrintButton {
+:is(body[data-theme="mono"][data-view="movimento"], body[data-theme="mono"][data-view="notas"] .notesStatsSection) .statsPrintButton {
   border-color: rgba(255, 255, 255, 0.28);
   background: linear-gradient(135deg, #f3f5f8, #9aa2b1);
   color: #090a0e;
 }
 
-body[data-theme="mono"][data-view="movimento"] .barBlue {
+:is(body[data-theme="mono"][data-view="movimento"], body[data-theme="mono"][data-view="notas"] .notesStatsSection) .barBlue {
   background: linear-gradient(180deg, #f7f8fb 0%, #c5cbd6 24%, #838b99 48%, #e9edf5 72%, #727a87 100%);
   background-size: 100% 340%;
   box-shadow: 0 0 18px rgba(247, 248, 251, 0.16);
 }
 
-body[data-theme="mono"][data-view="movimento"] .donutMeter {
+:is(body[data-theme="mono"][data-view="movimento"], body[data-theme="mono"][data-view="notas"] .notesStatsSection) .donutMeter {
   background:
     radial-gradient(circle, #15171d 0 49%, rgba(255, 255, 255, 0.06) 50%, transparent 51%);
 }
 
-body[data-theme="mono"][data-view="movimento"] .donutMeter::before {
+:is(body[data-theme="mono"][data-view="movimento"], body[data-theme="mono"][data-view="notas"] .notesStatsSection) .donutMeter::before {
   background: conic-gradient(from -126deg, #c34958 0 calc(100% - var(--percent)), #d8dce6 calc(100% - var(--percent)) 100%);
 }
 
@@ -3999,12 +4031,12 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter::before {
 }
 
 @media (max-width: 1120px) {
-  body[data-view="movimento"] .movementBars {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementBars {
     grid-template-columns: repeat(12, minmax(62px, 1fr));
     overflow-x: auto;
   }
 
-  body[data-view="movimento"] .statsDonutBody {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutBody {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
@@ -4012,70 +4044,70 @@ body[data-theme="mono"][data-view="movimento"] .donutMeter::before {
 }
 
 @media (max-width: 600px) {
-  body[data-view="movimento"] .statsSelectCard {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard {
     min-height: 74px;
   }
 
-  body[data-view="movimento"] .statsSelectButton {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectButton {
     min-height: 74px;
     padding: 15px 48px 12px 18px;
   }
 
-  body[data-view="movimento"] .statsSelectButton strong {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectButton strong {
     font-size: 1.34rem;
   }
 
-  body[data-view="movimento"] .statsSelectChevron {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectChevron {
     right: 22px;
     top: 30px;
   }
 
-  body[data-view="movimento"] .statsSelectCard.is-open .statsSelectChevron {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsSelectCard.is-open .statsSelectChevron {
     top: 34px;
   }
 
-  body[data-view="movimento"] .statsPrintButton {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPrintButton {
     min-height: 61px;
   }
 
-  body[data-view="movimento"] .movementStatCard {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatCard {
     min-height: 104px;
     padding: 18px 13px;
     grid-template-columns: 26px minmax(0, 1fr);
     gap: 9px;
   }
 
-  body[data-view="movimento"] .movementStatBody span {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBody span {
     font-size: 0.61rem;
     line-height: 1.15;
     white-space: normal;
   }
 
-  body[data-view="movimento"] .movementStatValue {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatValue {
     margin-top: 10px;
     gap: 8px;
     flex-wrap: wrap;
   }
 
-  body[data-view="movimento"] .movementStatValue strong {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatValue strong {
     font-size: 1.55rem;
   }
 
-  body[data-view="movimento"] .movementStatBadge {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .movementStatBadge {
     padding: 4px 8px;
     font-size: 0.72rem;
   }
 
-  body[data-view="movimento"] .statsPanelHeader {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsPanelHeader {
     gap: 10px;
   }
 
-  body[data-view="movimento"] .statsChartPanel,
-  body[data-view="movimento"] .statsDonutPanel {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsChartPanel,
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsDonutPanel {
     padding: 20px 18px 13px;
   }
 
-  body[data-view="movimento"] .statsChartFootnote {
+  :is(body[data-view="movimento"], body[data-view="notas"] .notesStatsSection) .statsChartFootnote {
     margin-right: -18px;
     margin-left: -18px;
     padding-right: 18px;

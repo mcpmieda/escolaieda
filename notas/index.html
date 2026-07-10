@@ -25,18 +25,7 @@
       </a>
 
       <nav class="railNav" aria-label="Áreas do sistema de notas">
-        <button class="navItem active" type="button" data-view="movimento" aria-label="Estatísticas">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 19V5"></path>
-            <path d="M4 19h16"></path>
-            <path d="M8 16v-5"></path>
-            <path d="M12 16V8"></path>
-            <path d="M16 16v-3"></path>
-            <path d="M20 9a7 7 0 0 0-7-7v7z"></path>
-          </svg>
-          <span>Estatísticas</span>
-        </button>
-        <button class="navItem" type="button" data-view="notas" aria-label="Notas">
+        <button class="navItem active" type="button" data-view="notas" aria-label="Notas">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="4" width="18" height="16" rx="2"></rect>
             <path d="M3 9h18"></path>
@@ -60,7 +49,7 @@
 
       <div class="railStatus">
         <span class="statusDot" aria-hidden="true"></span>
-        <span>Demo visual</span>
+        <span>Sistema em revisão</span>
       </div>
     </aside>
 
@@ -69,8 +58,8 @@
         <div class="systemTitle">
           <img src="../logo_escola.png" alt="" class="topBrandLogo">
           <div>
-            <h1 id="viewTitle">Movimento estatístico escolar</h1>
-            <p id="viewSubtitle">Acompanhe o desempenho geral por turma e período.</p>
+            <h1 id="viewTitle">Notas</h1>
+            <p id="viewSubtitle">Ficha de notas, insights e desempenho por turma e período.</p>
           </div>
         </div>
 
@@ -90,7 +79,7 @@
               <span class="profileAvatar" aria-hidden="true">EI</span>
               <span>
                 <strong>Gestão escolar</strong>
-                <small>Conta demonstrativa</small>
+                <small>Ambiente visual</small>
               </span>
             </button>
             <div class="profileMenu" id="profileMenu" hidden>
@@ -109,83 +98,6 @@
         </div>
       </header>
 
-      <section class="pageView statsView" id="view-movimento" aria-labelledby="movimentoTitulo">
-        <div class="statsDashboard">
-          <div class="statsTopRow">
-            <div class="statsSelectCard" data-stats-select-label="Turma">
-              <select id="movimentoTurma" aria-label="Turma"></select>
-            </div>
-            <div class="statsSelectCard" data-stats-select-label="Período">
-              <select id="movimentoPeriodo" aria-label="Período">
-                <option value="T1">I TRIMESTRE</option>
-                <option value="T2">II TRIMESTRE</option>
-                <option value="T3">III TRIMESTRE</option>
-                <option value="geral">VISÃO GERAL</option>
-              </select>
-            </div>
-            <span class="statsTopSpacer" aria-hidden="true"></span>
-            <button class="statsPrintButton" type="button" id="movementPrint">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M7 8V3h10v5"></path>
-                <path d="M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <path d="M7 14h10v7H7z"></path>
-              </svg>
-              <span>IMPRIMIR RELATÓRIO</span>
-            </button>
-          </div>
-
-          <div class="statsMainGrid">
-            <section class="statsIntroBlock">
-              <h2 id="movimentoTitulo">MOVIMENTO ESTATÍSTICO ESCOLAR</h2>
-              <p id="movementClassLabel">Acompanhe o desempenho geral da turma por disciplina no período selecionado.</p>
-              <div class="statGrid movementStatGrid" id="movementStats"></div>
-            </section>
-
-            <section class="statsGlass statsRankingPanel" id="movementRanking"></section>
-
-            <section class="statsGlass statsChartPanel">
-              <div class="statsPanelHeader">
-                <div class="statsPanelTitle">
-                  <h3>DESEMPENHO POR DISCIPLINA</h3>
-                  <div class="statsLegend">
-                    <span><i class="legendDot blue"></i> NOTAS AZUIS</span>
-                    <span><i class="legendDot red"></i> NOTAS VERMELHAS</span>
-                  </div>
-                </div>
-              </div>
-              <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para destacar seu desempenho no gráfico.</span>
-              <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
-              <p class="statsChartFootnote">Mínimo de 18 pontos no I/II trimestre e 24 no III trimestre. Máximo do período conforme etapa selecionada.</p>
-            </section>
-
-            <section class="statsGlass statsDonutPanel" id="movementDonut"></section>
-          </div>
-
-          <footer class="statsDashboardFooter">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M8 2v4"></path>
-              <path d="M16 2v4"></path>
-              <path d="M3 10h18"></path>
-              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-            </svg>
-            <span id="movementFooterPeriod">Dados referentes a I TRIMESTRE</span>
-            <span>•</span>
-            <span id="movementFooterUpdated">Atualizado ao abrir a página</span>
-          </footer>
-        </div>
-
-        <section class="panel classResultsPanel" id="movementClassPanel" hidden>
-          <div class="panelHeader">
-            <div>
-              <p class="sectionKicker" id="movementClassPanelKicker">Detalhamento</p>
-              <h3 id="movementClassPanelTitle">Disciplina selecionada</h3>
-            </div>
-            <span class="panelHint" id="movementClassPanelHint">Resumo quantitativo do recorte selecionado.</span>
-          </div>
-          <div class="classResultGrid" id="movementClassCards"></div>
-        </section>
-      </section>
-
       <section class="pageView" id="view-notas" aria-labelledby="notasTitulo">
         <div class="statsDashboard notesDashboard">
           <div class="statsTopRow notesTopRow">
@@ -198,7 +110,10 @@
                 <option value="T2">II TRIMESTRE</option>
                 <option value="T3">III TRIMESTRE</option>
                 <option value="geral">VISÃO GERAL</option>
-                <option value="recuperacao">RECUPERAÇÃO</option>
+                <option value="recT1">REC. I TRIMESTRE</option>
+                <option value="recT2">REC. II TRIMESTRE</option>
+                <option value="recT3">REC. III TRIMESTRE</option>
+                <option value="recuperacao">RECUPERAÇÃO ANUAL</option>
               </select>
             </div>
             <span class="statsTopSpacer" aria-hidden="true"></span>
@@ -255,6 +170,58 @@
               <section class="panel notesSidePanel" id="notasInsights"></section>
             </aside>
           </div>
+
+          <section class="notesStatsSection" aria-labelledby="notasAnaliseTitulo">
+            <div class="statsMainGrid">
+              <section class="statsIntroBlock">
+                <h2 id="notasAnaliseTitulo">PAINEL DA TURMA</h2>
+                <p id="movementClassLabel">Acompanhe o desempenho geral da turma por disciplina no período selecionado.</p>
+                <div class="statGrid movementStatGrid" id="movementStats"></div>
+              </section>
+
+              <section class="statsGlass statsRankingPanel" id="movementRanking"></section>
+
+              <section class="statsGlass statsChartPanel">
+                <div class="statsPanelHeader">
+                  <div class="statsPanelTitle">
+                    <h3>DESEMPENHO POR DISCIPLINA</h3>
+                    <div class="statsLegend">
+                      <span><i class="legendDot blue"></i> NOTAS AZUIS</span>
+                      <span><i class="legendDot red"></i> NOTAS VERMELHAS</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para ver os alunos com nota vermelha.</span>
+                <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
+                <p class="statsChartFootnote">Mínimo de 18 pontos no I/II trimestre e 24 no III trimestre. Máximo do período conforme etapa selecionada.</p>
+              </section>
+
+              <section class="statsGlass statsDonutPanel" id="movementDonut"></section>
+            </div>
+
+            <section class="panel classResultsPanel" id="movementClassPanel" hidden>
+              <div class="panelHeader">
+                <div>
+                  <p class="sectionKicker" id="movementClassPanelKicker">Detalhamento</p>
+                  <h3 id="movementClassPanelTitle">Disciplina selecionada</h3>
+                </div>
+                <span class="panelHint" id="movementClassPanelHint">Resumo quantitativo do recorte selecionado.</span>
+              </div>
+              <div class="classResultGrid" id="movementClassCards"></div>
+            </section>
+
+            <footer class="statsDashboardFooter">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 2v4"></path>
+                <path d="M16 2v4"></path>
+                <path d="M3 10h18"></path>
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+              </svg>
+              <span id="movementFooterPeriod">Dados referentes a I TRIMESTRE</span>
+              <span>•</span>
+              <span id="movementFooterUpdated">Atualizado ao abrir a página</span>
+            </footer>
+          </section>
         </div>
       </section>
 
