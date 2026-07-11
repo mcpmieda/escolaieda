@@ -1979,12 +1979,12 @@ body[data-view="notas"] .studentNameButton:focus-visible {
 }
 
 body[data-view="notas"] .studentPeek {
-  left: 0;
-  top: calc(100% + 8px);
+  left: calc(100% + 10px);
+  top: 50%;
   width: 132px;
   min-height: 150px;
   padding: 12px;
-  display: grid;
+  display: none;
   place-items: center;
   border-color: rgba(126, 177, 255, 0.68);
   border-radius: 24px;
@@ -1993,7 +1993,14 @@ body[data-view="notas"] .studentPeek {
   box-shadow: 0 34px 92px rgba(0, 0, 0, 0.76), 0 0 0 1px rgba(255, 255, 255, 0.065) inset;
   backdrop-filter: none;
   animation: selectMenuEnter 220ms var(--motion-emphasis) both;
+  pointer-events: none;
+  transform: translateY(-50%);
   z-index: 520;
+}
+
+body[data-view="notas"] .notesNameCell:hover .studentPeek,
+body[data-view="notas"] .studentNameButton:focus + .studentPeek {
+  display: grid;
 }
 
 body[data-view="notas"] .peekTop {
