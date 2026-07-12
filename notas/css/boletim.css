@@ -537,6 +537,12 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
 }
 
+.bulletinActionButton:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
 .bulletinActionButton svg {
   width: 25px;
   height: 25px;

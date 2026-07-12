@@ -17,7 +17,7 @@
 - Os hashes legados `#estatisticas` e `#movimento` normalizam para `/notas/#notas`; `#boletins` normaliza para `/notas/#boletim`.
 - A guia `Notas` preserva ficha, filtros, insights, painel analítico, ranking, gráfico, donut, detalhamento por disciplina, impressão e painel do aluno.
 - A guia `Boletim` preserva o shell comum e reproduz a referência `aqui.png` com filtros, situações, ações e prévia; gera toda a turma em A4 vertical, quatro boletins horizontais empilhados por folha.
-- A prévia do `Boletim` mantém somente a folha ativa no DOM, com paginação anterior/próxima; impressão e PDF remontam todas as folhas por `beforeprint` e restauram a prévia ao terminar.
+- A prévia do `Boletim` mantém somente a folha ativa no DOM, com paginação anterior/próxima; Imprimir remonta as folhas por `beforeprint`, enquanto Baixar PDF gera e baixa o arquivo diretamente, restaurando a prévia ao terminar.
 - `scripts/auditoria-visual-boletim.mjs` valida automaticamente a geometria, overflow, colunas, controles e paginação em 1672×941, 1550×741, 1420×941, 1280×720 e 390×844.
 - Foram corrigidos nesta consolidação: códigos canônicos de componentes; precedência do conselho; nota ausente diferente de zero; recuperação aplicável por etapa; métricas rotuladas como alunos; foco, teclado e semântica acessível; contraste dos chips; impressão marcada como modelo visual; fallback de inicialização; código e CSS órfãos.
 - Nenhuma autenticação, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou dado real foi criado ou alterado.
@@ -74,6 +74,7 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 16. As 12 colunas disciplinares do Boletim devem ter largura idêntica, inclusive `Computação`; notas regulares e a nota final usam a mesma base azul, mantendo vermelho para valores abaixo do mínimo.
 17. A prévia comum do Boletim deve renderizar uma folha por vez; todas as folhas só podem ser montadas temporariamente para impressão/PDF, preservando quatro boletins por A4 e a numeração global.
 18. O modo de impressão pode trocar efeitos decorativos rasterizados por cores sólidas equivalentes para reduzir o PDF, mas não pode remover conteúdo, alterar as nove páginas esperadas nem mudar a geometria aprovada.
+19. `Baixar PDF` deve gerar o arquivo diretamente no navegador e iniciar o download; somente `Imprimir` pode chamar `window.print()`.
 
 ### Consequência da decisão de permissões
 
@@ -671,7 +672,7 @@ O projeto só poderá ser considerado concluído quando:
 ## 17. Pendências que bloqueiam a implementação real
 
 - reconstruir cada próxima guia somente quando o responsável definir seu novo escopo; `Notas` e `Boletim` são as únicas guias autorizadas no estado atual;
-- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia, paginação e fluxo de impressão/Salvar como PDF no navegador do responsável;
+- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia, paginação, impressão e download direto do PDF no navegador do responsável;
 - validar visualmente a consolidação de `Notas` de 12/07/2026 em desktop, mobile, temas, teclado, painel do aluno e impressão com marca de modelo;
 - manter códigos canônicos `P`, `M`, `C`, `G`, `H`, `A`, `RL`, `F`, `I`, `RD`, `ET`, `CPT` em fixtures, contrato, listas e UI;
 - fechar as regras pedagógicas ainda pendentes antes de expandir `calcularResultadoEstudante` para dados reais, preservando a precedência explícita do conselho já corrigida;
@@ -738,6 +739,14 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 12/07/2026 — download direto do PDF do Boletim
+
+- O botão `Baixar PDF` deixou de chamar `window.print()` e agora gera nove páginas A4 diretamente no navegador, iniciando o download de `Boletins-<Turma>-2026.pdf`.
+- `html2canvas@1.4.1` captura cada folha sequencialmente e `pdf-lib@1.17.1`, já adotada no repositório, monta o PDF; ambas são carregadas sob demanda somente no clique.
+- O botão informa progresso, bloqueia clique repetido, libera canvases entre páginas e restaura a prévia paginada ao finalizar; `Imprimir` continua separado.
+- A auditoria real no Edge confirmou download direto válido com nove folhas e arquivo de aproximadamente 5,10 MB, sem abrir a impressão.
+- Nenhum PDF, dado real ou recurso Microsoft 365 é enviado a serviço externo; a montagem ocorre localmente no navegador.
 
 ### 12/07/2026 — seletor de turma do Boletim padronizado com Notas
 

@@ -23,6 +23,7 @@ const estado = {
 const ui = {};
 let renderPendente = 0;
 let pageSizeObserver = null;
+let bibliotecasPdfPromise = null;
 
 function inicializarBoletim() {
   if (estado.inicializado) return;
@@ -117,8 +118,8 @@ function vincularEventos() {
   document.addEventListener("fullscreenchange", sincronizarTelaCheia);
   window.addEventListener("beforeprint", prepararTodasPaginasParaImpressao);
   window.addEventListener("afterprint", restaurarPreviaDepoisDaImpressao);
-  ui.imprimir.addEventListener("click", () => abrirImpressao(false));
-  ui.baixar.addEventListener("click", () => abrirImpressao(true));
+  ui.imprimir.addEventListener("click", abrirImpressao);
+  ui.baixar.addEventListener("click", baixarPdf);
 }
 
 function prepararTodasPaginasParaImpressao() {
@@ -460,12 +461,11 @@ function sincronizarTelaCheia() {
   ui.telaCheia.querySelector("span").textContent = ativo ? "Sair da tela cheia" : "Tela cheia";
 }
 
-async function abrirImpressao(baixarPdf) {
+async function abrirImpressao() {
   document.body.dataset.printView = "boletim";
   const tituloAnterior = document.title;
   document.title = `Boletins-${ui.turma.selectedOptions[0]?.textContent || "turma"}-2026`;
   renderBoletim({ todasPaginas: true });
-  if (baixarPdf) ui.contador.textContent = "Na janela de impressão, escolha “Salvar como PDF”.";
   await document.fonts?.ready;
   await proximoQuadro();
   await proximoQuadro();
@@ -481,6 +481,119 @@ async function abrirImpressao(baixarPdf) {
   window.addEventListener("afterprint", restaurar);
   window.print();
   setTimeout(restaurar, 0);
+}
+
+async function baixarPdf() {
+  const textoOriginal = ui.baixar.querySelector("span")?.textContent || "Baixar PDF";
+  ui.baixar.disabled = true;
+  ui.baixar.setAttribute("aria-busy", "true");
+  atualizarBotaoPdf("Preparando PDF...");
+
+  try {
+    const { PDFDocument, html2canvas } = await carregarBibliotecasPdf();
+    renderBoletim({ todasPaginas: true });
+    ui.paginas.style.setProperty("--bulletin-preview-zoom", "1");
+    await document.fonts?.ready;
+    await aguardarImagens(ui.paginas);
+    await proximoQuadro();
+
+    const paginasHtml = [...ui.paginas.querySelectorAll(".bulletinPage")];
+    if (!paginasHtml.length) throw new Error("Não há boletins para exportar.");
+
+    const pdf = await PDFDocument.create();
+    const larguraA4 = 595.28;
+    const alturaA4 = 841.89;
+    const margem = 10;
+
+    for (let indice = 0; indice < paginasHtml.length; indice += 1) {
+      atualizarBotaoPdf(`Gerando ${indice + 1}/${paginasHtml.length}...`);
+      const canvas = await html2canvas(paginasHtml[indice], {
+        backgroundColor: "#edf1f9",
+        logging: false,
+        scale: 1.25,
+        useCORS: true,
+        windowWidth: 1672
+      });
+      const imagem = await pdf.embedJpg(canvas.toDataURL("image/jpeg", 0.84));
+      const escala = Math.min((larguraA4 - margem * 2) / imagem.width, (alturaA4 - margem * 2) / imagem.height);
+      const largura = imagem.width * escala;
+      const altura = imagem.height * escala;
+      const pagina = pdf.addPage([larguraA4, alturaA4]);
+      pagina.drawImage(imagem, {
+        x: (larguraA4 - largura) / 2,
+        y: (alturaA4 - altura) / 2,
+        width: largura,
+        height: altura
+      });
+      canvas.width = 1;
+      canvas.height = 1;
+      await proximoQuadro();
+    }
+
+    atualizarBotaoPdf("Finalizando...");
+    const bytes = await pdf.save({ useObjectStreams: true });
+    iniciarDownloadPdf(bytes, nomeArquivoPdf());
+    ui.contador.textContent = `${paginasHtml.length} página(s) baixada(s) em PDF.`;
+  } catch (erro) {
+    console.error("Falha ao gerar PDF do Boletim:", erro);
+    ui.contador.textContent = "Não foi possível gerar o PDF. Tente novamente.";
+  } finally {
+    renderBoletim();
+    ui.baixar.disabled = false;
+    ui.baixar.removeAttribute("aria-busy");
+    atualizarBotaoPdf(textoOriginal);
+  }
+}
+
+async function carregarBibliotecasPdf() {
+  if (!bibliotecasPdfPromise) {
+    bibliotecasPdfPromise = Promise.all([
+      import("https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.esm.min.js"),
+      import("https://esm.sh/html2canvas@1.4.1")
+    ]).then(([pdfLib, html2canvasModule]) => {
+      const html2canvas = html2canvasModule.default || html2canvasModule;
+      if (!pdfLib?.PDFDocument || typeof html2canvas !== "function") throw new Error("Bibliotecas de PDF indisponíveis.");
+      return { PDFDocument: pdfLib.PDFDocument, html2canvas };
+    }).catch((erro) => {
+      bibliotecasPdfPromise = null;
+      throw erro;
+    });
+  }
+  return bibliotecasPdfPromise;
+}
+
+function aguardarImagens(container) {
+  return Promise.all([...container.querySelectorAll("img")].map(async (imagem) => {
+    if (imagem.complete && imagem.naturalWidth) return;
+    try {
+      await imagem.decode();
+    } catch {
+      throw new Error(`Imagem indisponível para o PDF: ${imagem.src}`);
+    }
+  }));
+}
+
+function iniciarDownloadPdf(bytes, nome) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = nome;
+  link.hidden = true;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function nomeArquivoPdf() {
+  const turma = ui.turma.selectedOptions[0]?.textContent || "Turma";
+  const seguro = turma.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_-]+/g, "-");
+  return `Boletins-${seguro}-2026.pdf`;
+}
+
+function atualizarBotaoPdf(texto) {
+  const label = ui.baixar.querySelector("span");
+  if (label) label.textContent = texto;
 }
 
 function proximoQuadro() {

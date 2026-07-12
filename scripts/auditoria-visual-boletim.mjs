@@ -283,6 +283,36 @@ async function principal() {
     registrar(paginasPdf === 9, `O PDF deveria ter nove páginas, mas gerou ${paginasPdf}.`);
     registrar(pdf.length < 18 * 1024 * 1024, `O PDF otimizado ultrapassou 18 MB (${(pdf.length / 1024 / 1024).toFixed(2)} MB).`);
     await writeFile(path.join(saida, "boletim-a4-otimizado.pdf"), pdf);
+
+    const caminhoDownload = path.join(saida, "Boletins-8C-2026.pdf");
+    await rm(caminhoDownload, { force: true });
+    await cdp.enviar("Browser.setDownloadBehavior", {
+      behavior: "allow",
+      downloadPath: saida,
+      eventsEnabled: true
+    });
+    await avaliar(cdp, `document.getElementById('bulletinDownload').click()`);
+    const inicioDownload = Date.now();
+    let downloadConcluido = false;
+    while (Date.now() - inicioDownload < 90000) {
+      try {
+        const info = await stat(caminhoDownload);
+        const ocupado = await avaliar(cdp, `document.getElementById('bulletinDownload').getAttribute('aria-busy') === 'true'`);
+        if (info.size > 100_000 && !ocupado) {
+          downloadConcluido = true;
+          break;
+        }
+      } catch {
+        // O navegador ainda está gerando ou transferindo o arquivo.
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    registrar(downloadConcluido, "Baixar PDF não concluiu um download direto em até 90 segundos.");
+    if (downloadConcluido) {
+      const pdfDireto = await readFile(caminhoDownload);
+      registrar(pdfDireto.subarray(0, 5).toString("ascii") === "%PDF-", "O download direto não gerou um arquivo PDF válido.");
+      registrar(pdfDireto.length < 25 * 1024 * 1024, `O PDF direto ultrapassou 25 MB (${(pdfDireto.length / 1024 / 1024).toFixed(2)} MB).`);
+    }
   } finally {
     if (cdp) {
       try {
@@ -321,6 +351,7 @@ async function principal() {
   console.log(`- Viewports: ${viewports.map(({ width, height }) => `${width}x${height}`).join(", ")}.`);
   console.log("- Prévia sob demanda: 1 folha e 4 boletins por vez.");
   console.log("- PDF: 9 páginas e limite automatizado de 18 MB.");
+  console.log("- Download direto: arquivo PDF validado sem abrir a impressão.");
   console.log(`- Capturas locais: ${saida}`);
 }
 

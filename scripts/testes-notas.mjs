@@ -202,7 +202,9 @@ conferir(boletimTexto.includes("topo.append(progresso)") && cssBoletim.includes(
 conferir(boletimTexto.includes("estado.turma") && boletimTexto.includes("estudante.turmaId !== estado.turma"), "Selecao de turma deve gerar todos os boletins daquela turma.");
 conferir(boletimTexto.includes("resultadoParaFiltro") && boletimTexto.includes("normalizarTexto(estado.busca)"), "Filtros de situacao e aluno devem atuar sobre a previa.");
 conferir(boletimTexto.includes("bulletinStudentPhoto") && existsSync(path.join(raiz, "notas/assets/estudante-ficticio-boletim-web.jpg")), "Boletim deve usar retrato ficticio otimizado e versionado no projeto.");
-conferir(boletimTexto.includes('data.printView = "boletim"') || boletimTexto.includes('dataset.printView = "boletim"'), "Acoes Imprimir/PDF devem preparar a impressao exclusiva do Boletim.");
+conferir(boletimTexto.includes('dataset.printView = "boletim"'), "Acao Imprimir deve preparar a impressao exclusiva do Boletim.");
+conferir(boletimTexto.includes("async function baixarPdf()") && boletimTexto.includes("PDFDocument.create()") && boletimTexto.includes("html2canvas") && boletimTexto.includes("link.download = nome"), "Baixar PDF deve gerar e baixar um arquivo real sem abrir a impressao.");
+conferir(!/function baixarPdf[\s\S]*?window\.print\(\)/m.test(boletimTexto), "Baixar PDF nao pode abrir a janela de impressao.");
 conferir(cssBoletim.includes("table-layout: fixed") && cssBoletim.includes(".bulletinDisciplineColumn") && cssBoletim.includes("width: 7.0583%"), "As 12 colunas de disciplinas do Boletim devem ter a mesma largura, inclusive Computacao.");
 conferir(cssBoletim.includes("var(--bulletin-content-scale)") && cssBoletim.includes("@media (max-width: 1320px)"), "Conteudo e controles do Boletim devem reduzir proporcionalmente sem invadir margens.");
 conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim) && /\.bulletinFinalRow td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim), "Notas azuis e nota final devem usar exatamente a mesma cor base.");
