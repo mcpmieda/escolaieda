@@ -734,6 +734,20 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 
 ## 19. Registro de continuidade
 
+### 12/07/2026 — correção responsiva após validação na página publicada
+
+- Responsável abriu a versão real e apontou desalinhamentos, elementos fora de margem e composição ainda diferente de `aqui.png`.
+- Diagnóstico por capturas da URL publicada em 1672×941, 1420×941, 1366×768 e 1280×720: a folha diminuía com o viewport, mas tamanhos internos continuavam fixos; em 1420 px o rodapé invadia a última linha da tabela, e em 1280 px o painel `Ações` mudava de linha e textos escapavam dos botões de situação.
+- A janela Edge já aberta foi medida em 1550×830, confirmando que a largura real usada pelo responsável ficava abaixo da referência de 1672 px e reproduzia a regressão.
+- `notas/js/boletim.js` passou a observar cada `.bulletinPage` com `ResizeObserver` e calcular `--bulletin-content-scale` pela largura real da folha.
+- `notas/css/boletim.css` separou o zoom externo da escala interna; fontes, círculos, bordas, logos, margens e rodapé agora encolhem na mesma proporção da folha.
+- Os três painéis principais continuam na mesma linha até 1100 px, evitando que `Ações` ocupe uma faixa inteira em notebooks.
+- Botões de situação, switches de trimestre e modo de cor ganharam redução proporcional em larguras menores, sem partir palavras ao meio nem escapar para botões vizinhos.
+- A prévia passou a ocupar a largura disponível no desktop; a largura mínima com rolagem horizontal ficou restrita ao mobile, preservando a tabela sem cortar `Computação` em notebook.
+- Capturas locais posteriores em 1550×741, 1420×941 e 1280×720 confirmaram a remoção das sobreposições e a permanência dos três painéis alinhados.
+- A trava automatizada passou a exigir `ResizeObserver`, `--bulletin-content-scale` e o breakpoint de compactação dos controles.
+- Próxima etapa correta: publicar, atualizar a janela Edge aberta e comparar novamente a URL real com `aqui.png`.
+
 ### 12/07/2026 — reconstrução da guia Boletim contra `aqui.png`
 
 - Responsável colocou `C:\Users\Eugui\Desktop\aqui.png` (1672×941) como referência exata para reconstruir a guia `Boletim` e autorizou manter no shell apenas os botões `Notas` e `Boletim`.

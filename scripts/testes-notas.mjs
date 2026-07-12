@@ -191,11 +191,13 @@ conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display
 
 conferir(!boletimTexto.includes("innerHTML"), "Boletim nao deve montar dados ficticios com innerHTML.");
 conferir(boletimTexto.includes("agrupar(selecionados, 4)") && cssBoletim.includes("grid-template-rows: repeat(4, minmax(0, 1fr))"), "Boletim deve paginar quatro alunos verticalmente por folha.");
+conferir(boletimTexto.includes("ResizeObserver") && boletimTexto.includes("--bulletin-content-scale") && boletimTexto.includes("largura / 1505"), "Boletim deve recalcular sua escala interna quando a largura real da pagina mudar.");
 conferir(boletimTexto.includes("estado.turma") && boletimTexto.includes("estudante.turmaId !== estado.turma"), "Selecao de turma deve gerar todos os boletins daquela turma.");
 conferir(boletimTexto.includes("resultadoParaFiltro") && boletimTexto.includes("normalizarTexto(estado.busca)"), "Filtros de situacao e aluno devem atuar sobre a previa.");
 conferir(boletimTexto.includes("bulletinStudentPhoto") && existsSync(path.join(raiz, "notas/assets/estudante-ficticio-boletim-web.jpg")), "Boletim deve usar retrato ficticio otimizado e versionado no projeto.");
 conferir(boletimTexto.includes('data.printView = "boletim"') || boletimTexto.includes('dataset.printView = "boletim"'), "Acoes Imprimir/PDF devem preparar a impressao exclusiva do Boletim.");
 conferir(cssBoletim.includes("table-layout: fixed") && cssBoletim.includes(".bulletinDisciplineColumn") && cssBoletim.includes("width: 7.0583%"), "As 12 colunas de disciplinas do Boletim devem ter a mesma largura, inclusive Computacao.");
+conferir(cssBoletim.includes("var(--bulletin-content-scale)") && cssBoletim.includes("@media (max-width: 1320px)"), "Conteudo e controles do Boletim devem reduzir proporcionalmente sem invadir margens.");
 conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim) && /\.bulletinFinalRow td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim), "Notas azuis e nota final devem usar exatamente a mesma cor base.");
 conferir(cssBoletim.includes("@page bulletin") && cssBoletim.includes("size: A4 portrait") && cssBoletim.includes("page: bulletin"), "Impressao do Boletim deve usar A4 vertical.");
 conferir(cssBoletim.includes('[data-print-view="boletim"]') && cssBoletim.includes('[data-view="boletim"]') && cssBoletim.includes("break-after: page"), "Impressao deve isolar o Boletim ativo e separar as folhas.");

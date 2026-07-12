@@ -27,6 +27,11 @@
   border-radius: 19px;
 }
 
+.bulletinSituationPanel {
+  padding-right: 14px;
+  padding-left: 14px;
+}
+
 .bulletinPanelTitle {
   display: flex;
   align-items: center;
@@ -55,7 +60,7 @@
 .bulletinPanelTitle h3,
 .bulletinPreviewToolbar h3 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
   font-weight: 500;
 }
 
@@ -64,7 +69,7 @@
   display: block;
   margin: 0 0 4px;
   color: var(--ink-soft);
-  font-size: 0.83rem;
+  font-size: 0.88rem;
 }
 
 .bulletinSelectWrap,
@@ -137,6 +142,8 @@
   min-width: 0;
   margin: 0;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border: 0;
 }
 
@@ -145,10 +152,10 @@
 }
 
 .bulletinTerms > label {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 7px;
-  width: 32.5%;
+  min-width: 0;
   color: var(--ink-soft);
   font-size: 0.8rem;
   white-space: nowrap;
@@ -164,7 +171,7 @@
 .bulletinSwitch {
   position: relative;
   flex: 0 0 auto;
-  width: 39px;
+  width: clamp(34px, 2.35vw, 39px);
   height: 21px;
   border-radius: 999px;
   background: rgba(1, 20, 52, 0.78);
@@ -191,7 +198,7 @@
 }
 
 .bulletinTerms input:checked + .bulletinSwitch::after {
-  transform: translateX(18px);
+  transform: translateX(calc(clamp(34px, 2.35vw, 39px) - 21px));
 }
 
 .bulletinTerms input:focus-visible + .bulletinSwitch {
@@ -214,9 +221,18 @@
   border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 12px;
   color: #fff;
+  font-size: 0.94rem;
   text-align: left;
   line-height: 1.25;
   transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+.bulletinSituationButton > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .bulletinSituationButton:hover,
@@ -306,6 +322,7 @@
   border: 0;
   color: var(--ink-soft);
   background: transparent;
+  font-size: clamp(0.72rem, 1vw, 1rem);
   transition: color var(--motion-quick), background var(--motion-quick);
 }
 
@@ -444,7 +461,7 @@
 .bulletinPages {
   --bulletin-preview-zoom: 1;
   width: calc(100% * var(--bulletin-preview-zoom));
-  min-width: calc(1210px * var(--bulletin-preview-zoom));
+  min-width: 0;
   max-width: calc(1600px * var(--bulletin-preview-zoom));
   margin: 0 auto;
   display: grid;
@@ -452,14 +469,15 @@
 }
 
 .bulletinPage {
+  --bulletin-content-scale: 1;
   width: 100%;
   aspect-ratio: 210 / 275;
-  padding: calc(13px * var(--bulletin-preview-zoom));
+  padding: calc(13px * var(--bulletin-content-scale));
   display: grid;
   grid-template-rows: repeat(4, minmax(0, 1fr));
-  gap: calc(11px * var(--bulletin-preview-zoom));
+  gap: calc(11px * var(--bulletin-content-scale));
   overflow: hidden;
-  border-radius: calc(14px * var(--bulletin-preview-zoom));
+  border-radius: calc(14px * var(--bulletin-content-scale));
   background: #edf1f9;
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.42);
 }
@@ -468,8 +486,8 @@
   position: relative;
   min-height: 0;
   overflow: hidden;
-  border: calc(1px * var(--bulletin-preview-zoom)) solid #bdc8dc;
-  border-radius: calc(12px * var(--bulletin-preview-zoom));
+  border: calc(1px * var(--bulletin-content-scale)) solid #bdc8dc;
+  border-radius: calc(12px * var(--bulletin-content-scale));
   color: #06133c;
   background:
     radial-gradient(circle at 4% 90%, rgba(24, 75, 170, 0.09) 0 1px, transparent 1.5px) 0 0 / 6px 6px,
@@ -504,9 +522,9 @@
 .bulletinSchoolName {
   min-width: 0;
   overflow: hidden;
-  font-size: calc(22px * var(--bulletin-preview-zoom));
+  font-size: calc(22px * var(--bulletin-content-scale));
   font-weight: 500;
-  letter-spacing: calc(0.5px * var(--bulletin-preview-zoom));
+  letter-spacing: calc(0.5px * var(--bulletin-content-scale));
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -514,18 +532,18 @@
 .bulletinStars {
   flex: 0 0 auto;
   display: flex;
-  gap: calc(6px * var(--bulletin-preview-zoom));
+  gap: calc(6px * var(--bulletin-content-scale));
 }
 
 .bulletinStars i {
-  width: calc(21px * var(--bulletin-preview-zoom));
+  width: calc(21px * var(--bulletin-content-scale));
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: #082264;
   background: #fff;
-  font-size: calc(13px * var(--bulletin-preview-zoom));
+  font-size: calc(13px * var(--bulletin-content-scale));
   font-style: normal;
 }
 
@@ -555,8 +573,8 @@
 .bulletinStudentPhoto {
   width: 100%;
   height: 100%;
-  border: calc(1px * var(--bulletin-preview-zoom)) solid #1667ca;
-  border-radius: calc(9px * var(--bulletin-preview-zoom));
+  border: calc(1px * var(--bulletin-content-scale)) solid #1667ca;
+  border-radius: calc(9px * var(--bulletin-content-scale));
   object-fit: cover;
   object-position: center 22%;
   box-shadow: 0 5px 10px rgba(9, 36, 96, 0.24);
@@ -571,7 +589,7 @@
   display: -webkit-box;
   overflow: hidden;
   color: #092066;
-  font-size: calc(17px * var(--bulletin-preview-zoom));
+  font-size: calc(17px * var(--bulletin-content-scale));
   line-height: 1.08;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -581,7 +599,7 @@
   display: block;
   margin-top: 3%;
   color: #092066;
-  font-size: calc(19px * var(--bulletin-preview-zoom));
+  font-size: calc(19px * var(--bulletin-content-scale));
   font-weight: 800;
 }
 
@@ -602,7 +620,7 @@
 .bulletinProgressItem > span {
   overflow: hidden;
   width: 100%;
-  font-size: calc(8px * var(--bulletin-preview-zoom));
+  font-size: calc(8px * var(--bulletin-content-scale));
   font-weight: 800;
   text-align: center;
   text-overflow: ellipsis;
@@ -611,7 +629,7 @@
 
 .bulletinProgressRing {
   --ring-color: #0954ce;
-  width: calc(70px * var(--bulletin-preview-zoom));
+  width: calc(70px * var(--bulletin-content-scale));
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -621,7 +639,7 @@
     radial-gradient(circle, #fff 55%, transparent 57%),
     conic-gradient(var(--ring-color) var(--bulletin-progress), #d9e0ef 0);
   box-shadow: 0 4px 8px rgba(4, 33, 104, 0.22);
-  font-size: calc(14px * var(--bulletin-preview-zoom));
+  font-size: calc(14px * var(--bulletin-content-scale));
 }
 
 .bulletinProgressRing.is-low {
@@ -635,7 +653,7 @@
   align-items: center;
   justify-content: center;
   gap: 6%;
-  border-radius: calc(9px * var(--bulletin-preview-zoom));
+  border-radius: calc(9px * var(--bulletin-content-scale));
   color: #fff;
   box-shadow: 0 5px 10px rgba(0, 34, 35, 0.2);
 }
@@ -660,7 +678,7 @@
 .bulletinStudentResult strong {
   min-width: 0;
   overflow: hidden;
-  font-size: calc(17px * var(--bulletin-preview-zoom));
+  font-size: calc(17px * var(--bulletin-content-scale));
   font-weight: 500;
   text-align: center;
   text-overflow: ellipsis;
@@ -669,14 +687,14 @@
 
 .bulletinResultIcon {
   flex: 0 0 auto;
-  width: calc(38px * var(--bulletin-preview-zoom));
+  width: calc(38px * var(--bulletin-content-scale));
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: #087524;
   background: #fff;
-  font-size: calc(28px * var(--bulletin-preview-zoom));
+  font-size: calc(28px * var(--bulletin-content-scale));
   font-weight: 900;
 }
 
@@ -688,8 +706,8 @@
   min-width: 0;
   height: 100%;
   overflow: hidden;
-  border: calc(1px * var(--bulletin-preview-zoom)) solid #c1cbe0;
-  border-radius: calc(7px * var(--bulletin-preview-zoom));
+  border: calc(1px * var(--bulletin-content-scale)) solid #c1cbe0;
+  border-radius: calc(7px * var(--bulletin-content-scale));
   background: #fff;
 }
 
@@ -699,7 +717,7 @@
   border-collapse: collapse;
   table-layout: fixed;
   color: #06113c;
-  font-size: calc(9px * var(--bulletin-preview-zoom));
+  font-size: calc(9px * var(--bulletin-content-scale));
 }
 
 .bulletinGradeTable thead {
@@ -726,7 +744,7 @@
 .bulletinGradeTable td {
   padding: 0.4%;
   overflow: hidden;
-  border: calc(1px * var(--bulletin-preview-zoom)) solid #c2cce0;
+  border: calc(1px * var(--bulletin-content-scale)) solid #c2cce0;
   text-align: center;
   text-overflow: clip;
 }
@@ -735,7 +753,7 @@
   height: 20%;
   color: #fff;
   background: linear-gradient(#07194f, #06113d);
-  font-size: calc(8.1px * var(--bulletin-preview-zoom));
+  font-size: calc(8.1px * var(--bulletin-content-scale));
   font-weight: 500;
   line-height: 1.12;
   overflow-wrap: anywhere;
@@ -744,20 +762,20 @@
 .bulletinGradeTable thead th:first-child {
   color: #111a2f;
   background: #f4f6fa;
-  font-size: calc(8.8px * var(--bulletin-preview-zoom));
+  font-size: calc(8.8px * var(--bulletin-content-scale));
   font-weight: 800;
 }
 
 .bulletinGradeTable tbody th {
   background: #f7f8fb;
-  font-size: calc(8.5px * var(--bulletin-preview-zoom));
+  font-size: calc(8.5px * var(--bulletin-content-scale));
   font-weight: 800;
 }
 
 .bulletinGradeTable td {
   color: #06133d;
   background: #f6f8fc;
-  font-size: calc(10.5px * var(--bulletin-preview-zoom));
+  font-size: calc(10.5px * var(--bulletin-content-scale));
 }
 
 .bulletinGradeTable td.is-pass {
@@ -777,7 +795,7 @@
 }
 
 .bulletinFinalRow th {
-  font-size: calc(9.6px * var(--bulletin-preview-zoom)) !important;
+  font-size: calc(9.6px * var(--bulletin-content-scale)) !important;
 }
 
 .bulletinFinalRow td.is-pass {
@@ -793,9 +811,9 @@
   justify-content: space-between;
   gap: 2%;
   color: #07185e;
-  border-radius: calc(5px * var(--bulletin-preview-zoom));
+  border-radius: calc(5px * var(--bulletin-content-scale));
   background: linear-gradient(90deg, #e5e9f5, #eef1f8);
-  font-size: calc(11px * var(--bulletin-preview-zoom));
+  font-size: calc(11px * var(--bulletin-content-scale));
 }
 
 .bulletinPrivacyWarning {
@@ -810,14 +828,14 @@
 
 .bulletinWarningIcon {
   flex: 0 0 auto;
-  width: calc(23px * var(--bulletin-preview-zoom));
+  width: calc(23px * var(--bulletin-content-scale));
   aspect-ratio: 1.1;
   display: grid;
   place-items: center;
   color: #fff;
   background: #07185e;
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  font-size: calc(13px * var(--bulletin-preview-zoom));
+  font-size: calc(13px * var(--bulletin-content-scale));
 }
 
 .bulletinNumber {
@@ -864,7 +882,51 @@ body[data-theme="mono"] .bulletinView {
   --bulletin-line: rgba(255, 255, 255, 0.15);
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1500px) {
+  .bulletinSituationButton {
+    padding: 7px 6px;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 5px;
+    font-size: 0.78rem;
+  }
+
+  .bulletinSituationIcon {
+    width: 30px;
+    height: 30px;
+    font-size: 1.45rem;
+  }
+
+  .bulletinSituationIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 1320px) {
+  .bulletinTerms > label {
+    font-size: 0.66rem;
+  }
+
+  .bulletinSituationButton {
+    padding: 6px 5px;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 4px;
+    font-size: 0.66rem;
+  }
+
+  .bulletinSituationIcon {
+    width: 28px;
+    height: 28px;
+    font-size: 1.3rem;
+  }
+
+  .bulletinSituationIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 1100px) {
   .bulletinControlGrid {
     grid-template-columns: 1fr 1fr;
   }
@@ -902,6 +964,10 @@ body[data-theme="mono"] .bulletinView {
     align-items: flex-start;
   }
 
+  .bulletinPages {
+    min-width: calc(1210px * var(--bulletin-preview-zoom));
+  }
+
   .bulletinPreviewHeading {
     flex-wrap: wrap;
   }
@@ -916,8 +982,11 @@ body[data-theme="mono"] .bulletinView {
     padding: 16px;
   }
 
+  .bulletinTerms {
+    grid-template-columns: 1fr;
+  }
+
   .bulletinTerms > label {
-    width: 100%;
     margin-bottom: 8px;
   }
 
@@ -1018,7 +1087,7 @@ body[data-theme="mono"] .bulletinView {
   }
 
   body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocument {
-    --bulletin-preview-zoom: 0.47;
+    --bulletin-content-scale: 0.47;
     min-height: 0;
     break-inside: avoid;
     page-break-inside: avoid;

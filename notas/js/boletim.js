@@ -21,6 +21,7 @@ const estado = {
 
 const ui = {};
 let renderPendente = 0;
+let pageSizeObserver = null;
 
 function inicializarBoletim() {
   if (estado.inicializado) return;
@@ -170,7 +171,21 @@ function renderBoletim() {
   ui.paginas.replaceChildren(fragment);
   ui.paginas.dataset.colorMode = estado.cor;
   ui.contador.textContent = `${selecionados.length} boletim(ns) · ${paginas.length} página(s)`;
+  observarEscalaDasPaginas();
   aplicarZoom();
+}
+
+function observarEscalaDasPaginas() {
+  pageSizeObserver?.disconnect();
+  if (!("ResizeObserver" in window)) return;
+  pageSizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const largura = entry.target.getBoundingClientRect().width;
+      const escala = Math.max(0.55, Math.min(1.25, largura / 1505));
+      entry.target.style.setProperty("--bulletin-content-scale", escala.toFixed(4));
+    }
+  });
+  ui.paginas.querySelectorAll(".bulletinPage").forEach((pagina) => pageSizeObserver.observe(pagina));
 }
 
 function filtrarEstudantes() {
