@@ -10,8 +10,8 @@
 .bulletinControlGrid {
   display: grid;
   grid-template-columns: 1.07fr 1.13fr 1.04fr;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .bulletinControlPanel,
@@ -22,14 +22,14 @@
 }
 
 .bulletinControlPanel {
-  min-height: 252px;
-  padding: 19px 22px;
-  border-radius: 19px;
+  min-height: 202px;
+  padding: 14px 17px;
+  border-radius: 16px;
 }
 
 .bulletinSituationPanel {
-  padding-right: 14px;
-  padding-left: 14px;
+  padding-right: 11px;
+  padding-left: 11px;
 }
 
 .bulletinFilterPanel {
@@ -40,8 +40,8 @@
 .bulletinPanelTitle {
   display: flex;
   align-items: center;
-  gap: 11px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .bulletinPanelTitle svg,
@@ -58,15 +58,15 @@
 }
 
 .bulletinPanelTitle svg {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
 }
 
 .bulletinPanelTitle h3,
 .bulletinPreviewToolbar h3 {
   margin: 0;
-  font-size: 1.12rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 650;
 }
 
 .bulletinFieldLabel,
@@ -74,14 +74,14 @@
   display: block;
   margin: 0 0 4px;
   color: var(--ink-soft);
-  font-size: 0.88rem;
+  font-size: 0.76rem;
 }
 
 .bulletinSelectWrap,
 .bulletinSearchField {
   position: relative;
-  height: 46px;
-  margin-bottom: 11px;
+  height: 40px;
+  margin-bottom: 8px;
   border: 1px solid rgba(118, 174, 255, 0.18);
   border-radius: 10px;
   background: rgba(1, 18, 46, 0.42);
@@ -193,7 +193,7 @@
 .bulletinClassSelect .statsSelectChevron {
   position: absolute;
   right: 17px;
-  top: 17px;
+  top: 14px;
   width: 9px;
   height: 9px;
   border-right: 2px solid currentColor;
@@ -203,7 +203,7 @@
 }
 
 .bulletinClassSelect.is-open .statsSelectChevron {
-  top: 21px;
+  top: 18px;
   transform: rotate(225deg);
 }
 
@@ -289,7 +289,7 @@
 }
 
 .bulletinSearchField {
-  padding-right: 50px;
+  padding-right: 44px;
 }
 
 .bulletinSearchField input {
@@ -304,9 +304,9 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 50px;
+  width: 44px;
   height: 100%;
-  padding: 13px;
+  padding: 11px;
   color: white;
   border-radius: 10px;
   background: linear-gradient(145deg, #2184ff, #004fe0);
@@ -323,7 +323,7 @@
 }
 
 .bulletinTerms legend {
-  margin-bottom: 7px;
+  margin-bottom: 5px;
 }
 
 .bulletinTerms > label {
@@ -383,21 +383,21 @@
 .bulletinSituationGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 7px;
 }
 
 .bulletinSituationButton {
-  min-height: 76px;
-  padding: 9px 8px;
+  min-height: 58px;
+  padding: 6px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 27px minmax(0, 1fr);
   align-items: center;
-  gap: 7px;
+  gap: 5px;
   border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 12px;
+  border-radius: 10px;
   color: #9aabc3;
   background: rgba(4, 24, 56, 0.72);
-  font-size: 0.94rem;
+  font-size: 0.8rem;
   text-align: left;
   line-height: 1.25;
   transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick), color var(--motion-quick), background var(--motion-quick);
@@ -419,7 +419,7 @@
 
 .bulletinSituationButton.active {
   color: #fff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.72), 0 12px 28px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.64), 0 8px 18px rgba(0, 0, 0, 0.22);
 }
 
 .bulletinSituationButton.is-course.active {
@@ -448,14 +448,14 @@
 }
 
 .bulletinSituationIcon {
-  width: 34px;
-  height: 34px;
+  width: 27px;
+  height: 27px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: currentColor;
   background: rgba(255, 255, 255, 0.12);
-  font-size: 1.65rem;
+  font-size: 1.25rem;
   font-weight: 900;
 }
 
@@ -465,8 +465,8 @@
 }
 
 .bulletinSituationIcon svg {
-  width: 22px;
-  height: 22px;
+  width: 17px;
+  height: 17px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -474,15 +474,11 @@
   stroke-linejoin: round;
 }
 
-.bulletinSituationButton:not(.is-clear) .bulletinSituationIcon {
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.bulletinSituationButton.is-course .bulletinSituationIcon { color: #0969dd; }
-.bulletinSituationButton.is-approved .bulletinSituationIcon { color: #108032; }
-.bulletinSituationButton.is-council .bulletinSituationIcon { color: #6a25d0; }
-.bulletinSituationButton.is-recovery .bulletinSituationIcon { color: #e66f00; }
-.bulletinSituationButton.is-failed .bulletinSituationIcon { color: #d6000d; }
+.bulletinSituationButton.is-course.active .bulletinSituationIcon { color: #0969dd; }
+.bulletinSituationButton.is-approved.active .bulletinSituationIcon { color: #108032; }
+.bulletinSituationButton.is-council.active .bulletinSituationIcon { color: #6a25d0; }
+.bulletinSituationButton.is-recovery.active .bulletinSituationIcon { color: #e66f00; }
+.bulletinSituationButton.is-failed.active .bulletinSituationIcon { color: #d6000d; }
 
 .bulletinActionsPanel {
   display: flex;
@@ -490,8 +486,8 @@
 }
 
 .bulletinColorMode {
-  min-height: 46px;
-  margin: 1px 0 15px;
+  min-height: 40px;
+  margin: 1px 0 10px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
@@ -504,7 +500,7 @@
   border: 0;
   color: var(--ink-soft);
   background: transparent;
-  font-size: clamp(0.72rem, 1vw, 1rem);
+  font-size: clamp(0.68rem, 0.88vw, 0.88rem);
   transition: color var(--motion-quick), background var(--motion-quick);
 }
 
@@ -515,18 +511,18 @@
 }
 
 .bulletinActionButton {
-  min-height: 51px;
-  margin-bottom: 10px;
+  min-height: 43px;
+  margin-bottom: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 10px;
   border: 0;
   border-radius: 11px;
   color: #081d6f;
   background: linear-gradient(145deg, #fff, #e7ebf6);
   box-shadow: 0 9px 20px rgba(0, 0, 0, 0.17);
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 800;
   transition: transform var(--motion-quick), box-shadow var(--motion-quick);
 }
@@ -544,8 +540,8 @@
 }
 
 .bulletinActionButton svg {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
 }
 
 .bulletinPreviewPanel {
@@ -631,8 +627,8 @@
 }
 
 .bulletinPreviewViewport {
-  height: min(720px, calc(100vh - 410px));
-  min-height: 520px;
+  height: min(790px, calc(100vh - 350px));
+  min-height: 560px;
   padding: 0;
   overflow: auto;
   background:
@@ -714,7 +710,7 @@
 }
 
 .bulletinPages.is-direct-pdf .bulletinProgressRing {
-  border: 5px solid var(--ring-color);
+  border: 0;
   background: #fff;
 }
 
@@ -753,8 +749,10 @@
   position: absolute;
   left: 1.6%;
   top: 50%;
-  width: 6.6%;
-  max-height: 132%;
+  width: auto;
+  height: 88%;
+  max-width: 6.2%;
+  max-height: 88%;
   object-fit: contain;
   transform: translateY(-50%);
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
@@ -868,7 +866,7 @@
 .bulletinProgressItem > span {
   overflow: hidden;
   width: 100%;
-  font-size: calc(10px * var(--bulletin-content-scale));
+  font-size: calc(9px * var(--bulletin-content-scale));
   font-weight: 800;
   text-align: center;
   text-overflow: ellipsis;
@@ -876,22 +874,49 @@
 }
 
 .bulletinProgressRing {
-  --ring-color: #0954ce;
-  width: calc(84px * var(--bulletin-content-scale));
+  position: relative;
+  width: calc(70px * var(--bulletin-content-scale));
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: #071c5f;
-  background:
-    radial-gradient(circle, #fff 55%, transparent 57%),
-    conic-gradient(var(--ring-color) var(--bulletin-progress), #d9e0ef 0);
-  box-shadow: 0 4px 8px rgba(4, 33, 104, 0.22);
-  font-size: calc(14px * var(--bulletin-content-scale));
+  background: #fff;
+  box-shadow: 0 3px 7px rgba(4, 33, 104, 0.18);
+  font-size: calc(12px * var(--bulletin-content-scale));
 }
 
-.bulletinProgressRing.is-low {
-  --ring-color: #e2121b;
+.bulletinProgressRing svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.bulletinProgressRemainder,
+.bulletinProgressFill {
+  fill: none;
+  stroke-width: 5;
+}
+
+.bulletinProgressRemainder {
+  stroke: #e2121b;
+}
+
+.bulletinProgressFill {
+  stroke: #075fd1;
+  stroke-linecap: butt;
+}
+
+.bulletinProgressRing.is-empty .bulletinProgressRemainder {
+  stroke: #cbd4e3;
+}
+
+.bulletinProgressValue {
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
 }
 
 .bulletinStudentResult {
@@ -937,14 +962,14 @@
 
 .bulletinResultIcon {
   flex: 0 0 auto;
-  width: calc(48px * var(--bulletin-content-scale));
+  width: calc(40px * var(--bulletin-content-scale));
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: #087524;
   background: #fff;
-  font-size: calc(32px * var(--bulletin-content-scale));
+  font-size: calc(26px * var(--bulletin-content-scale));
   font-weight: 900;
 }
 
@@ -1202,21 +1227,21 @@ body[data-theme="mono"] .bulletinView {
 
 @media (max-width: 1500px) {
   .bulletinSituationButton {
-    padding: 7px 6px;
-    grid-template-columns: 30px minmax(0, 1fr);
-    gap: 5px;
-    font-size: 0.78rem;
+    padding: 5px;
+    grid-template-columns: 25px minmax(0, 1fr);
+    gap: 4px;
+    font-size: 0.74rem;
   }
 
   .bulletinSituationIcon {
-    width: 30px;
-    height: 30px;
-    font-size: 1.45rem;
+    width: 25px;
+    height: 25px;
+    font-size: 1.15rem;
   }
 
   .bulletinSituationIcon svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 }
 
@@ -1226,21 +1251,21 @@ body[data-theme="mono"] .bulletinView {
   }
 
   .bulletinSituationButton {
-    padding: 6px 5px;
-    grid-template-columns: 28px minmax(0, 1fr);
+    padding: 5px 4px;
+    grid-template-columns: 23px minmax(0, 1fr);
     gap: 4px;
     font-size: 0.66rem;
   }
 
   .bulletinSituationIcon {
-    width: 28px;
-    height: 28px;
-    font-size: 1.3rem;
+    width: 23px;
+    height: 23px;
+    font-size: 1.05rem;
   }
 
   .bulletinSituationIcon svg {
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
   }
 }
 
@@ -1314,15 +1339,15 @@ body[data-theme="mono"] .bulletinView {
   }
 
   .bulletinSituationButton {
-    grid-template-columns: 34px minmax(0, 1fr);
-    min-height: 68px;
-    padding: 8px;
-    font-size: 0.78rem;
+    grid-template-columns: 27px minmax(0, 1fr);
+    min-height: 58px;
+    padding: 6px;
+    font-size: 0.74rem;
   }
 
   .bulletinSituationIcon {
-    width: 33px;
-    height: 33px;
+    width: 27px;
+    height: 27px;
   }
 
   .bulletinActionsPanel {
@@ -1443,7 +1468,7 @@ body[data-theme="mono"] .bulletinView {
   }
 
   body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinProgressRing {
-    border: calc(4px * var(--bulletin-content-scale)) solid var(--ring-color) !important;
+    border: 0 !important;
     background: #fff !important;
     box-shadow: none !important;
   }

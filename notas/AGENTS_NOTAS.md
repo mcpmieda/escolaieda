@@ -75,6 +75,7 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 17. A prévia comum do Boletim deve exibir todas as folhas em rolagem vertical contínua, sem cliques de paginação, preservando quatro boletins por A4 e numeração global.
 18. O modo de impressão pode trocar efeitos decorativos rasterizados por cores sólidas equivalentes para reduzir o PDF, mas não pode remover conteúdo, alterar as nove páginas esperadas nem mudar a geometria aprovada.
 19. `Baixar PDF` deve gerar o arquivo diretamente no navegador e iniciar o download; somente `Imprimir` pode chamar `window.print()`.
+20. Cada anel trimestral representa a proporção de componentes com nota azul entre notas lançadas: azul preenche em sentido horário, vermelho ocupa o restante e notas vazias são ignoradas; sem lançamento, exibir estado neutro `—`.
 
 ### Consequência da decisão de permissões
 
@@ -739,6 +740,15 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 12/07/2026 — compactação visual, logo íntegra e anéis trimestrais corrigidos
+
+- Responsável considerou a aba excessivamente chamativa e aprovou compactação equilibrada de aproximadamente 20–25%, preservando conforto de leitura.
+- Painéis, títulos, botões e ícones foram reduzidos; a prévia ganhou mais altura útil sem alterar o fluxo contínuo ou o encaixe A4.
+- A logo deixou de exceder 132% do cabeçalho e passou a ficar inteiramente contida, preservando proporção e transparência.
+- O cálculo antigo `média do trimestre ÷ máximo` foi removido. `calcularProgressoTrimestre()` conta notas iguais/acima do mínimo como azuis e abaixo como vermelhas, ignorando vazias.
+- Os anéis agora são SVG: vermelho como trilha, azul preenchendo do topo em sentido horário e texto central; 12 azuis = 100%, 9 azuis/3 vermelhas = 75%, somente vermelhas = 0% e ausência total = `—` neutro.
+- O mesmo SVG é usado na tela, impressão e PDF direto, eliminando divergência do antigo `conic-gradient` não suportado pelo capturador.
 
 ### 12/07/2026 — prévia contínua com carregamento progressivo
 

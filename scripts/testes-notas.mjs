@@ -13,6 +13,7 @@ import {
   resumirTurmas
 } from "../notas/js/domain.js";
 import { demoData } from "../notas/js/demo-data.js";
+import { calcularProgressoTrimestre } from "../notas/js/boletim.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const raiz = path.resolve(__dirname, "..");
@@ -214,6 +215,9 @@ conferir(cssBoletim.includes("content-visibility: auto") && cssBoletim.includes(
 conferir(cssBoletim.includes(".bulletinClassSelect .statsSelectMenu") && cssBoletim.includes(".bulletinClassSelect .statsSelectOption.active"), "Seletor de turma do Boletim deve ter menu e estado ativo proprios.");
 conferir(cssBoletim.includes(".bulletinPages.is-direct-pdf") && cssBoletim.includes("aspect-ratio: 210 / 297") && boletimTexto.includes('classList.add("is-direct-pdf")'), "Download direto deve encaixar quatro boletins em uma folha A4 sem margens extras.");
 conferir(cssBoletim.includes(".bulletinGradeRegion::after") && cssBoletim.includes(".bulletinGradeTable tbody tr:hover td") && cssBoletim.includes(".bulletinFinalRow td.is-pass"), "Tabela do Boletim deve manter acabamento UI moderno, interacao e destaque da nota final.");
+conferir(boletimTexto.includes("criarGraficoProgresso") && boletimTexto.includes("stroke-dasharray") && cssBoletim.includes(".bulletinProgressRemainder") && cssBoletim.includes(".bulletinProgressFill"), "Indicadores trimestrais devem usar SVG azul/vermelho consistente na tela e no PDF.");
+conferir(!cssBoletim.includes("conic-gradient(var(--ring-color)") && cssBoletim.includes("height: 88%") && cssBoletim.includes("max-height: 88%"), "Logo deve ficar inteira e graficos antigos por media nao devem voltar.");
+conferir(cssBoletim.includes("min-height: 202px") && cssBoletim.includes("calc(100vh - 350px)"), "Controles compactos devem ampliar a area util da previa.");
 conferir(cssBoletim.includes(".bulletinSituationButton.is-course.active") && !cssBoletim.includes(".bulletinSituationButton.is-course {"), "Situacoes do Boletim devem receber cor somente quando selecionadas.");
 conferir(/@media print[\s\S]*?\.bulletinProgressRing[\s\S]*?background:\s*#fff !important;/m.test(cssBoletim) && /@media print[\s\S]*?\.bulletinStudentPhoto[\s\S]*?box-shadow:\s*none !important;/m.test(cssBoletim), "PDF deve remover rasterizacoes decorativas pesadas sem alterar a previa.");
 conferir(cssBoletim.includes("@media (max-width: 560px)") && cssBoletim.includes("min-width: calc(1210px"), "Boletim deve preservar o documento fiel dentro de viewport rolavel no mobile.");
@@ -233,6 +237,19 @@ for (const termo of termosProibidos) {
 conferir(classificarMedia(75) === "regular", "Media 75 deveria ser regular.");
 conferir(classificarMedia(65) === "atencao", "Media 65 deveria ser atencao.");
 conferir(classificarMedia(45) === "critico", "Media 45 deveria ser critico.");
+const progressoCompleto = calcularProgressoTrimestre(Array.from({ length: 12 }, () => ({ notaT1: 18 })), "notaT1", 18);
+conferir(progressoCompleto.percentual === 100 && progressoCompleto.azuis === 12 && progressoCompleto.vermelhas === 0, "Doze notas azuis devem gerar indicador trimestral de 100%.");
+const progressoParcial = calcularProgressoTrimestre([
+  ...Array.from({ length: 9 }, () => ({ notaT1: 18 })),
+  ...Array.from({ length: 3 }, () => ({ notaT1: 17 }))
+], "notaT1", 18);
+conferir(progressoParcial.percentual === 75 && progressoParcial.azuis === 9 && progressoParcial.vermelhas === 3, "Nove notas azuis e tres vermelhas devem gerar 75%.");
+const progressoZero = calcularProgressoTrimestre([{ notaT3: 23 }, { notaT3: 0 }], "notaT3", 24);
+conferir(progressoZero.percentual === 0 && progressoZero.vermelhas === 2, "Somente notas vermelhas devem gerar 0%.");
+const progressoComVazias = calcularProgressoTrimestre([{ notaT2: 18 }, { notaT2: 17 }, { notaT2: "" }, { notaT2: null }], "notaT2", 18);
+conferir(progressoComVazias.percentual === 50 && progressoComVazias.total === 2, "Notas vazias devem ser ignoradas no percentual trimestral.");
+const progressoVazio = calcularProgressoTrimestre([{ notaT1: "" }, { notaT1: undefined }], "notaT1", 18);
+conferir(progressoVazio.percentual === null && progressoVazio.total === 0, "Trimestre sem notas deve produzir indicador neutro.");
 conferir(calcularResultadoEstudante({ decisaoConselho: "aprovado", lancamentos: [{ total: 70, totalRec: 70 }] }) === "APROVADO PELO CONSELHO", "Decisao de aprovacao do Conselho deve prevalecer sobre a nota calculada.");
 conferir(calcularResultadoEstudante({ decisaoConselho: "reprovado", lancamentos: [{ total: 70, totalRec: 70 }] }) === "REPROVADO PELO CONSELHO", "Decisao de reprovacao do Conselho deve prevalecer sobre a nota calculada.");
 conferir(calcularResultadoEstudante({ lancamentos: [] }) === "EM CURSO", "Aluno sem lancamentos nao deve ser reprovado automaticamente.");

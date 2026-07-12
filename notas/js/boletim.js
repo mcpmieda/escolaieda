@@ -322,15 +322,10 @@ function criarIdentidade(estudante) {
   const progresso = elemento("div", "bulletinTermProgress");
   for (const [codigo, trimestre] of Object.entries(trimestres)) {
     if (!estado.trimestres.has(codigo)) continue;
-    const valores = estudante.lancamentos.map((nota) => Number(nota[trimestre.campo])).filter(Number.isFinite);
-    const media = valores.length ? valores.reduce((total, valor) => total + valor, 0) / valores.length : 0;
-    const percentual = Math.max(0, Math.min(100, Math.round((media / trimestre.maximo) * 100)));
+    const resumo = calcularProgressoTrimestre(estudante.lancamentos, trimestre.campo, trimestre.minimo);
     const item = elemento("div", "bulletinProgressItem");
     adicionarTexto(item, "span", trimestre.rotulo);
-    const circulo = elemento("strong", "bulletinProgressRing");
-    circulo.style.setProperty("--bulletin-progress", `${percentual * 3.6}deg`);
-    circulo.classList.toggle("is-low", percentual < 60);
-    circulo.textContent = `${percentual}%`;
+    const circulo = criarGraficoProgresso(trimestre.rotulo, resumo);
     item.append(circulo);
     progresso.append(item);
   }
@@ -345,6 +340,65 @@ function criarIdentidade(estudante) {
   topo.append(progresso);
   identidade.append(topo, situacao);
   return identidade;
+}
+
+function calcularProgressoTrimestre(lancamentos, campo, minimo) {
+  let azuis = 0;
+  let vermelhas = 0;
+  for (const lancamento of lancamentos || []) {
+    const valor = normalizarNotaLancada(lancamento?.[campo]);
+    if (valor === null) continue;
+    if (valor >= minimo) azuis += 1;
+    else vermelhas += 1;
+  }
+  const total = azuis + vermelhas;
+  return {
+    azuis,
+    vermelhas,
+    total,
+    percentual: total ? Math.round((azuis / total) * 100) : null
+  };
+}
+
+function normalizarNotaLancada(valor) {
+  if (valor === null || valor === undefined) return null;
+  if (typeof valor === "string" && !valor.trim()) return null;
+  const numero = Number(typeof valor === "string" ? valor.replace(",", ".") : valor);
+  return Number.isFinite(numero) ? numero : null;
+}
+
+function criarGraficoProgresso(rotulo, resumo) {
+  const anel = elemento("strong", `bulletinProgressRing${resumo.total ? "" : " is-empty"}`);
+  const percentual = resumo.percentual ?? 0;
+  anel.setAttribute("role", "img");
+  anel.setAttribute(
+    "aria-label",
+    resumo.total
+      ? `${rotulo}: ${percentual}% de notas azuis, ${resumo.azuis} azuis e ${resumo.vermelhas} vermelhas.`
+      : `${rotulo}: nenhuma nota lançada.`
+  );
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 44 44");
+  svg.setAttribute("aria-hidden", "true");
+  const restante = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  restante.setAttribute("class", "bulletinProgressRemainder");
+  restante.setAttribute("cx", "22");
+  restante.setAttribute("cy", "22");
+  restante.setAttribute("r", "18");
+  restante.setAttribute("pathLength", "100");
+  const preenchimento = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  preenchimento.setAttribute("class", "bulletinProgressFill");
+  preenchimento.setAttribute("cx", "22");
+  preenchimento.setAttribute("cy", "22");
+  preenchimento.setAttribute("r", "18");
+  preenchimento.setAttribute("pathLength", "100");
+  preenchimento.setAttribute("stroke-dasharray", `${percentual} ${100 - percentual}`);
+  preenchimento.setAttribute("transform", "rotate(-90 22 22)");
+  svg.append(restante, preenchimento);
+  adicionarTexto(anel, "span", resumo.percentual === null ? "—" : `${resumo.percentual}%`, "bulletinProgressValue");
+  anel.prepend(svg);
+  return anel;
 }
 
 function criarTabelaNotas(estudante) {
@@ -642,4 +696,4 @@ function elemento(tag, className = "") {
   return node;
 }
 
-export { inicializarBoletim, renderBoletim };
+export { calcularProgressoTrimestre, inicializarBoletim, renderBoletim };
