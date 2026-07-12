@@ -89,11 +89,11 @@ conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao e
 conferir(html.includes('role="dialog"') && html.includes('aria-modal="true"') && html.includes("studentProfileBackdrop"), "Painel do aluno deve usar dialogo modal com backdrop.");
 conferir(/<caption class=["']srOnly["']>/.test(html) && html.includes('aria-describedby="notesClassLabel"'), "Tabela de Notas deve ter caption e contexto acessivel.");
 conferir(html.includes('role="combobox"') && html.includes('aria-autocomplete="list"'), "Busca global deve expor semantica de combobox.");
-conferir(html.includes("bulletinControlGrid") && html.includes("bulletinPreviewPanel") && html.includes("bulletinPages"), "Boletim deve conter controles e previa paginada proprios.");
+conferir(html.includes("bulletinControlGrid") && html.includes("bulletinPreviewPanel") && html.includes("bulletinPages"), "Boletim deve conter controles e previa continua proprios.");
 conferir(html.includes("bulletinClass") && html.includes("bulletinStudentSearch") && html.includes("bulletinSituationGrid"), "Boletim deve oferecer filtros de turma, aluno e situacao.");
 conferir(html.includes("bulletinClassSelect statsSelectCard") && html.includes('data-stats-select-label="Turma"'), "Turma do Boletim deve usar seletor customizado no padrao de Notas.");
 conferir(html.includes("bulletinPrint") && html.includes("bulletinDownload") && html.includes("bulletinFullscreen"), "Boletim deve oferecer impressao, PDF e tela cheia.");
-conferir(html.includes("bulletinPreviousPage") && html.includes("bulletinPageStatus") && html.includes("bulletinNextPage"), "Boletim deve oferecer paginacao acessivel na previa.");
+conferir(!html.includes("bulletinPreviousPage") && !html.includes("bulletinPageStatus") && !html.includes("bulletinNextPage"), "Boletim continuo nao deve exigir cliques de paginacao.");
 
 const appTexto = ler("notas/js/app.js");
 const cssBase = ler("notas/css/base.css");
@@ -195,9 +195,9 @@ conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display
 
 conferir(!boletimTexto.includes("innerHTML"), "Boletim nao deve montar dados ficticios com innerHTML.");
 conferir(boletimTexto.includes("agrupar(selecionados, 4)") && cssBoletim.includes("grid-template-rows: repeat(4, minmax(0, 1fr))"), "Boletim deve paginar quatro alunos verticalmente por folha.");
-conferir(boletimTexto.includes("paginaAtual") && boletimTexto.includes("paginasParaRenderizar") && boletimTexto.includes("sincronizarPaginacao"), "Previa do Boletim deve renderizar somente a pagina atual e sincronizar seus controles.");
+conferir(boletimTexto.includes("agendarPreenchimentoProgressivo") && boletimTexto.includes("requestIdleCallback") && boletimTexto.includes("IntersectionObserver"), "Previa continua deve preencher folhas progressivamente e priorizar as proximas da rolagem.");
 conferir(boletimTexto.includes("renderBoletim({ todasPaginas: true })") && boletimTexto.includes('addEventListener("beforeprint"'), "Impressao/PDF deve remontar todas as folhas somente quando necessario.");
-conferir(boletimTexto.includes("ResizeObserver") && boletimTexto.includes("--bulletin-content-scale") && boletimTexto.includes("largura / 1505"), "Boletim deve recalcular sua escala interna quando a largura real da pagina mudar.");
+conferir(boletimTexto.includes("ResizeObserver") && boletimTexto.includes("--bulletin-shared-scale") && boletimTexto.includes("largura / 1505"), "Boletim deve recalcular uma escala compartilhada quando a largura da previa mudar.");
 conferir(boletimTexto.includes("topo.append(progresso)") && cssBoletim.includes("grid-row: 1 / 3"), "Circulos dos trimestres devem ficar ao lado da foto, conforme a referencia.");
 conferir(boletimTexto.includes("estado.turma") && boletimTexto.includes("estudante.turmaId !== estado.turma"), "Selecao de turma deve gerar todos os boletins daquela turma.");
 conferir(boletimTexto.includes("resultadoParaFiltro") && boletimTexto.includes("normalizarTexto(estado.busca)"), "Filtros de situacao e aluno devem atuar sobre a previa.");
@@ -210,7 +210,7 @@ conferir(cssBoletim.includes("var(--bulletin-content-scale)") && cssBoletim.incl
 conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim) && /\.bulletinFinalRow td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim), "Notas azuis e nota final devem usar exatamente a mesma cor base.");
 conferir(cssBoletim.includes("@page bulletin") && cssBoletim.includes("size: A4 portrait") && cssBoletim.includes("page: bulletin"), "Impressao do Boletim deve usar A4 vertical.");
 conferir(cssBoletim.includes('[data-print-view="boletim"]') && cssBoletim.includes('[data-view="boletim"]') && cssBoletim.includes("break-after: page"), "Impressao deve isolar o Boletim ativo e separar as folhas.");
-conferir(cssBoletim.includes(".bulletinPagination") && cssBoletim.includes("#bulletinPageStatus"), "Paginacao da previa deve ter acabamento visual proprio.");
+conferir(cssBoletim.includes("content-visibility: auto") && cssBoletim.includes("contain-intrinsic-size") && !cssBoletim.includes(".bulletinPagination"), "Folhas continuas fora da tela devem evitar custo de pintura sem recriar paginacao.");
 conferir(cssBoletim.includes(".bulletinClassSelect .statsSelectMenu") && cssBoletim.includes(".bulletinClassSelect .statsSelectOption.active"), "Seletor de turma do Boletim deve ter menu e estado ativo proprios.");
 conferir(cssBoletim.includes(".bulletinPages.is-direct-pdf") && cssBoletim.includes("aspect-ratio: 210 / 297") && boletimTexto.includes('classList.add("is-direct-pdf")'), "Download direto deve encaixar quatro boletins em uma folha A4 sem margens extras.");
 conferir(cssBoletim.includes(".bulletinGradeRegion::after") && cssBoletim.includes(".bulletinGradeTable tbody tr:hover td") && cssBoletim.includes(".bulletinFinalRow td.is-pass"), "Tabela do Boletim deve manter acabamento UI moderno, interacao e destaque da nota final.");

@@ -4,7 +4,7 @@
 >
 > Última atualização: 12/07/2026
 >
-> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` passou a manter `Notas` e a nova guia `Boletim`, reconstruída do zero contra a referência local `aqui.png`. A prévia do Boletim agora pagina uma folha por vez, remonta todas somente na impressão/PDF e possui auditoria visual automatizada em cinco viewports. A antiga Estatísticas permanece incorporada em `.notesStatsSection`; demais guias continuam removidas. A tela usa exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
+> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` passou a manter `Notas` e a nova guia `Boletim`, reconstruída do zero contra a referência local `aqui.png`. A prévia do Boletim agora mostra todas as folhas em rolagem contínua, com carregamento progressivo e renderização econômica fora da tela; impressão/PDF continuam completas e a auditoria visual cobre cinco viewports. A antiga Estatísticas permanece incorporada em `.notesStatsSection`; demais guias continuam removidas. A tela usa exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -17,8 +17,8 @@
 - Os hashes legados `#estatisticas` e `#movimento` normalizam para `/notas/#notas`; `#boletins` normaliza para `/notas/#boletim`.
 - A guia `Notas` preserva ficha, filtros, insights, painel analítico, ranking, gráfico, donut, detalhamento por disciplina, impressão e painel do aluno.
 - A guia `Boletim` preserva o shell comum e reproduz a referência `aqui.png` com filtros, situações, ações e prévia; gera toda a turma em A4 vertical, quatro boletins horizontais empilhados por folha.
-- A prévia do `Boletim` mantém somente a folha ativa no DOM, com paginação anterior/próxima; Imprimir remonta as folhas por `beforeprint`, enquanto Baixar PDF gera e baixa o arquivo diretamente, restaurando a prévia ao terminar.
-- `scripts/auditoria-visual-boletim.mjs` valida automaticamente a geometria, overflow, colunas, controles e paginação em 1672×941, 1550×741, 1420×941, 1280×720 e 390×844.
+- A prévia do `Boletim` mantém todas as folhas em fluxo vertical contínuo, sem botões anterior/próxima; a primeira é imediata e as seguintes são preenchidas em lotes ociosos/priorizadas por proximidade da rolagem.
+- `scripts/auditoria-visual-boletim.mjs` valida automaticamente geometria, overflow, colunas, controles, rolagem contínua, impressão e PDF em 1672×941, 1550×741, 1420×941, 1280×720 e 390×844.
 - Foram corrigidos nesta consolidação: códigos canônicos de componentes; precedência do conselho; nota ausente diferente de zero; recuperação aplicável por etapa; métricas rotuladas como alunos; foco, teclado e semântica acessível; contraste dos chips; impressão marcada como modelo visual; fallback de inicialização; código e CSS órfãos.
 - Nenhuma autenticação, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou dado real foi criado ou alterado.
 
@@ -72,7 +72,7 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 14. `Boletim` deve manter o shell comum do sistema — menu lateral, título `Boletim Escolar`, busca e usuário — sem botão de ajuda.
 15. A turma selecionada no Boletim deve gerar todos os estudantes do recorte, com quatro boletins horizontais empilhados por folha A4 vertical.
 16. As 12 colunas disciplinares do Boletim devem ter largura idêntica, inclusive `Computação`; notas regulares e a nota final usam a mesma base azul, mantendo vermelho para valores abaixo do mínimo.
-17. A prévia comum do Boletim deve renderizar uma folha por vez; todas as folhas só podem ser montadas temporariamente para impressão/PDF, preservando quatro boletins por A4 e a numeração global.
+17. A prévia comum do Boletim deve exibir todas as folhas em rolagem vertical contínua, sem cliques de paginação, preservando quatro boletins por A4 e numeração global.
 18. O modo de impressão pode trocar efeitos decorativos rasterizados por cores sólidas equivalentes para reduzir o PDF, mas não pode remover conteúdo, alterar as nove páginas esperadas nem mudar a geometria aprovada.
 19. `Baixar PDF` deve gerar o arquivo diretamente no navegador e iniciar o download; somente `Imprimir` pode chamar `window.print()`.
 
@@ -672,7 +672,7 @@ O projeto só poderá ser considerado concluído quando:
 ## 17. Pendências que bloqueiam a implementação real
 
 - reconstruir cada próxima guia somente quando o responsável definir seu novo escopo; `Notas` e `Boletim` são as únicas guias autorizadas no estado atual;
-- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia, paginação, impressão e download direto do PDF no navegador do responsável;
+- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia, rolagem contínua, impressão e download direto do PDF no navegador do responsável;
 - validar visualmente a consolidação de `Notas` de 12/07/2026 em desktop, mobile, temas, teclado, painel do aluno e impressão com marca de modelo;
 - manter códigos canônicos `P`, `M`, `C`, `G`, `H`, `A`, `RL`, `F`, `I`, `RD`, `ET`, `CPT` em fixtures, contrato, listas e UI;
 - fechar as regras pedagógicas ainda pendentes antes de expandir `calcularResultadoEstudante` para dados reais, preservando a precedência explícita do conselho já corrigida;
@@ -739,6 +739,16 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 12/07/2026 — prévia contínua com carregamento progressivo
+
+- Responsável pediu substituir `Página X de Y` por todas as folhas da turma em rolagem vertical, sem cliques e sem reintroduzir gargalo.
+- Os controles anterior/próxima e o estado `paginaAtual` foram removidos; as nove folhas A4 são reservadas imediatamente e mantêm quatro boletins por folha.
+- A primeira folha é preenchida no ciclo inicial; as seguintes são montadas uma por tarefa ociosa com fallback temporizado, enquanto `IntersectionObserver` prioriza folhas que se aproximam da área visível.
+- Cada folha usa `content-visibility: auto` e altura intrínseca calculada, permitindo ao navegador pular layout/pintura distante sem provocar saltos na barra de rolagem.
+- Um único `ResizeObserver` calcula `--bulletin-shared-scale` e a altura de placeholder para todas as folhas, substituindo um observador por página.
+- Filtros retornam ao topo, mudança de cor não reconstrói a lista, e impressão/PDF ainda forçam todas as folhas visíveis antes da captura.
+- A auditoria passou a exigir nove folhas, 35 boletins, última folha com três alunos, rolagem vertical e ausência dos botões de paginação.
 
 ### 12/07/2026 — acabamento UI moderno da tabela do Boletim
 

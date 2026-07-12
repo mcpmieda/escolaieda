@@ -16,13 +16,15 @@ const estado = {
   trimestres: new Set(Object.keys(trimestres)),
   cor: "color",
   zoom: 1,
-  paginaAtual: 0,
   inicializado: false
 };
 
 const ui = {};
 let renderPendente = 0;
 let pageSizeObserver = null;
+let pagePriorityObserver = null;
+let cancelarTarefaOciosa = null;
+let versaoPreenchimento = 0;
 let bibliotecasPdfPromise = null;
 
 function inicializarBoletim() {
@@ -40,10 +42,7 @@ function inicializarBoletim() {
     telaCheia: document.getElementById("bulletinFullscreen"),
     viewport: document.getElementById("bulletinPreviewViewport"),
     paginas: document.getElementById("bulletinPages"),
-    contador: document.getElementById("bulletinPreviewCount"),
-    paginaAnterior: document.getElementById("bulletinPreviousPage"),
-    paginaProxima: document.getElementById("bulletinNextPage"),
-    paginaStatus: document.getElementById("bulletinPageStatus")
+    contador: document.getElementById("bulletinPreviewCount")
   });
 
   preencherTurmas();
@@ -102,7 +101,7 @@ function vincularEventos() {
     button.addEventListener("click", () => {
       estado.cor = button.dataset.bulletinColor;
       sincronizarModoCor();
-      agendarRender();
+      ui.paginas.dataset.colorMode = estado.cor;
     });
   }
 
@@ -110,9 +109,6 @@ function vincularEventos() {
     estado.zoom = Number(ui.zoom.value) || 1;
     aplicarZoom();
   });
-
-  ui.paginaAnterior.addEventListener("click", () => mudarPagina(-1));
-  ui.paginaProxima.addEventListener("click", () => mudarPagina(1));
 
   ui.telaCheia.addEventListener("click", alternarTelaCheia);
   document.addEventListener("fullscreenchange", sincronizarTelaCheia);
@@ -161,30 +157,25 @@ function sincronizarModoCor() {
   }
 }
 
-function agendarRender(reiniciarPagina = false) {
-  if (reiniciarPagina) estado.paginaAtual = 0;
+function agendarRender(voltarAoTopo = false) {
+  if (voltarAoTopo) ui.viewport?.scrollTo({ top: 0, behavior: "auto" });
   cancelAnimationFrame(renderPendente);
   renderPendente = requestAnimationFrame(renderBoletim);
 }
 
 function renderBoletim({ todasPaginas = false } = {}) {
   if (!estado.inicializado) inicializarBoletim();
+  cancelarPreenchimentoProgressivo();
   const selecionados = filtrarEstudantes();
   const paginas = agrupar(selecionados, 4);
   const fragment = document.createDocumentFragment();
-  estado.paginaAtual = Math.min(estado.paginaAtual, Math.max(0, paginas.length - 1));
-  const paginasParaRenderizar = todasPaginas
-    ? paginas.map((grupo, indice) => ({ grupo, indice }))
-    : paginas[estado.paginaAtual]
-      ? [{ grupo: paginas[estado.paginaAtual], indice: estado.paginaAtual }]
-      : [];
 
-  paginasParaRenderizar.forEach(({ grupo, indice: paginaIndex }) => {
+  paginas.forEach((grupo, paginaIndex) => {
     const pagina = elemento("section", "bulletinPage");
-    pagina.setAttribute("aria-label", `Página ${paginaIndex + 1} de ${paginas.length}`);
-    grupo.forEach((estudante, indice) => {
-      pagina.append(criarBoletim(estudante, paginaIndex * 4 + indice + 1));
-    });
+    pagina.dataset.pageIndex = String(paginaIndex);
+    pagina.setAttribute("aria-label", `Folha ${paginaIndex + 1} de ${paginas.length}`);
+    pagina.setAttribute("aria-busy", "true");
+    if (todasPaginas || paginaIndex === 0) preencherPagina(pagina, grupo, paginaIndex);
     fragment.append(pagina);
   });
 
@@ -197,43 +188,76 @@ function renderBoletim({ todasPaginas = false } = {}) {
 
   ui.paginas.replaceChildren(fragment);
   ui.paginas.dataset.colorMode = estado.cor;
-  ui.contador.textContent = `${selecionados.length} boletim(ns) · ${paginas.length} página(s)`;
-  sincronizarPaginacao(paginas.length, todasPaginas);
+  ui.contador.textContent = `${selecionados.length} boletim(ns) · ${paginas.length} folha(s) contínua(s)`;
   observarEscalaDasPaginas();
   aplicarZoom();
+  if (!todasPaginas && paginas.length > 1) agendarPreenchimentoProgressivo(paginas);
 }
 
-function mudarPagina(deslocamento) {
-  const totalPaginas = agrupar(filtrarEstudantes(), 4).length;
-  const destino = Math.max(0, Math.min(totalPaginas - 1, estado.paginaAtual + deslocamento));
-  if (destino === estado.paginaAtual) return;
-  estado.paginaAtual = destino;
-  renderBoletim();
-  ui.viewport.scrollTo({ top: 0, behavior: "smooth" });
+function preencherPagina(pagina, grupo, paginaIndex) {
+  if (!pagina || pagina.dataset.loaded === "true") return;
+  const fragment = document.createDocumentFragment();
+  grupo.forEach((estudante, indice) => {
+    fragment.append(criarBoletim(estudante, paginaIndex * 4 + indice + 1));
+  });
+  pagina.replaceChildren(fragment);
+  pagina.dataset.loaded = "true";
+  pagina.setAttribute("aria-busy", "false");
 }
 
-function sincronizarPaginacao(totalPaginas, todasPaginas = false) {
-  const temPaginas = totalPaginas > 0;
-  ui.paginaStatus.textContent = temPaginas
-    ? `Página ${estado.paginaAtual + 1} de ${totalPaginas}`
-    : "Nenhuma página";
-  ui.paginaAnterior.disabled = todasPaginas || !temPaginas || estado.paginaAtual === 0;
-  ui.paginaProxima.disabled = todasPaginas || !temPaginas || estado.paginaAtual >= totalPaginas - 1;
-  ui.paginaAnterior.setAttribute("aria-disabled", String(ui.paginaAnterior.disabled));
-  ui.paginaProxima.setAttribute("aria-disabled", String(ui.paginaProxima.disabled));
+function agendarPreenchimentoProgressivo(grupos) {
+  const versao = versaoPreenchimento;
+  const pendentes = new Set(grupos.map((_, indice) => indice).slice(1));
+  const preencherIndice = (indice) => {
+    if (versao !== versaoPreenchimento || !pendentes.has(indice)) return;
+    const pagina = ui.paginas.querySelector(`.bulletinPage[data-page-index="${indice}"]`);
+    preencherPagina(pagina, grupos[indice], indice);
+    pendentes.delete(indice);
+    pagePriorityObserver?.unobserve(pagina);
+  };
+
+  if ("IntersectionObserver" in window) {
+    pagePriorityObserver = new IntersectionObserver((entries) => {
+      entries.filter((entry) => entry.isIntersecting).forEach((entry) => preencherIndice(Number(entry.target.dataset.pageIndex)));
+    }, { root: ui.viewport, rootMargin: "120% 0px" });
+    ui.paginas.querySelectorAll('.bulletinPage[aria-busy="true"]').forEach((pagina) => pagePriorityObserver.observe(pagina));
+  }
+
+  const executarLote = () => {
+    if (versao !== versaoPreenchimento || !pendentes.size) return;
+    preencherIndice(pendentes.values().next().value);
+    if (pendentes.size) cancelarTarefaOciosa = agendarTarefaOciosa(executarLote);
+  };
+  cancelarTarefaOciosa = agendarTarefaOciosa(executarLote);
+}
+
+function agendarTarefaOciosa(callback) {
+  if ("requestIdleCallback" in window) {
+    const id = window.requestIdleCallback(callback, { timeout: 350 });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = window.setTimeout(callback, 24);
+  return () => window.clearTimeout(id);
+}
+
+function cancelarPreenchimentoProgressivo() {
+  versaoPreenchimento += 1;
+  pagePriorityObserver?.disconnect();
+  pagePriorityObserver = null;
+  cancelarTarefaOciosa?.();
+  cancelarTarefaOciosa = null;
 }
 
 function observarEscalaDasPaginas() {
   pageSizeObserver?.disconnect();
   if (!("ResizeObserver" in window)) return;
-  pageSizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const largura = entry.target.getBoundingClientRect().width;
-      const escala = Math.max(0.55, Math.min(1.25, largura / 1505));
-      entry.target.style.setProperty("--bulletin-content-scale", escala.toFixed(4));
-    }
+  pageSizeObserver = new ResizeObserver(() => {
+    const largura = ui.paginas.getBoundingClientRect().width;
+    const escala = Math.max(0.55, Math.min(1.25, largura / 1505));
+    ui.paginas.style.setProperty("--bulletin-shared-scale", escala.toFixed(4));
+    ui.paginas.style.setProperty("--bulletin-page-intrinsic-height", `${(largura * 275 / 210).toFixed(2)}px`);
   });
-  ui.paginas.querySelectorAll(".bulletinPage").forEach((pagina) => pageSizeObserver.observe(pagina));
+  pageSizeObserver.observe(ui.paginas);
 }
 
 function filtrarEstudantes() {

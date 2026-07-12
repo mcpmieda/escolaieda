@@ -180,9 +180,8 @@ const expressaoMetricas = `(() => {
     controlsOverflow: [...document.querySelectorAll('.bulletinSituationButton, .bulletinActionButton')]
       .some((item) => item.scrollWidth > item.clientWidth + 2),
     columnSpread: larguras.length ? Math.max(...larguras) - Math.min(...larguras) : 999,
-    pageStatus: document.getElementById('bulletinPageStatus')?.textContent || '',
-    previousDisabled: document.getElementById('bulletinPreviousPage')?.disabled,
-    nextDisabled: document.getElementById('bulletinNextPage')?.disabled,
+    busyPages: document.querySelectorAll('.bulletinPage[aria-busy="true"]').length,
+    hasPaginationButtons: Boolean(document.getElementById('bulletinPreviousPage') || document.getElementById('bulletinNextPage')),
     hiddenColumnCount: colunas.length
   };
 })()`;
@@ -224,13 +223,13 @@ async function principal() {
       });
       await cdp.enviar("Page.navigate", { url });
       await esperarCondicao(cdp, `document.body.dataset.view === 'boletim' && document.querySelectorAll('.bulletinDocument').length > 0`);
-      await new Promise((resolve) => setTimeout(resolve, 350));
+      await esperarCondicao(cdp, `document.querySelectorAll('.bulletinPage').length === 9 && document.querySelectorAll('.bulletinDocument').length === 35`);
 
       const metricas = await avaliar(cdp, expressaoMetricas);
       const rotulo = `${viewport.width}x${viewport.height}`;
       registrar(metricas.bodyOverflow <= 1, `${rotulo}: a página criou overflow horizontal global (${metricas.bodyOverflow}px).`);
-      registrar(metricas.pageCount === 1, `${rotulo}: a prévia deve manter somente uma folha renderizada.`);
-      registrar(metricas.documentCount === 4, `${rotulo}: a primeira folha deve conter quatro boletins.`);
+      registrar(metricas.pageCount === 9, `${rotulo}: a prévia contínua deve conter nove folhas.`);
+      registrar(metricas.documentCount === 35, `${rotulo}: a prévia contínua deve conter os 35 boletins da turma.`);
       registrar(metricas.pageWithinViewport, `${rotulo}: a folha saiu dos limites da prévia no desktop.`);
       registrar(Math.abs(metricas.pageRatio - (210 / 275)) < 0.015, `${rotulo}: a proporção da folha A4 visual foi alterada.`);
       registrar(metricas.documentsValid, `${rotulo}: cabeçalho, corpo, tabela ou rodapé saiu do boletim.`);
@@ -238,23 +237,28 @@ async function principal() {
       registrar(!metricas.controlsOverflow, `${rotulo}: texto de botão escapou da própria caixa.`);
       registrar(metricas.columnSpread <= 1, `${rotulo}: as colunas de disciplinas deixaram de ter larguras iguais.`);
       registrar(metricas.hiddenColumnCount === 12, `${rotulo}: a tabela não contém as 12 colunas disciplinares.`);
-      registrar(metricas.pageStatus === "Página 1 de 9", `${rotulo}: paginação inicial inesperada (${metricas.pageStatus}).`);
-      registrar(metricas.previousDisabled === true && metricas.nextDisabled === false, `${rotulo}: estados dos botões de paginação estão incorretos.`);
+      registrar(metricas.busyPages === 0, `${rotulo}: o carregamento progressivo deixou folhas pendentes.`);
+      registrar(metricas.hasPaginationButtons === false, `${rotulo}: a prévia contínua não deve exibir botões de paginação.`);
 
       const captura = await cdp.enviar("Page.captureScreenshot", { format: "png", fromSurface: true });
       await writeFile(path.join(saida, `boletim-${rotulo}.png`), Buffer.from(captura.data, "base64"));
     }
 
-    await avaliar(cdp, `document.getElementById('bulletinNextPage').click()`);
-    await esperarCondicao(cdp, `document.getElementById('bulletinPageStatus').textContent === 'Página 2 de 9'`);
-    const segundaPagina = await avaliar(cdp, `({
-      status: document.getElementById('bulletinPageStatus').textContent,
-      label: document.querySelector('.bulletinPage')?.getAttribute('aria-label'),
-      documentCount: document.querySelectorAll('.bulletinDocument').length
-    })`);
-    registrar(segundaPagina.status === "Página 2 de 9", "O botão Próxima não avançou para a segunda página.");
-    registrar(segundaPagina.label === "Página 2 de 9", "A folha visível não atualizou seu nome acessível.");
-    registrar(segundaPagina.documentCount === 4, "A segunda página não preservou quatro boletins.");
+    const fluxoContinuo = await avaliar(cdp, `(() => {
+      const folhas = [...document.querySelectorAll('.bulletinPage')];
+      const viewport = document.getElementById('bulletinPreviewViewport');
+      viewport.scrollTop = viewport.scrollHeight;
+      return {
+        primeira: folhas[0]?.getAttribute('aria-label'),
+        ultima: folhas.at(-1)?.getAttribute('aria-label'),
+        ultimaQuantidade: folhas.at(-1)?.querySelectorAll('.bulletinDocument').length,
+        rolavel: viewport.scrollHeight > viewport.clientHeight
+      };
+    })()`);
+    registrar(fluxoContinuo.primeira === "Folha 1 de 9", "A primeira folha contínua perdeu seu nome acessível.");
+    registrar(fluxoContinuo.ultima === "Folha 9 de 9", "A última folha contínua perdeu seu nome acessível.");
+    registrar(fluxoContinuo.ultimaQuantidade === 3, "A última folha deveria conter os três boletins restantes.");
+    registrar(fluxoContinuo.rolavel === true, "A prévia contínua deveria permitir rolagem vertical.");
 
     await cdp.enviar("Emulation.setDeviceMetricsOverride", {
       width: 1672,
@@ -263,7 +267,7 @@ async function principal() {
       mobile: false
     });
     await cdp.enviar("Page.navigate", { url });
-    await esperarCondicao(cdp, `document.body.dataset.view === 'boletim' && document.querySelectorAll('.bulletinDocument').length === 4`);
+    await esperarCondicao(cdp, `document.body.dataset.view === 'boletim' && document.querySelectorAll('.bulletinPage').length === 9 && document.querySelectorAll('.bulletinDocument').length >= 4`);
     const pdfResultado = await cdp.enviar("Page.printToPDF", {
       printBackground: true,
       preferCSSPageSize: true,
@@ -349,7 +353,7 @@ async function principal() {
 
   console.log("Auditoria visual do Boletim concluída com sucesso.");
   console.log(`- Viewports: ${viewports.map(({ width, height }) => `${width}x${height}`).join(", ")}.`);
-  console.log("- Prévia sob demanda: 1 folha e 4 boletins por vez.");
+  console.log("- Prévia contínua: 9 folhas e 35 boletins sem paginação por clique.");
   console.log("- PDF: 9 páginas e limite automatizado de 18 MB.");
   console.log("- Download direto: arquivo PDF validado sem abrir a impressão.");
   console.log(`- Capturas locais: ${saida}`);
