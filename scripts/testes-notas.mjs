@@ -57,12 +57,12 @@ conferir(/<script\b[^>]*type=["']module["'][^>]*src=["']js\/app\.js["']/i.test(h
 conferir(/href=["']css\/tokens\.css["']/.test(html), "notas/index.html nao referencia css/tokens.css.");
 conferir(!/id=["']view-movimento["']/.test(html), "view-movimento deve permanecer removida; Estatisticas foi integrada em Notas.");
 conferir(/id=["']view-notas["']/.test(html), "view-notas nao encontrada.");
-conferir(/id=["']view-boletim["']/.test(html), "view-boletim nao encontrada.");
+conferir(!/id=["']view-boletim["']/.test(html), "Boletim deve permanecer removido enquanto as demais guias sao reconstruidas.");
 conferir(!/class=["'][^"']*pageView active/i.test(html), "Views nao devem carregar com active fixo antes do roteamento JS.");
 conferir(!/id=["']view-conselho["']/.test(html), "view-conselho deveria estar fora desta fase visual.");
 conferir(!/id=["']view-relatorios["']/.test(html), "view-relatorios deveria estar fora desta fase visual.");
 conferir(!/id=["']view-importacoes["']/.test(html), "view-importacoes deveria estar fora desta fase visual.");
-conferir((html.match(/data-view=/g) || []).length === 2, "A navegacao deve conter somente Notas e Boletim nesta fase.");
+conferir((html.match(/data-view=/g) || []).length === 1, "A navegacao deve conter somente a guia Notas nesta fase.");
 conferir(!html.includes('data-view="movimento"') && !html.includes('aria-label="Estatísticas"'), "A aba Estatisticas nao deve aparecer como guia separada.");
 conferir(/class=["'][^"']*notesStatsSection/.test(html) && /id=["']movementChart["']/.test(html) && /id=["']movementStats["']/.test(html) && /id=["']movementDonut["']/.test(html) && /id=["']movementRanking["']/.test(html), "Notas deve incorporar cards, ranking, grafico e donut de Estatisticas.");
 conferir(/<option value=["']geral["']>VISÃO GERAL<\/option>/.test(html), "Notas deve oferecer a opcao VISÃO GERAL no periodo.");
@@ -80,8 +80,10 @@ conferir(!html.includes("notesSummary"), "Aba Notas nao deve manter resumo de ca
 conferir(html.includes("notesTableAnnotations") && html.includes('id="notesClassLabel" class="srOnly"'), "Aba Notas deve manter anotacoes compactas na tabela e contexto acessivel sem repetir cabecalho.");
 conferir(!html.includes("Regra demonstrativa") && !/<p class=["']sectionKicker["']>Ficha de notas<\/p>/i.test(html), "Aba Notas nao deve repetir o titulo nem exibir a regra demonstrativa na ficha.");
 conferir(!/Lista filtr[aá]vel/i.test(html), "Aba Notas nao deve manter texto de lista filtravel.");
-conferir(/id=["']boletimA4Preview["']/.test(html), "boletimA4Preview nao encontrado.");
 conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao encontrado.");
+conferir(html.includes('role="dialog"') && html.includes('aria-modal="true"') && html.includes("studentProfileBackdrop"), "Painel do aluno deve usar dialogo modal com backdrop.");
+conferir(/<caption class=["']srOnly["']>/.test(html) && html.includes('aria-describedby="notesClassLabel"'), "Tabela de Notas deve ter caption e contexto acessivel.");
+conferir(html.includes('role="combobox"') && html.includes('aria-autocomplete="list"'), "Busca global deve expor semantica de combobox.");
 
 const appTexto = ler("notas/js/app.js");
 const cssBase = ler("notas/css/base.css");
@@ -102,7 +104,7 @@ conferir(appTexto.includes("statsSelectOptionMeta"), "Seletor customizado deve e
 conferir(appTexto.includes("statsSelectIconName") && appTexto.includes("calendar"), "Seletores de Notas devem renderizar icones de turma e periodo.");
 conferir(appTexto.includes("renderGlobalSearchResults") && appTexto.includes("closeGlobalSearchResults"), "Busca global deve usar painel proprio e fechar ao clicar fora.");
 conferir(appTexto.includes("somaPeriodoEstudante") && appTexto.includes("formatarSomaPontuacao"), "Painel analitico deve ranquear e exibir pontuacao por soma.");
-conferir(appTexto.includes("MÉDIA DA TURMA") && appTexto.includes("mediaTurma") && appTexto.includes("NOTAS AZUIS") && appTexto.includes("NOTAS VERMELHAS"), "Painel analitico deve usar notas azuis/vermelhas e media real da turma.");
+conferir(appTexto.includes("MÉDIA DA TURMA") && appTexto.includes("mediaTurma") && appTexto.includes("ALUNOS SEM NOTA VERMELHA") && appTexto.includes("ALUNOS EM ATENÇÃO"), "Painel analitico deve rotular como alunos as metricas calculadas por aluno.");
 conferir(appTexto.includes("alunosVermelhos") && appTexto.includes("Relatório da disciplina"), "Clique em disciplina deve abrir relatorio de notas vermelhas.");
 conferir(appTexto.includes("calcularMaxEixoMovimento"), "Grafico integrado deve escalar o eixo pelo maior valor real do recorte.");
 conferir(!appTexto.includes("VER TOP 10 POR SOMA") && !appTexto.includes("SOMA DO RECORTE") && !appTexto.includes("ⓘ"), "Estatisticas nao deve manter textos antigos sem funcao.");
@@ -124,7 +126,11 @@ conferir(appTexto.includes("nomeAluno(estudante)") && appTexto.includes('toLocal
 conferir(appTexto.includes('!event.target.closest("#studentProfilePanel")') && appTexto.includes("fecharPerfilAluno();"), "Painel lateral do aluno deve fechar ao clicar fora.");
 conferir(appTexto.includes("imprimirRelatorioNotas") && appTexto.includes('printView = "notas"'), "Botao de impressao de Notas deve imprimir a propria ficha.");
 conferir(appTexto.includes("APROVADO APÓS RECUPERAÇÃO") && appTexto.includes("APROVADO PELO CONSELHO") && appTexto.includes("REPROVADO PELO CONSELHO"), "Aba Notas deve contemplar os resultados finais demonstrativos aprovados.");
-conferir(appTexto.includes("criarMiniBoletim"), "criarMiniBoletim nao encontrado em app.js.");
+conferir(!appTexto.includes("criarMiniBoletim") && !appTexto.includes("renderBoletim") && !appTexto.includes("state.boletim"), "Codigo da guia Boletim deve permanecer removido.");
+conferir(appTexto.includes("scoreMissing") && appTexto.includes("formatarNota") && !appTexto.includes("if (!nota) return 0"), "Nota ausente deve ser diferente de zero.");
+conferir(appTexto.includes("trapStudentPanelFocus") && appTexto.includes("studentPanelTrigger"), "Painel do aluno deve conter foco e devolve-lo ao acionador.");
+conferir(appTexto.includes('row = element("button", "attentionStudent")'), "Alunos em atencao devem ser acionaveis por teclado.");
+conferir(appTexto.includes('aria-pressed') && appTexto.includes('aria-current'), "Controles ativos devem comunicar estado acessivel.");
 conferir(appTexto.includes("studentPeek"), "Previa compacta do aluno nao encontrada em app.js.");
 conferir(appTexto.includes("RL") && appTexto.includes("RD") && appTexto.includes("CPT"), "Mapeamento de componentes pedido nao encontrado.");
 conferir(cssComponentes.includes(".notesStatsSection") && cssComponentes.includes(".movementBars"), "Estilo do painel analitico integrado em Notas nao encontrado.");
@@ -163,9 +169,9 @@ conferir(!/body\[data-view="notas"\]\s+\.scorePill\s*\{[\s\S]*?animation:\s*scor
 conferir(cssComponentes.includes("grid-auto-rows: 42px") && cssComponentes.includes("height: 42px"), "Ranking do painel analitico deve manter mesma altura de itens no top 3 e top 10.");
 conferir(cssComponentes.includes("padding-top: 34px") && cssComponentes.includes("height: 221px"), "Grafico do painel analitico deve reservar respiro superior para rotulos das barras.");
 conferir(cssComponentes.includes("conic-gradient(from -126deg, rgba(255, 255, 255, 0.18)") && cssComponentes.includes("0 11px 0 rgba(4, 17, 37, 0.58)"), "Donut do painel analitico deve manter relevo 3D sutil.");
-conferir(cssComponentes.includes(".a4Sheet"), "Estilo da folha A4 nao encontrado.");
-conferir(cssComponentes.includes(".miniBoletim"), "Estilo do mini boletim nao encontrado.");
-conferir(cssComponentes.includes("grid-template-rows: repeat(4, 1fr)"), "Boletim deve usar quatro faixas horizontais na folha A4.");
+conferir(!cssComponentes.includes(".a4Sheet") && !cssComponentes.includes(".miniBoletim") && !cssComponentes.includes(".boletimPreviewPanel"), "CSS exclusivo de Boletim deve permanecer removido.");
+conferir(cssComponentes.includes(".scorePill.scoreMissing"), "Nota ausente deve ter estilo neutro proprio.");
+conferir(cssLayouts.includes(".studentProfileBackdrop") && cssLayouts.includes('MODELO VISUAL — DADOS FICTÍCIOS — SEM VALIDADE'), "Painel modal e impressao visual devem ter protecoes proprias.");
 conferir(cssComponentes.includes(".studentPeek"), "Estilo da previa de aluno nao encontrado.");
 conferir(cssLayouts.includes(".appRail"), "Menu lateral compacto nao encontrado no layout.");
 conferir(cssLayouts.includes('body[data-view="notas"] .notesGrid') && cssLayouts.includes("minmax(282px, 0.34fr)"), "Insights de Notas devem ficar em coluna lateral mais estreita no desktop.");
@@ -183,6 +189,10 @@ for (const termo of termosProibidos) {
 conferir(classificarMedia(75) === "regular", "Media 75 deveria ser regular.");
 conferir(classificarMedia(65) === "atencao", "Media 65 deveria ser atencao.");
 conferir(classificarMedia(45) === "critico", "Media 45 deveria ser critico.");
+conferir(calcularResultadoEstudante({ decisaoConselho: "aprovado", lancamentos: [{ total: 70, totalRec: 70 }] }) === "APROVADO PELO CONSELHO", "Decisao de aprovacao do Conselho deve prevalecer sobre a nota calculada.");
+conferir(calcularResultadoEstudante({ decisaoConselho: "reprovado", lancamentos: [{ total: 70, totalRec: 70 }] }) === "REPROVADO PELO CONSELHO", "Decisao de reprovacao do Conselho deve prevalecer sobre a nota calculada.");
+conferir(calcularResultadoEstudante({ lancamentos: [] }) === "EM CURSO", "Aluno sem lancamentos nao deve ser reprovado automaticamente.");
+conferir(calcularResultadoEstudante({ lancamentos: [{ total: "", totalRec: "" }] }) === "EM CURSO", "Nota ainda nao lancada deve manter resultado EM CURSO.");
 
 const estudantes = listarEstudantesComResumo(demoData);
 const turmas = resumirTurmas(demoData);
@@ -204,6 +214,7 @@ conferir(resumo.totalEstudantes === demoData.estudantes.length, "Resumo geral co
 conferir(filtrados.length > 0, "Filtro de busca nao encontrou estudantes ficticios esperados.");
 conferir(demoData.lancamentos.every((item) => item.origem === "fixture-demo"), "Lancamentos de demo devem estar marcados como fixture-demo.");
 conferir(demoData.componentes.length >= 12, "Fixture deve representar a matriz anual de componentes.");
+conferir(demoData.componentes.map((item) => item.codigo).join("|") === "P|M|C|H|G|A|F|I|RL|RD|ET|CPT", "Fixture deve usar apenas codigos canonicos dos componentes.");
 conferir(demoData.estudantes.length === demoData.turmas.length * 35, "Fixture deve manter 35 alunos ficticios por turma.");
 const resultadosDemo = new Set(estudantes.map((estudante) => estudante.resultadoFinal));
 for (const resultado of ["APROVADO DIRETO", "APROVADO APÓS RECUPERAÇÃO", "APROVADO PELO CONSELHO", "REPROVADO PELO CONSELHO", "REPROVADO"]) {

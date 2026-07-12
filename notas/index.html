@@ -35,16 +35,6 @@
           </svg>
           <span>Notas</span>
         </button>
-        <button class="navItem" type="button" data-view="boletim" aria-label="Boletim">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M7 3h7l4 4v14H7z"></path>
-            <path d="M14 3v5h5"></path>
-            <path d="M9 13h8"></path>
-            <path d="M9 17h5"></path>
-            <path d="M5 7v14h12"></path>
-          </svg>
-          <span>Boletim</span>
-        </button>
       </nav>
 
       <div class="railStatus">
@@ -54,6 +44,9 @@
     </aside>
 
     <main class="mainStage">
+      <noscript>
+        <section class="appFatalError">Ative o JavaScript para abrir a ficha de notas.</section>
+      </noscript>
       <header class="systemBar">
         <div class="systemTitle">
           <img src="../logo_escola.png" alt="" class="topBrandLogo">
@@ -70,12 +63,12 @@
               <circle cx="11" cy="11" r="7"></circle>
               <path d="m16.5 16.5 4 4"></path>
             </svg>
-            <input id="globalSearch" type="search" placeholder="Buscar aluno, turma ou disciplina" autocomplete="off" aria-controls="globalSearchResults" aria-expanded="false">
-            <div class="searchResultsPanel" id="globalSearchResults" role="listbox" hidden></div>
+            <input id="globalSearch" type="search" placeholder="Buscar aluno, turma ou disciplina" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="globalSearchResults" aria-expanded="false">
+            <div class="searchResultsPanel" id="globalSearchResults" role="listbox" aria-label="Resultados da busca" hidden></div>
           </div>
 
           <div class="profileBox">
-            <button class="profileButton" id="btnProfile" type="button" aria-expanded="false">
+            <button class="profileButton" id="btnProfile" type="button" aria-haspopup="menu" aria-controls="profileMenu" aria-expanded="false">
               <span class="profileAvatar" aria-hidden="true">EI</span>
               <span>
                 <strong>Gestão escolar</strong>
@@ -92,11 +85,14 @@
                 </div>
               </div>
               <a href="../admin/">Painel administrativo</a>
-              <button id="btnLogout" type="button">Sair</button>
             </div>
           </div>
         </div>
       </header>
+
+      <section class="appFatalError" id="appFatalError" role="alert" hidden>
+        Não foi possível abrir a ficha de notas. Atualize a página; se o problema continuar, informe a gestão do sistema.
+      </section>
 
       <section class="pageView" id="view-notas" aria-labelledby="notasTitulo">
         <div class="statsDashboard notesDashboard">
@@ -137,7 +133,7 @@
               </div>
               <div class="notesTableMeta">
                 <div class="notesTableAnnotations">
-                  <span id="notesTableTitle">I trimestre</span>
+                  <span id="notesTableTitle" aria-live="polite">I trimestre</span>
                 </div>
                 <div class="notesFilterMenu">
                   <button class="notesFilterButton" type="button" id="notasFilterButton" aria-expanded="false" aria-controls="notasStatusFilters">
@@ -158,8 +154,10 @@
                   </div>
                 </div>
               </div>
-              <div class="notesTableWrap" aria-label="Tabela compacta de notas">
-                <table class="notesTable">
+              <p class="tableScrollHint">A tabela possui mais colunas à direita. Deslize ou use as setas para consultar todas as disciplinas.</p>
+              <div class="notesTableWrap" role="region" aria-label="Tabela de notas com rolagem horizontal" tabindex="0">
+                <table class="notesTable" aria-describedby="notesClassLabel">
+                  <caption class="srOnly">Notas dos alunos da turma e do período selecionados</caption>
                   <thead id="notasCabecalho"></thead>
                   <tbody id="notasTabela"></tbody>
                 </table>
@@ -186,20 +184,20 @@
                   <div class="statsPanelTitle">
                     <h3>DESEMPENHO POR DISCIPLINA</h3>
                     <div class="statsLegend">
-                      <span><i class="legendDot blue"></i> NOTAS AZUIS</span>
-                      <span><i class="legendDot red"></i> NOTAS VERMELHAS</span>
+                      <span><i class="legendDot blue"></i> ALUNOS SEM NOTA VERMELHA</span>
+                      <span><i class="legendDot red"></i> ALUNOS COM NOTA VERMELHA</span>
                     </div>
                   </div>
                 </div>
                 <span class="srOnly" id="movementDisciplineHint">Clique em uma disciplina para ver os alunos com nota vermelha.</span>
-                <div class="movementChart" id="movementChart" aria-label="Gráfico de barras por disciplina"></div>
+                <div class="movementChart" id="movementChart" role="group" aria-labelledby="notasAnaliseTitulo" aria-describedby="movementDisciplineHint"></div>
                 <p class="statsChartFootnote">Mínimo de 18 pontos no I/II trimestre e 24 no III trimestre. Máximo do período conforme etapa selecionada.</p>
               </section>
 
               <section class="statsGlass statsDonutPanel" id="movementDonut"></section>
             </div>
 
-            <section class="panel classResultsPanel" id="movementClassPanel" hidden>
+            <section class="panel classResultsPanel" id="movementClassPanel" aria-live="polite" hidden>
               <div class="panelHeader">
                 <div>
                   <p class="sectionKicker" id="movementClassPanelKicker">Detalhamento</p>
@@ -225,83 +223,11 @@
         </div>
       </section>
 
-      <section class="pageView" id="view-boletim" aria-labelledby="boletimTitulo">
-        <div class="screenHero boletimHero">
-          <div>
-            <p class="eyebrow">Relatórios e impressão</p>
-            <h2 id="boletimTitulo">Boletim escolar</h2>
-            <p>Prévia em folha A4 com quatro boletins por página, recados, data e situações.</p>
-          </div>
-          <div class="heroControls">
-            <label>
-              <span>Turma</span>
-              <select id="boletimTurma"></select>
-            </label>
-            <label>
-              <span>Aluno</span>
-              <input id="boletimBuscaAluno" type="search" placeholder="Buscar aluno">
-            </label>
-            <button class="actionButton" type="button" id="boletimPrint">Imprimir</button>
-          </div>
-        </div>
-
-        <div class="boletimLayout">
-          <section class="panel boletimControls">
-            <div class="controlColumn">
-              <p class="sectionKicker">Configuração</p>
-              <label>
-                <span>Título</span>
-                <input id="boletimTituloInput" type="text" value="BOLETIM ESCOLAR 2026">
-              </label>
-              <label>
-                <span>Data de impressão</span>
-                <input id="boletimDataInput" type="date">
-              </label>
-              <label>
-                <span>Modo</span>
-                <select id="boletimModoCor">
-                  <option value="colorido">Colorido</option>
-                  <option value="preto">Preto e branco</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="controlColumn">
-              <p class="sectionKicker">Situações</p>
-              <label class="toggleLine"><input id="boletimSituacaoDireto" type="checkbox" checked> Aprovado direto</label>
-              <label class="toggleLine"><input id="boletimSituacaoRec" type="checkbox" checked> Aprovado após recuperação</label>
-              <label class="toggleLine"><input id="boletimSituacaoAcomp" type="checkbox" checked> Conselho e reprovados</label>
-            </div>
-
-            <div class="controlColumn wideControl">
-              <p class="sectionKicker">Informações e recados</p>
-              <label>
-                <span>Recado</span>
-                <input id="boletimRecadoInput" type="text" value="Procure a secretaria em caso de dúvida sobre o resultado.">
-              </label>
-              <label>
-                <span>Rodapé</span>
-                <input id="boletimRodapeInput" type="text" value="Escola Municipal Profª Iêda Alves de Oliveira - Medeiros Neto - BA">
-              </label>
-            </div>
-          </section>
-
-          <section class="panel boletimPreviewPanel">
-            <div class="panelHeader">
-              <div>
-                <p class="sectionKicker">Prévia da emissão</p>
-                <h3 id="boletimCount">4 resultados na página</h3>
-              </div>
-              <span class="panelHint">Numeração segue a ordem do resultado filtrado.</span>
-            </div>
-            <div class="a4Preview" id="boletimA4Preview" aria-label="Folha A4 com boletins"></div>
-          </section>
-        </div>
-      </section>
     </main>
   </div>
 
-  <aside class="studentProfilePanel" id="studentProfilePanel" aria-labelledby="studentProfileTitle" aria-hidden="true">
+  <div class="studentProfileBackdrop" id="studentProfileBackdrop" hidden></div>
+  <aside class="studentProfilePanel" id="studentProfilePanel" role="dialog" aria-modal="true" aria-labelledby="studentProfileTitle" aria-hidden="true" tabindex="-1" inert>
     <div class="profilePanelHeader">
       <div>
         <p class="eyebrow">Perfil de aluno</p>

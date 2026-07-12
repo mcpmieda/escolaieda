@@ -113,82 +113,6 @@ body[data-theme="claro"] .appRail {
   align-items: center;
 }
 
-.screenHero {
-  margin-bottom: 12px;
-  padding: 22px;
-  min-height: 126px;
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) auto;
-  gap: 16px;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)),
-    var(--surface);
-  box-shadow: var(--shadow-soft);
-}
-
-.screenHero h2 {
-  margin-bottom: 4px;
-  font-size: clamp(1.55rem, 3vw, 2.45rem);
-  line-height: 1;
-}
-
-.screenHero p:last-child {
-  margin-bottom: 0;
-  color: var(--ink-soft);
-}
-
-.movementHero {
-  background:
-    linear-gradient(135deg, rgba(29, 110, 242, 0.28), rgba(227, 38, 58, 0.12)),
-    var(--surface);
-}
-
-.notesHero {
-  background:
-    linear-gradient(135deg, rgba(17, 67, 118, 0.50), rgba(255, 255, 255, 0.04)),
-    var(--surface);
-}
-
-.notesLead {
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-}
-
-.boletimHero {
-  background:
-    linear-gradient(135deg, rgba(227, 38, 58, 0.16), rgba(29, 110, 242, 0.22)),
-    var(--surface);
-}
-
-.heroControls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-  align-items: end;
-}
-
-.heroControls label,
-.controlColumn label {
-  display: grid;
-  gap: 5px;
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.heroControls select,
-.heroControls input {
-  min-width: 145px;
-}
-
-.movementGrid,
 .notesGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(315px, 0.55fr);
@@ -222,16 +146,6 @@ body[data-view="notas"] .notesGrid {
   gap: 8px;
 }
 
-.filterPanel {
-  margin-bottom: 12px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  display: grid;
-  grid-template-columns: minmax(150px, auto) minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-}
-
 .statusFilters {
   display: flex;
   flex-wrap: wrap;
@@ -239,26 +153,13 @@ body[data-view="notas"] .notesGrid {
   justify-content: flex-end;
 }
 
-.boletimLayout {
-  display: grid;
-  gap: 12px;
-}
-
-.boletimControls {
-  display: grid;
-  grid-template-columns: minmax(230px, 0.8fr) minmax(190px, 0.55fr) minmax(360px, 1.25fr);
-  gap: 10px;
-}
-
-.controlColumn {
-  min-width: 0;
-  display: grid;
-  align-content: start;
-  gap: 8px;
-}
-
-.wideControl {
-  grid-template-columns: 1fr;
+.studentProfileBackdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: rgba(1, 8, 20, 0.62);
+  backdrop-filter: blur(4px);
+  z-index: 899;
 }
 
 .studentProfilePanel {
@@ -303,11 +204,7 @@ body[data-view="notas"] .notesGrid {
 
 @media (max-width: 1180px) {
   .systemBar,
-  .screenHero,
-  .movementGrid,
-  .notesGrid,
-  .filterPanel,
-  .boletimControls {
+  .notesGrid {
     grid-template-columns: 1fr;
   }
 
@@ -315,7 +212,6 @@ body[data-view="notas"] .notesGrid {
     grid-template-columns: 1fr;
   }
 
-  .heroControls,
   .statusFilters {
     justify-content: flex-start;
   }
@@ -338,7 +234,7 @@ body[data-view="notas"] .notesGrid {
   }
 
   .railNav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .railStatus {
@@ -354,10 +250,6 @@ body[data-view="notas"] .notesGrid {
     grid-template-columns: 1fr;
   }
 
-  .heroControls {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
 }
 
 .statsDashboard {
@@ -484,20 +376,29 @@ body[data-view="notas"] .notesGrid {
   }
 }
 
+@page {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
 @media print {
+
   .appRail,
   .systemBar,
-  .screenHero,
-  .boletimControls,
-  .panelHeader,
+  .notesTopRow,
+  .notesSidePanel,
+  .notesStatsSection,
+  .notesFilterMenu,
+  .studentProfileBackdrop,
   .studentProfilePanel {
     display: none !important;
   }
 
   .appShell,
   .mainStage,
-  .boletimLayout,
-  .boletimPreviewPanel {
+  .notesDashboard,
+  .notesGrid,
+  .notesBoardModern {
     display: block;
     width: 100%;
     margin: 0;
@@ -508,62 +409,47 @@ body[data-view="notas"] .notesGrid {
   }
 
   body {
-    background: #fff;
-  }
-
-  .pageView {
-    display: none !important;
-  }
-
-  #view-boletim {
-    display: block !important;
-  }
-
-  body[data-print-view="notas"] {
+    --notes-panel: #fff;
+    --notes-panel-line: #9fb5ce;
+    --notes-panel-shadow: none;
+    --notes-ink: #10243e;
+    --notes-muted: #526d8b;
+    --notes-soft: #254366;
+    --notes-table-bg: #fff;
+    --notes-table-line: #9fb5ce;
+    --notes-head-bg: #dbeaf8;
+    --notes-row-bg: #fff;
+    --notes-row-alt: #edf5fc;
+    --notes-score-bg: #e8f1fa;
     background: #fff !important;
     color: #10243e;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
 
-  body[data-print-view="notas"] #view-boletim {
-    display: none !important;
+  body::before {
+    content: "MODELO VISUAL — DADOS FICTÍCIOS — SEM VALIDADE";
+    position: fixed;
+    inset: 48% 0 auto;
+    color: rgba(168, 20, 39, 0.16);
+    font-size: 30pt;
+    font-weight: 900;
+    text-align: center;
+    transform: rotate(-18deg);
+    pointer-events: none;
+    z-index: 9999;
   }
 
-  body[data-print-view="notas"] #view-notas {
+  #view-notas {
     display: block !important;
   }
 
-  body[data-print-view="notas"] .appRail,
-  body[data-print-view="notas"] .systemBar,
-  body[data-print-view="notas"] .notesTopRow,
-  body[data-print-view="notas"] .notesSidePanel,
-  body[data-print-view="notas"] .notesFilterMenu,
-  body[data-print-view="notas"] .studentProfilePanel {
-    display: none !important;
-  }
-
-  body[data-print-view="notas"] .appShell,
-  body[data-print-view="notas"] .mainStage,
-  body[data-print-view="notas"] .notesDashboard,
-  body[data-print-view="notas"] .notesGrid,
-  body[data-print-view="notas"] .notesBoardModern {
-    display: block;
-    width: 100%;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: #fff;
-    box-shadow: none;
-  }
-
-  body[data-print-view="notas"] .notesBoardHeader {
+  .notesBoardHeader {
     display: flex !important;
     margin-bottom: 5mm;
   }
 
-  body[data-print-view="notas"] .notesTableWrap {
+  .notesTableWrap {
     overflow: visible;
     border: 0;
     background: #fff;

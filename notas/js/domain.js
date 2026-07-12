@@ -42,8 +42,14 @@ function obterMapas(dados) {
 
 function listarEstudantesComResumo(dados) {
   const mapas = obterMapas(dados);
+  const lancamentosPorEstudante = new Map();
+  for (const lancamento of dados.lancamentos) {
+    const atuais = lancamentosPorEstudante.get(lancamento.estudanteId) || [];
+    atuais.push(lancamento);
+    lancamentosPorEstudante.set(lancamento.estudanteId, atuais);
+  }
   return dados.estudantes.map((estudante) => {
-    const notas = dados.lancamentos.filter((lancamento) => lancamento.estudanteId === estudante.id);
+    const notas = lancamentosPorEstudante.get(estudante.id) || [];
     const mediaFinal = media(notas.map((nota) => Number(nota.notaFinal)));
     const situacao = classificarMedia(mediaFinal);
     const lancamentos = notas.map((nota) => ({
@@ -140,13 +146,15 @@ function filtrarTurmasPorEstudantes(turmas, estudantesFiltrados) {
 
 function calcularResultadoEstudante(estudante) {
   const notas = estudante.lancamentos || [];
-  if (!notas.length) return "REPROVADO";
+  if (estudante.decisaoConselho === "aprovado") return "APROVADO PELO CONSELHO";
+  if (estudante.decisaoConselho === "reprovado") return "REPROVADO PELO CONSELHO";
+  if (!notas.length || notas.some((nota) => nota.total === "" || nota.total == null || !Number.isFinite(Number(nota.total)))) {
+    return "EM CURSO";
+  }
   const todasDiretas = notas.every((nota) => Number(nota.total) >= 60);
   const todasComRecuperacao = notas.every((nota) => Number(nota.total) >= 60 || Number(nota.totalRec) >= 60);
   if (todasDiretas) return "APROVADO DIRETO";
   if (todasComRecuperacao) return "APROVADO APÓS RECUPERAÇÃO";
-  if (estudante.decisaoConselho === "aprovado") return "APROVADO PELO CONSELHO";
-  if (estudante.decisaoConselho === "reprovado") return "REPROVADO PELO CONSELHO";
   return "REPROVADO";
 }
 

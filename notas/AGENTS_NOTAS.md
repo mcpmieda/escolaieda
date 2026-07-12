@@ -2,11 +2,22 @@
 
 > Documento operacional e fonte de verdade para pessoas e inteligências artificiais que trabalharem neste módulo.
 >
-> Última atualização: 10/07/2026
+> Última atualização: 12/07/2026
 >
-> Estado: fase 1/3 — arquivos reais analisados, contrato de exportação proposto, POC Graph confirmada e SPA `/notas/` em modo demonstração. Em 07/07/2026, após comando salvo no Bloco de Notas, a fase visual foi remodelada para conter somente `Movimento`, `Notas` e `Boletim`, com menu lateral compacto, seletor de temas, busca global preparada, gráfico estatístico por disciplina, tabela de notas sem rolagem horizontal em desktop e boletim com quatro emissões por A4 em quatro faixas horizontais de largura total. Em 08/07/2026, a antiga aba `Movimento` passou a ser tratada como `Estatísticas` e foi refinada contra o `anexo 7.png`, com captura desktop 1420×941 e captura mobile 390×844; a navegação lateral compacta e o cabeçalho superior comum foram reativados nessa view após o responsável apontar que fazem parte do corpo geral do projeto. Em seguida, `Estatísticas` deixou de usar números estáticos e passou a calcular cartões, gráfico, donut, ranking top 3/top 10, `TODAS AS TURMAS` e `VISÃO GERAL` com base nos dados fictícios do recorte selecionado. Na finalização de 08/07/2026, a aba foi ajustada para linguagem de soma/pontuação/mínimo, ranking por somatório, rodapé com horário atual, donut sem rotação do percentual, barras com transição lenta de cor, remoção da lista nominal genérica de alunos abaixo do mínimo, seletor customizado com rolagem, temas claro/mono mais abrangentes e impressão própria de relatório estatístico. Na etapa `aqui2.txt`, a aba recebeu acabamento final de usabilidade: indicadores visuais sem função removidos, busca global com painel próprio e fechamento ao clicar fora, perfil com fechamento externo e pontos de tema visíveis, ranking top 10 expandindo dentro da própria caixa com rolagem moderna e avatares fictícios, cartões `NOTAS AZUIS`/`NOTAS VERMELHAS`/`MÉDIA DA TURMA`, donut com maior profundidade visual, barras com movimento de cor mais perceptível e relatório contextual de notas vermelhas ao clicar em uma disciplina. Na etapa `aqui3.txt`, o brilho do donut e dos pontos de legenda foi suavizado, o centro do donut foi limpo, as barras e o anel do donut passaram a alternar tons lentamente, os seletores de turma/período ganharam ícones, os cards de dashboard receberam ícones mais explícitos e nomes mais legíveis, o ranking top 10 preserva a área dos três primeiros ao expandir e o gráfico passou a escalar pelo maior valor real do recorte. Após `aqui4.txt`, a aba `Notas` avançou para a ficha principal: seletores e impressão no mesmo padrão de `Estatísticas`, filtro compacto dentro da tabela, remoção da área externa de filtros/cards fora do novo prompt, tabela com colunas `Nº`, `Status`, `Aluno`, disciplinas e `Resultado`, pílulas arredondadas para status/resultado/notas, hover horizontal e vertical, insights laterais sem recolhimento e dados fictícios com nomes completos, notas de três trimestres, recuperação e resultados `APROVADO DIRETO`, `APROVADO APÓS RECUPERAÇÃO`, `APROVADO PELO CONSELHO`, `REPROVADO PELO CONSELHO` e `REPROVADO`. Após `aqui5.txt`, `Notas` foi revisada para remover o resumo/dashboard da ficha, mover o filtro para a linha de anotações da tabela, padronizar os seletores com `Estatísticas`, manter 35 alunos fictícios por turma, reforçar o modal opaco de hover do aluno, aproximar os insights do `anexo 10.png` e remover a view ativa fixa do HTML para evitar o carregamento visual do botão de impressão da aba errada antes do roteamento. Após `aqui6.txt`, `Estatísticas` reservou respiro superior no gráfico para os rótulos das barras não invadirem o cabeçalho, travou a altura dos itens do ranking ao alternar top 3/top 10 e reforçou o relevo 3D sutil do donut; `Notas` compactou a tabela, manteve status em uma linha, escureceu o modal do aluno, restringiu destaque de coluna às notas e estreitou/limpou os insights removendo a nota numérica lateral. Após os prints de 09/07/2026, `Notas` removeu a duplicidade `Ficha de notas`, retirou a regra demonstrativa da linha da ficha, redesenhou o popover de filtros e a prévia de aluno com camadas opacas/legíveis, suavizou o destaque cruzado da tabela e reduziu mais a altura das linhas. Na revisão seguinte, o filtro da tabela ficou em grade compacta de duas colunas no desktop, a aba `Notas` passou a ter variáveis próprias para os temas claro/mono e a tabela deixou de animar linhas e chips de nota individualmente para eliminar atraso percebido na rolagem. Em 10/07/2026, os seletores Turma/Período da aba `Notas` foram conferidos contra `Estatísticas` e passaram a usar menus opacos próprios, mantendo as mesmas dimensões de cards, botões e listagens nos viewports testados. Após `aqui7.txt`, `Estatísticas` deixou de existir como aba separada e foi incorporada abaixo da ficha de `Notas` em `.notesStatsSection`; os hashes legados `#estatisticas` e `#movimento` agora abrem `/notas/#notas`. Os seletores de `Notas` comandam tabela, insights, cards, ranking, gráfico, donut e painel contextual; `TODAS AS TURMAS` mantém a análise geral, mas a grade de notas exibe aviso para escolher turma individual e os insights laterais não exibem contadores de alunos em atenção ou disciplinas. Foram adicionadas recuperações por trimestre, nomes de alunos em caixa alta, hover de aluno somente com foto maior, painel lateral mais opaco com fechamento externo e remoção de termos de demonstração da superfície principal. Na correção posterior de 10/07/2026, a prévia/foto do aluno na tabela voltou a ficar escondida por padrão e aparece apenas no hover/foco para não sobrepor os nomes. Leitura pelo conector Excel Online (Business), integração Graph real da tela e provisionamento das listas `NOTAS_*` seguem pendentes; nenhuma lista, biblioteca, fluxo definitivo, permissão ou recurso Microsoft 365 foi criado.
+> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` foi consolidada para manter somente a guia `Notas`, com a antiga Estatísticas incorporada em `.notesStatsSection`. Boletim e demais guias foram removidos para reconstrução futura. A tela continua usando exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
+
+### Estado vigente após a consolidação de 12/07/2026
+
+- A SPA continua visual, estática e alimentada somente por fixtures fictícios.
+- A navegação visível contém **somente a guia `Notas`**.
+- `Estatísticas` permanece incorporada dentro de `Notas` como `.notesStatsSection`; não recriar guia separada.
+- `Boletim` e quaisquer outras guias foram removidas do HTML, JavaScript e CSS para serem reconstruídas do zero em etapas futuras.
+- Os hashes legados `#estatisticas`, `#movimento`, `#boletim` e `#boletins` normalizam para `/notas/#notas`.
+- A guia `Notas` preserva ficha, filtros, insights, painel analítico, ranking, gráfico, donut, detalhamento por disciplina, impressão e painel do aluno.
+- Foram corrigidos nesta consolidação: códigos canônicos de componentes; precedência do conselho; nota ausente diferente de zero; recuperação aplicável por etapa; métricas rotuladas como alunos; foco, teclado e semântica acessível; contraste dos chips; impressão marcada como modelo visual; fallback de inicialização; código e CSS órfãos.
+- Nenhuma autenticação, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou dado real foi criado ou alterado.
 
 ## 1. Leitura obrigatória antes de trabalhar
 
@@ -52,6 +63,9 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 8. As novas estruturas serão separadas das listas e bibliotecas atuais, usando o prefixo `NOTAS_`.
 9. A aplicação será acessada por `https://escolaieda.com/notas/` e por um cartão no painel `/admin/`.
 10. Nesta etapa, estão autorizados documentação, scripts de POC e protótipo estático local do módulo de notas. Nenhum recurso Microsoft 365 deve ser criado ainda sem aprovação explícita.
+11. A navegação desta fase deve conter somente `Notas`; novas guias serão reconstruídas individualmente, mediante pedido e validação próprios.
+12. Não restaurar Boletim ou Estatísticas como guia reaproveitando código/CSS removido. A reconstrução deve começar com contrato funcional, acessibilidade e testes de comportamento.
+13. Enquanto houver dados fictícios, a impressão da ficha deve trazer marca visível de modelo sem validade.
 
 ### Consequência da decisão de permissões
 
@@ -647,6 +661,10 @@ O projeto só poderá ser considerado concluído quando:
 
 ## 17. Pendências que bloqueiam a implementação real
 
+- reconstruir cada próxima guia somente quando o responsável definir seu novo escopo; `Notas` é a única guia autorizada no estado atual;
+- validar visualmente a consolidação de `Notas` de 12/07/2026 em desktop, mobile, temas, teclado, painel do aluno e impressão com marca de modelo;
+- manter códigos canônicos `P`, `M`, `C`, `G`, `H`, `A`, `RL`, `F`, `I`, `RD`, `ET`, `CPT` em fixtures, contrato, listas e UI;
+- fechar as regras pedagógicas ainda pendentes antes de expandir `calcularResultadoEstudante` para dados reais, preservando a precedência explícita do conselho já corrigida;
 - executar a POC final pelo conector Excel Online (Business), pois a leitura online por Microsoft Graph Workbook API já foi comprovada em `.xlsb`;
 - criar/autorizar uma conexão `Excel Online (Business)` no ambiente padrão do Power Automate;
 - confirmar no tenant que o conector Excel Online (Business) lista e lê `TB_EXPORT_NOTAS` dentro de `.xlsb`;
@@ -710,6 +728,24 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 12/07/2026 — consolidação da SPA em uma única guia Notas
+
+- Responsável determinou apagar as demais guias e manter apenas `Notas`, preservando ficha, insights e análise integrada para reconstruir as próximas telas do zero.
+- `notas/index.html` removeu a navegação/view de Boletim e passou a conter uma única guia visível.
+- Hashes legados de Estatísticas/Movimento/Boletim normalizam para `#notas`, evitando links sem destino.
+- `notas/js/app.js` removeu todo estado, renderização, controles e impressão de Boletim; também removeu imports e funções sem uso.
+- `notas/css/componentes.css` removeu o bloco de Boletim, seletores legados de `body[data-view="movimento"]` e classes órfãs confirmadas por varredura estática.
+- Componentes fictícios passaram a usar os códigos canônicos da interface; o mapa intermediário `ER/EF/R/PV/EO` foi eliminado.
+- `calcularResultadoEstudante()` agora respeita primeiro decisão explícita do conselho e mantém `EM CURSO` quando não há lançamentos completos.
+- Nota ausente deixou de virar `0,0`; períodos de recuperação exibem somente lançamentos aos quais a recuperação se aplica.
+- Cards/donut/legendas agora informam que contam alunos com/sem nota vermelha, eliminando o rótulo enganoso de quantidade de notas.
+- Acessibilidade reforçada: busca combobox, navegação por setas, estados `aria-current`/`aria-pressed`, tabela com caption/scope, gráfico com nomes/valores, painel modal com backdrop, foco contido e devolvido, itens de atenção como botões e rolagem horizontal identificada.
+- Contraste dos chips foi reforçado e tipografia da tabela aumentada; impressão da ficha ganhou A4 paisagem e marca `MODELO VISUAL — DADOS FICTÍCIOS — SEM VALIDADE`.
+- Fallback de inicialização e tolerância a `localStorage` bloqueado foram adicionados.
+- `scripts/testes-notas.mjs` passou a exigir guia única, ausência de Boletim, códigos canônicos, precedência do conselho, `EM CURSO`, nota ausente, proteções de impressão e acessibilidade estrutural.
+- Nenhum recurso Microsoft 365 e nenhum dado real foi alterado.
+- Próxima etapa correta: validar a versão publicada de `Notas`; somente depois iniciar a reconstrução de uma nova guia definida pelo responsável.
 
 ### 10/07/2026 — correção de prévia do aluno sobrepondo nomes na tabela
 

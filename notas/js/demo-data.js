@@ -12,12 +12,12 @@ const componentes = [
   { id: "comp-demo-h", codigo: "H", nome: "História", area: "Ciências Humanas" },
   { id: "comp-demo-g", codigo: "G", nome: "Geografia", area: "Ciências Humanas" },
   { id: "comp-demo-a", codigo: "A", nome: "Arte", area: "Linguagens" },
-  { id: "comp-demo-ef", codigo: "EF", nome: "Educação Física", area: "Linguagens" },
+  { id: "comp-demo-f", codigo: "F", nome: "Educação Física", area: "Linguagens" },
   { id: "comp-demo-i", codigo: "I", nome: "Inglês", area: "Linguagens" },
-  { id: "comp-demo-er", codigo: "ER", nome: "Ensino Religioso", area: "Formação Humana" },
-  { id: "comp-demo-r", codigo: "R", nome: "Redação", area: "Linguagens" },
-  { id: "comp-demo-pv", codigo: "PV", nome: "Projeto de Vida", area: "Formação Humana" },
-  { id: "comp-demo-eo", codigo: "EO", nome: "Estudos Orientados", area: "Acompanhamento" }
+  { id: "comp-demo-rl", codigo: "RL", nome: "Ensino Religioso", area: "Formação Humana" },
+  { id: "comp-demo-rd", codigo: "RD", nome: "Redação", area: "Linguagens" },
+  { id: "comp-demo-et", codigo: "ET", nome: "Ética e Cidadania", area: "Formação Humana" },
+  { id: "comp-demo-cpt", codigo: "CPT", nome: "Computação", area: "Tecnologia" }
 ];
 
 const alunosPorTurma = 35;

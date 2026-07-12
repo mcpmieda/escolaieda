@@ -1,26 +1,23 @@
 import { demoData } from "./demo-data.js";
 import {
-  calcularResumoGeral,
   formatarMedia,
   listarEstudantesComResumo,
-  normalizarTexto,
-  resumirEtapas,
-  resumirTurmas
+  normalizarTexto
 } from "./domain.js";
 
 const componentes = [
-  { source: "P", codigo: "P", nome: "Língua Portuguesa" },
-  { source: "M", codigo: "M", nome: "Matemática" },
-  { source: "C", codigo: "C", nome: "Ciências" },
-  { source: "G", codigo: "G", nome: "Geografia" },
-  { source: "H", codigo: "H", nome: "História" },
-  { source: "A", codigo: "A", nome: "Artes" },
-  { source: "ER", codigo: "RL", nome: "Ensino Religioso" },
-  { source: "EF", codigo: "F", nome: "Educação Física" },
-  { source: "I", codigo: "I", nome: "Inglês" },
-  { source: "R", codigo: "RD", nome: "Redação" },
-  { source: "PV", codigo: "ET", nome: "Ética e Cidadania" },
-  { source: "EO", codigo: "CPT", nome: "Computação" }
+  { codigo: "P", nome: "Língua Portuguesa" },
+  { codigo: "M", nome: "Matemática" },
+  { codigo: "C", nome: "Ciências" },
+  { codigo: "G", nome: "Geografia" },
+  { codigo: "H", nome: "História" },
+  { codigo: "A", nome: "Artes" },
+  { codigo: "RL", nome: "Ensino Religioso" },
+  { codigo: "F", nome: "Educação Física" },
+  { codigo: "I", nome: "Inglês" },
+  { codigo: "RD", nome: "Redação" },
+  { codigo: "ET", nome: "Ética e Cidadania" },
+  { codigo: "CPT", nome: "Computação" }
 ];
 
 const periodos = {
@@ -47,10 +44,6 @@ const viewCopy = {
   notas: [
     "Notas",
     "Ficha de notas, insights e desempenho por turma e período."
-  ],
-  boletim: [
-    "Boletim",
-    "Configuração de impressão com quatro boletins por A4, recados, data e situações."
   ]
 };
 
@@ -60,12 +53,12 @@ const viewAliases = {
   dashboard: "notas",
   turma: "notas",
   banco: "notas",
-  boletins: "boletim"
+  boletim: "notas",
+  boletins: "notas"
 };
 
 const viewHashes = {
-  notas: "notas",
-  boletim: "boletim"
+  notas: "notas"
 };
 
 const estudantesResumo = listarEstudantesComResumo(demoData);
@@ -73,8 +66,7 @@ let activeStatsSelect = null;
 
 const state = {
   view: viewFromHash() || "notas",
-  theme: localStorage.getItem("notas-theme") || "aurora",
-  search: "",
+  theme: carregarTema(),
   movimento: {
     turma: "turma-demo-8c",
     periodo: "T1",
@@ -85,18 +77,10 @@ const state = {
     turma: "turma-demo-8c",
     periodo: "T1",
     situacoes: new Set(Object.keys(statusOperacionais))
-  },
-  boletim: {
-    turma: "turma-demo-8c",
-    busca: "",
-    modo: "colorido",
-    titulo: "BOLETIM ESCOLAR 2026",
-    data: dataInputHoje(),
-    recado: "Procure a secretaria em caso de dúvida sobre o resultado.",
-    rodape: "Escola Municipal Profª Iêda Alves de Oliveira - Medeiros Neto - BA",
-    situacoes: new Set(["APROVADO DIRETO", "APROVADO APÓS RECUPERAÇÃO", "APROVADO PELO CONSELHO", "REPROVADO PELO CONSELHO", "REPROVADO"])
   }
 };
+
+let studentPanelTrigger = null;
 
 const ui = {
   viewTitle: document.getElementById("viewTitle"),
@@ -105,7 +89,6 @@ const ui = {
   globalSearchResults: document.getElementById("globalSearchResults"),
   profileButton: document.getElementById("btnProfile"),
   profileMenu: document.getElementById("profileMenu"),
-  logout: document.getElementById("btnLogout"),
   movementClassLabel: document.getElementById("movementClassLabel"),
   movementStats: document.getElementById("movementStats"),
   movementChart: document.getElementById("movementChart"),
@@ -130,31 +113,26 @@ const ui = {
   notasTabela: document.getElementById("notasTabela"),
   notasInsights: document.getElementById("notasInsights"),
   notasPrint: document.getElementById("notasPrint"),
-  boletimTurma: document.getElementById("boletimTurma"),
-  boletimBuscaAluno: document.getElementById("boletimBuscaAluno"),
-  boletimTituloInput: document.getElementById("boletimTituloInput"),
-  boletimDataInput: document.getElementById("boletimDataInput"),
-  boletimModoCor: document.getElementById("boletimModoCor"),
-  boletimRecadoInput: document.getElementById("boletimRecadoInput"),
-  boletimRodapeInput: document.getElementById("boletimRodapeInput"),
-  boletimSituacaoDireto: document.getElementById("boletimSituacaoDireto"),
-  boletimSituacaoRec: document.getElementById("boletimSituacaoRec"),
-  boletimSituacaoAcomp: document.getElementById("boletimSituacaoAcomp"),
-  boletimCount: document.getElementById("boletimCount"),
-  boletimA4Preview: document.getElementById("boletimA4Preview"),
+  appShell: document.querySelector(".appShell"),
   studentProfilePanel: document.getElementById("studentProfilePanel"),
+  studentProfileBackdrop: document.getElementById("studentProfileBackdrop"),
   studentProfileTitle: document.getElementById("studentProfileTitle"),
   studentProfileContent: document.getElementById("studentProfileContent"),
   studentProfileClose: document.getElementById("studentProfileClose")
 };
 
-initialize();
+try {
+  initialize();
+} catch (error) {
+  console.error("Falha ao inicializar o módulo de notas:", error);
+  document.getElementById("appFatalError")?.removeAttribute("hidden");
+}
 
 function initialize() {
   preencherSelects();
   enhanceStatsSelects();
   aplicarTema(state.theme);
-  ui.boletimDataInput.value = state.boletim.data;
+  ui.studentProfilePanel.inert = true;
   bindEvents();
   abrirView(state.view, true);
 }
@@ -172,15 +150,15 @@ function bindEvents() {
   ui.globalSearch.addEventListener("focus", renderGlobalSearchResults);
   ui.globalSearch.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeGlobalSearchResults(true);
+    if (event.key === "ArrowDown" && !ui.globalSearchResults.hidden) {
+      event.preventDefault();
+      ui.globalSearchResults.querySelector(".searchResultItem")?.focus();
+    }
   });
 
   ui.profileButton.addEventListener("click", (event) => {
     event.stopPropagation();
     toggleProfileMenu();
-  });
-
-  ui.logout.addEventListener("click", () => {
-    closeProfileMenu();
   });
 
   ui.notasTurma.addEventListener("change", () => {
@@ -216,48 +194,9 @@ function bindEvents() {
   });
   notesTable.addEventListener("focusout", clearNotesColumnHighlight);
 
-  ui.boletimTurma.addEventListener("change", () => {
-    state.boletim.turma = ui.boletimTurma.value;
-    renderBoletim();
-  });
-  ui.boletimBuscaAluno.addEventListener("input", () => {
-    state.boletim.busca = ui.boletimBuscaAluno.value;
-    renderBoletim();
-  });
-  ui.boletimTituloInput.addEventListener("input", () => {
-    state.boletim.titulo = ui.boletimTituloInput.value;
-    renderBoletim();
-  });
-  ui.boletimDataInput.addEventListener("change", () => {
-    state.boletim.data = ui.boletimDataInput.value;
-    renderBoletim();
-  });
-  ui.boletimModoCor.addEventListener("change", () => {
-    state.boletim.modo = ui.boletimModoCor.value;
-    renderBoletim();
-  });
-  ui.boletimRecadoInput.addEventListener("input", () => {
-    state.boletim.recado = ui.boletimRecadoInput.value;
-    renderBoletim();
-  });
-  ui.boletimRodapeInput.addEventListener("input", () => {
-    state.boletim.rodape = ui.boletimRodapeInput.value;
-    renderBoletim();
-  });
-  [ui.boletimSituacaoDireto, ui.boletimSituacaoRec, ui.boletimSituacaoAcomp].forEach((input) => {
-    input.addEventListener("change", () => {
-      state.boletim.situacoes = new Set([
-        ui.boletimSituacaoDireto.checked ? "APROVADO DIRETO" : "",
-        ui.boletimSituacaoRec.checked ? "APROVADO APÓS RECUPERAÇÃO" : "",
-        ...(ui.boletimSituacaoAcomp.checked ? ["APROVADO PELO CONSELHO", "REPROVADO PELO CONSELHO", "REPROVADO"] : [])
-      ].filter(Boolean));
-      renderBoletim();
-    });
-  });
-
   ui.notasPrint.addEventListener("click", imprimirRelatorioNotas);
-  document.getElementById("boletimPrint").addEventListener("click", () => window.print());
   ui.studentProfileClose.addEventListener("click", fecharPerfilAluno);
+  ui.studentProfileBackdrop.addEventListener("click", fecharPerfilAluno);
 
   window.addEventListener("afterprint", () => {
     delete document.body.dataset.printView;
@@ -279,6 +218,9 @@ function bindEvents() {
   });
 
   document.addEventListener("keydown", (event) => {
+    if (ui.studentProfilePanel.classList.contains("open") && event.key === "Tab") {
+      trapStudentPanelFocus(event);
+    }
     if (event.key === "Escape") {
       closeProfileMenu();
       closeGlobalSearchResults(true);
@@ -367,6 +309,21 @@ function criarResultadoBusca(resultado) {
     event.stopPropagation();
     ativarResultadoBusca(resultado);
   });
+  button.addEventListener("keydown", (event) => {
+    const options = [...ui.globalSearchResults.querySelectorAll(".searchResultItem")];
+    const index = options.indexOf(button);
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      (options[index + 1] || options[0])?.focus();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      (options[index - 1] || ui.globalSearch)?.focus();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      closeGlobalSearchResults(false);
+      ui.globalSearch.focus();
+    }
+  });
   return button;
 }
 
@@ -384,25 +341,19 @@ function ativarResultadoBusca(resultado) {
     if (state.view !== "notas") abrirView("notas");
     state.movimento.disciplinaSelecionada = resultado.valor;
     renderNotas();
-    ui.movementChart.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    ui.movementChart.scrollIntoView({
+      block: "nearest",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+    });
   }
 }
 
 function selecionarTurmaPorBusca(turmaId) {
-  if (state.view === "notas" || state.view !== "boletim") {
-    state.notas.turma = turmaId;
-    ui.notasTurma.value = turmaId;
-    syncStatsSelect(ui.notasTurma);
-    if (state.view !== "notas") abrirView("notas", true);
-    renderNotas();
-    return;
-  }
-  if (state.view === "boletim") {
-    state.boletim.turma = turmaId;
-    ui.boletimTurma.value = turmaId;
-    renderBoletim();
-    return;
-  }
+  state.notas.turma = turmaId;
+  ui.notasTurma.value = turmaId;
+  syncStatsSelect(ui.notasTurma);
+  if (state.view !== "notas") abrirView("notas", true);
+  renderNotas();
 }
 
 function closeGlobalSearchResults(clearInput = false) {
@@ -453,6 +404,8 @@ function enhanceStatsSelects() {
 
     select.dataset.enhancedStatsSelect = "true";
     select.classList.add("statsSelectNative");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
 
     const button = element("button", "statsSelectButton");
     button.type = "button";
@@ -460,6 +413,7 @@ function enhanceStatsSelects() {
     button.setAttribute("aria-haspopup", "listbox");
     button.setAttribute("aria-expanded", "false");
     button.setAttribute("aria-controls", menuId);
+    button.dataset.selectLabel = label;
     button.append(movementIcon(statsSelectIconName(select)));
     const text = element("span", "statsSelectText");
     appendText(text, "strong", "", "statsSelectValue");
@@ -551,6 +505,8 @@ function syncStatsSelect(select) {
   if (!host || !current) return;
   const value = host.querySelector(".statsSelectValue");
   if (value) value.textContent = current.textContent;
+  const button = host.querySelector(".statsSelectButton");
+  if (button) button.setAttribute("aria-label", `${button.dataset.selectLabel}: ${current.textContent}`);
   host.querySelectorAll(".statsSelectOption").forEach((item) => {
     const active = item.dataset.value === select.value;
     item.classList.toggle("active", active);
@@ -631,27 +587,27 @@ function handleStatsSelectOptionKeydown(event, select, index) {
 }
 
 function preencherSelects() {
-  const opcoesTurma = [
-    ["todas", "Todas as turmas"],
-    ...demoData.turmas.map((turma) => [turma.id, turma.codigo])
-  ];
   const opcoesNotas = [
     ["todas", "TODAS AS TURMAS"],
     ...demoData.turmas.map((turma) => [turma.id, turmaTituloAcademico(turma).toUpperCase()])
   ];
   preencherSelect(ui.notasTurma, opcoesNotas);
-  preencherSelect(ui.boletimTurma, opcoesTurma);
   ui.notasTurma.value = state.notas.turma;
   ui.notasPeriodo.value = state.notas.periodo;
-  ui.boletimTurma.value = state.boletim.turma;
 }
 
 function aplicarTema(theme) {
-  state.theme = theme || "aurora";
+  state.theme = ["aurora", "claro", "mono"].includes(theme) ? theme : "aurora";
   document.body.dataset.theme = state.theme;
-  localStorage.setItem("notas-theme", state.theme);
+  try {
+    localStorage.setItem("notas-theme", state.theme);
+  } catch {
+    // O tema continua funcional mesmo quando o navegador bloqueia storage.
+  }
   document.querySelectorAll("[data-theme]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.theme === state.theme);
+    const active = button.dataset.theme === state.theme;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
   });
 }
 
@@ -664,7 +620,10 @@ function abrirView(view, updateHash = true) {
     section.classList.toggle("active", section.id === `view-${destino}`);
   });
   document.querySelectorAll("[data-view]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === destino);
+    const active = button.dataset.view === destino;
+    button.classList.toggle("active", active);
+    if (active) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
   });
   const [title, subtitle] = viewCopy[destino];
   document.title = `${title} | Escola Iêda MCPM`;
@@ -674,18 +633,8 @@ function abrirView(view, updateHash = true) {
   renderActiveView();
 }
 
-function renderAll() {
-  renderMovimento();
-  renderNotas();
-  renderBoletim();
-}
-
 function renderActiveView() {
-  if (state.view === "notas") {
-    renderNotas();
-  } else if (state.view === "boletim") {
-    renderBoletim();
-  }
+  renderNotas();
 }
 
 function renderMovimento() {
@@ -706,7 +655,7 @@ function sincronizarAnaliseComNotas() {
 }
 
 function criarRecorteMovimento() {
-  const estudantes = filtrarBusca(filtrarPorTurma(estudantesResumo, state.movimento.turma));
+  const estudantes = filtrarPorTurma(estudantesResumo, state.movimento.turma);
   const turma = obterTurma(state.movimento.turma);
   const periodo = periodos[state.movimento.periodo] || periodos.T1;
   const totalAlunos = estudantes.length;
@@ -748,8 +697,8 @@ function renderMovementStats(recorte) {
   const percentualAcima = Math.round((recorte.aprovados / total) * 100);
   const percentualAbaixo = Math.round((recorte.abaixo / total) * 100);
   replaceChildren(ui.movementStats, [
-    movementStatCard("trendUp", "NOTAS AZUIS", recorte.aprovados, `${percentualAcima}%`, "ok"),
-    movementStatCard("trendDown", "NOTAS VERMELHAS", recorte.abaixo, `${percentualAbaixo}%`, "error"),
+    movementStatCard("trendUp", "ALUNOS SEM NOTA VERMELHA", recorte.aprovados, `${percentualAcima}%`, "ok"),
+    movementStatCard("trendDown", "ALUNOS EM ATENÇÃO", recorte.abaixo, `${percentualAbaixo}%`, "error"),
     movementStatCard("users", recorte.turma ? "ALUNOS NA TURMA" : "ALUNOS NO RECORTE", recorte.totalAlunos, "100%", "info"),
     movementStatCard("star", "MÉDIA DA TURMA", formatarMedia(recorte.mediaTurma), "média", "info")
   ]);
@@ -777,6 +726,8 @@ function renderMovementChart(recorte) {
     button.type = "button";
     button.dataset.codigo = componente.codigo;
     button.dataset.nome = componente.nome;
+    button.setAttribute("aria-pressed", String(state.movimento.disciplinaSelecionada === componente.codigo));
+    button.setAttribute("aria-label", `${componente.nome}: ${componente.acima} aluno(s) sem nota vermelha e ${componente.abaixo} aluno(s) com nota vermelha`);
     button.style.setProperty("--bar-index", index);
 
     const bars = element("span", "barPair");
@@ -812,7 +763,9 @@ function renderMovementChart(recorte) {
 
 function sincronizarGraficoMovimento() {
   ui.movementChart.querySelectorAll(".movementBar").forEach((bar) => {
-    bar.classList.toggle("active", bar.dataset.codigo === state.movimento.disciplinaSelecionada);
+    const active = bar.dataset.codigo === state.movimento.disciplinaSelecionada;
+    bar.classList.toggle("active", active);
+    bar.setAttribute("aria-pressed", String(active));
   });
 }
 
@@ -830,18 +783,20 @@ function renderMovementDonut(recorte) {
   const left = element("div", "statsDonutLegend left");
   appendText(left, "span", `${recorte.abaixo} aluno(s)`);
   appendText(left, "strong", `${percentualAbaixo}%`);
-  appendText(left, "small", "Notas vermelhas");
+  appendText(left, "small", "Com nota vermelha");
   left.prepend(dot("red"));
 
   const donut = element("div", "donutMeter");
   donut.style.setProperty("--percent", `${percentual}%`);
+  donut.setAttribute("role", "img");
+  donut.setAttribute("aria-label", `${percentual}% dos alunos sem nota abaixo do mínimo; ${percentualAbaixo}% com nota abaixo do mínimo`);
   appendText(donut, "strong", `${percentual}%`);
-  appendText(donut, "span", "NOTAS AZUIS");
+  appendText(donut, "span", "ALUNOS SEM NOTA VERMELHA");
 
   const right = element("div", "statsDonutLegend right");
   appendText(right, "span", `${recorte.aprovados} aluno(s)`);
   appendText(right, "strong", `${percentual}%`);
-  appendText(right, "small", "Notas azuis");
+  appendText(right, "small", "Sem nota vermelha");
   right.prepend(dot("blue"));
   body.append(left, donut, right);
 
@@ -942,7 +897,7 @@ function renderClassResults(recorte) {
   ui.movementClassPanelTitle.textContent = state.movimento.turma === "todas" ? "Todas as turmas" : recorte.turmaRotulo;
   ui.movementClassPanelHint.textContent = "Resumo por turma do período selecionado.";
   const cards = demoData.turmas.map((turma) => {
-    const estudantesTurma = filtrarBusca(filtrarPorTurma(estudantesResumo, turma.id));
+    const estudantesTurma = filtrarPorTurma(estudantesResumo, turma.id);
     const aprovados = estudantesTurma.filter((estudante) => !estudanteTemVermelha(estudante, state.movimento.periodo)).length;
     const percentual = Math.round((aprovados / Math.max(1, estudantesTurma.length)) * 100);
     const card = element("article", "classResultCard");
@@ -994,8 +949,8 @@ function renderNotas() {
   const periodoCodigo = state.notas.periodo;
   const periodo = periodoNotasInfo(periodoCodigo);
   const turmaTodas = state.notas.turma === "todas";
-  let estudantes = turmaTodas ? [] : filtrarBusca(filtrarPorTurma(estudantesResumo, state.notas.turma));
-  if (periodo.recuperacao) estudantes = estudantes.filter(estudanteFezRecuperacao);
+  let estudantes = turmaTodas ? [] : filtrarPorTurma(estudantesResumo, state.notas.turma);
+  if (periodo.recuperacao) estudantes = estudantes.filter((estudante) => estudanteFezRecuperacao(estudante, periodoCodigo));
   estudantes = estudantes.filter((estudante) => state.notas.situacoes.has(statusOperacional(estudante).status));
 
   const turma = obterTurma(state.notas.turma);
@@ -1022,12 +977,16 @@ function renderNotesTable(estudantes, periodoCodigo, turmaTodas = false) {
   [["Nº", "Número de ordem"], ["Status", "Situação do aluno"], ["Aluno", "Nome completo do aluno"]].forEach(([label, title]) => {
     const th = appendText(headRow, "th", label);
     th.title = title;
+    th.scope = "col";
   });
   componentes.forEach((componente) => {
     const th = appendText(headRow, "th", componente.codigo, "componentHeader");
     th.title = componente.nome;
+    th.scope = "col";
+    th.setAttribute("aria-label", componente.nome);
   });
-  appendText(headRow, "th", "Resultado");
+  const resultHeader = appendText(headRow, "th", "Resultado");
+  resultHeader.scope = "col";
   replaceChildren(ui.notasCabecalho, [headRow]);
 
   const rows = estudantes.map((estudante, index) => {
@@ -1047,16 +1006,17 @@ function renderNotesTable(estudantes, periodoCodigo, turmaTodas = false) {
     nameButton.type = "button";
     nameButton.textContent = nomeAluno(estudante);
     nameButton.addEventListener("click", () => abrirPerfilAluno(estudante.id));
-    const peek = criarStudentPeek(estudante, periodoCodigo);
+    const peek = criarStudentPeek(estudante);
     nameCell.append(nameButton, peek);
     row.append(nameCell);
 
     componentes.forEach((componente) => {
       const nota = obterLancamento(estudante, componente);
-      const valor = nota ? valorPeriodo(nota, periodoCodigo) : 0;
+      const valor = valorPeriodo(nota, periodoCodigo);
       const cell = element("td", "scoreCell");
       cell.title = `${componente.nome} · ${periodoNotasInfo(periodoCodigo).rotulo}`;
-      const pill = appendText(cell, "span", formatarMedia(valor), "scorePill");
+      const pill = appendText(cell, "span", formatarNota(valor), "scorePill");
+      if (!Number.isFinite(valor)) pill.classList.add("scoreMissing");
       if (notaAbaixo(nota, periodoCodigo)) pill.classList.add("scoreLow");
       row.append(cell);
     });
@@ -1107,7 +1067,9 @@ function renderNotesInsights(estudantes, periodoCodigo, turmaTodas = false) {
 
   const alertList = element("div", "notesAttentionList");
   alunosAtencao.forEach(({ estudante, vermelhas }, index) => {
-    const row = element("article", "attentionStudent");
+    const row = element("button", "attentionStudent");
+    row.type = "button";
+    row.setAttribute("aria-label", `Abrir ${nomeAluno(estudante)}; componentes em atenção: ${vermelhas.map((item) => item.componente.codigo).join(", ")}`);
     row.style.setProperty("--row-index", index);
     const text = element("div");
     appendText(text, "strong", nomeAluno(estudante));
@@ -1157,7 +1119,7 @@ function notasVermelhasEstudante(estudante, periodoCodigo) {
       const nota = obterLancamento(estudante, componente);
       return {
         componente,
-        valor: nota ? valorPeriodo(nota, periodoCodigo) : 0,
+        valor: valorPeriodo(nota, periodoCodigo),
         minimo: periodoNotasInfo(periodoCodigo).minimo,
         abaixo: notaAbaixo(nota, periodoCodigo)
       };
@@ -1175,106 +1137,7 @@ function resultadoPill(resultado) {
   return pill;
 }
 
-function renderBoletim() {
-  let estudantes = filtrarBusca(filtrarPorTurma(estudantesResumo, state.boletim.turma));
-  const buscaAluno = normalizarTexto(state.boletim.busca);
-  if (buscaAluno) {
-    estudantes = estudantes.filter((estudante) => normalizarTexto(`${estudante.nome} ${estudante.codigo}`).includes(buscaAluno));
-  }
-  if (state.boletim.situacoes.size) {
-    estudantes = estudantes.filter((estudante) => state.boletim.situacoes.has(estudante.resultadoFinal));
-  }
-
-  ui.boletimCount.textContent = `${estudantes.length} resultado(s) · exibindo ${Math.min(4, estudantes.length)} por A4`;
-  const folha = element("div", `a4Sheet ${state.boletim.modo === "preto" ? "blackPrint" : ""}`.trim());
-  const cards = Array.from({ length: 4 }, (_, index) => criarMiniBoletim(estudantes[index], index + 1));
-  folha.append(...cards);
-  replaceChildren(ui.boletimA4Preview, [folha]);
-}
-
-function criarMiniBoletim(estudante, numero) {
-  const card = element("article", "miniBoletim");
-  if (!estudante) {
-    card.classList.add("emptyBoletim");
-    appendText(card, "strong", "Sem resultado");
-    appendText(card, "span", "Ajuste turma, aluno ou situações.");
-    return card;
-  }
-
-  const header = element("header", "miniBoletimHeader");
-  const logo = element("img", "miniLogo");
-  logo.src = "../logo_escola.png";
-  logo.alt = "";
-  const title = element("div");
-  appendText(title, "strong", "ESCOLA MUN. PROFª IÊDA ALVES DE OLIVEIRA MCPM");
-  appendText(title, "span", "★ ★ ★ ★ ★");
-  header.append(logo, title);
-
-  const blueBand = element("div", "miniBoletimBand");
-  appendText(blueBand, "strong", nomeAluno(estudante));
-  appendText(blueBand, "span", `${estudante.turma?.codigo || ""} · ${state.boletim.titulo || "BOLETIM ESCOLAR 2026"}`);
-
-  const main = element("div", "miniBoletimMain");
-  const student = element("section", "miniStudentBlock");
-  const photo = element("div", "photo3x4");
-  photo.textContent = iniciais(estudante.nome);
-  const meta = element("div");
-  appendText(meta, "span", "Aluno");
-  appendText(meta, "strong", nomeAluno(estudante));
-  appendText(meta, "small", `${estudante.turma?.codigo || ""} · ${estudante.codigo}`);
-  student.append(photo, meta);
-
-  const rings = element("section", "trimesterRings");
-  ["T1", "T2", "T3"].forEach((periodoCodigo) => {
-    const ring = element("article", "ring");
-    const pct = percentualPeriodo(estudante, periodoCodigo);
-    ring.style.setProperty("--percent", `${pct}%`);
-    appendText(ring, "strong", `${Math.round(pct)}%`);
-    appendText(ring, "span", periodos[periodoCodigo].curto);
-    rings.append(ring);
-  });
-
-  const resultPill = element("div", "resultPill");
-  appendText(resultPill, "strong", estudante.resultadoFinal);
-
-  const tableWrap = element("section", "miniBoletimTableWrap");
-  const table = document.createElement("table");
-  table.className = "miniBoletimTable";
-  const thead = document.createElement("thead");
-  const tr = document.createElement("tr");
-  ["Comp.", "I", "II", "III", "Final"].forEach((label) => appendText(tr, "th", label));
-  thead.append(tr);
-  const tbody = document.createElement("tbody");
-  componentes.forEach((componente) => {
-    const row = document.createElement("tr");
-    const nota = obterLancamento(estudante, componente);
-    appendText(row, "td", componente.codigo, "componentCode");
-    ["T1", "T2", "T3", "geral"].forEach((periodoCodigo) => {
-      const cell = appendText(row, "td", nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "", "boletimScoreCell");
-      if (notaAbaixo(nota, periodoCodigo)) cell.classList.add("scoreLow");
-    });
-    tbody.append(row);
-  });
-  table.append(thead, tbody);
-  tableWrap.append(table);
-
-  const date = element("aside", "miniDate");
-  date.textContent = formatarDataBoletim(state.boletim.data);
-
-  const left = element("section", "miniBoletimLeft");
-  left.append(student, rings, resultPill);
-  main.append(left, tableWrap, date);
-  const notice = element("div", "miniNotice");
-  notice.textContent = state.boletim.recado;
-  const footer = element("footer", "miniBoletimFooter");
-  appendText(footer, "span", state.boletim.rodape);
-  appendText(footer, "strong", String(numero).padStart(2, "0"));
-
-  card.append(header, blueBand, main, notice, footer);
-  return card;
-}
-
-function criarStudentPeek(estudante, periodoCodigo) {
+function criarStudentPeek(estudante) {
   const peek = element("aside", "studentPeek");
   const photo = studentPhotoAvatar(estudante, estudante.linhaOrigem + 12);
   photo.classList.add("studentPeekPhoto");
@@ -1301,7 +1164,10 @@ function abrirPerfilAluno(estudanteId) {
   table.className = "profileNotesTable";
   const head = document.createElement("thead");
   const headRow = document.createElement("tr");
-  ["Comp.", "I", "II", "III", "Total", "Rec.", "Final"].forEach((label) => appendText(headRow, "th", label));
+  ["Comp.", "I", "II", "III", "Total", "Rec.", "Final"].forEach((label) => {
+    const th = appendText(headRow, "th", label);
+    th.scope = "col";
+  });
   head.append(headRow);
   const body = document.createElement("tbody");
   componentes.forEach((componente) => {
@@ -1310,7 +1176,9 @@ function abrirPerfilAluno(estudanteId) {
     appendText(row, "td", componente.codigo);
     ["T1", "T2", "T3"].forEach((periodoCodigo) => {
       const cell = element("td");
-      const pill = appendText(cell, "span", nota ? formatarMedia(valorPeriodo(nota, periodoCodigo)) : "--", "scorePill profileScorePill");
+      const valor = valorPeriodo(nota, periodoCodigo);
+      const pill = appendText(cell, "span", formatarNota(valor), "scorePill profileScorePill");
+      if (!Number.isFinite(valor)) pill.classList.add("scoreMissing");
       if (notaAbaixo(nota, periodoCodigo)) pill.classList.add("scoreLow");
       row.append(cell);
     });
@@ -1322,13 +1190,43 @@ function abrirPerfilAluno(estudanteId) {
   table.append(head, body);
 
   replaceChildren(ui.studentProfileContent, [header, table]);
+  studentPanelTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   ui.studentProfilePanel.classList.add("open");
   ui.studentProfilePanel.setAttribute("aria-hidden", "false");
+  ui.studentProfilePanel.inert = false;
+  ui.studentProfileBackdrop.hidden = false;
+  ui.appShell.inert = true;
+  requestAnimationFrame(() => ui.studentProfileClose.focus({ preventScroll: true }));
 }
 
 function fecharPerfilAluno() {
+  if (!ui.studentProfilePanel.classList.contains("open")) return;
   ui.studentProfilePanel.classList.remove("open");
   ui.studentProfilePanel.setAttribute("aria-hidden", "true");
+  ui.studentProfilePanel.inert = true;
+  ui.studentProfileBackdrop.hidden = true;
+  ui.appShell.inert = false;
+  if (studentPanelTrigger?.isConnected) studentPanelTrigger.focus({ preventScroll: true });
+  studentPanelTrigger = null;
+}
+
+function trapStudentPanelFocus(event) {
+  const focusable = [...ui.studentProfilePanel.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")]
+    .filter((item) => !item.disabled && !item.hidden);
+  if (!focusable.length) {
+    event.preventDefault();
+    ui.studentProfilePanel.focus();
+    return;
+  }
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function imprimirRelatorioNotas() {
@@ -1336,15 +1234,6 @@ function imprimirRelatorioNotas() {
   closeNotasFilterMenu();
   document.body.dataset.printView = "notas";
   requestAnimationFrame(() => window.print());
-}
-
-function filtrarBusca(estudantes) {
-  const busca = normalizarTexto(state.search);
-  if (!busca) return estudantes;
-  return estudantes.filter((estudante) => {
-    const texto = normalizarTexto(`${estudante.nome} ${estudante.codigo} ${estudante.turma?.nome || ""} ${estudante.turma?.codigo || ""}`);
-    return texto.includes(busca);
-  });
 }
 
 function filtrarPorTurma(estudantes, turmaId) {
@@ -1433,17 +1322,22 @@ function formatarSomaPontuacao(value) {
 }
 
 function obterLancamento(estudante, componente) {
-  return estudante.lancamentos.find((nota) => nota.componente?.codigo === componente.source) || null;
+  return estudante.lancamentos.find((nota) => nota.componente?.codigo === componente.codigo) || null;
 }
 
 function valorPeriodo(nota, periodoCodigo) {
-  if (!nota) return 0;
-  return Number(nota[periodoNotasInfo(periodoCodigo).campo] || 0);
+  if (!nota) return null;
+  const periodo = periodoNotasInfo(periodoCodigo);
+  if (periodo.recuperacao && !recuperacaoAplicavel(nota, periodoCodigo)) return null;
+  const bruto = nota[periodo.campo];
+  if (bruto === "" || bruto == null) return null;
+  const valor = Number(bruto);
+  return Number.isFinite(valor) ? valor : null;
 }
 
 function notaAbaixo(nota, periodoCodigo) {
-  if (!nota) return false;
-  return valorPeriodo(nota, periodoCodigo) < periodoNotasInfo(periodoCodigo).minimo;
+  const valor = valorPeriodo(nota, periodoCodigo);
+  return Number.isFinite(valor) && valor < periodoNotasInfo(periodoCodigo).minimo;
 }
 
 function estudanteTemVermelha(estudante, periodoCodigo) {
@@ -1452,25 +1346,32 @@ function estudanteTemVermelha(estudante, periodoCodigo) {
 
 function somaPeriodoEstudante(estudante, periodoCodigo) {
   return componentes.reduce((total, componente) => {
-    const nota = obterLancamento(estudante, componente);
-    return total + (nota ? valorPeriodo(nota, periodoCodigo) : 0);
+    const valor = valorPeriodo(obterLancamento(estudante, componente), periodoCodigo);
+    return total + (Number.isFinite(valor) ? valor : 0);
   }, 0);
 }
 
 function mediaPeriodoEstudante(estudante, periodoCodigo) {
-  return media(componentes.map((componente) => {
-    const nota = obterLancamento(estudante, componente);
-    return nota ? valorPeriodo(nota, periodoCodigo) : 0;
-  }));
+  return media(componentes.map((componente) => valorPeriodo(obterLancamento(estudante, componente), periodoCodigo)));
 }
 
-function percentualPeriodo(estudante, periodoCodigo) {
-  const valor = mediaPeriodoEstudante(estudante, periodoCodigo);
-  return Math.max(0, Math.min(100, (valor / periodoNotasInfo(periodoCodigo).maximo) * 100));
+function recuperacaoAplicavel(nota, periodoCodigo) {
+  const periodo = periodoNotasInfo(periodoCodigo);
+  if (!periodo.recuperacao) return true;
+  if (periodo.base) {
+    const base = periodos[periodo.base];
+    const valorBase = Number(nota[base.campo]);
+    const valorRecuperacao = Number(nota[periodo.campo]);
+    return Number.isFinite(valorBase) && Number.isFinite(valorRecuperacao)
+      && (valorBase < base.minimo || valorRecuperacao > valorBase);
+  }
+  const total = Number(nota.total);
+  const totalRec = Number(nota.totalRec);
+  return Number.isFinite(total) && Number.isFinite(totalRec) && (total < 60 || totalRec > total);
 }
 
-function estudanteFezRecuperacao(estudante) {
-  return estudante.lancamentos.some((nota) => Number(nota.total) < 60 || Number(nota.totalRec) > Number(nota.total));
+function estudanteFezRecuperacao(estudante, periodoCodigo) {
+  return estudante.lancamentos.some((nota) => recuperacaoAplicavel(nota, periodoCodigo));
 }
 
 function statusOperacional(estudante) {
@@ -1483,6 +1384,7 @@ function statusOperacional(estudante) {
 }
 
 function resultadoClasse(resultado) {
+  if (resultado === "EM CURSO") return "mutedChip";
   if (resultado === "APROVADO DIRETO") return "ok";
   if (resultado === "APROVADO APÓS RECUPERAÇÃO") return "warn";
   if (resultado === "APROVADO PELO CONSELHO") return "info";
@@ -1496,7 +1398,9 @@ function nomeAluno(estudante) {
 
 function appendProfileScore(row, value, low = false) {
   const cell = element("td");
-  const pill = appendText(cell, "span", value == null ? "--" : formatarMedia(value), "scorePill profileScorePill");
+  const numero = value === "" || value == null ? null : Number(value);
+  const pill = appendText(cell, "span", formatarNota(numero), "scorePill profileScorePill");
+  if (!Number.isFinite(numero)) pill.classList.add("scoreMissing");
   if (low) pill.classList.add("scoreLow");
   row.append(cell);
 }
@@ -1508,25 +1412,6 @@ function preencherSelect(select, options) {
     option.textContent = label;
     return option;
   }));
-}
-
-function renderStats(parent, stats) {
-  replaceChildren(parent, stats.map(([label, value, hint]) => {
-    const card = element("article", "statCard");
-    appendText(card, "span", label);
-    appendText(card, "strong", String(value));
-    appendText(card, "small", hint);
-    return card;
-  }));
-}
-
-function panelTitle(title, kicker) {
-  const header = element("div", "panelHeader");
-  const text = element("div");
-  appendText(text, "p", kicker, "sectionKicker");
-  appendText(text, "h3", title);
-  header.append(text);
-  return header;
 }
 
 function progressTrack(percentual, type = "ok") {
@@ -1556,25 +1441,17 @@ function media(valores) {
   return validos.reduce((total, valor) => total + valor, 0) / validos.length;
 }
 
-function iniciais(nome) {
-  return String(nome || "AL")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte[0]?.toUpperCase() || "")
-    .join("");
+function formatarNota(valor) {
+  return Number.isFinite(valor) ? formatarMedia(valor) : "—";
 }
 
-function formatarDataBoletim(value) {
-  if (!value) return "";
-  const [ano, mes, dia] = value.split("-");
-  return `${dia}/${mes}/${ano}`;
-}
-
-function dataInputHoje() {
-  const hoje = new Date();
-  const offset = hoje.getTimezoneOffset() * 60000;
-  return new Date(hoje.getTime() - offset).toISOString().slice(0, 10);
+function carregarTema() {
+  try {
+    const salvo = localStorage.getItem("notas-theme");
+    return ["aurora", "claro", "mono"].includes(salvo) ? salvo : "aurora";
+  } catch {
+    return "aurora";
+  }
 }
 
 function viewFromHash() {
