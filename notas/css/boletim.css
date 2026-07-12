@@ -368,9 +368,9 @@
 .bulletinPreviewToolbar {
   min-height: 40px;
   padding: 0 16px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 15px;
   border-bottom: 1px solid rgba(105, 166, 255, 0.17);
 }
@@ -393,6 +393,52 @@
   height: 26px;
 }
 
+.bulletinPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.bulletinPagination button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(105, 166, 255, 0.22);
+  border-radius: 9px;
+  color: var(--ink-soft);
+  background: rgba(1, 17, 44, 0.48);
+  transition: transform var(--motion-quick), background var(--motion-quick), opacity var(--motion-quick);
+}
+
+.bulletinPagination button:hover:not(:disabled),
+.bulletinPagination button:focus-visible {
+  transform: translateY(-1px);
+  color: #fff;
+  background: #075ad8;
+}
+
+.bulletinPagination button:disabled {
+  cursor: default;
+  opacity: 0.36;
+}
+
+.bulletinPagination svg {
+  width: 18px;
+  height: 18px;
+}
+
+#bulletinPageStatus {
+  min-width: 94px;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+
 #bulletinPreviewCount {
   color: var(--muted);
   font-size: 0.75rem;
@@ -401,6 +447,7 @@
 
 .bulletinPreviewTools {
   gap: 10px;
+  justify-self: end;
 }
 
 .bulletinZoomControl,
@@ -971,7 +1018,13 @@ body[data-theme="mono"] .bulletinView {
 
   .bulletinPreviewToolbar {
     padding: 10px 12px;
-    align-items: flex-start;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .bulletinPagination {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .bulletinPages {
@@ -1021,7 +1074,18 @@ body[data-theme="mono"] .bulletinView {
   }
 
   .bulletinPreviewToolbar {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .bulletinPreviewHeading {
+    flex: 1 1 100%;
+  }
+
+  .bulletinPagination {
+    flex: 1 1 auto;
+    justify-content: flex-start;
   }
 
   .bulletinPreviewTools {
@@ -1103,6 +1167,71 @@ body[data-theme="mono"] .bulletinView {
     page-break-inside: avoid;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocument,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocumentHeader,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentResult,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinGradeTable td,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocumentFooter {
+    box-shadow: none !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocument {
+    background: #fff !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinSchoolLogo {
+    filter: none !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentPhoto {
+    box-shadow: none !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinProgressRing {
+    border: calc(4px * var(--bulletin-content-scale)) solid var(--ring-color) !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocumentHeader {
+    background: #071d5c !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinGradeTable thead th {
+    background: #061747 !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinGradeTable thead th:first-child {
+    background: #f4f6fa !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocumentFooter {
+    background: #e9edf5 !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentResult.is-approved,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentResult.is-council {
+    background: #087b2a !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentResult.is-recovery,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentResult.is-course {
+    background: #0968da !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinStudentResult.is-failed {
+    background: #d20b15 !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinGradeTable td.is-pass,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinFinalRow td.is-pass {
+    background: var(--bulletin-score-blue) !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinGradeTable td.is-low {
+    background: var(--bulletin-score-red) !important;
   }
 
   body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPages[data-color-mode="mono"] .bulletinDocument {

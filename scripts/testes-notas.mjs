@@ -30,7 +30,8 @@ const arquivos = [
   "notas/js/config.js",
   "notas/js/demo-data.js",
   "notas/js/domain.js",
-  "notas/js/graph-client.js"
+  "notas/js/graph-client.js",
+  "scripts/auditoria-visual-boletim.mjs"
 ];
 
 function conferir(condicao, mensagem) {
@@ -91,6 +92,7 @@ conferir(html.includes('role="combobox"') && html.includes('aria-autocomplete="l
 conferir(html.includes("bulletinControlGrid") && html.includes("bulletinPreviewPanel") && html.includes("bulletinPages"), "Boletim deve conter controles e previa paginada proprios.");
 conferir(html.includes("bulletinClass") && html.includes("bulletinStudentSearch") && html.includes("bulletinSituationGrid"), "Boletim deve oferecer filtros de turma, aluno e situacao.");
 conferir(html.includes("bulletinPrint") && html.includes("bulletinDownload") && html.includes("bulletinFullscreen"), "Boletim deve oferecer impressao, PDF e tela cheia.");
+conferir(html.includes("bulletinPreviousPage") && html.includes("bulletinPageStatus") && html.includes("bulletinNextPage"), "Boletim deve oferecer paginacao acessivel na previa.");
 
 const appTexto = ler("notas/js/app.js");
 const cssBase = ler("notas/css/base.css");
@@ -191,6 +193,8 @@ conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display
 
 conferir(!boletimTexto.includes("innerHTML"), "Boletim nao deve montar dados ficticios com innerHTML.");
 conferir(boletimTexto.includes("agrupar(selecionados, 4)") && cssBoletim.includes("grid-template-rows: repeat(4, minmax(0, 1fr))"), "Boletim deve paginar quatro alunos verticalmente por folha.");
+conferir(boletimTexto.includes("paginaAtual") && boletimTexto.includes("paginasParaRenderizar") && boletimTexto.includes("sincronizarPaginacao"), "Previa do Boletim deve renderizar somente a pagina atual e sincronizar seus controles.");
+conferir(boletimTexto.includes("renderBoletim({ todasPaginas: true })") && boletimTexto.includes('addEventListener("beforeprint"'), "Impressao/PDF deve remontar todas as folhas somente quando necessario.");
 conferir(boletimTexto.includes("ResizeObserver") && boletimTexto.includes("--bulletin-content-scale") && boletimTexto.includes("largura / 1505"), "Boletim deve recalcular sua escala interna quando a largura real da pagina mudar.");
 conferir(boletimTexto.includes("topo.append(progresso)") && cssBoletim.includes("grid-row: 1 / 3"), "Circulos dos trimestres devem ficar ao lado da foto, conforme a referencia.");
 conferir(boletimTexto.includes("estado.turma") && boletimTexto.includes("estudante.turmaId !== estado.turma"), "Selecao de turma deve gerar todos os boletins daquela turma.");
@@ -202,7 +206,15 @@ conferir(cssBoletim.includes("var(--bulletin-content-scale)") && cssBoletim.incl
 conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim) && /\.bulletinFinalRow td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim), "Notas azuis e nota final devem usar exatamente a mesma cor base.");
 conferir(cssBoletim.includes("@page bulletin") && cssBoletim.includes("size: A4 portrait") && cssBoletim.includes("page: bulletin"), "Impressao do Boletim deve usar A4 vertical.");
 conferir(cssBoletim.includes('[data-print-view="boletim"]') && cssBoletim.includes('[data-view="boletim"]') && cssBoletim.includes("break-after: page"), "Impressao deve isolar o Boletim ativo e separar as folhas.");
+conferir(cssBoletim.includes(".bulletinPagination") && cssBoletim.includes("#bulletinPageStatus"), "Paginacao da previa deve ter acabamento visual proprio.");
+conferir(/@media print[\s\S]*?\.bulletinProgressRing[\s\S]*?background:\s*#fff !important;/m.test(cssBoletim) && /@media print[\s\S]*?\.bulletinStudentPhoto[\s\S]*?box-shadow:\s*none !important;/m.test(cssBoletim), "PDF deve remover rasterizacoes decorativas pesadas sem alterar a previa.");
 conferir(cssBoletim.includes("@media (max-width: 560px)") && cssBoletim.includes("min-width: calc(1210px"), "Boletim deve preservar o documento fiel dentro de viewport rolavel no mobile.");
+
+const auditoriaVisualTexto = ler("scripts/auditoria-visual-boletim.mjs");
+for (const viewport of ["1672, height: 941", "1550, height: 741", "1420, height: 941", "1280, height: 720", "390, height: 844"]) {
+  conferir(auditoriaVisualTexto.includes(viewport), `Auditoria visual deve cobrir o viewport ${viewport}.`);
+}
+conferir(auditoriaVisualTexto.includes("columnSpread") && auditoriaVisualTexto.includes("bodyOverflow") && auditoriaVisualTexto.includes("documentsValid"), "Auditoria visual deve verificar colunas, overflow e geometria interna.");
 
 const demoTexto = ler("notas/js/demo-data.js");
 const termosProibidos = ["ALICE", "AMANDA", "ROSE MARCIA", "CPF", "INEP"];

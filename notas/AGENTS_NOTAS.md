@@ -4,7 +4,7 @@
 >
 > Última atualização: 12/07/2026
 >
-> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` passou a manter `Notas` e a nova guia `Boletim`, reconstruída do zero contra a referência local `aqui.png`. A antiga Estatísticas permanece incorporada em `.notesStatsSection`; demais guias continuam removidas. A tela usa exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
+> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` passou a manter `Notas` e a nova guia `Boletim`, reconstruída do zero contra a referência local `aqui.png`. A prévia do Boletim agora pagina uma folha por vez, remonta todas somente na impressão/PDF e possui auditoria visual automatizada em cinco viewports. A antiga Estatísticas permanece incorporada em `.notesStatsSection`; demais guias continuam removidas. A tela usa exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -17,6 +17,8 @@
 - Os hashes legados `#estatisticas` e `#movimento` normalizam para `/notas/#notas`; `#boletins` normaliza para `/notas/#boletim`.
 - A guia `Notas` preserva ficha, filtros, insights, painel analítico, ranking, gráfico, donut, detalhamento por disciplina, impressão e painel do aluno.
 - A guia `Boletim` preserva o shell comum e reproduz a referência `aqui.png` com filtros, situações, ações e prévia; gera toda a turma em A4 vertical, quatro boletins horizontais empilhados por folha.
+- A prévia do `Boletim` mantém somente a folha ativa no DOM, com paginação anterior/próxima; impressão e PDF remontam todas as folhas por `beforeprint` e restauram a prévia ao terminar.
+- `scripts/auditoria-visual-boletim.mjs` valida automaticamente a geometria, overflow, colunas, controles e paginação em 1672×941, 1550×741, 1420×941, 1280×720 e 390×844.
 - Foram corrigidos nesta consolidação: códigos canônicos de componentes; precedência do conselho; nota ausente diferente de zero; recuperação aplicável por etapa; métricas rotuladas como alunos; foco, teclado e semântica acessível; contraste dos chips; impressão marcada como modelo visual; fallback de inicialização; código e CSS órfãos.
 - Nenhuma autenticação, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou dado real foi criado ou alterado.
 
@@ -70,6 +72,8 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 14. `Boletim` deve manter o shell comum do sistema — menu lateral, título `Boletim Escolar`, busca e usuário — sem botão de ajuda.
 15. A turma selecionada no Boletim deve gerar todos os estudantes do recorte, com quatro boletins horizontais empilhados por folha A4 vertical.
 16. As 12 colunas disciplinares do Boletim devem ter largura idêntica, inclusive `Computação`; notas regulares e a nota final usam a mesma base azul, mantendo vermelho para valores abaixo do mínimo.
+17. A prévia comum do Boletim deve renderizar uma folha por vez; todas as folhas só podem ser montadas temporariamente para impressão/PDF, preservando quatro boletins por A4 e a numeração global.
+18. O modo de impressão pode trocar efeitos decorativos rasterizados por cores sólidas equivalentes para reduzir o PDF, mas não pode remover conteúdo, alterar as nove páginas esperadas nem mudar a geometria aprovada.
 
 ### Consequência da decisão de permissões
 
@@ -628,6 +632,7 @@ Power Automate e Excel Online são serviços assíncronos. A interface deve most
 - [x] implementar estados básicos de estrutura ausente, demonstração, erro e sessão;
 - [x] adicionar cartão Gestão de Notas no painel;
 - [x] testar visualmente por captura Playwright em notebook e celular no servidor local;
+- [x] automatizar a auditoria visual do Boletim em cinco viewports e a navegação entre páginas;
 - [ ] ligar consultas reais depois que as listas `NOTAS_*` forem provisionadas;
 - [ ] implementar professores/planilhas, inconsistências, auditoria e configurações reais.
 
@@ -666,7 +671,7 @@ O projeto só poderá ser considerado concluído quando:
 ## 17. Pendências que bloqueiam a implementação real
 
 - reconstruir cada próxima guia somente quando o responsável definir seu novo escopo; `Notas` e `Boletim` são as únicas guias autorizadas no estado atual;
-- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia e fluxo de impressão/Salvar como PDF no navegador do responsável;
+- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia, paginação e fluxo de impressão/Salvar como PDF no navegador do responsável;
 - validar visualmente a consolidação de `Notas` de 12/07/2026 em desktop, mobile, temas, teclado, painel do aluno e impressão com marca de modelo;
 - manter códigos canônicos `P`, `M`, `C`, `G`, `H`, `A`, `RL`, `F`, `I`, `RD`, `ET`, `CPT` em fixtures, contrato, listas e UI;
 - fechar as regras pedagógicas ainda pendentes antes de expandir `calcularResultadoEstudante` para dados reais, preservando a precedência explícita do conselho já corrigida;
@@ -733,6 +738,22 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 12/07/2026 — paginação da prévia, auditoria visual e PDF otimizado
+
+- Responsável autorizou o pacote recomendado para fechar tecnicamente a guia `Boletim`: testes visuais responsivos, paginação da prévia e melhoria da saída PDF.
+- Diagnóstico inicial confirmou que a turma padrão mantinha nove folhas e 35 boletins simultaneamente no DOM mesmo quando somente a primeira folha era visível.
+- `notas/index.html` recebeu paginação acessível com página anterior, estado `Página X de Y` e próxima página na barra da prévia.
+- `notas/js/boletim.js` passou a renderizar somente a folha ativa durante a leitura comum, preservando quatro boletins por página, numeração global, filtros, zoom e escala responsiva.
+- Mudanças de turma, busca, trimestre ou situação voltam para a primeira página; a navegação mantém estados `disabled`/`aria-disabled` coerentes.
+- `beforeprint`, `Imprimir` e `Baixar PDF` remontam temporariamente todas as folhas, aguardam fontes/layout e restauram a prévia paginada depois do diálogo do navegador.
+- `notas/css/boletim.css` ganhou paginação responsiva e um modo de impressão mais leve: sombras, filtros, padrões e gradientes que forçavam rasterização de página inteira foram substituídos apenas no papel/PDF por cores sólidas equivalentes.
+- PDF A4 da turma padrão permaneceu com nove páginas: caiu de 42,36 MB para 12,04 MB no Playwright CLI e 11,47 MB na auditoria Edge/CDP, redução mínima de 71,6%; a prévia aprovada na tela não recebeu essa simplificação. A auditoria falha se o arquivo ultrapassar 18 MB.
+- Criado `scripts/auditoria-visual-boletim.mjs`, sem dependência npm local, usando Edge/Chrome via DevTools Protocol. Ele valida 1672×941, 1550×741, 1420×941, 1280×720 e 390×844; reprova overflow global, folha fora da prévia, geometria interna inválida, painéis desalinhados, botões com texto escapando, colunas diferentes, perda de componentes e falha da paginação.
+- As capturas da auditoria são gravadas em `diagnosticos/auditoria-visual-boletim/`, pasta ignorada pelo Git, e a inspeção das versões desktop/mobile confirmou composição limpa e paginação integrada ao toolbar.
+- `scripts/testes-notas.mjs` passou a travar paginação, renderização sob demanda, remontagem em `beforeprint`, otimização de impressão e cobertura da auditoria visual.
+- Nenhuma lista `NOTAS_*`, SharePoint, Graph, Power Automate, permissão, Entra ID ou dado real foi criado ou alterado.
+- Próxima etapa correta: publicar em `origin/main`, validar a URL real no navegador do responsável e manter as capturas/medições como baseline antes de reconstruir outra guia.
 
 ### 12/07/2026 — correção responsiva após validação na página publicada
 

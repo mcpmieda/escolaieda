@@ -16,6 +16,7 @@ const estado = {
   trimestres: new Set(Object.keys(trimestres)),
   cor: "color",
   zoom: 1,
+  paginaAtual: 0,
   inicializado: false
 };
 
@@ -38,7 +39,10 @@ function inicializarBoletim() {
     telaCheia: document.getElementById("bulletinFullscreen"),
     viewport: document.getElementById("bulletinPreviewViewport"),
     paginas: document.getElementById("bulletinPages"),
-    contador: document.getElementById("bulletinPreviewCount")
+    contador: document.getElementById("bulletinPreviewCount"),
+    paginaAnterior: document.getElementById("bulletinPreviousPage"),
+    paginaProxima: document.getElementById("bulletinNextPage"),
+    paginaStatus: document.getElementById("bulletinPageStatus")
   });
 
   preencherTurmas();
@@ -61,12 +65,12 @@ function preencherTurmas() {
 function vincularEventos() {
   ui.turma.addEventListener("change", () => {
     estado.turma = ui.turma.value;
-    agendarRender();
+    agendarRender(true);
   });
 
   ui.busca.addEventListener("input", () => {
     estado.busca = ui.busca.value;
-    agendarRender();
+    agendarRender(true);
   });
 
   ui.trimestres.addEventListener("change", (event) => {
@@ -78,7 +82,7 @@ function vincularEventos() {
       input.checked = true;
       estado.trimestres.add(input.value);
     }
-    agendarRender();
+    agendarRender(true);
   });
 
   for (const button of ui.situacoes) {
@@ -87,7 +91,7 @@ function vincularEventos() {
       if (estado.resultados.has(resultado)) estado.resultados.delete(resultado);
       else estado.resultados.add(resultado);
       sincronizarBotoesSituacao();
-      agendarRender();
+      agendarRender(true);
     });
   }
 
@@ -106,10 +110,25 @@ function vincularEventos() {
     aplicarZoom();
   });
 
+  ui.paginaAnterior.addEventListener("click", () => mudarPagina(-1));
+  ui.paginaProxima.addEventListener("click", () => mudarPagina(1));
+
   ui.telaCheia.addEventListener("click", alternarTelaCheia);
   document.addEventListener("fullscreenchange", sincronizarTelaCheia);
+  window.addEventListener("beforeprint", prepararTodasPaginasParaImpressao);
+  window.addEventListener("afterprint", restaurarPreviaDepoisDaImpressao);
   ui.imprimir.addEventListener("click", () => abrirImpressao(false));
   ui.baixar.addEventListener("click", () => abrirImpressao(true));
+}
+
+function prepararTodasPaginasParaImpressao() {
+  if (document.body.dataset.view !== "boletim" && document.body.dataset.printView !== "boletim") return;
+  renderBoletim({ todasPaginas: true });
+}
+
+function restaurarPreviaDepoisDaImpressao() {
+  if (document.body.dataset.view !== "boletim" || document.body.dataset.printView === "boletim") return;
+  renderBoletim();
 }
 
 function limparFiltros() {
@@ -121,7 +140,7 @@ function limparFiltros() {
     input.checked = true;
   });
   sincronizarBotoesSituacao();
-  agendarRender();
+  agendarRender(true);
   ui.busca.focus();
 }
 
@@ -141,18 +160,25 @@ function sincronizarModoCor() {
   }
 }
 
-function agendarRender() {
+function agendarRender(reiniciarPagina = false) {
+  if (reiniciarPagina) estado.paginaAtual = 0;
   cancelAnimationFrame(renderPendente);
   renderPendente = requestAnimationFrame(renderBoletim);
 }
 
-function renderBoletim() {
+function renderBoletim({ todasPaginas = false } = {}) {
   if (!estado.inicializado) inicializarBoletim();
   const selecionados = filtrarEstudantes();
   const paginas = agrupar(selecionados, 4);
   const fragment = document.createDocumentFragment();
+  estado.paginaAtual = Math.min(estado.paginaAtual, Math.max(0, paginas.length - 1));
+  const paginasParaRenderizar = todasPaginas
+    ? paginas.map((grupo, indice) => ({ grupo, indice }))
+    : paginas[estado.paginaAtual]
+      ? [{ grupo: paginas[estado.paginaAtual], indice: estado.paginaAtual }]
+      : [];
 
-  paginas.forEach((grupo, paginaIndex) => {
+  paginasParaRenderizar.forEach(({ grupo, indice: paginaIndex }) => {
     const pagina = elemento("section", "bulletinPage");
     pagina.setAttribute("aria-label", `Página ${paginaIndex + 1} de ${paginas.length}`);
     grupo.forEach((estudante, indice) => {
@@ -171,8 +197,29 @@ function renderBoletim() {
   ui.paginas.replaceChildren(fragment);
   ui.paginas.dataset.colorMode = estado.cor;
   ui.contador.textContent = `${selecionados.length} boletim(ns) · ${paginas.length} página(s)`;
+  sincronizarPaginacao(paginas.length, todasPaginas);
   observarEscalaDasPaginas();
   aplicarZoom();
+}
+
+function mudarPagina(deslocamento) {
+  const totalPaginas = agrupar(filtrarEstudantes(), 4).length;
+  const destino = Math.max(0, Math.min(totalPaginas - 1, estado.paginaAtual + deslocamento));
+  if (destino === estado.paginaAtual) return;
+  estado.paginaAtual = destino;
+  renderBoletim();
+  ui.viewport.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function sincronizarPaginacao(totalPaginas, todasPaginas = false) {
+  const temPaginas = totalPaginas > 0;
+  ui.paginaStatus.textContent = temPaginas
+    ? `Página ${estado.paginaAtual + 1} de ${totalPaginas}`
+    : "Nenhuma página";
+  ui.paginaAnterior.disabled = todasPaginas || !temPaginas || estado.paginaAtual === 0;
+  ui.paginaProxima.disabled = todasPaginas || !temPaginas || estado.paginaAtual >= totalPaginas - 1;
+  ui.paginaAnterior.setAttribute("aria-disabled", String(ui.paginaAnterior.disabled));
+  ui.paginaProxima.setAttribute("aria-disabled", String(ui.paginaProxima.disabled));
 }
 
 function observarEscalaDasPaginas() {
@@ -413,18 +460,31 @@ function sincronizarTelaCheia() {
   ui.telaCheia.querySelector("span").textContent = ativo ? "Sair da tela cheia" : "Tela cheia";
 }
 
-function abrirImpressao(baixarPdf) {
+async function abrirImpressao(baixarPdf) {
   document.body.dataset.printView = "boletim";
   const tituloAnterior = document.title;
   document.title = `Boletins-${ui.turma.selectedOptions[0]?.textContent || "turma"}-2026`;
+  renderBoletim({ todasPaginas: true });
   if (baixarPdf) ui.contador.textContent = "Na janela de impressão, escolha “Salvar como PDF”.";
+  await document.fonts?.ready;
+  await proximoQuadro();
+  await proximoQuadro();
+  let restaurado = false;
   const restaurar = () => {
+    if (restaurado) return;
+    restaurado = true;
     document.title = tituloAnterior;
+    delete document.body.dataset.printView;
     renderBoletim();
     window.removeEventListener("afterprint", restaurar);
   };
   window.addEventListener("afterprint", restaurar);
   window.print();
+  setTimeout(restaurar, 0);
+}
+
+function proximoQuadro() {
+  return new Promise((resolve) => requestAnimationFrame(resolve));
 }
 
 function agrupar(lista, tamanho) {
