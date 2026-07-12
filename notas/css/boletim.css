@@ -717,6 +717,54 @@
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.42);
 }
 
+.bulletinPages.is-direct-pdf {
+  width: 1505px !important;
+  min-width: 1505px !important;
+  max-width: 1505px !important;
+  gap: 0 !important;
+}
+
+.bulletinPages.is-direct-pdf .bulletinPage {
+  aspect-ratio: 210 / 297;
+  padding: 8px;
+  gap: 8px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.bulletinPages.is-direct-pdf .bulletinSchoolName,
+.bulletinPages.is-direct-pdf .bulletinStudentData strong,
+.bulletinPages.is-direct-pdf .bulletinStudentResult strong {
+  overflow: visible;
+  line-height: 1.24;
+  text-overflow: clip;
+}
+
+.bulletinPages.is-direct-pdf .bulletinSchoolName {
+  padding-block: 2px;
+}
+
+.bulletinPages.is-direct-pdf .bulletinStudentData strong {
+  display: block;
+  padding-block: 2px;
+  white-space: nowrap;
+  -webkit-line-clamp: unset;
+}
+
+.bulletinPages.is-direct-pdf .bulletinStudentResult strong {
+  padding-block: 2px;
+}
+
+.bulletinPages.is-direct-pdf .bulletinProgressRing {
+  border: 5px solid var(--ring-color);
+  background: #fff;
+}
+
+.bulletinPages.is-direct-pdf .bulletinWarningIcon {
+  border-radius: 50%;
+  clip-path: none;
+}
+
 .bulletinDocument {
   position: relative;
   min-height: 0;

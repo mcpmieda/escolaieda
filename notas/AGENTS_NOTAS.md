@@ -740,6 +740,13 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 
 ## 19. Registro de continuidade
 
+### 12/07/2026 — encaixe A4 do PDF direto corrigido após inspeção de Downloads
+
+- O PDF real `C:\Users\Eugui\Downloads\Boletins-8C-2026.pdf` foi inspecionado; a captura preservava a proporção 210×275 da prévia e era centralizada em A4, deixando folga vertical, além de recortar título, nomes e resultados por `overflow` do layout de tela.
+- O modo `.is-direct-pdf` agora fixa 1505 px de largura, proporção A4 210×297, quatro linhas iguais, 8 px de margem/gap interno e imagem ocupando 100% da página PDF, sem letterbox no cabeçalho ou rodapé.
+- Textos críticos deixam de usar recorte durante a captura; círculos recebem borda sólida compatível com o renderizador e o aviso ganha fallback circular.
+- A prévia normal e a impressão continuam inalteradas; os ajustes existem apenas durante o download direto.
+
 ### 12/07/2026 — download direto do PDF do Boletim
 
 - O botão `Baixar PDF` deixou de chamar `window.print()` e agora gera nove páginas A4 diretamente no navegador, iniciando o download de `Boletins-<Turma>-2026.pdf`.

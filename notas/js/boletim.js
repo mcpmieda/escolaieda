@@ -492,9 +492,11 @@ async function baixarPdf() {
   try {
     const { PDFDocument, html2canvas } = await carregarBibliotecasPdf();
     renderBoletim({ todasPaginas: true });
+    ui.paginas.classList.add("is-direct-pdf");
     ui.paginas.style.setProperty("--bulletin-preview-zoom", "1");
     await document.fonts?.ready;
     await aguardarImagens(ui.paginas);
+    await proximoQuadro();
     await proximoQuadro();
 
     const paginasHtml = [...ui.paginas.querySelectorAll(".bulletinPage")];
@@ -503,7 +505,6 @@ async function baixarPdf() {
     const pdf = await PDFDocument.create();
     const larguraA4 = 595.28;
     const alturaA4 = 841.89;
-    const margem = 10;
 
     for (let indice = 0; indice < paginasHtml.length; indice += 1) {
       atualizarBotaoPdf(`Gerando ${indice + 1}/${paginasHtml.length}...`);
@@ -515,15 +516,12 @@ async function baixarPdf() {
         windowWidth: 1672
       });
       const imagem = await pdf.embedJpg(canvas.toDataURL("image/jpeg", 0.84));
-      const escala = Math.min((larguraA4 - margem * 2) / imagem.width, (alturaA4 - margem * 2) / imagem.height);
-      const largura = imagem.width * escala;
-      const altura = imagem.height * escala;
       const pagina = pdf.addPage([larguraA4, alturaA4]);
       pagina.drawImage(imagem, {
-        x: (larguraA4 - largura) / 2,
-        y: (alturaA4 - altura) / 2,
-        width: largura,
-        height: altura
+        x: 0,
+        y: 0,
+        width: larguraA4,
+        height: alturaA4
       });
       canvas.width = 1;
       canvas.height = 1;
@@ -538,6 +536,7 @@ async function baixarPdf() {
     console.error("Falha ao gerar PDF do Boletim:", erro);
     ui.contador.textContent = "Não foi possível gerar o PDF. Tente novamente.";
   } finally {
+    ui.paginas.classList.remove("is-direct-pdf");
     renderBoletim();
     ui.baixar.disabled = false;
     ui.baixar.removeAttribute("aria-busy");
