@@ -745,6 +745,7 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 - Botões de situação, switches de trimestre e modo de cor ganharam redução proporcional em larguras menores, sem partir palavras ao meio nem escapar para botões vizinhos.
 - A prévia passou a ocupar a largura disponível no desktop; a largura mínima com rolagem horizontal ficou restrita ao mobile, preservando a tabela sem cortar `Computação` em notebook.
 - Capturas locais posteriores em 1550×741, 1420×941 e 1280×720 confirmaram a remoção das sobreposições e a permanência dos três painéis alinhados.
+- Na comparação final em 1672×941, a estrutura interna do aluno foi corrigida: foto ocupa a coluna esquerda, nome/turma e três círculos ficam na coluna direita, e a faixa de resultado volta à largura/altura da referência. Cabeçalho institucional, tabela e rodapé também foram redistribuídos nas mesmas faixas verticais de `aqui.png`.
 - A trava automatizada passou a exigir `ResizeObserver`, `--bulletin-content-scale` e o breakpoint de compactação dos controles.
 - Próxima etapa correta: publicar, atualizar a janela Edge aberta e comparar novamente a URL real com `aqui.png`.
 

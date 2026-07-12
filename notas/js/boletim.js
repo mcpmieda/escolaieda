@@ -270,7 +270,8 @@ function criarIdentidade(estudante) {
   adicionarTexto(situacao, "strong", estudante.resultadoFinal);
   situacao.prepend(icone);
 
-  identidade.append(topo, progresso, situacao);
+  topo.append(progresso);
+  identidade.append(topo, situacao);
   return identidade;
 }
 

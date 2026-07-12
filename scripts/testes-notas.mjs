@@ -192,6 +192,7 @@ conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display
 conferir(!boletimTexto.includes("innerHTML"), "Boletim nao deve montar dados ficticios com innerHTML.");
 conferir(boletimTexto.includes("agrupar(selecionados, 4)") && cssBoletim.includes("grid-template-rows: repeat(4, minmax(0, 1fr))"), "Boletim deve paginar quatro alunos verticalmente por folha.");
 conferir(boletimTexto.includes("ResizeObserver") && boletimTexto.includes("--bulletin-content-scale") && boletimTexto.includes("largura / 1505"), "Boletim deve recalcular sua escala interna quando a largura real da pagina mudar.");
+conferir(boletimTexto.includes("topo.append(progresso)") && cssBoletim.includes("grid-row: 1 / 3"), "Circulos dos trimestres devem ficar ao lado da foto, conforme a referencia.");
 conferir(boletimTexto.includes("estado.turma") && boletimTexto.includes("estudante.turmaId !== estado.turma"), "Selecao de turma deve gerar todos os boletins daquela turma.");
 conferir(boletimTexto.includes("resultadoParaFiltro") && boletimTexto.includes("normalizarTexto(estado.busca)"), "Filtros de situacao e aluno devem atuar sobre a previa.");
 conferir(boletimTexto.includes("bulletinStudentPhoto") && existsSync(path.join(raiz, "notas/assets/estudante-ficticio-boletim-web.jpg")), "Boletim deve usar retrato ficticio otimizado e versionado no projeto.");
