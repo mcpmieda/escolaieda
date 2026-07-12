@@ -220,11 +220,12 @@
   gap: 7px;
   border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 12px;
-  color: #fff;
+  color: #9aabc3;
+  background: rgba(4, 24, 56, 0.72);
   font-size: 0.94rem;
   text-align: left;
   line-height: 1.25;
-  transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick);
+  transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick), color var(--motion-quick), background var(--motion-quick);
 }
 
 .bulletinSituationButton > span:last-child {
@@ -242,26 +243,27 @@
 }
 
 .bulletinSituationButton.active {
+  color: #fff;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.72), 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
-.bulletinSituationButton.is-course {
+.bulletinSituationButton.is-course.active {
   background: linear-gradient(145deg, #1685ff, #0056d8);
 }
 
-.bulletinSituationButton.is-approved {
+.bulletinSituationButton.is-approved.active {
   background: linear-gradient(145deg, #299f42, #087126);
 }
 
-.bulletinSituationButton.is-council {
+.bulletinSituationButton.is-council.active {
   background: linear-gradient(145deg, #923cf0, #5219bd);
 }
 
-.bulletinSituationButton.is-recovery {
+.bulletinSituationButton.is-recovery.active {
   background: linear-gradient(145deg, #ff9707, #e26300);
 }
 
-.bulletinSituationButton.is-failed {
+.bulletinSituationButton.is-failed.active {
   background: linear-gradient(145deg, #ff2626, #ce0009);
 }
 
@@ -277,9 +279,14 @@
   place-items: center;
   border-radius: 50%;
   color: currentColor;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.12);
   font-size: 1.65rem;
   font-weight: 900;
+}
+
+.bulletinSituationButton.active .bulletinSituationIcon,
+.bulletinSituationButton.is-clear .bulletinSituationIcon {
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .bulletinSituationIcon svg {

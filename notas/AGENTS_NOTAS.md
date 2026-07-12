@@ -739,6 +739,11 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 
 ## 19. Registro de continuidade
 
+### 12/07/2026 — situações coloridas somente quando selecionadas
+
+- Os botões do grupo `Situação` no Boletim agora permanecem neutros por padrão e exibem sua cor semântica somente com `.active`/`aria-pressed="true"`.
+- Alteração restrita ao CSS, com trava adicionada em `scripts/testes-notas.mjs`; nenhum dado ou recurso Microsoft 365 foi alterado.
+
 ### 12/07/2026 — paginação da prévia, auditoria visual e PDF otimizado
 
 - Responsável autorizou o pacote recomendado para fechar tecnicamente a guia `Boletim`: testes visuais responsivos, paginação da prévia e melhoria da saída PDF.

@@ -207,6 +207,7 @@ conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable t
 conferir(cssBoletim.includes("@page bulletin") && cssBoletim.includes("size: A4 portrait") && cssBoletim.includes("page: bulletin"), "Impressao do Boletim deve usar A4 vertical.");
 conferir(cssBoletim.includes('[data-print-view="boletim"]') && cssBoletim.includes('[data-view="boletim"]') && cssBoletim.includes("break-after: page"), "Impressao deve isolar o Boletim ativo e separar as folhas.");
 conferir(cssBoletim.includes(".bulletinPagination") && cssBoletim.includes("#bulletinPageStatus"), "Paginacao da previa deve ter acabamento visual proprio.");
+conferir(cssBoletim.includes(".bulletinSituationButton.is-course.active") && !cssBoletim.includes(".bulletinSituationButton.is-course {"), "Situacoes do Boletim devem receber cor somente quando selecionadas.");
 conferir(/@media print[\s\S]*?\.bulletinProgressRing[\s\S]*?background:\s*#fff !important;/m.test(cssBoletim) && /@media print[\s\S]*?\.bulletinStudentPhoto[\s\S]*?box-shadow:\s*none !important;/m.test(cssBoletim), "PDF deve remover rasterizacoes decorativas pesadas sem alterar a previa.");
 conferir(cssBoletim.includes("@media (max-width: 560px)") && cssBoletim.includes("min-width: calc(1210px"), "Boletim deve preservar o documento fiel dentro de viewport rolavel no mobile.");
 
