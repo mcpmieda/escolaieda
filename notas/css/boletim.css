@@ -995,13 +995,34 @@
 .bulletinStudentResult.is-failed .bulletinResultIcon { color: #bd0008; }
 
 .bulletinGradeRegion {
+  position: relative;
   min-width: 0;
   height: 108%;
   align-self: start;
   overflow: hidden;
-  border: calc(1px * var(--bulletin-content-scale)) solid #c1cbe0;
-  border-radius: calc(7px * var(--bulletin-content-scale));
-  background: #fff;
+  border: calc(1px * var(--bulletin-content-scale)) solid #aebed9;
+  border-radius: calc(9px * var(--bulletin-content-scale));
+  background: linear-gradient(145deg, #ffffff, #edf2fa);
+  box-shadow:
+    0 calc(8px * var(--bulletin-content-scale)) calc(20px * var(--bulletin-content-scale)) rgba(7, 30, 83, 0.16),
+    inset 0 calc(1px * var(--bulletin-content-scale)) rgba(255, 255, 255, 0.9);
+  transition: transform var(--motion-standard), box-shadow var(--motion-standard);
+}
+
+.bulletinGradeRegion::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 calc(1px * var(--bulletin-content-scale)) rgba(255, 255, 255, 0.36);
+  pointer-events: none;
+}
+
+.bulletinDocument:hover .bulletinGradeRegion {
+  transform: translateY(calc(-1px * var(--bulletin-content-scale)));
+  box-shadow:
+    0 calc(11px * var(--bulletin-content-scale)) calc(25px * var(--bulletin-content-scale)) rgba(7, 30, 83, 0.2),
+    inset 0 calc(1px * var(--bulletin-content-scale)) rgba(255, 255, 255, 0.94);
 }
 
 .bulletinGradeTable {
@@ -1037,62 +1058,108 @@
 .bulletinGradeTable td {
   padding: 0.4%;
   overflow: hidden;
-  border: calc(1px * var(--bulletin-content-scale)) solid #c2cce0;
+  border: calc(1px * var(--bulletin-content-scale)) solid rgba(174, 190, 216, 0.78);
   text-align: center;
   text-overflow: clip;
+  transition: filter var(--motion-quick), box-shadow var(--motion-quick), background var(--motion-quick);
 }
 
 .bulletinGradeTable thead th {
   height: 20%;
   color: #fff;
-  background: linear-gradient(#07194f, #06113d);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 42%),
+    linear-gradient(145deg, #092665, #05143f 72%);
+  box-shadow: inset 0 calc(-2px * var(--bulletin-content-scale)) rgba(0, 0, 0, 0.18);
   font-size: calc(8.1px * var(--bulletin-content-scale));
-  font-weight: 500;
+  font-weight: 650;
   line-height: 1.12;
   overflow-wrap: anywhere;
+  text-shadow: 0 calc(1px * var(--bulletin-content-scale)) calc(2px * var(--bulletin-content-scale)) rgba(0, 0, 0, 0.3);
 }
 
 .bulletinGradeTable thead th:first-child {
-  color: #111a2f;
-  background: #f4f6fa;
+  color: #0b2254;
+  background: linear-gradient(145deg, #ffffff, #e6edf8);
+  box-shadow: inset calc(-2px * var(--bulletin-content-scale)) 0 rgba(8, 41, 100, 0.08);
   font-size: calc(8.8px * var(--bulletin-content-scale));
-  font-weight: 800;
+  font-weight: 900;
+  text-shadow: none;
 }
 
 .bulletinGradeTable tbody th {
-  background: #f7f8fb;
+  color: #0a2256;
+  background: linear-gradient(145deg, #fafcff, #e9eef7);
   font-size: calc(8.5px * var(--bulletin-content-scale));
-  font-weight: 800;
+  font-weight: 900;
+  letter-spacing: calc(0.08px * var(--bulletin-content-scale));
+}
+
+.bulletinGradeTable tbody tr:nth-child(even) th {
+  background: linear-gradient(145deg, #f2f6fc, #e3eaf5);
+}
+
+.bulletinGradeTable tbody tr:nth-child(2n + 1):not(:first-child) > * {
+  border-top-color: #91a8cb;
+  border-top-width: calc(2px * var(--bulletin-content-scale));
 }
 
 .bulletinGradeTable td {
   color: #06133d;
-  background: #f6f8fc;
+  background: linear-gradient(145deg, #fbfcff, #eef2f8);
   font-size: calc(10.5px * var(--bulletin-content-scale));
+  font-weight: 650;
 }
 
 .bulletinGradeTable td.is-pass {
   color: #fff;
-  background: linear-gradient(145deg, var(--bulletin-score-blue), #0d347b);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), transparent 42%),
+    linear-gradient(145deg, var(--bulletin-score-blue), #0d347b);
+  box-shadow: inset 0 calc(1px * var(--bulletin-content-scale)) rgba(255, 255, 255, 0.14);
+  text-shadow: 0 calc(1px * var(--bulletin-content-scale)) calc(2px * var(--bulletin-content-scale)) rgba(0, 0, 0, 0.26);
 }
 
 .bulletinGradeTable td.is-low {
   color: #fff;
-  background: linear-gradient(145deg, #f0181d, var(--bulletin-score-red));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), transparent 42%),
+    linear-gradient(145deg, #f0181d, var(--bulletin-score-red));
+  box-shadow: inset 0 calc(1px * var(--bulletin-content-scale)) rgba(255, 255, 255, 0.16);
+  text-shadow: 0 calc(1px * var(--bulletin-content-scale)) calc(2px * var(--bulletin-content-scale)) rgba(83, 0, 3, 0.3);
 }
 
 .bulletinGradeTable td.is-recovery-empty,
 .bulletinGradeTable td.is-missing {
   color: #1b243b;
-  background: #f3f5f9;
+  background:
+    repeating-linear-gradient(135deg, rgba(18, 50, 103, 0.022) 0 3px, transparent 3px 7px),
+    #f3f6fa;
 }
 
 .bulletinFinalRow th {
+  color: #071d55 !important;
+  background: linear-gradient(145deg, #eaf1fc, #dce7f7) !important;
   font-size: calc(9.6px * var(--bulletin-content-scale)) !important;
+  letter-spacing: calc(0.25px * var(--bulletin-content-scale));
 }
 
 .bulletinFinalRow td.is-pass {
-  background: linear-gradient(145deg, var(--bulletin-score-blue), #0d347b);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 40%),
+    linear-gradient(145deg, var(--bulletin-score-blue), #0d347b);
+  box-shadow:
+    inset 0 calc(2px * var(--bulletin-content-scale)) rgba(112, 174, 255, 0.36),
+    inset 0 calc(-2px * var(--bulletin-content-scale)) rgba(0, 0, 0, 0.18);
+  font-weight: 900;
+}
+
+.bulletinGradeTable tbody tr:hover td {
+  filter: brightness(1.08) saturate(1.04);
+}
+
+.bulletinGradeTable tbody tr:hover th {
+  filter: brightness(0.98);
 }
 
 .bulletinDocumentFooter {

@@ -740,6 +740,12 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 
 ## 19. Registro de continuidade
 
+### 12/07/2026 — acabamento UI moderno da tabela do Boletim
+
+- A tabela de notas recebeu superfície em camadas, borda suave, profundidade, cabeçalho azul com relevo discreto, separadores de trimestre e alternância sutil das células de rótulo.
+- Notas azuis/vermelhas preservam as cores pedagógicas aprovadas e ganharam luz interna/texto mais definido; vazios usam textura neutra e a linha `NOTA FINAL` possui hierarquia própria.
+- Hover realça a linha sem deslocar a grade; impressão continua simplificada e o PDF direto captura o novo acabamento sem alterar quatro boletins por A4.
+
 ### 12/07/2026 — encaixe A4 do PDF direto corrigido após inspeção de Downloads
 
 - O PDF real `C:\Users\Eugui\Downloads\Boletins-8C-2026.pdf` foi inspecionado; a captura preservava a proporção 210×275 da prévia e era centralizada em A4, deixando folga vertical, além de recortar título, nomes e resultados por `overflow` do layout de tela.
