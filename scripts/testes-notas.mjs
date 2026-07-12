@@ -24,7 +24,9 @@ const arquivos = [
   "notas/css/base.css",
   "notas/css/layouts.css",
   "notas/css/componentes.css",
+  "notas/css/boletim.css",
   "notas/js/app.js",
+  "notas/js/boletim.js",
   "notas/js/config.js",
   "notas/js/demo-data.js",
   "notas/js/domain.js",
@@ -55,14 +57,16 @@ for (const arquivo of arquivos.filter((nome) => nome.endsWith(".js"))) {
 const html = ler("notas/index.html");
 conferir(/<script\b[^>]*type=["']module["'][^>]*src=["']js\/app\.js["']/i.test(html), "notas/index.html nao carrega js/app.js como modulo.");
 conferir(/href=["']css\/tokens\.css["']/.test(html), "notas/index.html nao referencia css/tokens.css.");
+conferir(/href=["']css\/boletim\.css["']/.test(html), "notas/index.html nao referencia css/boletim.css.");
 conferir(!/id=["']view-movimento["']/.test(html), "view-movimento deve permanecer removida; Estatisticas foi integrada em Notas.");
 conferir(/id=["']view-notas["']/.test(html), "view-notas nao encontrada.");
-conferir(!/id=["']view-boletim["']/.test(html), "Boletim deve permanecer removido enquanto as demais guias sao reconstruidas.");
+conferir(/id=["']view-boletim["']/.test(html), "A nova view Boletim nao foi encontrada.");
 conferir(!/class=["'][^"']*pageView active/i.test(html), "Views nao devem carregar com active fixo antes do roteamento JS.");
 conferir(!/id=["']view-conselho["']/.test(html), "view-conselho deveria estar fora desta fase visual.");
 conferir(!/id=["']view-relatorios["']/.test(html), "view-relatorios deveria estar fora desta fase visual.");
 conferir(!/id=["']view-importacoes["']/.test(html), "view-importacoes deveria estar fora desta fase visual.");
-conferir((html.match(/data-view=/g) || []).length === 1, "A navegacao deve conter somente a guia Notas nesta fase.");
+conferir((html.match(/data-view=/g) || []).length === 2, "A navegacao deve conter somente as guias Notas e Boletim nesta fase.");
+conferir(html.includes('data-view="notas"') && html.includes('data-view="boletim"'), "Menu lateral deve oferecer Notas e Boletim.");
 conferir(!html.includes('data-view="movimento"') && !html.includes('aria-label="Estatísticas"'), "A aba Estatisticas nao deve aparecer como guia separada.");
 conferir(/class=["'][^"']*notesStatsSection/.test(html) && /id=["']movementChart["']/.test(html) && /id=["']movementStats["']/.test(html) && /id=["']movementDonut["']/.test(html) && /id=["']movementRanking["']/.test(html), "Notas deve incorporar cards, ranking, grafico e donut de Estatisticas.");
 conferir(/<option value=["']geral["']>VISÃO GERAL<\/option>/.test(html), "Notas deve oferecer a opcao VISÃO GERAL no periodo.");
@@ -84,12 +88,17 @@ conferir(/id=["']studentProfilePanel["']/.test(html), "studentProfilePanel nao e
 conferir(html.includes('role="dialog"') && html.includes('aria-modal="true"') && html.includes("studentProfileBackdrop"), "Painel do aluno deve usar dialogo modal com backdrop.");
 conferir(/<caption class=["']srOnly["']>/.test(html) && html.includes('aria-describedby="notesClassLabel"'), "Tabela de Notas deve ter caption e contexto acessivel.");
 conferir(html.includes('role="combobox"') && html.includes('aria-autocomplete="list"'), "Busca global deve expor semantica de combobox.");
+conferir(html.includes("bulletinControlGrid") && html.includes("bulletinPreviewPanel") && html.includes("bulletinPages"), "Boletim deve conter controles e previa paginada proprios.");
+conferir(html.includes("bulletinClass") && html.includes("bulletinStudentSearch") && html.includes("bulletinSituationGrid"), "Boletim deve oferecer filtros de turma, aluno e situacao.");
+conferir(html.includes("bulletinPrint") && html.includes("bulletinDownload") && html.includes("bulletinFullscreen"), "Boletim deve oferecer impressao, PDF e tela cheia.");
 
 const appTexto = ler("notas/js/app.js");
 const cssBase = ler("notas/css/base.css");
 const cssTokens = ler("notas/css/tokens.css");
 const cssLayouts = ler("notas/css/layouts.css");
 const cssComponentes = ler("notas/css/componentes.css");
+const boletimTexto = ler("notas/js/boletim.js");
+const cssBoletim = ler("notas/css/boletim.css");
 conferir(appTexto.includes("renderMovimento"), "Painel analitico integrado de Notas nao encontrado em app.js.");
 conferir(appTexto.includes('estatisticas: "notas"') && appTexto.includes('movimento: "notas"'), "Hashes legados #estatisticas/#movimento devem abrir a aba Notas.");
 conferir(!appTexto.includes('movimento: "estatisticas"'), "A URL canonica nao deve voltar a publicar #estatisticas como view separada.");
@@ -126,7 +135,7 @@ conferir(appTexto.includes("nomeAluno(estudante)") && appTexto.includes('toLocal
 conferir(appTexto.includes('!event.target.closest("#studentProfilePanel")') && appTexto.includes("fecharPerfilAluno();"), "Painel lateral do aluno deve fechar ao clicar fora.");
 conferir(appTexto.includes("imprimirRelatorioNotas") && appTexto.includes('printView = "notas"'), "Botao de impressao de Notas deve imprimir a propria ficha.");
 conferir(appTexto.includes("APROVADO APÓS RECUPERAÇÃO") && appTexto.includes("APROVADO PELO CONSELHO") && appTexto.includes("REPROVADO PELO CONSELHO"), "Aba Notas deve contemplar os resultados finais demonstrativos aprovados.");
-conferir(!appTexto.includes("criarMiniBoletim") && !appTexto.includes("renderBoletim") && !appTexto.includes("state.boletim"), "Codigo da guia Boletim deve permanecer removido.");
+conferir(appTexto.includes('from "./boletim.js"') && appTexto.includes('boletim: [') && appTexto.includes('boletins: "boletim"'), "App deve registrar a nova guia Boletim como modulo independente.");
 conferir(appTexto.includes("scoreMissing") && appTexto.includes("formatarNota") && !appTexto.includes("if (!nota) return 0"), "Nota ausente deve ser diferente de zero.");
 conferir(appTexto.includes("trapStudentPanelFocus") && appTexto.includes("studentPanelTrigger"), "Painel do aluno deve conter foco e devolve-lo ao acionador.");
 conferir(appTexto.includes('row = element("button", "attentionStudent")'), "Alunos em atencao devem ser acionaveis por teclado.");
@@ -169,7 +178,7 @@ conferir(!/body\[data-view="notas"\]\s+\.scorePill\s*\{[\s\S]*?animation:\s*scor
 conferir(cssComponentes.includes("grid-auto-rows: 42px") && cssComponentes.includes("height: 42px"), "Ranking do painel analitico deve manter mesma altura de itens no top 3 e top 10.");
 conferir(cssComponentes.includes("padding-top: 34px") && cssComponentes.includes("height: 221px"), "Grafico do painel analitico deve reservar respiro superior para rotulos das barras.");
 conferir(cssComponentes.includes("conic-gradient(from -126deg, rgba(255, 255, 255, 0.18)") && cssComponentes.includes("0 11px 0 rgba(4, 17, 37, 0.58)"), "Donut do painel analitico deve manter relevo 3D sutil.");
-conferir(!cssComponentes.includes(".a4Sheet") && !cssComponentes.includes(".miniBoletim") && !cssComponentes.includes(".boletimPreviewPanel"), "CSS exclusivo de Boletim deve permanecer removido.");
+conferir(!cssComponentes.includes(".a4Sheet") && !cssComponentes.includes(".miniBoletim"), "CSS legado do antigo Boletim nao deve voltar ao arquivo geral de componentes.");
 conferir(cssComponentes.includes(".scorePill.scoreMissing"), "Nota ausente deve ter estilo neutro proprio.");
 conferir(cssLayouts.includes(".studentProfileBackdrop") && cssLayouts.includes('MODELO VISUAL — DADOS FICTÍCIOS — SEM VALIDADE'), "Painel modal e impressao visual devem ter protecoes proprias.");
 conferir(cssComponentes.includes(".studentPeek"), "Estilo da previa de aluno nao encontrado.");
@@ -179,6 +188,18 @@ conferir(cssLayouts.includes(".studentProfilePanel") && cssLayouts.includes("z-i
 conferir(!cssLayouts.includes('body[data-print-view="movimento"]'), "Impressao separada da antiga Estatisticas deve permanecer removida.");
 conferir(!/body\[data-view=["']movimento["']\]\s+\.appRail[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "Hash legado de Estatisticas nao deve esconder o menu lateral compacto.");
 conferir(!/body\[data-view=["']movimento["']\]\s+\.systemBar[\s\S]{0,120}display\s*:\s*none/i.test(cssLayouts), "Hash legado de Estatisticas deve manter o cabecalho superior do sistema.");
+
+conferir(!boletimTexto.includes("innerHTML"), "Boletim nao deve montar dados ficticios com innerHTML.");
+conferir(boletimTexto.includes("agrupar(selecionados, 4)") && cssBoletim.includes("grid-template-rows: repeat(4, minmax(0, 1fr))"), "Boletim deve paginar quatro alunos verticalmente por folha.");
+conferir(boletimTexto.includes("estado.turma") && boletimTexto.includes("estudante.turmaId !== estado.turma"), "Selecao de turma deve gerar todos os boletins daquela turma.");
+conferir(boletimTexto.includes("resultadoParaFiltro") && boletimTexto.includes("normalizarTexto(estado.busca)"), "Filtros de situacao e aluno devem atuar sobre a previa.");
+conferir(boletimTexto.includes("bulletinStudentPhoto") && existsSync(path.join(raiz, "notas/assets/estudante-ficticio-boletim-web.jpg")), "Boletim deve usar retrato ficticio otimizado e versionado no projeto.");
+conferir(boletimTexto.includes('data.printView = "boletim"') || boletimTexto.includes('dataset.printView = "boletim"'), "Acoes Imprimir/PDF devem preparar a impressao exclusiva do Boletim.");
+conferir(cssBoletim.includes("table-layout: fixed") && cssBoletim.includes(".bulletinDisciplineColumn") && cssBoletim.includes("width: 7.0583%"), "As 12 colunas de disciplinas do Boletim devem ter a mesma largura, inclusive Computacao.");
+conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim) && /\.bulletinFinalRow td\.is-pass[\s\S]*?var\(--bulletin-score-blue\)/m.test(cssBoletim), "Notas azuis e nota final devem usar exatamente a mesma cor base.");
+conferir(cssBoletim.includes("@page bulletin") && cssBoletim.includes("size: A4 portrait") && cssBoletim.includes("page: bulletin"), "Impressao do Boletim deve usar A4 vertical.");
+conferir(cssBoletim.includes('[data-print-view="boletim"]') && cssBoletim.includes('[data-view="boletim"]') && cssBoletim.includes("break-after: page"), "Impressao deve isolar o Boletim ativo e separar as folhas.");
+conferir(cssBoletim.includes("@media (max-width: 560px)") && cssBoletim.includes("min-width: calc(1210px"), "Boletim deve preservar o documento fiel dentro de viewport rolavel no mobile.");
 
 const demoTexto = ler("notas/js/demo-data.js");
 const termosProibidos = ["ALICE", "AMANDA", "ROSE MARCIA", "CPF", "INEP"];

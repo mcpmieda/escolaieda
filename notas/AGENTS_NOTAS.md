@@ -4,18 +4,19 @@
 >
 > Última atualização: 12/07/2026
 >
-> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` foi consolidada para manter somente a guia `Notas`, com a antiga Estatísticas incorporada em `.notesStatsSection`. Boletim e demais guias foram removidos para reconstrução futura. A tela continua usando exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
+> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` passou a manter `Notas` e a nova guia `Boletim`, reconstruída do zero contra a referência local `aqui.png`. A antiga Estatísticas permanece incorporada em `.notesStatsSection`; demais guias continuam removidas. A tela usa exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
-### Estado vigente após a consolidação de 12/07/2026
+### Estado vigente após a reconstrução do Boletim em 12/07/2026
 
 - A SPA continua visual, estática e alimentada somente por fixtures fictícios.
-- A navegação visível contém **somente a guia `Notas`**.
+- A navegação visível contém **somente as guias `Notas` e `Boletim`**.
 - `Estatísticas` permanece incorporada dentro de `Notas` como `.notesStatsSection`; não recriar guia separada.
-- `Boletim` e quaisquer outras guias foram removidas do HTML, JavaScript e CSS para serem reconstruídas do zero em etapas futuras.
-- Os hashes legados `#estatisticas`, `#movimento`, `#boletim` e `#boletins` normalizam para `/notas/#notas`.
+- `Boletim` foi reconstruído do zero em `js/boletim.js` e `css/boletim.css`; quaisquer outras guias permanecem removidas.
+- Os hashes legados `#estatisticas` e `#movimento` normalizam para `/notas/#notas`; `#boletins` normaliza para `/notas/#boletim`.
 - A guia `Notas` preserva ficha, filtros, insights, painel analítico, ranking, gráfico, donut, detalhamento por disciplina, impressão e painel do aluno.
+- A guia `Boletim` preserva o shell comum e reproduz a referência `aqui.png` com filtros, situações, ações e prévia; gera toda a turma em A4 vertical, quatro boletins horizontais empilhados por folha.
 - Foram corrigidos nesta consolidação: códigos canônicos de componentes; precedência do conselho; nota ausente diferente de zero; recuperação aplicável por etapa; métricas rotuladas como alunos; foco, teclado e semântica acessível; contraste dos chips; impressão marcada como modelo visual; fallback de inicialização; código e CSS órfãos.
 - Nenhuma autenticação, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou dado real foi criado ou alterado.
 
@@ -63,9 +64,12 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 8. As novas estruturas serão separadas das listas e bibliotecas atuais, usando o prefixo `NOTAS_`.
 9. A aplicação será acessada por `https://escolaieda.com/notas/` e por um cartão no painel `/admin/`.
 10. Nesta etapa, estão autorizados documentação, scripts de POC e protótipo estático local do módulo de notas. Nenhum recurso Microsoft 365 deve ser criado ainda sem aprovação explícita.
-11. A navegação desta fase deve conter somente `Notas`; novas guias serão reconstruídas individualmente, mediante pedido e validação próprios.
-12. Não restaurar Boletim ou Estatísticas como guia reaproveitando código/CSS removido. A reconstrução deve começar com contrato funcional, acessibilidade e testes de comportamento.
+11. A navegação desta fase deve conter somente `Notas` e `Boletim`; novas guias serão reconstruídas individualmente, mediante pedido e validação próprios.
+12. Não restaurar Estatísticas como guia separada nem novas guias reaproveitando código/CSS removido. `Boletim` já foi reconstruído como módulo independente; preservar essa separação.
 13. Enquanto houver dados fictícios, a impressão da ficha deve trazer marca visível de modelo sem validade.
+14. `Boletim` deve manter o shell comum do sistema — menu lateral, título `Boletim Escolar`, busca e usuário — sem botão de ajuda.
+15. A turma selecionada no Boletim deve gerar todos os estudantes do recorte, com quatro boletins horizontais empilhados por folha A4 vertical.
+16. As 12 colunas disciplinares do Boletim devem ter largura idêntica, inclusive `Computação`; notas regulares e a nota final usam a mesma base azul, mantendo vermelho para valores abaixo do mínimo.
 
 ### Consequência da decisão de permissões
 
@@ -661,7 +665,8 @@ O projeto só poderá ser considerado concluído quando:
 
 ## 17. Pendências que bloqueiam a implementação real
 
-- reconstruir cada próxima guia somente quando o responsável definir seu novo escopo; `Notas` é a única guia autorizada no estado atual;
+- reconstruir cada próxima guia somente quando o responsável definir seu novo escopo; `Notas` e `Boletim` são as únicas guias autorizadas no estado atual;
+- validar a versão publicada de `Boletim` contra `aqui.png`, incluindo filtros, situações, P&B, zoom, tela cheia e fluxo de impressão/Salvar como PDF no navegador do responsável;
 - validar visualmente a consolidação de `Notas` de 12/07/2026 em desktop, mobile, temas, teclado, painel do aluno e impressão com marca de modelo;
 - manter códigos canônicos `P`, `M`, `C`, `G`, `H`, `A`, `RL`, `F`, `I`, `RD`, `ET`, `CPT` em fixtures, contrato, listas e UI;
 - fechar as regras pedagógicas ainda pendentes antes de expandir `calcularResultadoEstudante` para dados reais, preservando a precedência explícita do conselho já corrigida;
@@ -728,6 +733,25 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 12/07/2026 — reconstrução da guia Boletim contra `aqui.png`
+
+- Responsável colocou `C:\Users\Eugui\Desktop\aqui.png` (1672×941) como referência exata para reconstruir a guia `Boletim` e autorizou manter no shell apenas os botões `Notas` e `Boletim`.
+- `notas/index.html` recebeu o botão lateral `Boletim`, a view `view-boletim`, três painéis de controle e a prévia do relatório; o cabeçalho comum preserva busca, usuário e título `Boletim Escolar`, sem botão de ajuda.
+- A implementação nasceu em módulo próprio `notas/js/boletim.js`, sem restaurar as funções/CSS legados removidos na consolidação anterior.
+- Filtros implementados: turma, busca por aluno, I/II/III trimestre e situações `Em curso`, `Aprovado direto`, `Aprovado pelo conselho`, `Aprovado pela recuperação` e `Reprovado`, com limpeza acessível e estados `aria-pressed`.
+- Ações implementadas: modo RGBD/P&B, impressão, orientação para Salvar como PDF, zoom de 75/100/125% e tela cheia da prévia.
+- A turma selecionada gera todos os seus 35 estudantes fictícios e agrupa o resultado em quatro boletins horizontais por folha A4 vertical; a turma padrão gera nove páginas.
+- O boletim reproduz cabeçalho institucional, logo, cinco estrelas, retrato fictício, nome/turma, círculos dos trimestres, faixa de resultado, matriz de notas e aviso de privacidade.
+- Foi criado por geração de imagem um retrato inteiramente fictício, depois otimizado para web em `notas/assets/estudante-ficticio-boletim-web.jpg`; nenhum estudante real ou imagem do aluno da referência foi copiado.
+- A tabela usa `table-layout: fixed` e 12 colunas disciplinares com a mesma largura (`7.0583%`), corrigindo a antiga diferença da coluna `Computação`.
+- Todas as notas regulares, inclusive a nota final, consomem `--bulletin-score-blue`; notas abaixo do mínimo permanecem vermelhas e recuperação não aplicada aparece como traço.
+- Impressão foi isolada com página CSS nomeada `bulletin`, A4 retrato e `break-after: page`; o Chromium gerou PDF real com nove marcadores de página para os 35 alunos.
+- `notas/css/boletim.css` contém o acabamento fiel, responsivo, temas claro/mono, rolagem confinada no mobile e impressão; o relatório mantém a largura interna para não deformar a matriz em telas estreitas.
+- Capturas locais em Chromium foram comparadas em ciclos com a referência, corrigindo altura do documento, selos do cabeçalho, ícone do conselho, proporção do cabeçalho da tabela e enquadramento do primeiro boletim.
+- `scripts/testes-notas.mjs` passou a exigir as duas guias, o módulo independente, quatro boletins por folha, igualdade das colunas, igualdade do azul, A4 vertical, ativo fictício e ausência de `innerHTML` no novo renderizador.
+- Nenhuma lista `NOTAS_*`, SharePoint, Graph, Power Automate, permissão, configuração Entra ID ou dado real foi criado ou alterado.
+- Próxima etapa correta: responsável validar `/notas/#boletim` publicado; ajustes posteriores devem permanecer dentro de `js/boletim.js`/`css/boletim.css` e conservar as travas atuais.
 
 ### 12/07/2026 — consolidação da SPA em uma única guia Notas
 

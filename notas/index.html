@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layouts.css">
   <link rel="stylesheet" href="css/componentes.css">
+  <link rel="stylesheet" href="css/boletim.css">
   <script type="module" src="js/app.js"></script>
 </head>
 <body data-theme="aurora">
@@ -25,7 +26,7 @@
       </a>
 
       <nav class="railNav" aria-label="Áreas do sistema de notas">
-        <button class="navItem active" type="button" data-view="notas" aria-label="Notas">
+        <button class="navItem" type="button" data-view="notas" aria-label="Notas">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <rect x="3" y="4" width="18" height="16" rx="2"></rect>
             <path d="M3 9h18"></path>
@@ -34,6 +35,13 @@
             <path d="M18 9v11"></path>
           </svg>
           <span>Notas</span>
+        </button>
+        <button class="navItem" type="button" data-view="boletim" aria-label="Boletim">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path>
+            <path d="M8 8h8M8 12h8M8 16h5"></path>
+          </svg>
+          <span>Boletim</span>
         </button>
       </nav>
 
@@ -221,6 +229,112 @@
             </footer>
           </section>
         </div>
+      </section>
+
+      <section class="pageView bulletinView" id="view-boletim" aria-labelledby="boletimViewHeading">
+        <h2 class="srOnly" id="boletimViewHeading">Configuração e prévia do Boletim Escolar</h2>
+
+        <div class="bulletinControlGrid">
+          <section class="bulletinControlPanel bulletinFilterPanel" aria-labelledby="bulletinFiltersTitle">
+            <div class="bulletinPanelTitle">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 4v6M8 14v6M16 4v6M16 14v6"></path></svg>
+              <h3 id="bulletinFiltersTitle">Filtros principais</h3>
+            </div>
+
+            <label class="bulletinFieldLabel" for="bulletinClass">Turma</label>
+            <div class="bulletinSelectWrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10l2 5-7 4-7-4 2-5Z"></path><path d="M5 14c-1.4 1-2 2.2-2 4h18c0-1.8-.6-3-2-4"></path></svg>
+              <select id="bulletinClass" aria-label="Turma do boletim"></select>
+            </div>
+
+            <label class="bulletinFieldLabel" for="bulletinStudentSearch">Aluno</label>
+            <div class="bulletinSearchField">
+              <input id="bulletinStudentSearch" type="search" placeholder="Digite o nome do aluno..." autocomplete="off">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
+            </div>
+
+            <fieldset class="bulletinTerms">
+              <legend>Trimestre</legend>
+              <label><input type="checkbox" value="T1" checked><span class="bulletinSwitch" aria-hidden="true"></span><span>1º Trimestre</span></label>
+              <label><input type="checkbox" value="T2" checked><span class="bulletinSwitch" aria-hidden="true"></span><span>2º Trimestre</span></label>
+              <label><input type="checkbox" value="T3" checked><span class="bulletinSwitch" aria-hidden="true"></span><span>3º Trimestre</span></label>
+            </fieldset>
+          </section>
+
+          <section class="bulletinControlPanel bulletinSituationPanel" aria-labelledby="bulletinSituationTitle">
+            <div class="bulletinPanelTitle">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16l-6 7v7l-4 2v-9L4 4Z"></path></svg>
+              <h3 id="bulletinSituationTitle">Situação</h3>
+            </div>
+            <div class="bulletinSituationGrid" role="group" aria-label="Filtrar boletins por situação">
+              <button class="bulletinSituationButton is-course" type="button" data-bulletin-result="EM CURSO" aria-pressed="false">
+                <span class="bulletinSituationIcon" aria-hidden="true">◔</span><span>Em curso</span>
+              </button>
+              <button class="bulletinSituationButton is-approved" type="button" data-bulletin-result="APROVADO DIRETO" aria-pressed="false">
+                <span class="bulletinSituationIcon" aria-hidden="true">✓</span><span>Aprovado direto</span>
+              </button>
+              <button class="bulletinSituationButton is-council" type="button" data-bulletin-result="APROVADO PELO CONSELHO" aria-pressed="false">
+                <span class="bulletinSituationIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><circle cx="17" cy="9" r="2.4"></circle><path d="M3 20v-2a6 6 0 0 1 12 0v2M15 14a5 5 0 0 1 6 4.9V20"></path></svg></span><span>Aprovado pelo conselho</span>
+              </button>
+              <button class="bulletinSituationButton is-recovery" type="button" data-bulletin-result="APROVADO APÓS RECUPERAÇÃO" aria-pressed="false">
+                <span class="bulletinSituationIcon" aria-hidden="true">↻</span><span>Aprovado pela recuperação</span>
+              </button>
+              <button class="bulletinSituationButton is-failed" type="button" data-bulletin-result="REPROVADO" aria-pressed="false">
+                <span class="bulletinSituationIcon" aria-hidden="true">×</span><span>Reprovado</span>
+              </button>
+              <button class="bulletinSituationButton is-clear" id="bulletinClearFilters" type="button">
+                <span class="bulletinSituationIcon" aria-hidden="true">↻</span><span>Limpar</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="bulletinControlPanel bulletinActionsPanel" aria-labelledby="bulletinActionsTitle">
+            <div class="bulletinPanelTitle">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg>
+              <h3 id="bulletinActionsTitle">Ações</h3>
+            </div>
+            <span class="bulletinFieldLabel">Modo de cor</span>
+            <div class="bulletinColorMode" role="group" aria-label="Modo de cor do boletim">
+              <button class="active" type="button" data-bulletin-color="color" aria-pressed="true">RGBD (colorido)</button>
+              <button type="button" data-bulletin-color="mono" aria-pressed="false">P&amp;B (preto e branco)</button>
+            </div>
+            <button class="bulletinActionButton" id="bulletinPrint" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"></path></svg>
+              <span>Imprimir</span>
+            </button>
+            <button class="bulletinActionButton" id="bulletinDownload" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 19v2h16v-2"></path></svg>
+              <span>Baixar PDF</span>
+            </button>
+          </section>
+        </div>
+
+        <section class="bulletinPreviewPanel" aria-labelledby="bulletinPreviewTitle">
+          <header class="bulletinPreviewToolbar">
+            <div class="bulletinPreviewHeading">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <h3 id="bulletinPreviewTitle">Prévia do relatório</h3>
+              <span id="bulletinPreviewCount" aria-live="polite"></span>
+            </div>
+            <div class="bulletinPreviewTools">
+              <label class="bulletinZoomControl">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
+                <select id="bulletinZoom" aria-label="Zoom da prévia">
+                  <option value="0.75">75%</option>
+                  <option value="1" selected>100%</option>
+                  <option value="1.25">125%</option>
+                </select>
+              </label>
+              <button id="bulletinFullscreen" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"></path></svg>
+                <span>Tela cheia</span>
+              </button>
+            </div>
+          </header>
+          <div class="bulletinPreviewViewport" id="bulletinPreviewViewport">
+            <div class="bulletinPages" id="bulletinPages" aria-live="polite"></div>
+          </div>
+        </section>
       </section>
 
     </main>

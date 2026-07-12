@@ -1,4 +1,5 @@
 import { demoData } from "./demo-data.js";
+import { inicializarBoletim, renderBoletim } from "./boletim.js";
 import {
   formatarMedia,
   listarEstudantesComResumo,
@@ -44,6 +45,10 @@ const viewCopy = {
   notas: [
     "Notas",
     "Ficha de notas, insights e desempenho por turma e período."
+  ],
+  boletim: [
+    "Boletim Escolar",
+    "Gere, visualize e imprima relatórios escolares de forma rápida e simples."
   ]
 };
 
@@ -53,12 +58,12 @@ const viewAliases = {
   dashboard: "notas",
   turma: "notas",
   banco: "notas",
-  boletim: "notas",
-  boletins: "notas"
+  boletins: "boletim"
 };
 
 const viewHashes = {
-  notas: "notas"
+  notas: "notas",
+  boletim: "boletim"
 };
 
 const estudantesResumo = listarEstudantesComResumo(demoData);
@@ -131,6 +136,7 @@ try {
 function initialize() {
   preencherSelects();
   enhanceStatsSelects();
+  inicializarBoletim();
   aplicarTema(state.theme);
   ui.studentProfilePanel.inert = true;
   bindEvents();
@@ -634,7 +640,8 @@ function abrirView(view, updateHash = true) {
 }
 
 function renderActiveView() {
-  renderNotas();
+  if (state.view === "boletim") renderBoletim();
+  else renderNotas();
 }
 
 function renderMovimento() {

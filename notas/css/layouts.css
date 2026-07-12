@@ -376,7 +376,7 @@ body[data-view="notas"] .notesGrid {
   }
 }
 
-@page {
+@page notes {
   size: A4 landscape;
   margin: 8mm;
 }
@@ -440,16 +440,20 @@ body[data-view="notas"] .notesGrid {
     z-index: 9999;
   }
 
-  #view-notas {
+  body[data-print-view="notas"] #view-notas {
     display: block !important;
   }
 
-  .notesBoardHeader {
+  body[data-print-view="notas"] .notesBoardModern {
+    page: notes;
+  }
+
+  body[data-print-view="notas"] .notesBoardHeader {
     display: flex !important;
     margin-bottom: 5mm;
   }
 
-  .notesTableWrap {
+  body[data-print-view="notas"] .notesTableWrap {
     overflow: visible;
     border: 0;
     background: #fff;

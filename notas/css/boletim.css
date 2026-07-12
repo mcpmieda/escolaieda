@@ -1,0 +1,1032 @@
+.bulletinView {
+  --bulletin-panel: linear-gradient(145deg, rgba(13, 45, 86, 0.95), rgba(4, 24, 56, 0.96));
+  --bulletin-line: rgba(105, 166, 255, 0.2);
+  --bulletin-paper-blue: #06174c;
+  --bulletin-score-blue: #082964;
+  --bulletin-score-red: #df090e;
+  padding-bottom: 24px;
+}
+
+.bulletinControlGrid {
+  display: grid;
+  grid-template-columns: 1.07fr 1.13fr 1.04fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.bulletinControlPanel,
+.bulletinPreviewPanel {
+  border: 1px solid var(--bulletin-line);
+  background: var(--bulletin-panel);
+  box-shadow: 0 18px 45px rgba(0, 7, 24, 0.22), inset 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.bulletinControlPanel {
+  min-height: 252px;
+  padding: 19px 22px;
+  border-radius: 19px;
+}
+
+.bulletinPanelTitle {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 12px;
+}
+
+.bulletinPanelTitle svg,
+.bulletinPreviewHeading svg,
+.bulletinPreviewTools svg,
+.bulletinSelectWrap > svg,
+.bulletinSearchField > svg,
+.bulletinActionButton svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bulletinPanelTitle svg {
+  width: 26px;
+  height: 26px;
+}
+
+.bulletinPanelTitle h3,
+.bulletinPreviewToolbar h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.bulletinFieldLabel,
+.bulletinTerms legend {
+  display: block;
+  margin: 0 0 4px;
+  color: var(--ink-soft);
+  font-size: 0.83rem;
+}
+
+.bulletinSelectWrap,
+.bulletinSearchField {
+  position: relative;
+  height: 46px;
+  margin-bottom: 11px;
+  border: 1px solid rgba(118, 174, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(1, 18, 46, 0.42);
+  transition: border-color var(--motion-quick), background var(--motion-quick), transform var(--motion-quick);
+}
+
+.bulletinSelectWrap:focus-within,
+.bulletinSearchField:focus-within {
+  border-color: rgba(63, 142, 255, 0.82);
+  background: rgba(4, 28, 67, 0.78);
+}
+
+.bulletinSelectWrap > svg {
+  position: absolute;
+  left: 15px;
+  top: 12px;
+  width: 21px;
+  height: 21px;
+  pointer-events: none;
+}
+
+.bulletinSelectWrap select,
+.bulletinSearchField input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+}
+
+.bulletinSelectWrap select {
+  padding: 0 42px 0 50px;
+  appearance: auto;
+}
+
+.bulletinSearchField {
+  padding-right: 50px;
+}
+
+.bulletinSearchField input {
+  padding: 0 15px;
+}
+
+.bulletinSearchField input::placeholder {
+  color: rgba(202, 220, 244, 0.64);
+}
+
+.bulletinSearchField > svg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50px;
+  height: 100%;
+  padding: 13px;
+  color: white;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #2184ff, #004fe0);
+  pointer-events: none;
+}
+
+.bulletinTerms {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.bulletinTerms legend {
+  margin-bottom: 7px;
+}
+
+.bulletinTerms > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 32.5%;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bulletinTerms input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bulletinSwitch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 39px;
+  height: 21px;
+  border-radius: 999px;
+  background: rgba(1, 20, 52, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(82, 143, 225, 0.16);
+  transition: background var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+.bulletinSwitch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #f5f8ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.36);
+  transition: transform var(--motion-quick);
+}
+
+.bulletinTerms input:checked + .bulletinSwitch {
+  background: linear-gradient(90deg, #0064ff, #238cff);
+  box-shadow: 0 0 16px rgba(0, 105, 255, 0.28);
+}
+
+.bulletinTerms input:checked + .bulletinSwitch::after {
+  transform: translateX(18px);
+}
+
+.bulletinTerms input:focus-visible + .bulletinSwitch {
+  box-shadow: var(--focus);
+}
+
+.bulletinSituationGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bulletinSituationButton {
+  min-height: 76px;
+  padding: 9px 8px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 12px;
+  color: #fff;
+  text-align: left;
+  line-height: 1.25;
+  transition: transform var(--motion-quick), filter var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+.bulletinSituationButton:hover,
+.bulletinSituationButton:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.bulletinSituationButton.active {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.72), 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.bulletinSituationButton.is-course {
+  background: linear-gradient(145deg, #1685ff, #0056d8);
+}
+
+.bulletinSituationButton.is-approved {
+  background: linear-gradient(145deg, #299f42, #087126);
+}
+
+.bulletinSituationButton.is-council {
+  background: linear-gradient(145deg, #923cf0, #5219bd);
+}
+
+.bulletinSituationButton.is-recovery {
+  background: linear-gradient(145deg, #ff9707, #e26300);
+}
+
+.bulletinSituationButton.is-failed {
+  background: linear-gradient(145deg, #ff2626, #ce0009);
+}
+
+.bulletinSituationButton.is-clear {
+  color: #09206e;
+  background: linear-gradient(145deg, #fff, #dfe7f7);
+}
+
+.bulletinSituationIcon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: currentColor;
+  background: rgba(255, 255, 255, 0.94);
+  font-size: 1.65rem;
+  font-weight: 900;
+}
+
+.bulletinSituationIcon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bulletinSituationButton:not(.is-clear) .bulletinSituationIcon {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.bulletinSituationButton.is-course .bulletinSituationIcon { color: #0969dd; }
+.bulletinSituationButton.is-approved .bulletinSituationIcon { color: #108032; }
+.bulletinSituationButton.is-council .bulletinSituationIcon { color: #6a25d0; }
+.bulletinSituationButton.is-recovery .bulletinSituationIcon { color: #e66f00; }
+.bulletinSituationButton.is-failed .bulletinSituationIcon { color: #d6000d; }
+
+.bulletinActionsPanel {
+  display: flex;
+  flex-direction: column;
+}
+
+.bulletinColorMode {
+  min-height: 46px;
+  margin: 1px 0 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid rgba(118, 174, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(1, 18, 46, 0.42);
+}
+
+.bulletinColorMode button {
+  border: 0;
+  color: var(--ink-soft);
+  background: transparent;
+  transition: color var(--motion-quick), background var(--motion-quick);
+}
+
+.bulletinColorMode button.active {
+  color: #fff;
+  background: linear-gradient(145deg, #1a7fff, #0052e3);
+  box-shadow: 0 0 24px rgba(0, 91, 255, 0.28);
+}
+
+.bulletinActionButton {
+  min-height: 51px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: 0;
+  border-radius: 11px;
+  color: #081d6f;
+  background: linear-gradient(145deg, #fff, #e7ebf6);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, 0.17);
+  font-size: 1rem;
+  font-weight: 800;
+  transition: transform var(--motion-quick), box-shadow var(--motion-quick);
+}
+
+.bulletinActionButton:hover,
+.bulletinActionButton:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.bulletinActionButton svg {
+  width: 25px;
+  height: 25px;
+}
+
+.bulletinPreviewPanel {
+  overflow: hidden;
+  border-radius: 19px;
+}
+
+.bulletinPreviewToolbar {
+  min-height: 44px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid rgba(105, 166, 255, 0.17);
+}
+
+.bulletinPreviewHeading,
+.bulletinPreviewTools,
+.bulletinZoomControl,
+.bulletinPreviewTools button {
+  display: flex;
+  align-items: center;
+}
+
+.bulletinPreviewHeading {
+  min-width: 0;
+  gap: 11px;
+}
+
+.bulletinPreviewHeading > svg {
+  width: 26px;
+  height: 26px;
+}
+
+#bulletinPreviewCount {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.bulletinPreviewTools {
+  gap: 10px;
+}
+
+.bulletinZoomControl,
+.bulletinPreviewTools button {
+  height: 38px;
+  gap: 10px;
+  border: 1px solid rgba(105, 166, 255, 0.2);
+  border-radius: 10px;
+  color: var(--ink-soft);
+  background: rgba(1, 17, 44, 0.42);
+}
+
+.bulletinZoomControl {
+  padding: 0 12px;
+}
+
+.bulletinZoomControl svg,
+.bulletinPreviewTools button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bulletinZoomControl select {
+  min-width: 74px;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  background: transparent;
+}
+
+.bulletinPreviewTools button {
+  padding: 0 17px;
+}
+
+.bulletinPreviewTools button.active {
+  color: #fff;
+  border-color: #2d83ff;
+  background: #075ad8;
+}
+
+.bulletinPreviewViewport {
+  height: min(720px, calc(100vh - 410px));
+  min-height: 520px;
+  padding: 4px;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 50% 0, rgba(38, 105, 212, 0.13), transparent 34%),
+    rgba(0, 10, 31, 0.5);
+  scrollbar-color: #2b73d8 rgba(0, 16, 42, 0.7);
+}
+
+.bulletinPreviewViewport:fullscreen {
+  height: 100vh;
+  padding: 24px;
+  background: #03132e;
+}
+
+.bulletinPages {
+  --bulletin-preview-zoom: 1;
+  width: calc(100% * var(--bulletin-preview-zoom));
+  min-width: calc(1210px * var(--bulletin-preview-zoom));
+  max-width: calc(1600px * var(--bulletin-preview-zoom));
+  margin: 0 auto;
+  display: grid;
+  gap: calc(18px * var(--bulletin-preview-zoom));
+}
+
+.bulletinPage {
+  width: 100%;
+  aspect-ratio: 210 / 275;
+  padding: calc(13px * var(--bulletin-preview-zoom));
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: calc(11px * var(--bulletin-preview-zoom));
+  overflow: hidden;
+  border-radius: calc(14px * var(--bulletin-preview-zoom));
+  background: #edf1f9;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.42);
+}
+
+.bulletinDocument {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: calc(1px * var(--bulletin-preview-zoom)) solid #bdc8dc;
+  border-radius: calc(12px * var(--bulletin-preview-zoom));
+  color: #06133c;
+  background:
+    radial-gradient(circle at 4% 90%, rgba(24, 75, 170, 0.09) 0 1px, transparent 1.5px) 0 0 / 6px 6px,
+    linear-gradient(110deg, #fff 0%, #f7f9ff 58%, #f0f3fa 100%);
+  box-shadow: 0 5px 14px rgba(19, 35, 76, 0.14);
+}
+
+.bulletinDocumentHeader {
+  position: relative;
+  height: 17.5%;
+  min-height: 0;
+  margin: 0 0.9%;
+  padding: 0 3% 0 9%;
+  display: flex;
+  align-items: center;
+  gap: 1.5%;
+  color: #fff;
+  background: linear-gradient(100deg, #061c5b 0%, #07276e 45%, #061542 100%);
+}
+
+.bulletinSchoolLogo {
+  position: absolute;
+  left: 1.6%;
+  top: 50%;
+  width: 6.6%;
+  max-height: 132%;
+  object-fit: contain;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+}
+
+.bulletinSchoolName {
+  min-width: 0;
+  overflow: hidden;
+  font-size: calc(22px * var(--bulletin-preview-zoom));
+  font-weight: 500;
+  letter-spacing: calc(0.5px * var(--bulletin-preview-zoom));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulletinStars {
+  flex: 0 0 auto;
+  display: flex;
+  gap: calc(6px * var(--bulletin-preview-zoom));
+}
+
+.bulletinStars i {
+  width: calc(21px * var(--bulletin-preview-zoom));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #082264;
+  background: #fff;
+  font-size: calc(13px * var(--bulletin-preview-zoom));
+  font-style: normal;
+}
+
+.bulletinDocumentBody {
+  height: 70%;
+  padding: 1.7% 1.7% 1.2%;
+  display: grid;
+  grid-template-columns: 31% minmax(0, 69%);
+  gap: 1.4%;
+}
+
+.bulletinStudentIdentity {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 53%) minmax(0, 26%) minmax(0, 21%);
+  gap: 2.5%;
+}
+
+.bulletinStudentTop {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 35% minmax(0, 65%);
+  gap: 7%;
+  align-items: start;
+}
+
+.bulletinStudentPhoto {
+  width: 100%;
+  height: 100%;
+  border: calc(1px * var(--bulletin-preview-zoom)) solid #1667ca;
+  border-radius: calc(9px * var(--bulletin-preview-zoom));
+  object-fit: cover;
+  object-position: center 22%;
+  box-shadow: 0 5px 10px rgba(9, 36, 96, 0.24);
+}
+
+.bulletinStudentData {
+  min-width: 0;
+  padding-top: 2%;
+}
+
+.bulletinStudentData strong {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #092066;
+  font-size: calc(17px * var(--bulletin-preview-zoom));
+  line-height: 1.08;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.bulletinStudentData span {
+  display: block;
+  margin-top: 3%;
+  color: #092066;
+  font-size: calc(19px * var(--bulletin-preview-zoom));
+  font-weight: 800;
+}
+
+.bulletinTermProgress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3%;
+  align-items: end;
+}
+
+.bulletinProgressItem {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  gap: 7%;
+}
+
+.bulletinProgressItem > span {
+  overflow: hidden;
+  width: 100%;
+  font-size: calc(8px * var(--bulletin-preview-zoom));
+  font-weight: 800;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulletinProgressRing {
+  --ring-color: #0954ce;
+  width: calc(70px * var(--bulletin-preview-zoom));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #071c5f;
+  background:
+    radial-gradient(circle, #fff 55%, transparent 57%),
+    conic-gradient(var(--ring-color) var(--bulletin-progress), #d9e0ef 0);
+  box-shadow: 0 4px 8px rgba(4, 33, 104, 0.22);
+  font-size: calc(14px * var(--bulletin-preview-zoom));
+}
+
+.bulletinProgressRing.is-low {
+  --ring-color: #e2121b;
+}
+
+.bulletinStudentResult {
+  min-width: 0;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6%;
+  border-radius: calc(9px * var(--bulletin-preview-zoom));
+  color: #fff;
+  box-shadow: 0 5px 10px rgba(0, 34, 35, 0.2);
+}
+
+.bulletinStudentResult.is-approved,
+.bulletinStudentResult.is-council {
+  background: linear-gradient(145deg, #199336, #087522);
+}
+
+.bulletinStudentResult.is-recovery {
+  background: linear-gradient(145deg, #f09309, #ce5b00);
+}
+
+.bulletinStudentResult.is-course {
+  background: linear-gradient(145deg, #157eff, #0057cd);
+}
+
+.bulletinStudentResult.is-failed {
+  background: linear-gradient(145deg, #ef2027, #bd0008);
+}
+
+.bulletinStudentResult strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: calc(17px * var(--bulletin-preview-zoom));
+  font-weight: 500;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulletinResultIcon {
+  flex: 0 0 auto;
+  width: calc(38px * var(--bulletin-preview-zoom));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #087524;
+  background: #fff;
+  font-size: calc(28px * var(--bulletin-preview-zoom));
+  font-weight: 900;
+}
+
+.bulletinStudentResult.is-recovery .bulletinResultIcon { color: #ce5b00; }
+.bulletinStudentResult.is-course .bulletinResultIcon { color: #0057cd; }
+.bulletinStudentResult.is-failed .bulletinResultIcon { color: #bd0008; }
+
+.bulletinGradeRegion {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  border: calc(1px * var(--bulletin-preview-zoom)) solid #c1cbe0;
+  border-radius: calc(7px * var(--bulletin-preview-zoom));
+  background: #fff;
+}
+
+.bulletinGradeTable {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: #06113c;
+  font-size: calc(9px * var(--bulletin-preview-zoom));
+}
+
+.bulletinGradeTable thead {
+  height: 17%;
+}
+
+.bulletinGradeTable tbody {
+  height: 83%;
+}
+
+.bulletinPeriodColumn {
+  width: 10.5%;
+}
+
+.bulletinKindColumn {
+  width: 4.8%;
+}
+
+.bulletinDisciplineColumn {
+  width: 7.0583%;
+}
+
+.bulletinGradeTable th,
+.bulletinGradeTable td {
+  padding: 0.4%;
+  overflow: hidden;
+  border: calc(1px * var(--bulletin-preview-zoom)) solid #c2cce0;
+  text-align: center;
+  text-overflow: clip;
+}
+
+.bulletinGradeTable thead th {
+  height: 20%;
+  color: #fff;
+  background: linear-gradient(#07194f, #06113d);
+  font-size: calc(8.1px * var(--bulletin-preview-zoom));
+  font-weight: 500;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.bulletinGradeTable thead th:first-child {
+  color: #111a2f;
+  background: #f4f6fa;
+  font-size: calc(8.8px * var(--bulletin-preview-zoom));
+  font-weight: 800;
+}
+
+.bulletinGradeTable tbody th {
+  background: #f7f8fb;
+  font-size: calc(8.5px * var(--bulletin-preview-zoom));
+  font-weight: 800;
+}
+
+.bulletinGradeTable td {
+  color: #06133d;
+  background: #f6f8fc;
+  font-size: calc(10.5px * var(--bulletin-preview-zoom));
+}
+
+.bulletinGradeTable td.is-pass {
+  color: #fff;
+  background: linear-gradient(145deg, var(--bulletin-score-blue), #0d347b);
+}
+
+.bulletinGradeTable td.is-low {
+  color: #fff;
+  background: linear-gradient(145deg, #f0181d, var(--bulletin-score-red));
+}
+
+.bulletinGradeTable td.is-recovery-empty,
+.bulletinGradeTable td.is-missing {
+  color: #1b243b;
+  background: #f3f5f9;
+}
+
+.bulletinFinalRow th {
+  font-size: calc(9.6px * var(--bulletin-preview-zoom)) !important;
+}
+
+.bulletinFinalRow td.is-pass {
+  background: linear-gradient(145deg, var(--bulletin-score-blue), #0d347b);
+}
+
+.bulletinDocumentFooter {
+  height: 12.5%;
+  margin: 0 1.7% 0.8% 32.7%;
+  padding: 0 3% 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2%;
+  color: #07185e;
+  border-radius: calc(5px * var(--bulletin-preview-zoom));
+  background: linear-gradient(90deg, #e5e9f5, #eef1f8);
+  font-size: calc(11px * var(--bulletin-preview-zoom));
+}
+
+.bulletinPrivacyWarning {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulletinWarningIcon {
+  flex: 0 0 auto;
+  width: calc(23px * var(--bulletin-preview-zoom));
+  aspect-ratio: 1.1;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #07185e;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  font-size: calc(13px * var(--bulletin-preview-zoom));
+}
+
+.bulletinNumber {
+  flex: 0 0 auto;
+}
+
+.bulletinEmptyState {
+  min-height: 300px;
+  padding: 30px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 1px dashed rgba(118, 174, 255, 0.36);
+  border-radius: 18px;
+  color: var(--ink-soft);
+  text-align: center;
+  background: rgba(4, 24, 56, 0.8);
+}
+
+.bulletinPages[data-color-mode="mono"] .bulletinDocument {
+  filter: grayscale(1);
+}
+
+body[data-theme="claro"] .bulletinView {
+  --bulletin-panel: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(238, 246, 255, 0.98));
+  --bulletin-line: rgba(38, 94, 158, 0.21);
+}
+
+body[data-theme="claro"] .bulletinSelectWrap,
+body[data-theme="claro"] .bulletinSearchField,
+body[data-theme="claro"] .bulletinColorMode,
+body[data-theme="claro"] .bulletinZoomControl,
+body[data-theme="claro"] .bulletinPreviewTools button {
+  background: rgba(217, 233, 251, 0.58);
+}
+
+body[data-theme="claro"] .bulletinSearchField input::placeholder {
+  color: #60748d;
+}
+
+body[data-theme="mono"] .bulletinView {
+  --bulletin-panel: linear-gradient(145deg, rgba(38, 40, 47, 0.98), rgba(16, 18, 23, 0.98));
+  --bulletin-line: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 1280px) {
+  .bulletinControlGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bulletinActionsPanel {
+    grid-column: 1 / -1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+
+  .bulletinActionsPanel .bulletinPanelTitle,
+  .bulletinActionsPanel > .bulletinFieldLabel,
+  .bulletinActionsPanel .bulletinColorMode {
+    grid-column: 1 / -1;
+  }
+
+  .bulletinActionButton {
+    margin: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .bulletinControlGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bulletinActionsPanel {
+    grid-column: auto;
+  }
+
+  .bulletinPreviewToolbar {
+    padding: 10px 12px;
+    align-items: flex-start;
+  }
+
+  .bulletinPreviewHeading {
+    flex-wrap: wrap;
+  }
+
+  .bulletinPreviewTools button span {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .bulletinControlPanel {
+    padding: 16px;
+  }
+
+  .bulletinTerms > label {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .bulletinSituationGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bulletinSituationButton {
+    grid-template-columns: 34px minmax(0, 1fr);
+    min-height: 68px;
+    padding: 8px;
+    font-size: 0.78rem;
+  }
+
+  .bulletinSituationIcon {
+    width: 33px;
+    height: 33px;
+  }
+
+  .bulletinActionsPanel {
+    display: flex;
+  }
+
+  .bulletinPreviewToolbar {
+    display: grid;
+  }
+
+  .bulletinPreviewTools {
+    justify-content: space-between;
+  }
+
+  .bulletinPreviewViewport {
+    min-height: 480px;
+    padding: 8px;
+  }
+}
+
+@page bulletin {
+  size: A4 portrait;
+  margin: 6mm;
+}
+
+@media print {
+  body:is([data-print-view="boletim"], [data-view="boletim"]) {
+    background: #fff !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .appRail,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .systemBar,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .appFatalError,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinControlGrid,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPreviewToolbar,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .studentProfileBackdrop,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .studentProfilePanel {
+    display: none !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .appShell,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .mainStage,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) #view-boletim,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPreviewPanel,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPreviewViewport,
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPages {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPage {
+    page: bulletin;
+    width: 100% !important;
+    height: 285mm !important;
+    min-height: 285mm !important;
+    aspect-ratio: auto;
+    padding: 0 !important;
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 2mm !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPage:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinDocument {
+    --bulletin-preview-zoom: 0.47;
+    min-height: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body:is([data-print-view="boletim"], [data-view="boletim"]) .bulletinPages[data-color-mode="mono"] .bulletinDocument {
+    filter: grayscale(1);
+  }
+}
