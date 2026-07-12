@@ -739,6 +739,12 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 
 ## 19. Registro de continuidade
 
+### 12/07/2026 — seletor de turma do Boletim padronizado com Notas
+
+- O seletor nativo de turma do Boletim foi substituído visualmente pelo mesmo componente customizado, acessível e sincronizado usado em `Notas`.
+- A inicialização agora preenche as turmas antes de aprimorar os selects; o menu possui superfície opaca, opção ativa, hover, teclado, clique externo e `Escape`.
+- O `<select>` original continua no DOM como fonte de valor e dispara o mesmo fluxo de filtros; nenhum dado ou recurso Microsoft 365 foi alterado.
+
 ### 12/07/2026 — situações coloridas somente quando selecionadas
 
 - Os botões do grupo `Situação` no Boletim agora permanecem neutros por padrão e exibem sua cor semântica somente com `.active`/`aria-pressed="true"`.

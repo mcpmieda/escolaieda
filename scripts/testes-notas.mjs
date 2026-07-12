@@ -91,6 +91,7 @@ conferir(/<caption class=["']srOnly["']>/.test(html) && html.includes('aria-desc
 conferir(html.includes('role="combobox"') && html.includes('aria-autocomplete="list"'), "Busca global deve expor semantica de combobox.");
 conferir(html.includes("bulletinControlGrid") && html.includes("bulletinPreviewPanel") && html.includes("bulletinPages"), "Boletim deve conter controles e previa paginada proprios.");
 conferir(html.includes("bulletinClass") && html.includes("bulletinStudentSearch") && html.includes("bulletinSituationGrid"), "Boletim deve oferecer filtros de turma, aluno e situacao.");
+conferir(html.includes("bulletinClassSelect statsSelectCard") && html.includes('data-stats-select-label="Turma"'), "Turma do Boletim deve usar seletor customizado no padrao de Notas.");
 conferir(html.includes("bulletinPrint") && html.includes("bulletinDownload") && html.includes("bulletinFullscreen"), "Boletim deve oferecer impressao, PDF e tela cheia.");
 conferir(html.includes("bulletinPreviousPage") && html.includes("bulletinPageStatus") && html.includes("bulletinNextPage"), "Boletim deve oferecer paginacao acessivel na previa.");
 
@@ -110,6 +111,7 @@ conferir(appTexto.includes("disciplinaSelecionada") && appTexto.includes("sincro
 conferir(appTexto.includes(".slice(0, 10)") && appTexto.includes("rankingExtra") && appTexto.includes("sincronizarRankingMovimento"), "Ranking integrado deve manter top 10 no DOM e alternar por estado visual.");
 conferir(appTexto.includes("movementClassPanelTitle"), "Painel analitico deve atualizar o detalhamento por disciplina/turma.");
 conferir(appTexto.includes("enhanceStatsSelects"), "Notas deve substituir o select nativo por seletor customizado sincronizado.");
+conferir(appTexto.indexOf("inicializarBoletim();") < appTexto.indexOf("enhanceStatsSelects();"), "Boletim deve preencher as turmas antes de criar o seletor customizado.");
 conferir(appTexto.includes("openStatsSelect") && appTexto.includes("chooseStatsSelectOption"), "Seletor customizado de Notas deve abrir e sincronizar opcoes.");
 conferir(appTexto.includes("statsSelectOptionMeta"), "Seletor customizado deve esconder codigos tecnicos como T1/T2/GERAL na descricao visual.");
 conferir(appTexto.includes("statsSelectIconName") && appTexto.includes("calendar"), "Seletores de Notas devem renderizar icones de turma e periodo.");
@@ -207,6 +209,7 @@ conferir(cssBoletim.includes("--bulletin-score-blue") && /\.bulletinGradeTable t
 conferir(cssBoletim.includes("@page bulletin") && cssBoletim.includes("size: A4 portrait") && cssBoletim.includes("page: bulletin"), "Impressao do Boletim deve usar A4 vertical.");
 conferir(cssBoletim.includes('[data-print-view="boletim"]') && cssBoletim.includes('[data-view="boletim"]') && cssBoletim.includes("break-after: page"), "Impressao deve isolar o Boletim ativo e separar as folhas.");
 conferir(cssBoletim.includes(".bulletinPagination") && cssBoletim.includes("#bulletinPageStatus"), "Paginacao da previa deve ter acabamento visual proprio.");
+conferir(cssBoletim.includes(".bulletinClassSelect .statsSelectMenu") && cssBoletim.includes(".bulletinClassSelect .statsSelectOption.active"), "Seletor de turma do Boletim deve ter menu e estado ativo proprios.");
 conferir(cssBoletim.includes(".bulletinSituationButton.is-course.active") && !cssBoletim.includes(".bulletinSituationButton.is-course {"), "Situacoes do Boletim devem receber cor somente quando selecionadas.");
 conferir(/@media print[\s\S]*?\.bulletinProgressRing[\s\S]*?background:\s*#fff !important;/m.test(cssBoletim) && /@media print[\s\S]*?\.bulletinStudentPhoto[\s\S]*?box-shadow:\s*none !important;/m.test(cssBoletim), "PDF deve remover rasterizacoes decorativas pesadas sem alterar a previa.");
 conferir(cssBoletim.includes("@media (max-width: 560px)") && cssBoletim.includes("min-width: calc(1210px"), "Boletim deve preservar o documento fiel dentro de viewport rolavel no mobile.");

@@ -135,8 +135,8 @@ try {
 
 function initialize() {
   preencherSelects();
-  enhanceStatsSelects();
   inicializarBoletim();
+  enhanceStatsSelects();
   aplicarTema(state.theme);
   ui.studentProfilePanel.inert = true;
   bindEvents();
