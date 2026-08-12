@@ -2421,7 +2421,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       });
 
       const idsDuplicidade = obterIdsDuplicidadePendente();
-      const recentesEnviados = documentosAtivos.filter(documentoEnviadoRecentemente).length;
+      const historicoParcialDisponivel = historicoCarregado.length > 0;
+      const recentesEnviados = historicoParcialDisponivel ? documentosAtivos.filter(documentoEnviadoRecentemente).length : null;
       const recentesAlterados = documentosAtivos.filter(documentoAlteradoRecentemente).length;
       const usuarios = new Map();
       historicoCarregado.forEach(item => {
@@ -2447,7 +2448,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         <div class="relatorioCard"><strong>Duplicidades pendentes</strong><span>${idsDuplicidade.size}</span></div>
         <div class="relatorioCard"><strong>Pessoas diferentes</strong><span>${paresDuplicidadesIgnoradosDetalhes.length || paresDuplicidadesIgnorados.size}</span></div>
         <div class="relatorioCard"><strong>Arquivos com anotações</strong><span>${anotacoesCarregadas.filter(item => (item.ANOTACAO || "").trim()).length}</span></div>
-        <div class="relatorioCard"><strong>Enviados recentemente</strong><span>${recentesEnviados}</span></div>
+        <div class="relatorioCard"><strong>Enviados recentemente (histórico carregado)</strong><span>${recentesEnviados ?? "—"}</span></div>
         <div class="relatorioCard"><strong>Alterados recentemente</strong><span>${recentesAlterados}</span></div>
         <div class="relatorioCard"><strong>Histórico carregado por usuário</strong><ul>${linhasUsuarios || "<li>Histórico ainda não carregado.</li>"}</ul></div>
       `;

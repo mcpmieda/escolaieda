@@ -529,6 +529,7 @@ testar("Historico preservado carrega sob demanda e Recentes independe da lista c
   assert.match(abrirHistorico, /abrirPainelDashboard\("Central de histórico"/, "Central deve preservar a interface existente.");
   assert.match(abrirHistorico, /sincronizarCamposFiltroHistoricoGeral/, "Central deve preservar os filtros existentes.");
   assert.match(js, /data-acao-historico="ver-mais"/, "Paginação deve preservar o manipulador de evento já existente.");
+  assert.match(js, /Enviados recentemente \(histórico carregado\)/, "Relatório deve identificar contagem de envios como parcial quando o histórico global não está pré-carregado.");
   assert.doesNotMatch(js, /retencao-historico|historico-frio/i, "Codigo de producao nao deve referenciar a politica de retencao removida.");
 });
 

@@ -275,7 +275,7 @@ Páginas adicionais só são buscadas quando o usuário pedir para carregar mais
 Filtros e busca deixam claro que atuam sobre os registros já carregados na sessão.
 ```
 
-A antiga estratégia de histórico frio, manifesto de retenção e envio programado de registros para a Lixeira foi removida. Se um dia houver necessidade institucional de retenção, ela deve ser redesenhada como uma decisão explícita e separada, nunca reintroduzida como exclusão automática silenciosa.
+Não reintroduzir exclusão automática, arquivamento por idade ou expurgo de `HISTORICO_ACESSOS`.
 
 ---
 
