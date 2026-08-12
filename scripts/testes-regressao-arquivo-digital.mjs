@@ -520,6 +520,15 @@ testar("Historico preservado carrega sob demanda e Recentes independe da lista c
   assert.match(historicoDocumento, /carregarHistoricoPorArquivoId\(arquivoId, token\)/, "Painel deve consultar somente o historico do documento aberto.");
   assert.doesNotMatch(historicoDocumento, /carregarDadosDeApoio/, "Falha da consulta direta nao deve disparar carga global como fallback.");
   assert.doesNotMatch(js, /historicoApoioCarregado/, "Estado antigo de carga global deve ter sido removido.");
+  assert.match(js, /versaoHistoricoCache\+\+/, "Invalidação do histórico deve usar o contador real de cache.");
+  assert.doesNotMatch(js, /\bversaoHistorico\s*\+=/, "Não pode existir contador de histórico inexistente.");
+  assert.match(montarRecentes, /versaoDocumentosCache/, "Recentes deve usar o contador real de documentos.");
+  assert.doesNotMatch(js, /===\s*versaoDocumentos\b/, "Não pode existir contador de documentos inexistente.");
+  assert.doesNotMatch(js, /mesclarAnotacaoNoCache/, "Histórico individual deve usar o cache de anotação existente.");
+  assert.doesNotMatch(js, /sincronizarControlesHistoricoGeral/, "Central não deve depender de controles inventados.");
+  assert.match(abrirHistorico, /abrirPainelDashboard\("Central de histórico"/, "Central deve preservar a interface existente.");
+  assert.match(abrirHistorico, /sincronizarCamposFiltroHistoricoGeral/, "Central deve preservar os filtros existentes.");
+  assert.match(js, /data-acao-historico="ver-mais"/, "Paginação deve preservar o manipulador de evento já existente.");
   assert.doesNotMatch(js, /retencao-historico|historico-frio/i, "Codigo de producao nao deve referenciar a politica de retencao removida.");
 });
 

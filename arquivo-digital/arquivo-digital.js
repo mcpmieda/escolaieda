@@ -1185,12 +1185,14 @@ atualizarCardParesIgnorados();
       versaoDocumentosCache++;
       cacheDocumentosPorArquivoId = { versao: -1, mapa: new Map() };
       cacheMapaNomesVisuaisTodosDocumentos = { versao: -1, mapa: new Map() };
-      cacheDocumentosRecentes = { versaoHistorico: -1, versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
+      cacheDocumentosRecentes = { versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
     }
 
     function invalidarCacheHistorico() {
-      versaoHistorico += 1;
-      cacheHistoricoOrdenado = { versao: -1, ordem: "", itens: [] };
+      versaoHistoricoCache++;
+      cacheHistoricoPorArquivoId = { versao: -1, mapa: new Map() };
+      cacheHistoricoOrdenado = { versao: -1, direcao: "", itens: [] };
+      cacheUltimasMovimentacoes = { versao: -1, limite: 0, mapa: new Map() };
     }
 
     function invalidarCacheAnotacoes() {
@@ -1396,14 +1398,13 @@ atualizarCardParesIgnorados();
       dadosApoioCarregando = true;
       try {
         const token = tokenInformado || await obterToken();
-        const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,DATA_ATUALIZACAO,USUARIO_EMAIL)&$top=999`;
+        const urlAnotacoes = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.anotacoesArquivosListId}/items?$expand=fields($select=Title,ARQUIVO_ID,ANOTACAO,ATUALIZADO_POR,DATA_ATUALIZACAO)&$top=999`;
         const itensAnotacoes = await buscarTodosItens(urlAnotacoes, token);
         anotacoesCarregadas = itensAnotacoes.map(mapearItemAnotacao);
-        dadosApoioCarregados = true;
         invalidarCacheAnotacoes();
-        if (documentoSelecionado) carregarAnotacaoDocumento(documentoSelecionado, painelDocumentoTokenAtual);
-      } catch (erro) {
-        logger.warn("Falha ao carregar dados de apoio.", erro);
+        dadosApoioCarregados = true;
+        atualizarDashboard();
+        filtrarDocumentos();
       } finally {
         dadosApoioCarregando = false;
       }
@@ -1966,73 +1967,99 @@ atualizarCardParesIgnorados();
       document.querySelector(`[data-filtro="${nome}"]`)?.classList.toggle("ativo", ativo);
       });
     }
-    window.abrirHistoricoGeral = function() {
-      const painel = document.getElementById("painelDashboard");
-      const titulo = document.getElementById("tituloDashboard");
-      const caixa = document.getElementById("conteudoDashboard");
-      if (!painel || !titulo || !caixa) return;
-      filtroHistoricoGeral = "todos";
-      termoBuscaHistoricoGeral = "";
-      periodoHistoricoGeral = "todos";
-      ordemHistoricoGeral = "desc";
-      limiteHistoricoGeralAtual = Math.max(1, Number(preferenciasSistema.limiteRelatorios) || 100);
-      titulo.textContent = "Histórico de atividades";
-      caixa.innerHTML = htmlInternoConfiavel(`
-        <div class="historicoGeralControles">
-          <div class="filtroHistoricoGeral">
-            <button type="button" class="ativo" data-filtro-historico="todos">Todos</button>
-            <button type="button" data-filtro-historico="visualizou">Visualizou</button>
-            <button type="button" data-filtro-historico="anotacao">Anotação</button>
-            <button type="button" data-filtro-historico="alteracao">Alterações</button>
-          </div>
-          <div class="filtrosHistoricoSecundarios">
-            <label>Período
-              <select id="filtroPeriodoHistorico" aria-label="Filtrar histórico por período">
-                <option value="todos">Todo o período carregado</option>
-                <option value="7">Últimos 7 dias</option>
-                <option value="30">Últimos 30 dias</option>
-                <option value="90">Últimos 90 dias</option>
-                <option value="365">Último ano</option>
-              </select>
-            </label>
-            <label>Ordem
-              <select id="ordemHistoricoGeral" aria-label="Ordenar histórico">
-                <option value="desc">Mais recentes primeiro</option>
-                <option value="asc">Mais antigos primeiro</option>
-              </select>
-            </label>
-          </div>
-          <input id="buscaHistoricoGeral" type="search" autocomplete="off" placeholder="Buscar nos registros carregados" aria-label="Buscar no histórico carregado">
-          <p id="resumoHistoricoGeral" class="textoSecundario">O histórico é preservado e carregado em páginas somente quando necessário.</p>
-        </div>
-        <div id="listaHistoricoGeral"></div>
-      `);
-      painel.classList.add("aberto");
-      painel.setAttribute("aria-hidden", "false");
-      document.body.classList.add("painelAberto");
-      renderizarHistoricoGeral();
-      sincronizarControlesHistoricoGeral();
-      if (!historicoGeralInicializado && !historicoGeralCarregando) {
-        agendarTarefaSegundoPlano(() => carregarPaginaHistoricoGeral({ reiniciar: true }).catch(erro => {
-          logger.warn("Falha ao carregar a primeira página do histórico.", erro);
-          mostrarMensagem("Não foi possível carregar o histórico agora. Tente novamente.", "erro");
-        }));
+    window.abrirHistoricoGeral = function () {
+      limiteHistoricoGeralAtual = preferenciasSistema.limiteRelatorios || 30;
+
+      if (!window.filtroHistoricoGeralAtual) {
+        window.filtroHistoricoGeralAtual = { tipo: "todos", inicio: "", fim: "" };
       }
-    };    window.verMaisHistoricoGeral = async function(event) {
-      const scroller = document.getElementById("conteudoDashboard");
-      const posicaoAnterior = scroller ? scroller.scrollTop : 0;
-      limiteHistoricoGeralAtual += Math.max(1, Number(preferenciasSistema.limiteRelatorios) || 100);
-      if (proximaPaginaHistoricoGeral) {
+
+      if (typeof window.termoBuscaHistoricoGeralAtual !== "string") {
+        window.termoBuscaHistoricoGeralAtual = "";
+      }
+
+      if (window.ordemHistoricoGeralAtual !== "asc" && window.ordemHistoricoGeralAtual !== "desc") {
+        window.ordemHistoricoGeralAtual = "desc";
+      }
+
+      abrirPainelDashboard("Central de histórico", `
+        <div class="filtroHistoricoGeral">
+          <div class="topoFiltroHistoricoGeral">
+            <strong>Filtrar alterações</strong>
+            <small id="resumoFiltroHistoricoGeral">Mostrando histórico completo.</small>
+          </div>
+
+          <div class="linhaBotoesFiltroHistoricoGeral">
+            <button class="botaoFiltroHistoricoGeral ativo" type="button" data-filtro-historico="todos">Tudo</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="hoje">Hoje</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="7dias">7 dias</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="30dias">30 dias</button>
+            <button class="botaoFiltroHistoricoGeral" type="button" data-filtro-historico="personalizado">Personalizado</button>
+          </div>
+
+          <div id="camposFiltroHistoricoPersonalizado" class="camposFiltroHistoricoPersonalizado">
+            <label>De <input id="filtroHistoricoInicio" type="date"></label>
+            <label>Até <input id="filtroHistoricoFim" type="date"></label>
+            <button class="botaoAplicarFiltroHistorico" type="button" data-acao-historico="aplicar-personalizado">Aplicar</button>
+          </div>
+
+          <div class="linhaBuscaHistoricoGeral">
+            <input id="buscaHistoricoGeral" class="buscaHistoricoGeral" type="search" placeholder="Buscar por arquivo, usuário, ação, gaveta ou motivo..." autocomplete="off">
+            <div class="botoesOrdemHistoricoGeral" title="Ordenar histórico">
+              <button class="botaoOrdemHistoricoGeral ativo" type="button" data-ordem-historico="desc" title="Mais recentes primeiro">↓</button>
+              <button class="botaoOrdemHistoricoGeral" type="button" data-ordem-historico="asc" title="Mais antigos primeiro">↑</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="listaHistoricoGeral" class="listaHistoricoGeral">
+          <p>Carregando histórico geral...</p>
+        </div>
+      `, { htmlInternoConfiavel: true });
+
+      sincronizarCamposFiltroHistoricoGeral();
+      renderizarHistoricoGeral();
+      if (!historicoGeralInicializado && !historicoGeralCarregando) {
+        agendarTarefaSegundoPlano(async () => {
+          try {
+            await carregarPaginaHistoricoGeral({ reiniciar: true });
+          } catch (erro) {
+            logger.warn("Falha ao carregar a primeira pagina do historico.", erro);
+            mostrarMensagem("Nao foi possivel carregar o historico agora. Tente novamente.", "erro");
+          }
+        }, 80);
+      }
+    };
+window.verMaisHistoricoGeral = async function (event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      const conteudoPainel = document.querySelector("#painelDashboard .painelConteudo");
+      const posicaoRolagem = conteudoPainel ? conteudoPainel.scrollTop : 0;
+      limiteHistoricoGeralAtual += preferenciasSistema.limiteRelatorios || 30;
+
+      const ordenadosCarregados = obterHistoricoOrdenado(obterOrdemHistoricoGeralAtual());
+      const filtradosCarregados = ordenadosCarregados
+        .filter(itemDentroFiltroHistoricoGeral)
+        .filter(itemDentroBuscaHistoricoGeral);
+      const precisaBuscarOutraPagina = Boolean(proximaPaginaHistoricoGeral) && filtradosCarregados.length < limiteHistoricoGeralAtual;
+
+      if (precisaBuscarOutraPagina && !historicoGeralCarregando) {
         try {
           await carregarPaginaHistoricoGeral();
         } catch (erro) {
-          logger.warn("Falha ao carregar mais registros do histórico.", erro);
-          mostrarMensagem("Não foi possível carregar mais registros agora.", "erro");
+          logger.warn("Falha ao carregar mais registros do historico.", erro);
+          mostrarMensagem("Nao foi possivel carregar mais registros agora.", "erro");
         }
       }
+
       renderizarHistoricoGeral();
-      if (scroller) scroller.scrollTop = posicaoAnterior;
-      event?.currentTarget?.blur?.();
+      requestAnimationFrame(() => {
+        const conteudoAtualizado = document.querySelector("#painelDashboard .painelConteudo");
+        if (conteudoAtualizado) conteudoAtualizado.scrollTop = posicaoRolagem;
+      });
     };
     /* JS_FILTRO_DATAS_HISTORICO_GERAL_INICIO */
     function obterFiltroHistoricoGeralAtual() {
@@ -2160,18 +2187,39 @@ atualizarCardParesIgnorados();
       return texto.includes(termo);
     }
 
-    function montarResumoFiltroHistoricoGeral(totalFiltrado, totalCarregado, totalAposData) {
-      const periodo = periodoHistoricoGeral === "todos" ? 0 : Number(periodoHistoricoGeral || 0);
-      const nomeFiltro = filtroHistoricoGeral === "todos" ? "todas as ações" : filtroHistoricoGeral;
-      const termo = String(termoBuscaHistoricoGeral || "").trim();
-      let resumo = periodo > 0
-        ? `${totalAposData} registro(s) do período selecionado entre ${totalCarregado} carregado(s).`
-        : `${totalCarregado} registro(s) carregado(s) nesta sessão.`;
-      if (filtroHistoricoGeral !== "todos") resumo += ` Filtro: ${nomeFiltro}.`;
-      if (termo) resumo += ` Busca: ${totalFiltrado} resultado(s) nos registros carregados.`;
-      if (proximaPaginaHistoricoGeral) resumo += " Há mais registros no SharePoint; use Carregar mais registros para continuar a consulta.";
-      else if (historicoGeralInicializado) resumo += " Todos os registros disponíveis nesta navegação já foram carregados.";
-      return resumo;
+    function montarResumoFiltroHistoricoGeral(totalFiltrado, totalGeral, totalAposData) {
+      const filtro = obterFiltroHistoricoGeralAtual();
+      const termo = obterTermoBuscaHistoricoGeral();
+      const ordem = obterOrdemHistoricoGeralAtual();
+      const totalBase = typeof totalAposData === "number" ? totalAposData : totalFiltrado;
+      const textoOrdem = ordem === "asc" ? "mais antigos primeiro" : "mais recentes primeiro";
+
+      let resumoPeriodo = "";
+
+      if (!totalGeral) {
+        resumoPeriodo = "Nenhum histórico carregado.";
+      } else if (!filtro || filtro.tipo === "todos") {
+        resumoPeriodo = `Registros carregados: ${totalBase} registro(s).`;
+      } else if (filtro.tipo === "hoje") {
+        resumoPeriodo = `Hoje: ${totalBase} de ${totalGeral} registro(s) carregado(s).`;
+      } else if (filtro.tipo === "7dias") {
+        resumoPeriodo = `Últimos 7 dias: ${totalBase} de ${totalGeral} registro(s) carregado(s).`;
+      } else if (filtro.tipo === "30dias") {
+        resumoPeriodo = `Últimos 30 dias: ${totalBase} de ${totalGeral} registro(s) carregado(s).`;
+      } else {
+        const partes = [];
+        if (filtro.inicio) partes.push(`de ${filtro.inicio.split("-").reverse().join("/")}`);
+        if (filtro.fim) partes.push(`até ${filtro.fim.split("-").reverse().join("/")}`);
+        resumoPeriodo = `Período ${partes.join(" ")}: ${totalBase} de ${totalGeral} registro(s) carregado(s).`;
+      }
+
+      if (proximaPaginaHistoricoGeral) resumoPeriodo += " Há mais registros disponíveis no SharePoint.";
+
+      if (termo) {
+        return `${resumoPeriodo} Busca: ${totalFiltrado} resultado(s), ${textoOrdem}.`;
+      }
+
+      return `${resumoPeriodo} Ordem: ${textoOrdem}.`;
     }
 
     window.filtrarHistoricoGeralPeriodo = function (tipo, event) {
@@ -2259,47 +2307,68 @@ atualizarCardParesIgnorados();
 
     function renderizarHistoricoGeral() {
       const caixa = document.getElementById("listaHistoricoGeral");
-      const resumo = document.getElementById("resumoHistoricoGeral");
       if (!caixa) return;
 
-      if (!historicoGeralInicializado && historicoGeralCarregando && !historicoCarregado.length) {
-        caixa.innerHTML = '<p class="textoSecundario">Carregando a primeira página do histórico...</p>';
-        if (resumo) resumo.textContent = "O histórico não é carregado na abertura do site; esta consulta começou somente agora.";
+      sincronizarCamposFiltroHistoricoGeral();
+
+      if (!historicoCarregado.length) {
+        if (historicoGeralCarregando) {
+          caixa.innerHTML = "<p>Carregando a primeira página do histórico...</p>";
+        } else if (historicoGeralInicializado) {
+          caixa.innerHTML = "<p>Nenhum registro de histórico disponível.</p>";
+        } else {
+          caixa.innerHTML = "<p>O histórico será consultado somente quando necessário.</p>";
+        }
         return;
       }
 
-      const totalCarregado = historicoCarregado.length;
-      const inicio = obterDataInicialHistoricoGeral();
-      const historicoPeriodo = obterHistoricoOrdenado(ordemHistoricoGeral).filter(item => {
-        if (!inicio) return true;
-        const data = obterDataHistorico(item);
-        return data && data >= inicio;
-      });
-      const filtrados = historicoPeriodo.filter(item => historicoCorrespondeFiltro(item) && historicoCorrespondeBusca(item));
-      const limite = Math.max(1, Number(limiteHistoricoGeralAtual) || Number(preferenciasSistema.limiteRelatorios) || 100);
+      const ordenados = obterHistoricoOrdenado(obterOrdemHistoricoGeralAtual());
+
+      const filtradosPorData = ordenados.filter(itemDentroFiltroHistoricoGeral);
+      const filtrados = filtradosPorData.filter(itemDentroBuscaHistoricoGeral);
+
+      const limite = limiteHistoricoGeralAtual || preferenciasSistema.limiteRelatorios || 30;
       const exibidos = filtrados.slice(0, limite);
-      const temMaisNoCache = filtrados.length > exibidos.length;
-      const temMaisSharePoint = Boolean(proximaPaginaHistoricoGeral);
 
-      if (resumo) resumo.textContent = montarResumoFiltroHistoricoGeral(filtrados.length, totalCarregado, historicoPeriodo.length);
+      const resumo = document.getElementById("resumoFiltroHistoricoGeral");
+      if (resumo) {
+        resumo.textContent = montarResumoFiltroHistoricoGeral(filtrados.length, ordenados.length, filtradosPorData.length);
+      }
 
-      if (!exibidos.length) {
-        const botaoContinuar = temMaisSharePoint
-          ? `<div class="acoesHistoricoGeral"><button type="button" id="btnVerMaisHistoricoGeral" class="botaoSecundario"${historicoGeralCarregando ? " disabled" : ""}>${historicoGeralCarregando ? "Carregando..." : "Carregar mais registros"}</button></div>`
-          : "";
-        caixa.innerHTML = htmlInternoConfiavel(`<p class="textoSecundario">Nenhum registro carregado corresponde aos filtros atuais.</p>${botaoContinuar}`);
-        ligarCliquePorId("btnVerMaisHistoricoGeral", window.verMaisHistoricoGeral);
+      if (!filtrados.length) {
+        caixa.innerHTML = "<p class=\"historicoSemResultado\">Nenhuma alteração encontrada com esses filtros.</p>";
         return;
       }
 
-      const linhas = exibidos.map(montarHistoricoFormatado).filter(Boolean);
-      const botaoMais = temMaisNoCache || temMaisSharePoint
-        ? `<div class="acoesHistoricoGeral"><button type="button" id="btnVerMaisHistoricoGeral" class="botaoSecundario"${historicoGeralCarregando ? " disabled" : ""}>${historicoGeralCarregando ? "Carregando..." : temMaisSharePoint ? "Carregar mais registros" : "Ver mais registros carregados"}</button></div>`
-        : "";
-      caixa.innerHTML = htmlInternoConfiavel(`${linhas.join("")}${botaoMais}`);
-      ligarCliquePorId("btnVerMaisHistoricoGeral", window.verMaisHistoricoGeral);
-    }
+      const itensHtml = exibidos.map(item => {
+        const acao = item.ACAO || "MOVIMENTOU";
+        const data = formatarData(item.DATA_HORA);
+        const arquivo = item.ARQUIVO || "Arquivo nao informado";
+        const usuario = item.USUARIO_NOME || item.USUARIO_EMAIL || "Usuário não informado";
+        const observacao = item.OBSERVACAO || "";
+        const detalhesHtml = montarHistoricoFormatado(acao, observacao, escaparHtml);
 
+        return `
+          <div class="itemHistoricoGeral historicoGeralCompacto historicoGeralSuperCompacto">
+            <strong class="arquivoHistoricoGeralTitulo">${escaparHtml(arquivo)}</strong>
+            <div class="linhaAcaoHistoricoGeral">
+              <span class="acaoHistoricoGeralChip">${escaparHtml(formatarAcaoHistorico(acao))}</span>
+              <span class="dataHistoricoGeralCard">${escaparHtml(data)}</span>
+            </div>
+            <div class="usuarioHistoricoGeralCard">${escaparHtml(usuario)}</div>
+            ${detalhesHtml}
+          </div>
+        `;
+      }).join("");
+
+      const temMaisCarregados = filtrados.length > exibidos.length;
+      const temMaisNoSharePoint = Boolean(proximaPaginaHistoricoGeral);
+      const botaoMais = temMaisCarregados || temMaisNoSharePoint ? `
+        <button class="secundario ignorarHoverGlobal hoverSecundarioNeutro btnVerMaisHistoricoGeral" type="button" data-acao-historico="ver-mais"${historicoGeralCarregando ? " disabled" : ""}>${historicoGeralCarregando ? "Carregando..." : temMaisNoSharePoint ? "Carregar mais registros" : "Ver mais"}</button>
+      ` : "";
+
+      caixa.innerHTML = itensHtml + botaoMais;
+    }
     /* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM */
 function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const painel = document.getElementById("painelDashboard");
@@ -3455,7 +3524,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         ]);
         if (!painelAindaMostraDocumento(documento, tokenPainel)) return;
         mesclarHistoricoNoCache(historicoDocumento);
-        if (anotacaoDireta) mesclarAnotacaoNoCache(anotacaoDireta);
+        atualizarCacheAnotacaoDocumento(anotacaoDireta, arquivoId);
         renderizarHistoricoDoCache();
       } catch (erroConsultaDireta) {
         logger.warn("Consulta direta do histórico do documento falhou.", erroConsultaDireta);
@@ -6924,7 +6993,7 @@ function renderizarDocumentos(listaArquivos) {
       const limite = Math.max(1, Number(preferenciasSistema.limiteRecentes) || 20);
       const ordem = preferenciasSistema.ordemRecentes === "asc" ? "asc" : "desc";
       if (
-        cacheDocumentosRecentes.versaoDocumentos === versaoDocumentos &&
+        cacheDocumentosRecentes.versaoDocumentos === versaoDocumentosCache &&
         cacheDocumentosRecentes.limitado === limitado &&
         cacheDocumentosRecentes.limite === limite &&
         cacheDocumentosRecentes.ordem === ordem
@@ -6940,7 +7009,7 @@ function renderizarDocumentos(listaArquivos) {
       const recentes = ordenarPorModificacao(todos, ordem);
       const itens = limitado ? recentes.slice(0, limite) : recentes;
       cacheDocumentosRecentes = {
-        versaoDocumentos,
+        versaoDocumentos: versaoDocumentosCache,
         limitado,
         limite,
         ordem,

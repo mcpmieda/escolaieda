@@ -229,7 +229,14 @@ const historicoSobDemanda =
   /@odata\.nextLink/.test(js) &&
   /window\.verMaisHistoricoGeral\s*=\s*async function/.test(js) &&
   /async function carregarHistoricoPorArquivoId\b/.test(js) &&
-  !/historicoApoioCarregado/.test(js);
+  /versaoHistoricoCache\+\+/.test(js) &&
+  /abrirPainelDashboard\("Central de histórico"/.test(js) &&
+  /sincronizarCamposFiltroHistoricoGeral/.test(js) &&
+  !/historicoApoioCarregado/.test(js) &&
+  !/\bversaoHistorico\s*\+=/.test(js) &&
+  !/===\s*versaoDocumentos\b/.test(js) &&
+  !/mesclarAnotacaoNoCache/.test(js) &&
+  !/sincronizarControlesHistoricoGeral/.test(js);
 conferir(historicoSobDemanda, "Historico deve permanecer preservado e usar carregamento paginado/sob demanda.");
 const contarHandlersInline = (fonte) => ({
   onclick: (fonte.match(/\bonclick\s*=/g) || []).length,
