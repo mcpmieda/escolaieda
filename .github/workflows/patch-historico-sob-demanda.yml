@@ -35,6 +35,9 @@ jobs:
                   padrao = r"    window\\.abrirHistoricoGeral\\s*=\\s*function\\s*\\(\\s*\\)\\s*\\{.*?\\n\\s*\\};\\s*\\n\\s*window\\.verMaisHistoricoGeral"
               if rotulo == "botão de paginação do histórico":
                   padrao = r"\\s*window\\.verMaisHistoricoGeral\\s*=\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{.*?\\n\\s*\\};"
+              if rotulo == "renderização paginada do histórico geral":
+                  padrao = r"    function renderizarHistoricoGeral\\s*\\(\\s*\\)\\s*\\{.*?\\n    \\}\\n    /\\* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM \\*/"
+                  novo = novo.replace("    function sincronizarControlesHistoricoGeral", "    /* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM */")
               resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
           if antigo not in s:
               raise SystemExit('Helper sub_once esperado não encontrado.')
