@@ -585,8 +585,6 @@ testar("Selecao nova limpa estado antigo de upload", () => {
   assert.match(blocoFuncao("receberArquivosCentralUpload"), /resetarEstadoAoSelecionarArquivosUpload\s*\(\)/, "Receber arquivos deve resetar estado antigo.");
 });
 
-console.log("Testes de regressao do Arquivo Digital concluidos com sucesso.");
-
 // CABECALHO_ESTAVEL_AUTH_20260812_TESTE
 testar("Cabecalho permanece estavel durante autenticacao e sem camadas CSS antigas", () => {
   const inicioMarcador = "/* INICIO_CABECALHO_ESTAVEL_AUTH_20260812 */";
@@ -625,3 +623,5 @@ testar("Cabecalho permanece estavel durante autenticacao e sem camadas CSS antig
   assert.match(atualizar, /definirVisibilidadeBotaoCabecalho\("btnSair", true\)/, "Sair so deve ser liberado apos acesso confirmado.");
   assert.doesNotMatch(atualizar + blindar, /getElementById\(\"(?:btnEntrar|btnSair|btnAbrirConfiguracoesTopo)\"\)[^;]*style\.(?:display|setProperty)/, "Botoes do cabecalho nao devem controlar geometria com style inline.");
 });
+
+console.log("Testes de regressao do Arquivo Digital concluidos com sucesso.");

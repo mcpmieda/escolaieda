@@ -16,22 +16,6 @@
       box-shadow: 0 18px 42px rgba(15, 47, 102, .10);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     #usuario.info {
       display: none;
       gap: 8px;
@@ -92,8 +76,6 @@
       font-size: 30px;
       line-height: 1.15;
     }
-
-
 
     .barraLogin {
       display: flex;
@@ -165,8 +147,6 @@
       color: #0f172a;
     }
 
-
-
     .info {
       margin-top: 20px;
       padding: 15px;
@@ -189,7 +169,6 @@
     body.estadoPreLogin .painelLateral {
       display: none !important;
     }
-
 
     /* INICIO_CABECALHO_ESTAVEL_AUTH_20260812 */
     .cabecalhoSistema {
@@ -523,9 +502,6 @@
       line-height: 1.4;
     }
 
-
-
-
     .busca {
       width: 100%;
       box-sizing: border-box;
@@ -572,7 +548,6 @@ ul {
       color: #0f2f66;
       margin-bottom: 4px;
     }
-
 
     .seloGaveta {
       display: inline-block !important;
@@ -841,7 +816,6 @@ ul {
       background: #0f2f66;
     }
 
-
     .nomesParecidosBox {
       margin: 16px 0;
     }
@@ -906,7 +880,6 @@ ul {
     .itemHistorico small {
       color: #64748b;
     }
-
 
     .motivoHistorico {
       margin-top: 8px;
@@ -2277,11 +2250,6 @@ ul {
       background: #f8fbff;
     }
 
-
-
-
-
-
     .barraFiltros,
     .filtrosAvancados {
       display: flex;
@@ -2323,7 +2291,6 @@ ul {
       list-style: none;
     }
 
-
     body.modoCompacto .cardDash {
       padding: 10px 12px;
       min-height: auto;
@@ -2336,10 +2303,6 @@ ul {
     body.modoCompacto .card {
       padding: 18px;
     }
-
-
-
-
 
     body.modoCompacto .dashboard {
       gap: 8px;
@@ -2357,7 +2320,6 @@ ul {
       padding: 10px 12px;
       margin: 6px 0;
     }
-
 
     body.detalhesReduzidos .itemArquivo > span:not(.seloGaveta):not(.seloNomeRepetido):not(.statusRecenteArquivo):not(.linhaDataArquivo):not(.linhaMovimentacaoArquivo) {
       display: none;
@@ -2495,12 +2457,6 @@ ul {
         min-width: 0;
       }
 
-
-
-
-
-
-
       h1 {
         font-size: 23px;
         line-height: 1.2;
@@ -2533,8 +2489,6 @@ ul {
         min-width: 0;
       }
 
-
-
       .busca {
         font-size: 15px;
         padding: 12px;
@@ -2565,8 +2519,6 @@ ul {
       .btnVersaoSharePoint {
         width: 100%;
       }
-
-
 
       .painelLateral {
         width: min(100vw, 470px);
@@ -2618,8 +2570,6 @@ ul {
         padding: 12px;
       }
 
-
-
       .painelLateral {
         width: 100vw;
       }
@@ -2629,14 +2579,6 @@ ul {
     #areaSistema {
       margin-top: 14px;
     }
-
-
-
-
-
-
-
-
 
     .areaUploadNovo {
       padding: 10px 12px;
@@ -2749,7 +2691,6 @@ ul {
       background: #f8fbff;
     }
 
-
 .painelVazio {
       margin: 0;
       color: #64748b;
@@ -2791,14 +2732,6 @@ body.modoCompacto {
       border-radius: 12px;
     }
 
-
-
-
-
-
-
-
-
     body.modoCompacto .areaUploadNovo,
     body.modoCompacto .navegacaoDocumentosTopo {
       padding: 8px;
@@ -2819,7 +2752,6 @@ body.modoCompacto {
     body.modoCompacto .cardDash strong {
       font-size: 20px;
     }
-
 
     body.modoCompacto .linhaMovimentacaoArquivo {
       margin-top: 5px;
@@ -2850,7 +2782,6 @@ body.modoCompacto {
 
     @media (max-width: 560px) {
 
-
       .dashboard {
         grid-template-columns: 1fr;
       }
@@ -2863,13 +2794,6 @@ body.modoCompacto {
         font-size: 14px;
       }
     }
-
-
-
-
-
-
-
 
     /* UX_FINAL_CURTO_20260526 */
     .dashboard:not(.dashboardAcoes):not(.dashboardContadores) {
@@ -2904,11 +2828,6 @@ body.modoCompacto {
     .navegacaoDocumentosTopo {
       margin-top: 6px;
     }
-
-
-
-
-
 
     .itemHistoricoGeral {
       padding: 8px 9px;
@@ -3050,9 +2969,6 @@ body.modoCompacto {
       margin-bottom: 7px;
     }
 
-
-
-
     .seloGaveta {
       margin: 1px 0 4px 0;
       padding: 2px 6px;
@@ -3074,7 +2990,6 @@ body.modoCompacto {
     body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) > .centralDuplicidades {
       min-height: 64px;
     }
-
 
     @media (max-width: 560px) {
       .listaGavetasConfiguracao {
@@ -3111,18 +3026,6 @@ body.modoCompacto {
       width: min(100%, 1240px);
       box-sizing: border-box;
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     .areaUploadNovo,
     .navegacaoDocumentosTopo,
@@ -3176,7 +3079,6 @@ body.modoCompacto {
       gap: 6px;
     }
 
-
     .buscaLinha {
       gap: 4px;
     }
@@ -3190,9 +3092,6 @@ body.modoCompacto {
       min-height: 38px;
       padding: 9px 11px;
     }
-
-
-
 
     .centralConfiguracoes {
       padding: 12px;
@@ -3251,12 +3150,6 @@ body.modoCompacto {
         padding: 12px;
       }
 
-
-
-
-
-
-
       .dashboard {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -3270,7 +3163,6 @@ body.modoCompacto {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
-
 
       .centralUpload,
       .centralConfiguracoes {
@@ -3292,16 +3184,6 @@ body.modoCompacto {
       .card {
         padding: 10px;
       }
-
-
-
-
-
-
-
-
-
-
 
       .dashboard,
       body.modoCompacto .dashboard {
@@ -3896,7 +3778,6 @@ body.modoCompacto {
     }
     /* Fim ordenação do Histórico Geral */
 
-
     /* Ajuste de hover do filtro do Histórico Geral */
     .filtroHistoricoGeral .botaoFiltroHistoricoGeral {
       color: #334155;
@@ -3940,7 +3821,6 @@ body.modoCompacto {
       outline: none;
     }
     /* Fim ajuste de hover do filtro do Histórico Geral */
-
 
     /* Correção final de hover dos controles do Histórico Geral */
     .filtroHistoricoGeral button.botaoOrdemHistoricoGeral,
@@ -4024,7 +3904,6 @@ body.modoCompacto {
        e linhaMovimentacaoArquivo.
     */
 
-
 /* INICIO_HOVER_BOTOES_UPLOAD_CONFIGURACOES_20260527 */
     .centralUpload .btnUploadSecundario {
       background: #f8fafc;
@@ -4086,34 +3965,6 @@ body.modoCompacto {
       overflow: hidden;
       backdrop-filter: blur(3px);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
       display: grid;
@@ -4209,9 +4060,6 @@ body.modoCompacto {
     }
 
     @media (max-width: 760px) {
-
-
-
 
       body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
         grid-template-columns: 1fr auto;
@@ -4442,7 +4290,6 @@ body.modoCompacto {
     }
 /* FIM_LAYOUT_MODERNO_1B_DESTAQUE_CARDS_REAIS_20260527 */
 
-
 /* INICIO_AJUSTE_LARGURA_DESKTOP_LAYOUT_MODERNO_20260527 */
     @media (min-width: 1500px) {
       body.visualModernoFase1A .card {
@@ -4670,7 +4517,6 @@ body.modoCompacto {
 
 /* INICIO_ETAPA1_TELA_INICIAL_MOBILE_20260531 */
 
-
     body.visualModernoResumoDestaque .dashboardContadores {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -4703,16 +4549,6 @@ body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #camp
         border-radius: 20px;
         overflow: hidden;
       }
-
-
-
-
-
-
-
-
-
-
 
       body.visualModernoFase1A .areaUploadNovo.areaUploadHero {
         gap: 8px;
@@ -4836,7 +4672,6 @@ body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #camp
     }
 
     @media (max-width: 420px) {
-
 
       body.visualModernoResumoDestaque .dashboardContadores > .cardDash,
       body.visualModernoResumoDestaque .dashboardContadores > #cardParesIgnorados {
@@ -6727,4 +6562,3 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
     will-change: auto;
   }
 }
-
