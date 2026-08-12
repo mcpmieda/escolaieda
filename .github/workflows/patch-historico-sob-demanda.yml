@@ -28,9 +28,25 @@ jobs:
           from pathlib import Path
           p = Path('scripts/patch-historico-sob-demanda.py')
           s = p.read_text(encoding='utf-8')
-          antigo = '''def sub_once(texto, padrao, novo, rotulo):
+
+          antigo_replace = '''def replace_once(texto, antigo, novo, rotulo):
+              total = texto.count(antigo)'''.replace('              ', '    ')
+          novo_replace = '''def replace_once(texto, antigo, novo, rotulo):
+              if rotulo == "inicialização sem histórico global":
+                  padrao = r''' + "'''" + r'''\n\s*carregarDadosDeApoio\(token\)\.catch\(erro => \{\s*logger\.warn\("Nao foi possivel carregar os dados de apoio no inicio\.", erro\);\s*\}\);\s*await listarDocumentos\(\);\s*agendarTarefaSegundoPlano\(\(\) => carregarDadosDeApoio\(\)\);\s*agendarTarefaSegundoPlano\(\(\) => carregarOpcoesGavetaSharePoint\(token\)\);''' + "'''" + '''
+                  substituto = "\\n          await listarDocumentos();\\n          agendarTarefaSegundoPlano(() => carregarDadosDeApoio(token));\\n          agendarTarefaSegundoPlano(() => carregarOpcoesGavetaSharePoint(token));"
+                  resultado, total = re.subn(padrao, substituto, texto, count=1, flags=re.S)
+                  if total != 1:
+                      raise RuntimeError(f"{rotulo}: esperado 1 bloco atual, encontrado {total}")
+                  return resultado
+              total = texto.count(antigo)'''.replace('              ', '    ')
+          if antigo_replace not in s:
+              raise SystemExit('Helper replace_once esperado não encontrado.')
+          s = s.replace(antigo_replace, novo_replace, 1)
+
+          antigo_sub = '''def sub_once(texto, padrao, novo, rotulo):
               resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
-          novo = '''def sub_once(texto, padrao, novo, rotulo):
+          novo_sub = '''def sub_once(texto, padrao, novo, rotulo):
               if rotulo == "abertura do histórico geral sob demanda":
                   padrao = r"    window\\.abrirHistoricoGeral\\s*=\\s*function\\s*\\(\\s*\\)\\s*\\{.*?\\n\\s*\\};\\s*\\n\\s*window\\.verMaisHistoricoGeral"
               if rotulo == "botão de paginação do histórico":
@@ -39,9 +55,10 @@ jobs:
                   padrao = r"    function renderizarHistoricoGeral\\s*\\(\\s*\\)\\s*\\{.*?\\n    \\}\\n    /\\* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM \\*/"
                   novo = novo.replace("    function sincronizarControlesHistoricoGeral", "    /* JS_FILTRO_DATAS_HISTORICO_GERAL_FIM */")
               resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
-          if antigo not in s:
+          if antigo_sub not in s:
               raise SystemExit('Helper sub_once esperado não encontrado.')
-          p.write_text(s.replace(antigo, novo, 1), encoding='utf-8')
+          s = s.replace(antigo_sub, novo_sub, 1)
+          p.write_text(s, encoding='utf-8')
           PY
 
       - name: Aplicar migracao
