@@ -1,5 +1,5 @@
 {
-  "atualizadoEm": "2026-06-09T00:45:46.058Z",
+  "atualizadoEm": "2026-08-12T17:06:44.294Z",
   "origem": "PUBLICACOES_SITE",
   "cache": "derivado do SharePoint",
   "home": {
@@ -97,13 +97,13 @@
         "fixa": true
       }
     ],
+    "mostrarBanners": true,
+    "mostrarModal": true,
     "mostrarSobre": true,
     "mostrarNumeros": true,
     "mostrarInformacoes": true,
     "mostrarContato": true,
-    "mostrarBanners": true,
-    "mostrarAvisos": true,
-    "mostrarModal": true
+    "mostrarAvisos": true
   },
   "publicacoes": [],
   "banners": [],
