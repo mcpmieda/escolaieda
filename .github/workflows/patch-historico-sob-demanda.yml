@@ -58,6 +58,13 @@ jobs:
           if antigo_sub not in s:
               raise SystemExit('Helper sub_once esperado não encontrado.')
           s = s.replace(antigo_sub, novo_sub, 1)
+
+          antigo_teste = '  assert.match(carregarPagina, /TAMANHO_PAGINA_HISTORICO_GERAL/, \\"Consulta geral deve ter pagina limitada.\\");'
+          novo_teste = '  assert.match(js, /const TAMANHO_PAGINA_HISTORICO_GERAL\\\\s*=\\\\s*100/, \\"Consulta geral deve declarar pagina limitada a 100 registros.\\");'
+          if antigo_teste not in s:
+              raise SystemExit('Expectativa antiga de paginação não encontrada no patch.')
+          s = s.replace(antigo_teste, novo_teste, 1)
+
           p.write_text(s, encoding='utf-8')
           PY
 
