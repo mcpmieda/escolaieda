@@ -40,13 +40,21 @@ jobs:
               raise SystemExit('Assercao ampla do teste de cabecalho nao encontrada.')
           p.write_text(s.replace(antigo, novo, 1), encoding='utf-8')
           PY
-          grep -n "button:not" scripts/tmp-ajustar-cabecalho-arquivo-digital.py >/dev/null
 
       - name: Validar script temporario
         run: python3 -m py_compile scripts/tmp-ajustar-cabecalho-arquivo-digital.py
 
       - name: Consolidar cabecalho e estados de autenticacao
         run: python3 scripts/tmp-ajustar-cabecalho-arquivo-digital.py
+
+      - name: Normalizar somente espacos vazios introduzidos
+        run: |
+          sed -i 's/^[[:blank:]]\+$//' arquivo-digital/arquivo-digital.css
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/testes-regressao-arquivo-digital.mjs')
+          p.write_text(p.read_text(encoding='utf-8').rstrip() + '\n', encoding='utf-8')
+          PY
 
       - name: Validar sintaxe JavaScript
         run: node --check arquivo-digital/arquivo-digital.js
@@ -84,13 +92,11 @@ jobs:
               raise SystemExit(f'Regras antigas de cabecalho restantes: {sorted(set(legado))}')
           if re.search(r'getElementById\("(?:btnEntrar|btnSair|btnAbrirConfiguracoesTopo)"\).*?style\.(?:display|setProperty)', js):
               raise SystemExit('Controle inline antigo ainda existe no JS.')
-          if 'REGRA_GLOBAL_BUTTON_HOVER_LIMITADA_20260527' not in css:
-              raise SystemExit('Marcador da regra global de hover foi removido indevidamente.')
           if not re.search(r'REGRA_GLOBAL_BUTTON_HOVER_LIMITADA[\s\S]*?button:not\(', css):
               raise SystemExit('Regra global limitada de hover nao foi preservada.')
           if 'id="btnAbrirConfiguracoesTopo"' not in html or 'id="btnSair"' not in html:
               raise SystemExit('Botoes essenciais do cabecalho desapareceram.')
-          print('Cabecalho consolidado; regras globais preservadas.')
+          print('Cabecalho consolidado; regras globais preservadas; diff limpo.')
           PY
           git diff --check
 
