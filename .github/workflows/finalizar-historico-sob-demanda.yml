@@ -56,7 +56,7 @@ jobs:
 
           testes_path = Path('scripts/testes-regressao-arquivo-digital.mjs')
           testes = testes_path.read_text(encoding='utf-8')
-          marcador = '  assert.match(js, /data-acao-historico=\\"ver-mais\\"/, "Paginação deve preservar o manipulador de evento já existente.");\n'
+          marcador = '  assert.match(js, /data-acao-historico="ver-mais"/, "Paginação deve preservar o manipulador de evento já existente.");\n'
           adicional = '  assert.match(js, /Enviados recentemente \\(histórico carregado\\)/, "Relatório deve identificar contagem de envios como parcial quando o histórico global não está pré-carregado.");\n'
           if marcador not in testes:
               raise SystemExit('Marcador de regressão final não encontrado.')
