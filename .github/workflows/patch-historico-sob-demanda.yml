@@ -22,6 +22,25 @@ jobs:
           ref: agent/historico-sob-demanda
           fetch-depth: 0
 
+      - name: Ajustar patch ao formato atual
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/patch-historico-sob-demanda.py')
+          s = p.read_text(encoding='utf-8')
+          antigo = '''def sub_once(texto, padrao, novo, rotulo):
+              resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
+          novo = '''def sub_once(texto, padrao, novo, rotulo):
+              if rotulo == "abertura do histórico geral sob demanda":
+                  padrao = padrao.replace(r"function\\(\\)", r"function\\s*\\(\\s*\\)")
+              if rotulo == "botão de paginação do histórico":
+                  padrao = padrao.replace(r"function\\(event\\)", r"function\\s*\\(\\s*event\\s*\\)")
+              resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
+          if antigo not in s:
+              raise SystemExit('Helper sub_once esperado não encontrado.')
+          p.write_text(s.replace(antigo, novo, 1), encoding='utf-8')
+          PY
+
       - name: Aplicar migracao
         run: python3 scripts/patch-historico-sob-demanda.py
 
