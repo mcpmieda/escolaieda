@@ -21,10 +21,11 @@ jobs:
           ref: agent/cabecalho-estavel-arquivo-digital
           fetch-depth: 0
 
-      - name: Ajustar marcador de insercao do patch
+      - name: Ajustar patch temporario
         run: |
           sed -i "s/if css_limpo.count(marcador_dashboard) != 1:/if marcador_dashboard not in css_limpo:/" scripts/tmp-ajustar-cabecalho-arquivo-digital.py
           sed -i "s/raise SystemExit(f'Marcador de insercao do cabecalho inesperado: {css_limpo.count(marcador_dashboard)} ocorrencias.')/raise SystemExit('Marcador de insercao do cabecalho nao encontrado.')/" scripts/tmp-ajustar-cabecalho-arquivo-digital.py
+          sed -i 's/      document.getElementById("btnAbrirConfiguracoesTopo").style.display = "none";/      definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", false);/' scripts/tmp-ajustar-cabecalho-arquivo-digital.py
 
       - name: Validar script temporario
         run: python3 -m py_compile scripts/tmp-ajustar-cabecalho-arquivo-digital.py
