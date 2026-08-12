@@ -113,7 +113,7 @@ As paginas de professores, calendario, contato e area restrita permanecem preser
 
 `arquivo-digital/` e o sistema de gestao de documentos escolares em PDF. Ele possui login Microsoft, integracao com SharePoint/Graph, upload, historico, anotacoes, gavetas, lixeira, duplicidades, substituicao, mesclagem e validacoes automatizadas.
 
-O crescimento do historico operacional e tratado por rotina segura de retencao em `scripts/retencao-historico-arquivo-digital-v1.ps1`. A rotina deve comecar por `-Mode DryRun`, gerar relatorios em `diagnosticos/` e, se aprovada, arquivar itens antigos em arquivo frio particionado antes de enviar somente esses itens de `HISTORICO_ACESSOS` para a Lixeira do SharePoint. A consulta do arquivo frio fica em `scripts/consultar-historico-frio-arquivo-digital-v1.ps1`. O guia esta em `scripts/USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md`.
+`HISTORICO_ACESSOS` e preservado integralmente. Nao existe exclusao, arquivamento por idade nem rotina de retencao automatica. O navegador consulta somente o necessario: a guia Recentes usa a data de modificacao dos documentos, o historico de um documento e consultado diretamente por `ARQUIVO_ID` quando o painel e aberto, e a Central de historico carrega uma pagina por vez, buscando paginas adicionais apenas quando o usuario pedir. O historico completo nunca deve ser baixado na inicializacao do aplicativo.
 
 Essa pasta nao deve ser reorganizada junto com o site institucional. Qualquer alteracao nela deve seguir o `AGENTS.md` e rodar as validacoes proprias.
 

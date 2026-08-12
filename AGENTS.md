@@ -55,9 +55,6 @@ scripts/auditoria-visual-estatica-v3-12.mjs
 scripts/auditoria-massiva-lancamento-arquivo-digital.mjs
 scripts/reset-arquivo-digital-v4.ps1
 scripts/USO-RESET-ARQUIVO-DIGITAL-V4.md
-scripts/retencao-historico-arquivo-digital-v1.ps1
-scripts/consultar-historico-frio-arquivo-digital-v1.ps1
-scripts/USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md
 ```
 
 Pastas locais fora do Git:
@@ -221,9 +218,10 @@ Carregamento inicial pode demorar um pouco com 5 mil+ PDFs reais.
 Central de Duplicidades roda em segundo plano e prioriza suspeitas.
 Painéis devem abrir visualmente primeiro e carregar dados pesados depois quando possível.
 Não renderizar todos os documentos de uma vez; preservar paginação/carregar mais.
-Busca em Recentes com termo deve usar todos os recentes do histórico, sem cortar pelo limite visual.
+Busca em Recentes deve usar a data de modificação dos documentos e não depender de `HISTORICO_ACESSOS`.
 Recentes sem busca deve respeitar limite de recentes.
-Recentes deve liberar a tela assim que o histórico carregar; anotações não devem bloquear essa guia.
+O histórico global não deve ser carregado na inicialização; a Central de histórico carrega uma página por vez e busca páginas adicionais apenas por ação explícita do usuário.
+O histórico de um documento deve ser consultado diretamente por `ARQUIVO_ID` somente quando o painel desse documento for aberto.
 Lixeira deve continuar separada.
 ```
 
@@ -261,37 +259,23 @@ Não apagar listas, colunas, permissões ou gavetas.
 
 ---
 
-## 8. Retenção do histórico
+## 8. Histórico preservado e carregamento sob demanda
 
-Script principal:
-
-```text
-scripts/retencao-historico-arquivo-digital-v1.ps1
-```
-
-Uso seguro inicial:
-
-```powershell
-pwsh -ExecutionPolicy Bypass -File .\scripts\retencao-historico-arquivo-digital-v1.ps1 -Mode DryRun
-```
-
-Regras:
+Política permanente:
 
 ```text
-Executar DryRun antes de qualquer remoção real.
-Remoção real exige -EnviarParaLixeiraSharePoint e -ConfirmarRetencaoHistoricoAntigo.
-Remover apenas itens antigos de HISTORICO_ACESSOS, nunca PDFs ou anotações atuais.
-Histórico quente fica no SharePoint; histórico antigo deve ir para arquivo frio particionado.
-Arquivo frio oficial padrão: backups_locais/arquivo-digital/historico-frio/.
-Arquivo frio deve gerar manifesto com SHA-256 antes da remoção real.
-VISUALIZOU padrão: 180 dias.
-ANOTACAO padrão: 730 dias.
-Outras ações não críticas padrão: 730 dias.
-Ações críticas ficam preservadas por padrão.
-Remoção real deve usar Lixeira do SharePoint, não exclusão definitiva.
-Conferir relatórios em diagnosticos/retencao-historico-v1-YYYYMMDD-HHMMSS/.
-Consultar histórico frio com scripts/consultar-historico-frio-arquivo-digital-v1.ps1.
+HISTORICO_ACESSOS é preservado integralmente.
+Não excluir nem arquivar registros por idade.
+Não manter rotina automática de retenção ou expurgo.
+Não carregar a lista inteira ao iniciar o aplicativo.
+Recentes usa a data de modificação dos documentos, sem depender da carga global do histórico.
+Ao abrir um documento, consultar somente o histórico desse ARQUIVO_ID.
+A Central de histórico carrega uma página por vez.
+Páginas adicionais só são buscadas quando o usuário pedir para carregar mais registros.
+Filtros e busca deixam claro que atuam sobre os registros já carregados na sessão.
 ```
+
+Não reintroduzir exclusão automática, arquivamento por idade ou expurgo de `HISTORICO_ACESSOS`.
 
 ---
 
