@@ -290,6 +290,7 @@ Não criar botão novo dependente de hover global.
 Hover novo deve ser escopado.
 Não mudar design geral sem pedido.
 Manter interface clara para usuário leigo.
+Cabeçalho do Arquivo Digital deve manter a mesma geometria durante pré-login, verificação de acesso e sessão autenticada; não reintroduzir regras de cabeçalho espalhadas ou `style.display` nos botões de autenticação.
 ```
 
 Termos de interface:

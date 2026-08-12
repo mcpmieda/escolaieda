@@ -586,3 +586,42 @@ testar("Selecao nova limpa estado antigo de upload", () => {
 });
 
 console.log("Testes de regressao do Arquivo Digital concluidos com sucesso.");
+
+// CABECALHO_ESTAVEL_AUTH_20260812_TESTE
+testar("Cabecalho permanece estavel durante autenticacao e sem camadas CSS antigas", () => {
+  const inicioMarcador = "/* INICIO_CABECALHO_ESTAVEL_AUTH_20260812 */";
+  const fimMarcador = "/* FIM_CABECALHO_ESTAVEL_AUTH_20260812 */";
+  const inicio = css.indexOf(inicioMarcador);
+  const fim = css.indexOf(fimMarcador);
+  assert.ok(inicio >= 0 && fim > inicio, "Bloco oficial do cabecalho deve existir uma unica vez.");
+  assert.equal(css.indexOf(inicioMarcador, inicio + 1), -1, "Nao pode existir segundo bloco oficial do cabecalho.");
+
+  const bloco = css.slice(inicio, fim + fimMarcador.length);
+  const foraDoBloco = (css.slice(0, inicio) + css.slice(fim + fimMarcador.length))
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+
+  assert.doesNotMatch(
+    foraDoBloco,
+    /\.(?:cabecalhoSistema|cabecalhoMarca|logoSistema|cabecalhoAcoes|btnCabecalhoEntrar|btnCabecalhoSair|subtituloSistema)\b/,
+    "Seletores dedicados ao cabecalho devem existir somente no bloco oficial."
+  );
+  assert.match(bloco, /grid-template-columns:\s*minmax\(0,\s*1fr\)\s+360px/, "Desktop deve reservar largura estavel para as acoes.");
+  assert.match(bloco, /min-height:\s*92px/, "Cabecalho desktop deve reservar altura estavel durante autenticacao.");
+  assert.match(bloco, /\.cabecalhoAcoes\s*\{[\s\S]*?grid-template-rows:\s*18px 36px/, "Area de autenticacao deve reservar linhas fixas no desktop.");
+  assert.doesNotMatch(bloco, /modoCompacto/, "Preferencia de modo compacto nao deve mover o cabecalho apos o JavaScript iniciar.");
+
+  const entrar = elementoPorId("btnEntrar");
+  const configuracoes = elementoPorId("btnAbrirConfiguracoesTopo");
+  const sair = elementoPorId("btnSair");
+  assert.doesNotMatch(entrar, /\shidden(?:\s|>)/i, "Entrar deve continuar disponivel no pre-login.");
+  assert.match(configuracoes, /\shidden(?:\s|>)/i, "Configuracoes deve iniciar oculto sem style inline.");
+  assert.match(sair, /\shidden(?:\s|>)/i, "Sair deve iniciar oculto sem style inline.");
+  assert.doesNotMatch(configuracoes + sair, /\sstyle=/i, "Botoes do cabecalho nao devem disputar display com estilo inline.");
+
+  const atualizar = blocoFuncao("atualizarTela");
+  const blindar = blocoFuncao("aplicarBlindagemVisualPreLogin");
+  assert.match(js, /function definirVisibilidadeBotaoCabecalho\(/, "Visibilidade do cabecalho deve ter helper unico.");
+  assert.match(atualizar, /definirVisibilidadeBotaoCabecalho\("btnEntrar", !usuario\)/, "Estado inicial deve usar o helper do cabecalho.");
+  assert.match(atualizar, /definirVisibilidadeBotaoCabecalho\("btnSair", true\)/, "Sair so deve ser liberado apos acesso confirmado.");
+  assert.doesNotMatch(atualizar + blindar, /getElementById\(\"(?:btnEntrar|btnSair|btnAbrirConfiguracoesTopo)\"\)[^;]*style\.(?:display|setProperty)/, "Botoes do cabecalho nao devem controlar geometria com style inline.");
+});

@@ -976,15 +976,20 @@
       if (statusRestrito) statusRestrito.textContent = mensagemExtra || "";
 
       document.getElementById("status").textContent = "Acesso restrito";
-      document.getElementById("btnAbrirConfiguracoesTopo").style.display = "none";
+      definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", false);
       fecharPainel();
+    }
+
+    function definirVisibilidadeBotaoCabecalho(id, visivel) {
+      const botao = document.getElementById(id);
+      if (botao) botao.hidden = !visivel;
     }
 
     function aplicarBlindagemVisualPreLogin() {
       document.body.classList.add("estadoPreLogin");
       document.getElementById("areaSistema")?.style.setProperty("display", "none");
-      document.getElementById("btnAbrirConfiguracoesTopo")?.style.setProperty("display", "none");
-      document.getElementById("btnSair")?.style.setProperty("display", "none");
+      definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", false);
+      definirVisibilidadeBotaoCabecalho("btnSair", false);
       document.getElementById("centralConfiguracoes")?.classList.remove("aberta");
       document.getElementById("centralUpload")?.classList.remove("aberta");
       document.getElementById("painelCentralDuplicidades")?.classList.remove("aberto");
@@ -7240,9 +7245,9 @@ function renderizarDocumentos(listaArquivos) {
         ? `Usuário conectado: ${nomeUsuarioConectado}`
         : "Usuário não conectado";
 
-      document.getElementById("btnEntrar").style.display = usuario ? "none" : "inline-block";
-      document.getElementById("btnSair").style.display = usuario ? "inline-block" : "none";
-      document.getElementById("btnAbrirConfiguracoesTopo").style.display = "none";
+      definirVisibilidadeBotaoCabecalho("btnEntrar", !usuario);
+      definirVisibilidadeBotaoCabecalho("btnSair", false);
+      definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", false);
       document.getElementById("areaSistema").style.display = "none";
 
       if (usuario) {
@@ -7265,7 +7270,8 @@ function renderizarDocumentos(listaArquivos) {
           ocultarTelaAcessoRestrito();
           document.getElementById("status").textContent = `Usuário conectado: ${nomeUsuarioConectado}`;
           liberarBlindagemVisualPreLogin();
-          document.getElementById("btnAbrirConfiguracoesTopo").style.display = "inline-block";
+          definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", true);
+          definirVisibilidadeBotaoCabecalho("btnSair", true);
           document.getElementById("areaSistema").style.display = "block";
           await listarDocumentos();
           agendarTarefaSegundoPlano(() => carregarDadosDeApoio(token));
