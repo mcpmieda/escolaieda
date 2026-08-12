@@ -32,9 +32,9 @@ jobs:
               resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
           novo = '''def sub_once(texto, padrao, novo, rotulo):
               if rotulo == "abertura do histórico geral sob demanda":
-                  padrao = padrao.replace(r"function\\(\\)", r"function\\s*\\(\\s*\\)")
+                  padrao = r"    window\\.abrirHistoricoGeral\\s*=\\s*function\\s*\\(\\s*\\)\\s*\\{.*?\\n\\s*\\};\\s*\\n\\s*window\\.verMaisHistoricoGeral"
               if rotulo == "botão de paginação do histórico":
-                  padrao = padrao.replace(r"function\\(event\\)", r"function\\s*\\(\\s*event\\s*\\)")
+                  padrao = r"\\s*window\\.verMaisHistoricoGeral\\s*=\\s*function\\s*\\(\\s*event\\s*\\)\\s*\\{.*?\\n\\s*\\};"
               resultado, total = re.subn(padrao, lambda _m: novo, texto, count=1, flags=re.S)'''.replace('              ', '    ')
           if antigo not in s:
               raise SystemExit('Helper sub_once esperado não encontrado.')
