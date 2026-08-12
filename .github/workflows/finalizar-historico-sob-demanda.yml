@@ -1,0 +1,97 @@
+name: Finalizar historico sob demanda
+
+on:
+  push:
+    branches:
+      - agent/historico-sob-demanda
+    paths:
+      - .github/workflows/finalizar-historico-sob-demanda.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalizar:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/historico-sob-demanda
+          fetch-depth: 0
+
+      - name: Ajustar referencias finais e relatorio
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          agents = Path('AGENTS.md')
+          texto = agents.read_text(encoding='utf-8')
+          antigo = 'A antiga estratégia de histórico frio, manifesto de retenção e envio programado de registros para a Lixeira foi removida. Se um dia houver necessidade institucional de retenção, ela deve ser redesenhada como uma decisão explícita e separada, nunca reintroduzida como exclusão automática silenciosa.\n\n'
+          novo = 'Não reintroduzir exclusão automática, arquivamento por idade ou expurgo de `HISTORICO_ACESSOS`.\n\n'
+          if texto.count(antigo) != 1:
+              raise SystemExit('Trecho final da política antiga não encontrado exatamente uma vez.')
+          agents.write_text(texto.replace(antigo, novo, 1), encoding='utf-8')
+
+          js_path = Path('arquivo-digital/arquivo-digital.js')
+          js = js_path.read_text(encoding='utf-8')
+          antigo_contadores = '''      const idsDuplicidade = obterIdsDuplicidadePendente();
+                const recentesEnviados = documentosAtivos.filter(documentoEnviadoRecentemente).length;
+                const recentesAlterados = documentosAtivos.filter(documentoAlteradoRecentemente).length;'''.replace('                ', '      ')
+          novo_contadores = '''      const idsDuplicidade = obterIdsDuplicidadePendente();
+                const historicoParcialDisponivel = historicoCarregado.length > 0;
+                const recentesEnviados = historicoParcialDisponivel ? documentosAtivos.filter(documentoEnviadoRecentemente).length : null;
+                const recentesAlterados = documentosAtivos.filter(documentoAlteradoRecentemente).length;'''.replace('                ', '      ')
+          if js.count(antigo_contadores) != 1:
+              raise SystemExit('Bloco de contadores do relatório não encontrado exatamente uma vez.')
+          js = js.replace(antigo_contadores, novo_contadores, 1)
+
+          antigo_card = '<div class="relatorioCard"><strong>Enviados recentemente</strong><span>${recentesEnviados}</span></div>'
+          novo_card = '<div class="relatorioCard"><strong>Enviados recentemente (histórico carregado)</strong><span>${recentesEnviados ?? "—"}</span></div>'
+          if js.count(antigo_card) != 1:
+              raise SystemExit('Card de enviados recentes não encontrado exatamente uma vez.')
+          js = js.replace(antigo_card, novo_card, 1)
+          js_path.write_text(js, encoding='utf-8')
+
+          testes_path = Path('scripts/testes-regressao-arquivo-digital.mjs')
+          testes = testes_path.read_text(encoding='utf-8')
+          marcador = '  assert.match(js, /data-acao-historico=\\"ver-mais\\"/, "Paginação deve preservar o manipulador de evento já existente.");\n'
+          adicional = '  assert.match(js, /Enviados recentemente \\(histórico carregado\\)/, "Relatório deve identificar contagem de envios como parcial quando o histórico global não está pré-carregado.");\n'
+          if marcador not in testes:
+              raise SystemExit('Marcador de regressão final não encontrado.')
+          testes_path.write_text(testes.replace(marcador, marcador + adicional, 1), encoding='utf-8')
+          PY
+
+      - name: Validar sintaxe
+        run: node --check arquivo-digital/arquivo-digital.js
+
+      - name: Rodar regressao
+        run: node scripts/testes-regressao-arquivo-digital.mjs
+
+      - name: Rodar utilitarios
+        run: node scripts/testes-utils-arquivo-digital.mjs
+
+      - name: Rodar validador oficial
+        run: node scripts/validar-arquivo-digital.mjs
+
+      - name: Auditar politica final
+        run: |
+          test ! -e scripts/retencao-historico-arquivo-digital-v1.ps1
+          test ! -e scripts/consultar-historico-frio-arquivo-digital-v1.ps1
+          test ! -e scripts/USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md
+          ! grep -RniE 'retencao-historico-arquivo-digital|consultar-historico-frio-arquivo-digital|USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL' README.md AGENTS.md arquivo-digital scripts
+          ! grep -n 'Se um dia houver necessidade institucional de retenção' AGENTS.md
+          grep -n 'Não reintroduzir exclusão automática' AGENTS.md
+          grep -n 'Enviados recentemente (histórico carregado)' arquivo-digital/arquivo-digital.js
+
+      - name: Remover workflow temporario
+        run: rm -f .github/workflows/finalizar-historico-sob-demanda.yml
+
+      - name: Publicar ajuste final
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Finalizar política de histórico preservado"
+          git push origin HEAD:agent/historico-sob-demanda
