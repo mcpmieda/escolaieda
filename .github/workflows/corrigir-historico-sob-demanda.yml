@@ -1,0 +1,63 @@
+name: Corrigir historico sob demanda
+
+on:
+  push:
+    branches:
+      - agent/historico-sob-demanda
+    paths:
+      - scripts/corrigir-historico-sob-demanda.py
+      - .github/workflows/corrigir-historico-sob-demanda.yml
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: agent/historico-sob-demanda
+          fetch-depth: 0
+
+      - name: Aplicar correcoes
+        run: python3 scripts/corrigir-historico-sob-demanda.py
+
+      - name: Validar sintaxe principal
+        run: node --check arquivo-digital/arquivo-digital.js
+
+      - name: Rodar testes de regressao
+        run: node scripts/testes-regressao-arquivo-digital.mjs
+
+      - name: Rodar testes de utilitarios
+        run: node scripts/testes-utils-arquivo-digital.mjs
+
+      - name: Rodar validador oficial
+        run: node scripts/validar-arquivo-digital.mjs
+
+      - name: Auditoria estatica adicional
+        run: |
+          ! grep -nE '\bversaoHistorico\s*\+=' arquivo-digital/arquivo-digital.js
+          ! grep -nE '===\s*versaoDocumentos\b' arquivo-digital/arquivo-digital.js
+          ! grep -n 'mesclarAnotacaoNoCache' arquivo-digital/arquivo-digital.js
+          ! grep -n 'sincronizarControlesHistoricoGeral' arquivo-digital/arquivo-digital.js
+          grep -n 'versaoHistoricoCache++' arquivo-digital/arquivo-digital.js
+          grep -n 'versaoDocumentosCache' arquivo-digital/arquivo-digital.js
+          grep -n 'abrirPainelDashboard("Central de histórico"' arquivo-digital/arquivo-digital.js
+          grep -n 'sincronizarCamposFiltroHistoricoGeral' arquivo-digital/arquivo-digital.js
+          test ! -e scripts/retencao-historico-arquivo-digital-v1.ps1
+          test ! -e scripts/consultar-historico-frio-arquivo-digital-v1.ps1
+          test ! -e scripts/USO-RETENCAO-HISTORICO-ARQUIVO-DIGITAL-V1.md
+
+      - name: Remover ferramentas temporarias
+        run: rm -f scripts/corrigir-historico-sob-demanda.py .github/workflows/corrigir-historico-sob-demanda.yml
+
+      - name: Publicar correcoes na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Corrigir histórico sob demanda e preservar interface"
+          git push origin HEAD:agent/historico-sob-demanda
