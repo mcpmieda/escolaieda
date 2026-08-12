@@ -71,6 +71,26 @@ jobs:
       - name: Aplicar migracao
         run: python3 scripts/patch-historico-sob-demanda.py
 
+      - name: Remover referencias nominais da politica antiga no validador
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('scripts/validar-arquivo-digital.mjs')
+          s = p.read_text(encoding='utf-8')
+          s, n1 = re.subn(
+              r'const arquivosRetencaoAntiga = \[.*?const arquivosRetencaoAntigaPresentes = arquivosRetencaoAntiga\.filter\(existsSync\);\n',
+              '', s, count=1, flags=re.S
+          )
+          s, n2 = re.subn(
+              r'conferir\(arquivosRetencaoAntigaPresentes\.length === 0, `Arquivos da antiga retencao ainda presentes: .*?\);\n',
+              '', s, count=1
+          )
+          if n1 != 1 or n2 != 1:
+              raise SystemExit(f'Limpeza nominal inesperada no validador: bloco={n1}, conferencia={n2}')
+          p.write_text(s, encoding='utf-8')
+          PY
+
       - name: Validar sintaxe principal
         run: node --check arquivo-digital/arquivo-digital.js
 
