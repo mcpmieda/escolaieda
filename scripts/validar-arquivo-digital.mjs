@@ -38,9 +38,9 @@ const html = lerArquivo("index.html", arquivos.html);
 const css = lerArquivo("arquivo-digital.css", arquivos.css);
 const js = lerArquivo("arquivo-digital.js", arquivos.js);
 
-conferir(/<link\b[^>]*href=["']arquivo-digital\.css["'][^>]*>/i.test(html), "index.html nao referencia arquivo-digital.css.");
+conferir(/<link\b[^>]*href=["']arquivo-digital\.css(?:\?[^"']*)?["'][^>]*>/i.test(html), "index.html nao referencia arquivo-digital.css.");
 conferir(
-  /<script\b[^>]*type=["']module["'][^>]*src=["']arquivo-digital\.js["'][^>]*>\s*<\/script>/i.test(html),
+  /<script\b[^>]*type=["']module["'][^>]*src=["']arquivo-digital\.js(?:\?[^"']*)?["'][^>]*>\s*<\/script>/i.test(html),
   "index.html nao referencia arquivo-digital.js com type=\"module\"."
 );
 

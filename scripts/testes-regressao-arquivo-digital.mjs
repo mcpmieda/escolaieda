@@ -110,7 +110,7 @@ testar("HTML mantem estrutura principal e script modular", () => {
 
   assert.match(
     html,
-    /<script\b[^>]*type=["']module["'][^>]*src=["']arquivo-digital\.js["'][^>]*>\s*<\/script>/i,
+    /<script\b[^>]*type=["']module["'][^>]*src=["']arquivo-digital\.js(?:\?v=[^"']+)?["'][^>]*>\s*<\/script>/i,
     "index.html deve carregar arquivo-digital.js como script type=module."
   );
 });
@@ -241,6 +241,19 @@ testar("Performance mantem cache limitado e diagnostico publico", () => {
   assert.match(js, /const cacheNormalizarTexto\s*=\s*new Map\(\)/, "Cache de normalizarTexto deve existir.");
   assert.match(blocoFuncao("normalizarTexto"), /cacheNormalizarTexto\.size\s*>=\s*LIMITE_CACHE_NORMALIZAR_TEXTO/, "normalizarTexto deve limitar tamanho do cache.");
   assert.match(js, /window\.gerarDiagnosticoPerformanceArquivoDigital\s*=\s*function\b/, "Diagnostico de performance deve existir.");
+});
+
+testar("Carregamento progressivo preserva resultados completos e contagens exatas", () => {
+  assert.match(html, /id=["']statusSincronizacaoArquivo["']/, "Status de sincronizacao deve existir.");
+  assert.match(html, /id=["']btnTentarSincronizarArquivo["']/, "Sincronizacao deve oferecer nova tentativa em caso de falha.");
+  assert.match(html, /rel=["']modulepreload["'][^>]+vendor\/msal-browser-5\.11\.0\.min\.js/, "MSAL local deve ser pre-carregado.");
+  assert.match(js, /from\s+["']\.\/vendor\/msal-browser-5\.11\.0\.min\.js["']/, "Aplicacao deve usar o bundle local do MSAL.");
+  assert.match(js, /function carregarDocumentosRecentesIniciais\b/, "Consulta inicial de Recentes deve existir.");
+  assert.match(js, /function iniciarSincronizacaoCompletaDocumentos\b/, "Sincronizacao completa em segundo plano deve existir.");
+  assert.match(js, /documentosEstaoOrdenadosPorModificacaoDesc/, "Recentes rapidos devem validar a ordenacao recebida.");
+  assert.match(js, /sincronizacaoDocumentosCompleta[\s\S]*?Calculando…/, "Contadores nao devem exibir totais parciais.");
+  assert.match(js, /Calculando quantidades exatas das gavetas/, "Gavetas devem explicar o carregamento das quantidades.");
+  assert.match(js, /window\.obterMetricasCarregamentoArquivoDigital\s*=/, "Metricas reais de abertura devem ficar disponiveis para auditoria.");
 });
 
 testar("Validador oficial continua presente e cobre handlers inline", () => {

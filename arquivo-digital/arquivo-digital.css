@@ -6375,6 +6375,110 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
   margin: 7px 0 12px;
 }
 
+/* Sincronizacao progressiva do indice de documentos */
+.statusSincronizacaoArquivo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  margin: 12px 0 8px;
+  padding: 9px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e3a5f;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.statusSincronizacaoArquivo[hidden] {
+  display: none;
+}
+
+.statusSincronizacaoArquivo.concluido {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.statusSincronizacaoArquivo.erro {
+  border-color: #fecaca;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.indicadorSincronizacaoArquivo {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girarIndicadorSincronizacao 0.8s linear infinite;
+}
+
+.statusSincronizacaoArquivo.concluido .indicadorSincronizacaoArquivo,
+.statusSincronizacaoArquivo.erro .indicadorSincronizacaoArquivo {
+  border: 0;
+  border-radius: 0;
+  animation: none;
+}
+
+.statusSincronizacaoArquivo.concluido .indicadorSincronizacaoArquivo::before {
+  content: "✓";
+  font-weight: 800;
+}
+
+.statusSincronizacaoArquivo.erro .indicadorSincronizacaoArquivo::before {
+  content: "!";
+  font-weight: 800;
+}
+
+.statusSincronizacaoArquivo #textoStatusSincronizacaoArquivo {
+  flex: 1 1 auto;
+}
+
+.statusSincronizacaoArquivo #btnTentarSincronizarArquivo {
+  min-height: 34px;
+  padding: 6px 12px;
+  border-color: currentColor;
+  color: inherit;
+  background: #ffffff;
+}
+
+.statusSincronizacaoArquivo #btnTentarSincronizarArquivo:hover,
+.statusSincronizacaoArquivo #btnTentarSincronizarArquivo:focus-visible {
+  border-color: #9a3412;
+  background: #ffedd5;
+  color: #7c2d12;
+}
+
+.dashboardContadores .cardDash[aria-busy="true"] strong {
+  font-size: clamp(0.92rem, 2vw, 1.08rem);
+  letter-spacing: 0;
+}
+
+@keyframes girarIndicadorSincronizacao {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicadorSincronizacaoArquivo {
+    animation-duration: 1.8s;
+  }
+}
+
+@media (max-width: 640px) {
+  .statusSincronizacaoArquivo {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .statusSincronizacaoArquivo #btnTentarSincronizarArquivo {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
