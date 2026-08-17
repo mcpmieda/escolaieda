@@ -227,6 +227,18 @@ testar("Operacoes criticas preservam ID confiavel e travas contra repeticao", ()
   assert.match(js, /async function prepararPdfSubstitutoComTituloArquivo\b/, "prepararPdfSubstitutoComTituloArquivo deve existir.");
 });
 
+testar("Abertura de PDF nao navega pelo site do SharePoint", () => {
+  const obterDownload = blocoFuncao("obterUrlDownloadTemporariaDocumento");
+  const abrirPdf = blocoFuncao("abrirPdfSelecionado");
+
+  assert.match(obterDownload, /@microsoft\.graph\.downloadUrl/, "Abertura deve solicitar o endereco temporario oficial do Microsoft Graph.");
+  assert.match(abrirPdf, /new Blob\(\[blobOriginal\],\s*\{\s*type:\s*["']application\/pdf["']\s*\}\)/, "Conteudo deve ser apresentado explicitamente como PDF.");
+  assert.match(abrirPdf, /aba\.location\.replace\(urlPdf\)/, "PDF deve substituir a aba temporaria sem inserir SharePoint no historico.");
+  assert.doesNotMatch(abrirPdf, /window\.location\.href/, "Falha de pop-up nao deve retirar o usuario do Arquivo Digital.");
+  assert.doesNotMatch(abrirPdf, /documentoAberto\.link/, "Abertura nao deve usar a pagina web do documento no SharePoint.");
+  assert.match(abrirPdf, /Permita pop-ups para abrir o PDF sem sair do Arquivo Digital/, "Bloqueio de nova aba deve ter orientacao segura.");
+});
+
 testar("CSS do dashboard mantem separacao entre contadores e acoes", () => {
   assert.match(html, /class=["'][^"']*\bdashboard\b[^"']*\bdashboardContadores\b[^"']*["']/i, "HTML deve manter dashboard dashboardContadores.");
   assert.match(html, /class=["'][^"']*\bdashboard\b[^"']*\bdashboardAcoes\b[^"']*["']/i, "HTML deve manter dashboard dashboardAcoes.");

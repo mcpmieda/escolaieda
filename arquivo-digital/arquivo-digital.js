@@ -3897,6 +3897,38 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       return driveItem;
     }
 
+    async function obterUrlDownloadTemporariaDocumento(documento) {
+      if (!documento?.listItemId && (!documento?.driveId || !documento?.driveItemId)) {
+        throw new Error("Não foi possível identificar o arquivo para abrir.");
+      }
+
+      const token = await obterToken();
+      const selecao = "$select=id,name,parentReference,webUrl,@microsoft.graph.downloadUrl";
+      const url = documento.driveId && documento.driveItemId
+        ? `https://graph.microsoft.com/v1.0/drives/${documento.driveId}/items/${documento.driveItemId}?${selecao}`
+        : `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${documento.listItemId}/driveItem?${selecao}`;
+
+      const resposta = await fetchGraphComRetry(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      }, { tentativas: 2, atrasoBaseMs: 350 });
+
+      if (!resposta.ok) {
+        throw new Error(await resposta.text());
+      }
+
+      const driveItem = await resposta.json();
+      documento.driveItemId = driveItem.id || documento.driveItemId || "";
+      documento.driveId = driveItem.parentReference?.driveId || documento.driveId || "";
+      documento.driveWebUrl = driveItem.webUrl || documento.driveWebUrl || "";
+
+      const urlDownload = driveItem["@microsoft.graph.downloadUrl"] || "";
+      if (!urlDownload) {
+        throw new Error("O Microsoft Graph não retornou o endereço temporário do arquivo.");
+      }
+
+      return urlDownload;
+    }
+
     window.prepararRenomear = function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
@@ -5187,25 +5219,54 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       const documentoAberto = { ...documentoSelecionado };
-      const linkPdf = documentoAberto.link || "";
-
-      if (!linkPdf) {
-        mostrarMensagemPainel("Não foi possível localizar o link deste arquivo.", "erro");
-        return;
-      }
 
       const operacao = iniciarOperacaoCritica("abrir-pdf", "btnAbrirArquivoPainel", "A abertura do arquivo já foi iniciada. Aguarde.");
       if (!operacao) return;
 
       const aba = window.open("", "_blank");
 
-      if (aba) {
-        aba.location.href = linkPdf;
-      } else {
-        window.location.href = linkPdf;
+      if (!aba) {
+        finalizarOperacaoCritica(operacao);
+        mostrarMensagemPainel("O navegador bloqueou a nova aba. Permita pop-ups para abrir o PDF sem sair do Arquivo Digital.", "erro");
+        return;
       }
 
-      mostrarMensagemPainel("Arquivo aberto. Registrando acesso no histórico...");
+      try {
+        aba.opener = null;
+        aba.document.title = "Preparando PDF";
+        aba.document.body.textContent = "Preparando PDF…";
+        mostrarMensagemPainel("Preparando PDF em uma nova aba...");
+
+        const urlDownload = await obterUrlDownloadTemporariaDocumento(documentoAberto);
+        const respostaPdf = await fetch(urlDownload, { cache: "no-store" });
+
+        if (!respostaPdf.ok) {
+          throw new Error(`Não foi possível baixar o PDF. HTTP ${respostaPdf.status}`);
+        }
+
+        const blobOriginal = await respostaPdf.blob();
+        const blobPdf = new Blob([blobOriginal], { type: "application/pdf" });
+        const urlPdf = URL.createObjectURL(blobPdf);
+
+        if (aba.closed) {
+          URL.revokeObjectURL(urlPdf);
+          throw new Error("A aba do PDF foi fechada antes do carregamento terminar.");
+        }
+
+        aba.location.replace(urlPdf);
+        setTimeout(() => URL.revokeObjectURL(urlPdf), 120000);
+        mostrarMensagemPainel("Arquivo aberto. Registrando acesso no histórico...");
+      } catch (erro) {
+        logger.error(erro);
+        try {
+          if (!aba.closed) aba.close();
+        } catch (erroFecharAba) {
+          logger.warn("Não foi possível fechar a aba incompleta do PDF.", erroFecharAba);
+        }
+        finalizarOperacaoCritica(operacao);
+        mostrarMensagemPainel("Não foi possível abrir o PDF sem sair do Arquivo Digital. Tente novamente.", "erro");
+        return;
+      }
 
       setTimeout(async () => {
         try {
