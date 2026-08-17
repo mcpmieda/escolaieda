@@ -182,7 +182,7 @@
       padding: 18px 20px;
       box-sizing: border-box;
       border-radius: 24px;
-      overflow: hidden;
+      overflow: clip;
       background:
         linear-gradient(135deg, rgba(15, 47, 102, .98) 0%, rgba(29, 78, 216, .88) 54%, rgba(14, 116, 144, .78) 100%),
         url("assets/imagens/arquivo-digital-capa.jpg") center/cover;
@@ -6562,3 +6562,223 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
     will-change: auto;
   }
 }
+
+
+/* AUDITORIA_VISUAL_E_FUNCIONAL_20260817 */
+.navegacaoDocumentosTopo {
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  padding: 10px;
+}
+
+.abasLinha,
+.buscaLinha {
+  display: grid;
+  grid-template-rows: auto 40px;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tituloAbasDocumentos,
+.buscaLinha h2 {
+  min-height: 19px;
+  margin: 0;
+  color: #0f2f66;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 19px;
+  text-align: left;
+}
+
+.navegacaoDocumentosTopo .abasDocumentos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  height: 40px;
+  margin: 0;
+}
+
+.navegacaoDocumentosTopo .abaDocumento,
+.navegacaoDocumentosTopo .busca {
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+.itemArquivo:focus-visible,
+.abaDocumento:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #f59e0b !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(245, 158, 11, .18) !important;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: .52;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+#painelLateral .acoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#painelLateral .acoes button {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+#btnAbrirArquivoPainel {
+  grid-column: 1 / -1;
+}
+
+.itemArquivoLixeira {
+  border-color: #fecaca !important;
+  background: linear-gradient(90deg, #fff7f7 0%, #ffffff 55%) !important;
+}
+
+.itemArquivoLixeira:hover:not(:disabled),
+.itemArquivoLixeira:focus-visible {
+  border-color: #ef4444 !important;
+}
+
+.duplicidadeVaziaPainel {
+  display: grid;
+  gap: 7px;
+  min-height: 150px;
+  place-content: center;
+  padding: 24px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #64748b;
+  text-align: center;
+}
+
+.duplicidadeVaziaPainel strong {
+  color: #0f2f66;
+  font-size: 15px;
+}
+
+[data-acao-duplicidade="desfazer-todos"]:hover:not(:disabled),
+[data-acao-duplicidade="desfazer-todos"]:focus-visible {
+  background: #9a3412 !important;
+  color: #ffffff !important;
+  border-color: #7c2d12 !important;
+}
+
+.paresIgnoradosDuplicidade > summary:hover {
+  background: #f1f5f9;
+}
+
+.centralConfiguracoes.aberta {
+  max-height: none;
+  overflow: visible;
+}
+
+.centralConfiguracoesTopo {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  padding: 8px 0;
+  background: rgba(255, 255, 255, .97);
+  backdrop-filter: blur(8px);
+}
+
+.listaGavetasConfiguracao {
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 8px;
+}
+
+.acoesGavetaConfiguracao [data-acao-gaveta-config="excluir"] {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+
+.acoesGavetaConfiguracao [data-acao-gaveta-config="excluir"]:hover:not(:disabled) {
+  background: #b91c1c;
+  color: #ffffff;
+  border-color: #991b1b;
+}
+
+.topoFiltroHistoricoGeral {
+  display: grid;
+  gap: 4px;
+}
+
+.topoFiltroHistoricoGeral small {
+  line-height: 1.35;
+}
+
+.linhaBotoesFiltroHistoricoGeral {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.camposFiltroHistoricoPersonalizado {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+@media (max-width: 1180px) {
+  .navegacaoDocumentosTopo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .painelLateral,
+  .painelDashboard,
+  .painelCentralDuplicidades {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .navegacaoDocumentosTopo {
+    gap: 10px;
+  }
+
+  #painelLateral .acoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #painelLateral .linhaAnotacao {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #btnSalvarAnotacaoPainel {
+    width: 100%;
+  }
+
+  .camposFiltroHistoricoPersonalizado {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .navegacaoDocumentosTopo {
+    padding: 8px;
+  }
+
+  .tituloAbasDocumentos,
+  .buscaLinha h2 {
+    font-size: 14px;
+  }
+}
+/* FIM_AUDITORIA_VISUAL_E_FUNCIONAL_20260817 */
