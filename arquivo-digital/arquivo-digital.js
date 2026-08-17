@@ -2011,8 +2011,8 @@ atualizarCardParesIgnorados();
           <div class="linhaBuscaHistoricoGeral">
             <input id="buscaHistoricoGeral" class="buscaHistoricoGeral" type="search" placeholder="Buscar por arquivo, usuário, ação, gaveta ou motivo..." autocomplete="off">
             <div class="botoesOrdemHistoricoGeral" title="Ordenar histórico">
-              <button class="botaoOrdemHistoricoGeral ativo" type="button" data-ordem-historico="desc" title="Mais recentes primeiro">↓</button>
-              <button class="botaoOrdemHistoricoGeral" type="button" data-ordem-historico="asc" title="Mais antigos primeiro">↑</button>
+              <button class="botaoOrdemHistoricoGeral ativo" type="button" data-ordem-historico="desc" title="Mais recentes primeiro" aria-label="Ordenar por mais recentes primeiro">↓</button>
+              <button class="botaoOrdemHistoricoGeral" type="button" data-ordem-historico="asc" title="Mais antigos primeiro" aria-label="Ordenar por mais antigos primeiro">↑</button>
             </div>
           </div>
         </div>
@@ -2995,7 +2995,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       central.classList.toggle("discreta", quantidadePares === 0);
       central.classList.toggle("comAlerta", quantidadePares > 0);
       central.classList.toggle("centralFechada", quantidadePares > 0 && !centralDuplicidadesAberta);
-      caixa.style.display = quantidadePares > 0 && centralDuplicidadesAberta ? "grid" : "none";
+      caixa.style.display = centralDuplicidadesAberta ? "grid" : "none";
     }
 
     function atualizarCentralDuplicidadesSegundoPlano() {
@@ -3099,7 +3099,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         : "Nenhuma duplicidade suspeita no momento.";
 
       if (!pares.length) {
-        caixa.innerHTML = "";
+        caixa.innerHTML = '<div class="duplicidadeVazia duplicidadeVaziaPainel"><strong>Nenhuma duplicidade suspeita.</strong><span>Os documentos analisados não apresentaram pares que precisem de revisão.</span></div>';
         duplicidadesCarregando = false;
         return;
       }
@@ -3785,7 +3785,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("novoNomeArquivo").value = nomeSemPdf;
       document.getElementById("boxRenomear").style.display = "block";
-      mostrarMensagemPainel("Confira o novo nome antes de confirmar.");
+      atualizarAcoesFormularioPainel();
+      mostrarMensagemPainel("Digite um nome diferente do atual para habilitar a confirmação.");
     };
 
     window.cancelarRenomear = function () {
@@ -3913,6 +3914,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxSubstituir").style.display = "block";
       document.getElementById("arquivoSubstituto").value = "";
+      atualizarAcoesFormularioPainel();
       mostrarMensagemPainel("Escolha o PDF que vai substituir o conteúdo atual deste documento.");
     };
 
@@ -4033,6 +4035,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("arquivoLocalMesclar").value = "";
       document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
       document.getElementById("statusMesclar").textContent = "";
+      atualizarAcoesFormularioPainel();
       mostrarMensagemPainel("Escolha no computador o PDF que sera adicionado ao final deste arquivo.");
       document.getElementById("arquivoLocalMesclar").click();
     };
@@ -4069,6 +4072,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       arquivoLocalMesclar = arquivo;
+      atualizarAcoesFormularioPainel();
       document.getElementById("arquivoSelecionadoMesclar").textContent = `${arquivo.name} (${Math.round(arquivo.size / 1024)} KB)`;
       document.getElementById("statusMesclar").textContent = "";
       mostrarMensagemPainel("Informe o motivo e confirme para juntar os PDFs.");
@@ -4461,6 +4465,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("boxMesclar").style.display = "none";
       document.getElementById("boxRestaurar").style.display = "block";
       document.getElementById("motivoRestaurar").value = "";
+      atualizarAcoesFormularioPainel();
       mostrarMensagemPainel("Informe o motivo antes de restaurar o arquivo.");
     };
 
@@ -4557,7 +4562,8 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("boxAlterarGaveta").style.display = "block";
       document.getElementById("novaGavetaDocumento").innerHTML = opcoesGavetaHtml(documentoSelecionado.gaveta || "");
       document.getElementById("motivoAlterarGaveta").value = "";
-      mostrarMensagemPainel("Escolha a nova gaveta e informe o motivo.");
+      atualizarAcoesFormularioPainel();
+      mostrarMensagemPainel("Escolha uma gaveta diferente e informe o motivo.");
     };
 
     window.cancelarAlterarGaveta = function () {
@@ -4873,6 +4879,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       }
 
       if (painelLateralJaAbertoNoMesmoDocumento(documento)) {
+        const conteudoPainelAtual = document.querySelector("#painelLateral .painelConteudo");
+        if (conteudoPainelAtual) conteudoPainelAtual.scrollTop = 0;
+        document.getElementById("painelTitulo")?.focus({ preventScroll: true });
         return;
       }
 
@@ -4908,7 +4917,12 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("btnRestaurar").style.display = estaArquivado ? "inline-block" : "none";
       document.getElementById("btnMesclar").style.display = "inline-block";
 
+      const conteudoPainelDocumento = painel?.querySelector(".painelConteudo");
+      if (conteudoPainelDocumento) conteudoPainelDocumento.scrollTop = 0;
       painel?.classList.add("aberto");
+      requestAnimationFrame(() => {
+        if (conteudoPainelDocumento) conteudoPainelDocumento.scrollTop = 0;
+      });
       marcarCamadaAbertaAcessivel("painelLateral", "#painelTitulo");
       registrarCamadaHistoricoMobile();
       document.getElementById("boxRenomear").style.display = "none";
@@ -4928,6 +4942,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("motivoMesclar").value = "";
       document.getElementById("statusMesclar").textContent = "";
       arquivoLocalMesclar = null;
+      atualizarAcoesFormularioPainel();
 
       /* INICIO_PAINEL_LATERAL_SEGUNDO_PLANO_20260527 */
       const documentoDoPainel = documento;
@@ -5430,6 +5445,7 @@ window.abrirSeletorNovoDocumento = function () {
 
     function atualizarAcoesCentralUpload() {
       const btnConfirmar = document.getElementById("btnConfirmarUploadCentral");
+      const btnLimpar = document.getElementById("btnLimparSelecaoUpload");
       const btnConcluir = document.getElementById("btnConcluirUploadCentral");
       const btnEnviarMais = document.getElementById("btnEnviarMaisUploadCentral");
       const envioProcessado = uploadConcluidoComSucesso || uploadTeveErro;
@@ -5441,6 +5457,10 @@ window.abrirSeletorNovoDocumento = function () {
       if (btnConfirmar) {
         btnConfirmar.style.display = podeEnviar ? "inline-block" : "none";
         btnConfirmar.disabled = uploadEmAndamento || !podeEnviar;
+      }
+
+      if (btnLimpar) {
+        btnLimpar.disabled = uploadEmAndamento || arquivosCentralUpload.length === 0;
       }
 
       if (btnConcluir) {
@@ -6782,7 +6802,7 @@ function renderizarDocumentos(listaArquivos) {
 
         return `
           <li>
-          <button class="itemArquivo" data-indice-documento="${indiceOriginal}">
+          <button class="itemArquivo${item.status === "ARQUIVADO" ? " itemArquivoLixeira" : ""}" data-indice-documento="${indiceOriginal}">
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.nome))}</strong>
             <span class="metadadosArquivo">
               ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
@@ -6790,7 +6810,7 @@ function renderizarDocumentos(listaArquivos) {
               ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome igual</span>" : ""}
             </span>
             <span>Clique para ver detalhes, histórico e ações</span>
-            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoRecente(movimento.ACAO || "MOVIMENTOU"))} - ${escaparHtml(formatarData(movimento.DATA_HORA))}</span>` : ""}
+            ${movimento ? `<span class="linhaMovimentacaoArquivo">${escaparHtml(formatarAcaoHistorico(movimento.ACAO || "MOVIMENTOU"))} - ${escaparHtml(formatarData(movimento.DATA_HORA))}</span>` : ""}
             ${item.modificado ? `<span class="linhaDataArquivo">Atualizado: ${escaparHtml(formatarData(item.modificado))}</span>` : ""}
           </button>
           </li>
@@ -7307,6 +7327,45 @@ function renderizarDocumentos(listaArquivos) {
     window.filtrarDocumentos = filtrarDocumentos;
     window.filtrarDocumentosDebounced = filtrarDocumentosDebounced;
 
+
+    function atualizarAcoesFormularioPainel() {
+      const definirDesabilitado = (id, desabilitado) => {
+        const botao = document.getElementById(id);
+        if (botao) botao.disabled = Boolean(desabilitado);
+      };
+
+      const nomeDigitado = document.getElementById("novoNomeArquivo")?.value || "";
+      let nomeValido = false;
+      try {
+        const nomeSanitizado = sanitizarNomeArquivo(nomeDigitado);
+        nomeValido = Boolean(
+          nomeSanitizado &&
+          nomeSanitizado.toLowerCase() !== ".pdf" &&
+          normalizarTexto(nomeSanitizado) !== normalizarTexto(documentoSelecionado?.nome || "")
+        );
+      } catch {
+        nomeValido = false;
+      }
+
+      const arquivoSubstituto = document.getElementById("arquivoSubstituto")?.files?.[0];
+      const motivoArquivar = document.getElementById("motivoArquivar")?.value?.trim() || "";
+      const motivoRestaurar = document.getElementById("motivoRestaurar")?.value?.trim() || "";
+      const novaGaveta = document.getElementById("novaGavetaDocumento")?.value?.trim() || "";
+      const motivoAlterarGaveta = document.getElementById("motivoAlterarGaveta")?.value?.trim() || "";
+      const motivoMesclar = document.getElementById("motivoMesclar")?.value?.trim() || "";
+      const gavetaAtual = gavetaOuPadrao(documentoSelecionado?.gaveta);
+
+      definirDesabilitado("btnConfirmarRenomear", !nomeValido);
+      definirDesabilitado("btnConfirmarSubstituir", !arquivoSubstituto);
+      definirDesabilitado("btnConfirmarArquivar", !motivoArquivar);
+      definirDesabilitado("btnConfirmarRestaurar", !motivoRestaurar);
+      definirDesabilitado(
+        "btnConfirmarAlterarGaveta",
+        !novaGaveta || !motivoAlterarGaveta || normalizarTexto(novaGaveta) === normalizarTexto(gavetaAtual)
+      );
+      definirDesabilitado("btnConfirmarMesclar", !arquivoLocalMesclar || !motivoMesclar || mesclagemEmAndamento);
+    }
+
     function inicializarEventosFixos() {
       if (eventosFixosInicializados) return;
       eventosFixosInicializados = true;
@@ -7381,6 +7440,12 @@ function renderizarDocumentos(listaArquivos) {
       document.getElementById("campoBusca")?.addEventListener("input", window.filtrarDocumentosDebounced);
       document.getElementById("arquivoLocalMesclar")?.addEventListener("change", (event) => {
         window.selecionarArquivoLocalMesclar(event.target);
+      });
+
+      ["novoNomeArquivo", "arquivoSubstituto", "motivoArquivar", "motivoRestaurar", "novaGavetaDocumento", "motivoAlterarGaveta", "motivoMesclar"].forEach(id => {
+        const campo = document.getElementById(id);
+        campo?.addEventListener("input", atualizarAcoesFormularioPainel);
+        campo?.addEventListener("change", atualizarAcoesFormularioPainel);
       });
 
       document.getElementById("listaDocumentos")?.addEventListener("click", (event) => {
