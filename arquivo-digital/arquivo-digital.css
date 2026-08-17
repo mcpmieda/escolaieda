@@ -182,7 +182,7 @@
       padding: 18px 20px;
       box-sizing: border-box;
       border-radius: 24px;
-      overflow: hidden;
+      overflow: clip;
       background:
         linear-gradient(135deg, rgba(15, 47, 102, .98) 0%, rgba(29, 78, 216, .88) 54%, rgba(14, 116, 144, .78) 100%),
         url("assets/imagens/arquivo-digital-capa.jpg") center/cover;
@@ -6565,10 +6565,6 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
 
 
 /* AUDITORIA_VISUAL_E_FUNCIONAL_20260817 */
-.cabecalhoSistema {
-  overflow: clip;
-}
-
 .navegacaoDocumentosTopo {
   grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
   gap: 14px;
