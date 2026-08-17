@@ -244,7 +244,9 @@ testar("Performance mantem cache limitado e diagnostico publico", () => {
 });
 
 testar("Carregamento progressivo preserva resultados completos e contagens exatas", () => {
-  assert.match(html, /id=["']statusSincronizacaoArquivo["']/, "Status de sincronizacao deve existir.");
+  const statusSincronizacao = elementoPorId("statusSincronizacaoArquivo");
+  assert.ok(statusSincronizacao, "Status de sincronizacao deve existir.");
+  assert.match(statusSincronizacao, /\bhidden\b/i, "Status de sincronizacao deve iniciar oculto.");
   assert.match(html, /id=["']btnTentarSincronizarArquivo["']/, "Sincronizacao deve oferecer nova tentativa em caso de falha.");
   assert.match(html, /rel=["']modulepreload["'][^>]+vendor\/msal-browser-5\.11\.0\.min\.js/, "MSAL local deve ser pre-carregado.");
   assert.match(js, /from\s+["']\.\/vendor\/msal-browser-5\.11\.0\.min\.js["']/, "Aplicacao deve usar o bundle local do MSAL.");
@@ -254,6 +256,16 @@ testar("Carregamento progressivo preserva resultados completos e contagens exata
   assert.match(js, /sincronizacaoDocumentosCompleta[\s\S]*?Calculando…/, "Contadores nao devem exibir totais parciais.");
   assert.match(js, /Calculando quantidades exatas das gavetas/, "Gavetas devem explicar o carregamento das quantidades.");
   assert.match(js, /window\.obterMetricasCarregamentoArquivoDigital\s*=/, "Metricas reais de abertura devem ficar disponiveis para auditoria.");
+
+  const status = blocoFuncao("atualizarStatusSincronizacao");
+  assert.match(status, /const deveExibir\s*=\s*estado\s*===\s*["']erro["']/, "Faixa de sincronizacao deve aparecer somente em erro.");
+
+  const atualizarTela = blocoFuncao("atualizarTela");
+  const indicePermissao = atualizarTela.indexOf("await verificarPermissaoArquivoDigital(token)");
+  const indiceSistemaVisivel = atualizarTela.indexOf('document.getElementById("areaSistema").style.display = "block"');
+  const indiceRecentes = atualizarTela.indexOf("await carregarDocumentosRecentesIniciais(token)");
+  assert.ok(indicePermissao >= 0 && indiceSistemaVisivel > indicePermissao, "Sistema deve abrir somente depois da verificacao curta de permissao.");
+  assert.ok(indiceRecentes > indiceSistemaVisivel, "Recentes nao devem prolongar a tela Verificando acesso.");
 });
 
 testar("Validador oficial continua presente e cobre handlers inline", () => {

@@ -162,14 +162,15 @@
       const rotulo = document.getElementById("textoStatusSincronizacaoArquivo");
       const botao = document.getElementById("btnTentarSincronizarArquivo");
       metricasCarregamento.estado = estado;
+      const deveExibir = estado === "erro";
 
       if (caixa) {
-        caixa.hidden = false;
+        caixa.hidden = !deveExibir;
         caixa.className = `statusSincronizacaoArquivo ${estado}`;
-        caixa.setAttribute("aria-busy", estado === "carregando" ? "true" : "false");
+        caixa.setAttribute("aria-busy", "false");
       }
       if (rotulo) rotulo.textContent = texto;
-      if (botao) botao.hidden = !opcoes.mostrarTentarNovamente;
+      if (botao) botao.hidden = !deveExibir || !opcoes.mostrarTentarNovamente;
     }
 
     function copiarMetricasCarregamento() {
@@ -7552,14 +7553,13 @@ function renderizarDocumentos(listaArquivos) {
           const token = await obterToken();
           registrarEtapaCarregamento("obterToken", inicioToken, { sucesso: true });
           tokenSincronizacaoDocumentos = token;
-          atualizarStatusSincronizacao("Confirmando acesso e preparando os documentos recentes…", "carregando");
+          const inicioPermissao = agoraPerformance();
+          const temAcesso = await verificarPermissaoArquivoDigital(token);
+          registrarEtapaCarregamento("verificarPermissao", inicioPermissao, { sucesso: temAcesso });
 
-          const carregouRecentes = await carregarDocumentosRecentesIniciais(token);
-          if (!carregouRecentes) {
-            const carregouCompleto = await listarDocumentos(token);
-            if (!carregouCompleto) {
-              throw new Error("Não foi possível carregar os documentos do SharePoint.");
-            }
+          if (!temAcesso) {
+            mostrarTelaAcessoRestrito();
+            return;
           }
 
           acessoArquivoDigitalPermitido = true;
@@ -7569,12 +7569,21 @@ function renderizarDocumentos(listaArquivos) {
           definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", true);
           definirVisibilidadeBotaoCabecalho("btnSair", true);
           document.getElementById("areaSistema").style.display = "block";
-          registrarMarcoCarregamento("sistemaVisivel", { carregamentoProgressivo: carregouRecentes });
+          registrarMarcoCarregamento("sistemaVisivel", { aposVerificacaoPermissao: true });
+
+          let carregouRecentes = false;
+          try {
+            carregouRecentes = await carregarDocumentosRecentesIniciais(token);
+          } catch (erroRecentes) {
+            if (erroRecentes?.acessoNegado) throw erroRecentes;
+            logger.warn("Consulta rápida de Recentes indisponível; usando sincronização completa.", erroRecentes);
+          }
 
           if (carregouRecentes) {
             iniciarSincronizacaoCompletaDocumentos(token, { manterListaVisivel: true, preservarStatus: true });
           } else {
-            agendarTarefasApoioDepoisDaSincronizacao(token);
+            const carregouCompleto = await listarDocumentos(token);
+            if (carregouCompleto) agendarTarefasApoioDepoisDaSincronizacao(token);
           }
         } catch (erro) {
           logger.error(erro);
