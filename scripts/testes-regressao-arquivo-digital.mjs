@@ -228,11 +228,14 @@ testar("Operacoes criticas preservam ID confiavel e travas contra repeticao", ()
 });
 
 testar("Abertura de PDF nao navega pelo site do SharePoint", () => {
-  const obterDownload = blocoFuncao("obterUrlDownloadTemporariaDocumento");
+  const baixarPdf = blocoFuncao("baixarPdfDocumentoComoBlob");
   const abrirPdf = blocoFuncao("abrirPdfSelecionado");
 
-  assert.match(obterDownload, /@microsoft\.graph\.downloadUrl/, "Abertura deve solicitar o endereco temporario oficial do Microsoft Graph.");
-  assert.match(abrirPdf, /new Blob\(\[blobOriginal\],\s*\{\s*type:\s*["']application\/pdf["']\s*\}\)/, "Conteudo deve ser apresentado explicitamente como PDF.");
+  assert.match(baixarPdf, /drives\/\$\{driveId\}\/items\/\$\{driveItemId\}\/content/, "Abertura deve baixar o conteudo pelo identificador real do item no Drive.");
+  assert.match(baixarPdf, /Authorization:\s*`Bearer \$\{token\}`/, "Download do PDF deve usar o token do Microsoft Graph.");
+  assert.match(baixarPdf, /new Blob\(\[blobOriginal\],\s*\{\s*type:\s*["']application\/pdf["']\s*\}\)/, "Conteudo deve ser apresentado explicitamente como PDF.");
+  assert.doesNotMatch(baixarPdf, /@microsoft\.graph\.downloadUrl/, "Abertura nao deve depender do campo temporario que pode ser omitido pelo Graph.");
+  assert.match(abrirPdf, /baixarPdfDocumentoComoBlob\(documentoAberto\)/, "Abertura deve aguardar o download seguro antes de apresentar o PDF.");
   assert.match(abrirPdf, /aba\.location\.replace\(urlPdf\)/, "PDF deve substituir a aba temporaria sem inserir SharePoint no historico.");
   assert.doesNotMatch(abrirPdf, /window\.location\.href/, "Falha de pop-up nao deve retirar o usuario do Arquivo Digital.");
   assert.doesNotMatch(abrirPdf, /documentoAberto\.link/, "Abertura nao deve usar a pagina web do documento no SharePoint.");

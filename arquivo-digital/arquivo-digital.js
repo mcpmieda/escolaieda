@@ -3897,36 +3897,33 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       return driveItem;
     }
 
-    async function obterUrlDownloadTemporariaDocumento(documento) {
+    async function baixarPdfDocumentoComoBlob(documento) {
       if (!documento?.listItemId && (!documento?.driveId || !documento?.driveItemId)) {
         throw new Error("Não foi possível identificar o arquivo para abrir.");
       }
 
       const token = await obterToken();
-      const selecao = "$select=id,name,parentReference,webUrl,@microsoft.graph.downloadUrl";
-      const url = documento.driveId && documento.driveItemId
-        ? `https://graph.microsoft.com/v1.0/drives/${documento.driveId}/items/${documento.driveItemId}?${selecao}`
-        : `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items/${documento.listItemId}/driveItem?${selecao}`;
+      const driveItem = await obterDriveItemDoDocumento(documento);
+      const driveId = driveItem.parentReference?.driveId || documento.driveId || "";
+      const driveItemId = driveItem.id || documento.driveItemId || "";
+
+      if (!driveId || !driveItemId) {
+        throw new Error("Não foi possível localizar o arquivo no Microsoft Drive.");
+      }
+
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${driveItemId}/content`;
 
       const resposta = await fetchGraphComRetry(url, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store"
       }, { tentativas: 2, atrasoBaseMs: 350 });
 
       if (!resposta.ok) {
         throw new Error(await resposta.text());
       }
 
-      const driveItem = await resposta.json();
-      documento.driveItemId = driveItem.id || documento.driveItemId || "";
-      documento.driveId = driveItem.parentReference?.driveId || documento.driveId || "";
-      documento.driveWebUrl = driveItem.webUrl || documento.driveWebUrl || "";
-
-      const urlDownload = driveItem["@microsoft.graph.downloadUrl"] || "";
-      if (!urlDownload) {
-        throw new Error("O Microsoft Graph não retornou o endereço temporário do arquivo.");
-      }
-
-      return urlDownload;
+      const blobOriginal = await resposta.blob();
+      return new Blob([blobOriginal], { type: "application/pdf" });
     }
 
     window.prepararRenomear = function () {
@@ -5237,15 +5234,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         aba.document.body.textContent = "Preparando PDF…";
         mostrarMensagemPainel("Preparando PDF em uma nova aba...");
 
-        const urlDownload = await obterUrlDownloadTemporariaDocumento(documentoAberto);
-        const respostaPdf = await fetch(urlDownload, { cache: "no-store" });
-
-        if (!respostaPdf.ok) {
-          throw new Error(`Não foi possível baixar o PDF. HTTP ${respostaPdf.status}`);
-        }
-
-        const blobOriginal = await respostaPdf.blob();
-        const blobPdf = new Blob([blobOriginal], { type: "application/pdf" });
+        const blobPdf = await baixarPdfDocumentoComoBlob(documentoAberto);
         const urlPdf = URL.createObjectURL(blobPdf);
 
         if (aba.closed) {
