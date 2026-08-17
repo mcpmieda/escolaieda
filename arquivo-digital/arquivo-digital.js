@@ -1,4 +1,4 @@
-    import { PublicClientApplication } from "https://esm.sh/@azure/msal-browser@5.11.0";
+    import { PublicClientApplication } from "./vendor/msal-browser-5.11.0.min.js";
     import {
       escaparHtml,
       limparNomeArquivoPdf,
@@ -62,6 +62,11 @@
     let preferenciasSistema = carregarPreferenciasSistema();
     let camadaHistoricoMobileAtiva = false;
     let eventosFixosInicializados = false;
+    let sincronizacaoDocumentosCompleta = false;
+    let sincronizacaoDocumentosCarregando = false;
+    let promessaSincronizacaoDocumentos = null;
+    let tokenSincronizacaoDocumentos = "";
+    let tarefasApoioAgendadas = false;
     const focoAnteriorPorCamada = new Map();
     const operacoesCriticasEmAndamento = new Set();
     const LIMITE_CACHE_NORMALIZAR_TEXTO = 3000;
@@ -77,6 +82,13 @@
     let cacheHistoricoOrdenado = { versao: -1, direcao: "", itens: [] };
     let cacheUltimasMovimentacoes = { versao: -1, limite: 0, mapa: new Map() };
     let cacheDocumentosRecentes = { versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
+    let cacheContagemDocumentosPorGaveta = { versao: -1, mapa: new Map() };
+    const metricasCarregamento = {
+      inicioMs: window.performance?.now ? window.performance.now() : Date.now(),
+      estado: "iniciando",
+      etapas: {},
+      consultasGraph: []
+    };
 
     const msalConfig = {
       auth: {
@@ -91,7 +103,11 @@
     };
 
     const msalInstance = new PublicClientApplication(msalConfig);
+    const inicioInicializacaoMsal = window.performance?.now ? window.performance.now() : Date.now();
     await msalInstance.initialize();
+    metricasCarregamento.etapas.inicializacaoMsal = {
+      duracaoMs: Number(((window.performance?.now ? window.performance.now() : Date.now()) - inicioInicializacaoMsal).toFixed(1))
+    };
 
     const loginRequest = {
       scopes: ["User.Read", "Sites.ReadWrite.All"]
@@ -127,6 +143,46 @@
     function agoraPerformance() {
       return window.performance?.now ? window.performance.now() : Date.now();
     }
+
+    function registrarEtapaCarregamento(nome, inicio, detalhes = {}) {
+      const duracaoMs = Number((agoraPerformance() - inicio).toFixed(1));
+      metricasCarregamento.etapas[nome] = { duracaoMs, ...detalhes };
+      return duracaoMs;
+    }
+
+    function registrarMarcoCarregamento(nome, detalhes = {}) {
+      metricasCarregamento.etapas[nome] = {
+        desdeInicioMs: Number((agoraPerformance() - metricasCarregamento.inicioMs).toFixed(1)),
+        ...detalhes
+      };
+    }
+
+    function atualizarStatusSincronizacao(texto, estado = "carregando", opcoes = {}) {
+      const caixa = document.getElementById("statusSincronizacaoArquivo");
+      const rotulo = document.getElementById("textoStatusSincronizacaoArquivo");
+      const botao = document.getElementById("btnTentarSincronizarArquivo");
+      metricasCarregamento.estado = estado;
+
+      if (caixa) {
+        caixa.hidden = false;
+        caixa.className = `statusSincronizacaoArquivo ${estado}`;
+        caixa.setAttribute("aria-busy", estado === "carregando" ? "true" : "false");
+      }
+      if (rotulo) rotulo.textContent = texto;
+      if (botao) botao.hidden = !opcoes.mostrarTentarNovamente;
+    }
+
+    function copiarMetricasCarregamento() {
+      return JSON.parse(JSON.stringify({
+        ...metricasCarregamento,
+        documentosAtivos: documentosAtivos.length,
+        documentosLixeira: documentosLixeira.length,
+        sincronizacaoDocumentosCompleta,
+        sincronizacaoDocumentosCarregando
+      }));
+    }
+
+    window.obterMetricasCarregamentoArquivoDigital = copiarMetricasCarregamento;
 
     function medirTempoPerformance(nome, funcao) {
       const inicio = agoraPerformance();
@@ -301,6 +357,20 @@
     function documentosDaGaveta(nome) {
       const chave = chaveComparacaoGaveta(nome);
       return [...documentosAtivos, ...documentosLixeira].filter(doc => chaveComparacaoGaveta(doc.gaveta) === chave);
+    }
+
+    function obterContagemDocumentosPorGaveta() {
+      if (cacheContagemDocumentosPorGaveta.versao === versaoDocumentosCache) {
+        return cacheContagemDocumentosPorGaveta.mapa;
+      }
+
+      const mapa = new Map();
+      [...documentosAtivos, ...documentosLixeira].forEach(doc => {
+        const chave = chaveComparacaoGaveta(doc.gaveta);
+        mapa.set(chave, (mapa.get(chave) || 0) + 1);
+      });
+      cacheContagemDocumentosPorGaveta = { versao: versaoDocumentosCache, mapa };
+      return mapa;
     }
 
     function chaveGaveta(valor) {
@@ -885,12 +955,15 @@
       }
     }
 
-    async function buscarTodosItens(urlInicial, token) {
+    async function buscarTodosItens(urlInicial, token, opcoes = {}) {
       let url = urlInicial;
       let todos = [];
       let seguranca = 0;
+      const inicioConsulta = agoraPerformance();
+      const paginas = [];
 
       while (url && seguranca < 50) {
+        const inicioPagina = agoraPerformance();
         const resposta = await fetchGraphComRetry(url, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -901,14 +974,34 @@
         });
 
         if (!resposta.ok) {
-          throw new Error(await resposta.text());
+          const texto = await resposta.text();
+          const erro = new Error(texto || `Falha ao consultar o Microsoft Graph. HTTP ${resposta.status}`);
+          erro.statusGraph = resposta.status;
+          erro.acessoNegado = respostaIndicaAcessoNegado(resposta, texto);
+          throw erro;
         }
 
         const dados = await resposta.json();
-        todos = todos.concat(dados.value || []);
+        const itensPagina = dados.value || [];
+        todos.push(...itensPagina);
         url = dados["@odata.nextLink"] || "";
         seguranca++;
+        paginas.push({
+          pagina: seguranca,
+          itens: itensPagina.length,
+          duracaoMs: Number((agoraPerformance() - inicioPagina).toFixed(1))
+        });
+        if (typeof opcoes.aoReceberPagina === "function") {
+          await opcoes.aoReceberPagina(itensPagina, { pagina: seguranca, totalRecebido: todos.length, temMais: Boolean(url) });
+        }
       }
+
+      metricasCarregamento.consultasGraph.push({
+        nome: opcoes.nome || "itens",
+        paginas,
+        totalItens: todos.length,
+        duracaoMs: Number((agoraPerformance() - inicioConsulta).toFixed(1))
+      });
 
       return todos;
     }
@@ -1180,8 +1273,28 @@
     }
 
     function atualizarDashboard() {
-      document.getElementById("dashDocumentos").textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
-      document.getElementById("dashLixeira").textContent = documentosLixeira ? documentosLixeira.length : 0;
+      const dashDocumentos = document.getElementById("dashDocumentos");
+      const dashLixeira = document.getElementById("dashLixeira");
+
+      if (!sincronizacaoDocumentosCompleta) {
+        if (dashDocumentos) {
+          dashDocumentos.textContent = "Calculando…";
+          dashDocumentos.closest(".cardDash")?.setAttribute("aria-busy", "true");
+        }
+        if (dashLixeira) {
+          dashLixeira.textContent = "Calculando…";
+          dashLixeira.closest(".cardDash")?.setAttribute("aria-busy", "true");
+        }
+      } else {
+        if (dashDocumentos) {
+          dashDocumentos.textContent = documentosAtivos ? documentosAtivos.length : documentosCarregados.length;
+          dashDocumentos.closest(".cardDash")?.setAttribute("aria-busy", "false");
+        }
+        if (dashLixeira) {
+          dashLixeira.textContent = documentosLixeira ? documentosLixeira.length : 0;
+          dashLixeira.closest(".cardDash")?.setAttribute("aria-busy", "false");
+        }
+      }
 
 atualizarCardParesIgnorados();
     }
@@ -1191,6 +1304,7 @@ atualizarCardParesIgnorados();
       cacheDocumentosPorArquivoId = { versao: -1, mapa: new Map() };
       cacheMapaNomesVisuaisTodosDocumentos = { versao: -1, mapa: new Map() };
       cacheDocumentosRecentes = { versaoDocumentos: -1, limitado: false, limite: 0, ordem: "desc", itens: [] };
+      cacheContagemDocumentosPorGaveta = { versao: -1, mapa: new Map() };
     }
 
     function invalidarCacheHistorico() {
@@ -1538,16 +1652,18 @@ atualizarCardParesIgnorados();
       if (campoNovaGaveta) campoNovaGaveta.disabled = !gavetasDisponiveis;
       if (botaoCadastrarGaveta) botaoCadastrarGaveta.disabled = !gavetasDisponiveis;
 
+      const contagemPorGaveta = sincronizacaoDocumentosCompleta ? obterContagemDocumentosPorGaveta() : new Map();
       lista.innerHTML = obterOpcoesGavetas()
         .filter(gaveta => gaveta !== "Gaveta nao informada")
         .map(gaveta => {
-          const total = documentosDaGaveta(gaveta).length;
+          const total = contagemPorGaveta.get(chaveComparacaoGaveta(gaveta)) || 0;
+          const textoTotal = sincronizacaoDocumentosCompleta ? `${total} documento(s)` : "Calculando quantidade…";
           const gavetaParam = escaparHtml(gaveta);
           return `
             <div class="itemGavetaConfiguracao">
               <div>
                 <strong>${escaparHtml(gaveta)}</strong>
-                <small>${total} documento(s) · Cadastrada</small>
+                <small>${textoTotal} · Cadastrada</small>
               </div>
               <div class="acoesGavetaConfiguracao">
                 <button class="secundario ignorarHoverGlobal" type="button" ${gavetasDisponiveis ? "" : "disabled"} data-acao-gaveta-config="editar" data-gaveta="${gavetaParam}">Editar</button>
@@ -1909,6 +2025,15 @@ atualizarCardParesIgnorados();
 
       if (modoListaAtual !== "ativos") {
         filtroGavetaAtual = "";
+        return;
+      }
+
+      if (!sincronizacaoDocumentosCompleta) {
+        lista.innerHTML = montarCarregamentoVisual(
+          "Calculando quantidades das gavetas",
+          "Os números exatos aparecerão automaticamente após a sincronização.",
+          "🗂️"
+        );
         return;
       }
 
@@ -6910,6 +7035,7 @@ function renderizarDocumentos(listaArquivos) {
       const estilosPainelDashboard = painelDashboard ? getComputedStyle(painelDashboard) : null;
 
       const resumo = {
+        carregamento: copiarMetricasCarregamento(),
         documentosAtivos: documentosAtivos.length,
         documentosLixeira: documentosLixeira.length,
         documentosCarregados: documentosCarregados.length,
@@ -7087,6 +7213,24 @@ function renderizarDocumentos(listaArquivos) {
       const termo = normalizarTexto(document.getElementById("campoBusca").value);
       quantidadeDocumentosVisiveis = TAMANHO_PAGINA_DOCUMENTOS;
 
+      if (!sincronizacaoDocumentosCompleta && (modoListaAtual !== "recentes" || Boolean(termo))) {
+        documentosFiltradosAtuais = [];
+        document.getElementById("contadorResultados").textContent = termo
+          ? "Buscando em todo o arquivo…"
+          : modoListaAtual === "ativos"
+            ? "Calculando quantidades exatas das gavetas…"
+            : "Carregando a Lixeira…";
+        document.getElementById("listaDocumentos").innerHTML = montarCarregamentoVisual(
+          termo ? "Buscando em todo o arquivo" : "Sincronizando documentos",
+          "Os resultados completos aparecerão automaticamente.",
+          termo ? "🔎" : "📂",
+          "li"
+        );
+        atualizarBotaoCarregarMaisDocumentos(0, 0);
+        atualizarBotoesFiltros();
+        return;
+      }
+
 
       documentosCarregados = modoListaAtual === "na Lixeira"
         ? documentosLixeira
@@ -7184,56 +7328,51 @@ function renderizarDocumentos(listaArquivos) {
       `;
     }
     /* FIM_CARREGAMENTOS_VISUAIS_FASE6C_20260527 */
-    async function listarDocumentos(tokenInformado = "") {
-      const lista = document.getElementById("listaDocumentos");
-      lista.innerHTML = montarCarregamentoVisual("Buscando documentos", "Consultando o Arquivo Digital. Aguarde um instante.", "📂", "li");
+    function montarUrlDocumentos(opcoes = {}) {
+      const top = Math.max(1, Number(opcoes.top || 999));
+      const ordenacao = opcoes.ordenarRecentes ? "&$orderby=fields/Modified%20desc" : "";
+      return `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType,GAVETA)&$top=${top}${ordenacao}`;
+    }
 
-      try {
-        const token = tokenInformado || await obterToken();
+    function mapearItemDocumentoSharePoint(item) {
+      const campos = item?.fields || {};
+      const pasta = String(campos.FileDirRef || "");
+      const pastaAtivos = CONFIG.documentosAtivosRootPath;
+      const pastaLixeira = `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS`;
 
-        const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$expand=fields($select=FileLeafRef,FileRef,UniqueId,Modified,FileDirRef,FSObjType,GAVETA)&$top=999`;
+      if (!campos.FileLeafRef || String(campos.FSObjType || "0") !== "0") return null;
+      if (pasta !== pastaAtivos && pasta !== pastaLixeira) return null;
 
-        const itens = await buscarTodosItens(url, token);
+      const caminho = campos.FileRef || "";
+      return atualizarIndiceBuscaDocumento({
+        nome: campos.FileLeafRef,
+        caminho,
+        fileDirRef: pasta,
+        status: pasta === pastaLixeira ? "ARQUIVADO" : "ATIVO",
+        id: campos.UniqueId,
+        listItemId: item.id,
+        driveItemId: "",
+        driveId: "",
+        link: "https://eduieda.sharepoint.com" + caminho,
+        modificado: campos.Modified || item.lastModifiedDateTime || "",
+        gaveta: campos.GAVETA || ""
+      });
+    }
 
-        const arquivos = itens.filter(item => {
-          const f = item.fields || {};
-          return f.FileLeafRef && String(f.FSObjType || "0") === "0";
-        });
+    function mapearItensDocumentosSharePoint(itens) {
+      return (itens || []).map(mapearItemDocumentoSharePoint).filter(Boolean);
+    }
 
-        const mapear = item => {
-          const nome = item.fields.FileLeafRef;
-          const caminho = item.fields.FileRef;
-          const pasta = item.fields.FileDirRef || "";
-          const status = pasta === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS` ? "ARQUIVADO" : "ATIVO";
+    function aplicarConjuntoDocumentos(documentos, opcoes = {}) {
+      sincronizacaoDocumentosCompleta = opcoes.completo === true;
+      documentosAtivos = documentos.filter(doc => doc.status === "ATIVO");
+      documentosLixeira = documentos.filter(doc => doc.status === "ARQUIVADO");
+      invalidarCacheDocumentos();
+      limparCacheDuplicidades();
+      atualizarInterfacesGaveta();
+      aplicarListaAtual();
 
-          return atualizarIndiceBuscaDocumento({
-            nome,
-            caminho,
-            fileDirRef: pasta,
-            status,
-            id: item.fields.UniqueId,
-            listItemId: item.id,
-            driveItemId: "",
-            driveId: "",
-            link: "https://eduieda.sharepoint.com" + caminho,
-            modificado: item.fields?.Modified || item.lastModifiedDateTime || "",
-            gaveta: item.fields?.GAVETA || ""
-          });
-        };
-
-        documentosAtivos = arquivos
-          .filter(item => String(item.fields.FileDirRef || "") === CONFIG.documentosAtivosRootPath)
-          .map(mapear);
-
-        documentosLixeira = arquivos
-          .filter(item => String(item.fields.FileDirRef || "") === `${CONFIG.documentosAtivosRootPath}/_ARQUIVADOS`)
-          .map(mapear);
-
-        invalidarCacheDocumentos();
-        atualizarInterfacesGaveta();
-        limparCacheDuplicidades();
-        aplicarListaAtual();
-
+      if (sincronizacaoDocumentosCompleta) {
         if (preferenciasSistema.analiseDuplicidadesAuto === "sim") {
           atualizarCentralDuplicidadesSegundoPlano();
         } else {
@@ -7242,15 +7381,146 @@ function renderizarDocumentos(listaArquivos) {
           const resumo = document.getElementById("resumoCentralDuplicidades");
           if (resumo) resumo.textContent = "Analise automatica desativada. Abra a Central para analisar.";
         }
-        renderizarAvisoSessaoUploadInterrompida();
+      }
+      renderizarAvisoSessaoUploadInterrompida();
+    }
+
+    function documentosEstaoOrdenadosPorModificacaoDesc(documentos) {
+      let anterior = Number.POSITIVE_INFINITY;
+      for (const documento of documentos) {
+        const atual = new Date(documento.modificado || 0).getTime() || 0;
+        if (atual > anterior) return false;
+        anterior = atual;
+      }
+      return true;
+    }
+
+    async function carregarDocumentosRecentesIniciais(token) {
+      if (preferenciasSistema.guiaInicial !== "recentes" || preferenciasSistema.ordemRecentes !== "desc") {
+        return false;
+      }
+
+      const inicio = agoraPerformance();
+      const limite = Math.max(100, Number(preferenciasSistema.limiteRecentes || 20) * 3);
+      const resposta = await fetchGraphComRetry(montarUrlDocumentos({ top: limite, ordenarRecentes: true }), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Prefer: "HonorNonIndexedQueriesWarningMayFailRandomly"
+        }
+      }, { tentativas: 2, atrasoBaseMs: 450 });
+
+      if (!resposta.ok) {
+        const texto = await resposta.text();
+        if (respostaIndicaAcessoNegado(resposta, texto)) {
+          const erro = new Error("Acesso ao Arquivo Digital não autorizado.");
+          erro.acessoNegado = true;
+          throw erro;
+        }
+        registrarEtapaCarregamento("recentesRapidos", inicio, { sucesso: false, statusGraph: resposta.status });
+        return false;
+      }
+
+      const dados = await resposta.json();
+      const documentos = mapearItensDocumentosSharePoint(dados.value || []);
+      metricasCarregamento.consultasGraph.push({
+        nome: "recentes-iniciais",
+        paginas: [{ pagina: 1, itens: (dados.value || []).length }],
+        totalItens: (dados.value || []).length,
+        duracaoMs: Number((agoraPerformance() - inicio).toFixed(1))
+      });
+
+      if (!documentos.length || !documentosEstaoOrdenadosPorModificacaoDesc(documentos)) {
+        registrarEtapaCarregamento("recentesRapidos", inicio, { sucesso: false, motivo: "ordem-nao-confirmada" });
+        return false;
+      }
+
+      const quantidade = Math.max(1, Number(preferenciasSistema.limiteRecentes || 20));
+      aplicarConjuntoDocumentos(documentos.slice(0, quantidade), { completo: false });
+      registrarEtapaCarregamento("recentesRapidos", inicio, { sucesso: true, documentosExibidos: Math.min(quantidade, documentos.length) });
+      registrarMarcoCarregamento("primeirosDocumentosVisiveis", { documentos: Math.min(quantidade, documentos.length) });
+      atualizarStatusSincronizacao("Recentes disponíveis. Calculando quantidades e sincronizando o restante do arquivo…", "carregando");
+      return true;
+    }
+
+    async function listarDocumentos(tokenInformado = "", opcoes = {}) {
+      const lista = document.getElementById("listaDocumentos");
+      const manterListaVisivel = opcoes.manterListaVisivel === true && documentosAtivos.length + documentosLixeira.length > 0;
+      if (!manterListaVisivel) {
+        lista.innerHTML = montarCarregamentoVisual("Buscando documentos", "Consultando o Arquivo Digital. Aguarde um instante.", "📂", "li");
+      }
+
+      const inicio = agoraPerformance();
+      try {
+        const token = tokenInformado || await obterToken();
+        const itens = await buscarTodosItens(montarUrlDocumentos(), token, { nome: "documentos-completos" });
+        const documentos = mapearItensDocumentosSharePoint(itens);
+        aplicarConjuntoDocumentos(documentos, { completo: true });
+        registrarEtapaCarregamento("sincronizacaoDocumentosCompleta", inicio, {
+          sucesso: true,
+          documentos: documentos.length
+        });
+        registrarMarcoCarregamento("arquivoSincronizado", { documentos: documentos.length });
+        atualizarStatusSincronizacao(`Arquivo sincronizado: ${documentosAtivos.length} ativos e ${documentosLixeira.length} na Lixeira.`, "concluido");
         return true;
 
       } catch (erro) {
-        lista.innerHTML = "<li class=\"erro\">Não foi possível carregar os documentos. Tente novamente.</li>";
+        registrarEtapaCarregamento("sincronizacaoDocumentosCompleta", inicio, { sucesso: false });
+        if (erro?.acessoNegado) throw erro;
+
+        if (!manterListaVisivel) {
+          lista.innerHTML = "<li class=\"erro\">Não foi possível carregar os documentos. Tente novamente.</li>";
+        }
+        atualizarStatusSincronizacao(
+          manterListaVisivel
+            ? "Os Recentes continuam disponíveis, mas a sincronização completa não terminou."
+            : "Não foi possível sincronizar o arquivo.",
+          "erro",
+          { mostrarTentarNovamente: true }
+        );
         logger.error(erro);
         return false;
       }
     }
+
+    function agendarTarefasApoioDepoisDaSincronizacao(token) {
+      if (tarefasApoioAgendadas) return;
+      tarefasApoioAgendadas = true;
+      agendarTarefaSegundoPlano(() => carregarDadosDeApoio(token));
+      agendarTarefaSegundoPlano(() => carregarOpcoesGavetaSharePoint(token));
+    }
+
+    function iniciarSincronizacaoCompletaDocumentos(token, opcoes = {}) {
+      if (sincronizacaoDocumentosCompleta) return Promise.resolve(true);
+      if (promessaSincronizacaoDocumentos) return promessaSincronizacaoDocumentos;
+
+      tokenSincronizacaoDocumentos = token || tokenSincronizacaoDocumentos;
+      sincronizacaoDocumentosCarregando = true;
+      atualizarDashboard();
+      if (!opcoes.preservarStatus) {
+        atualizarStatusSincronizacao("Sincronizando documentos e calculando quantidades das gavetas…", "carregando");
+      }
+
+      promessaSincronizacaoDocumentos = listarDocumentos(tokenSincronizacaoDocumentos, {
+        manterListaVisivel: opcoes.manterListaVisivel === true
+      }).then(sucesso => {
+        if (sucesso) agendarTarefasApoioDepoisDaSincronizacao(tokenSincronizacaoDocumentos);
+        return sucesso;
+      }).catch(erro => {
+        logger.error(erro);
+        if (erro?.acessoNegado) mostrarTelaAcessoRestrito();
+        return false;
+      }).finally(() => {
+        sincronizacaoDocumentosCarregando = false;
+        promessaSincronizacaoDocumentos = null;
+      });
+
+      return promessaSincronizacaoDocumentos;
+    }
+
+    window.tentarSincronizarArquivoDigital = async function () {
+      const token = tokenSincronizacaoDocumentos || await obterToken();
+      return iniciarSincronizacaoCompletaDocumentos(token, { manterListaVisivel: true });
+    };
 
     async function atualizarTela() {
       aplicarBlindagemVisualPreLogin();
@@ -7278,12 +7548,18 @@ function renderizarDocumentos(listaArquivos) {
         document.getElementById("status").textContent = "Verificando acesso...";
 
         try {
+          const inicioToken = agoraPerformance();
           const token = await obterToken();
-          const temAcesso = await verificarPermissaoArquivoDigital(token);
+          registrarEtapaCarregamento("obterToken", inicioToken, { sucesso: true });
+          tokenSincronizacaoDocumentos = token;
+          atualizarStatusSincronizacao("Confirmando acesso e preparando os documentos recentes…", "carregando");
 
-          if (!temAcesso) {
-            mostrarTelaAcessoRestrito();
-            return;
+          const carregouRecentes = await carregarDocumentosRecentesIniciais(token);
+          if (!carregouRecentes) {
+            const carregouCompleto = await listarDocumentos(token);
+            if (!carregouCompleto) {
+              throw new Error("Não foi possível carregar os documentos do SharePoint.");
+            }
           }
 
           acessoArquivoDigitalPermitido = true;
@@ -7293,12 +7569,20 @@ function renderizarDocumentos(listaArquivos) {
           definirVisibilidadeBotaoCabecalho("btnAbrirConfiguracoesTopo", true);
           definirVisibilidadeBotaoCabecalho("btnSair", true);
           document.getElementById("areaSistema").style.display = "block";
-          await listarDocumentos();
-          agendarTarefaSegundoPlano(() => carregarDadosDeApoio(token));
-          agendarTarefaSegundoPlano(() => carregarOpcoesGavetaSharePoint(token));
+          registrarMarcoCarregamento("sistemaVisivel", { carregamentoProgressivo: carregouRecentes });
+
+          if (carregouRecentes) {
+            iniciarSincronizacaoCompletaDocumentos(token, { manterListaVisivel: true, preservarStatus: true });
+          } else {
+            agendarTarefasApoioDepoisDaSincronizacao(token);
+          }
         } catch (erro) {
           logger.error(erro);
-          mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");
+          if (erro?.acessoNegado) {
+            mostrarTelaAcessoRestrito();
+          } else {
+            mostrarTelaAcessoRestrito("Não foi possível confirmar o acesso ao SharePoint. Tente novamente.");
+          }
         }
       } else {
         acessoArquivoDigitalPermitido = false;
@@ -7427,6 +7711,7 @@ function renderizarDocumentos(listaArquivos) {
       aoClicar("btnVerRecentes", window.mostrarDocumentosRecentes);
       aoClicar("btnVerAtivos", window.mostrarDocumentosAtivos);
       aoClicar("btnVerLixeira", window.mostrarDocumentosLixeira);
+      aoClicar("btnTentarSincronizarArquivo", window.tentarSincronizarArquivoDigital);
 
       document.getElementById("inputNovoDocumento")?.addEventListener("change", (event) => {
         window.receberArquivosCentralUpload(event.target);
@@ -7731,6 +8016,10 @@ function renderizarDocumentos(listaArquivos) {
     });
     inicializarEventosFixos();
     renderizarAvisoSessaoUploadInterrompida();
+    const inicioRedirectMsal = agoraPerformance();
     await msalInstance.handleRedirectPromise();
+    registrarEtapaCarregamento("handleRedirectMsal", inicioRedirectMsal, { sucesso: true });
+    const inicioAtualizarTela = agoraPerformance();
     await atualizarTela();
+    registrarEtapaCarregamento("atualizarTelaInicial", inicioAtualizarTela, { sucesso: true });
 
