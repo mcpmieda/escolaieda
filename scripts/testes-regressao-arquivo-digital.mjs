@@ -227,13 +227,11 @@ testar("Operacoes criticas preservam ID confiavel e travas contra repeticao", ()
   assert.match(js, /async function prepararPdfSubstitutoComTituloArquivo\b/, "prepararPdfSubstitutoComTituloArquivo deve existir.");
 });
 
-testar("Abertura progressiva de PDF nao navega pelo site do SharePoint", () => {
+testar("PDF e precarregado silenciosamente e aberto pela mesma copia local", () => {
   const contexto = blocoFuncao("obterContextoDownloadPdf");
   const baixarPdf = blocoFuncao("baixarPdfDocumentoComoBlob");
-  const respostaComProgresso = blocoFuncao("respostaPdfParaBlobComProgresso");
-  const preview = blocoFuncao("obterUrlPreVisualizacaoPdf");
+  const iniciarPreparo = blocoFuncao("obterOuIniciarPreparoPdf");
   const abrirPdf = blocoFuncao("abrirPdfSelecionado");
-  const configurarAba = blocoFuncao("configurarAbaVisualizacaoPdf");
   const abrirPainel = blocoFuncao("abrirDocumentoNoPainel");
 
   assert.match(contexto, /@microsoft\.graph\.downloadUrl/, "Metadados do Drive devem pedir a URL temporaria oficial para download direto.");
@@ -241,20 +239,20 @@ testar("Abertura progressiva de PDF nao navega pelo site do SharePoint", () => {
   assert.match(baixarPdf, /contexto\.urlDownload/, "Download deve preferir a rota temporaria direta quando disponivel.");
   assert.match(baixarPdf, /drives\/\$\{contexto\.driveId\}\/items\/\$\{contexto\.driveItemId\}\/content/, "Download deve manter a rota autenticada do Graph como compatibilidade.");
   assert.match(baixarPdf, /Authorization:\s*`Bearer \$\{contexto\.token\}`/, "Rota de compatibilidade deve usar token do Microsoft Graph.");
-  assert.match(respostaComProgresso, /getReader/, "Rota de compatibilidade deve ler o corpo em fluxo para medir progresso.");
-  assert.match(respostaComProgresso, /value\.byteLength/, "Progresso deve contabilizar os bytes efetivamente recebidos.");
-  assert.match(preview, /\/preview`/, "Visualizacao rapida deve usar a API preview do Drive.");
-  assert.match(preview, /method:\s*["']POST["']/, "API preview deve ser chamada pelo metodo POST oficial.");
-  assert.match(configurarAba, /role["'],\s*["']progressbar/, "A nova aba deve apresentar barra de progresso acessivel.");
-  assert.match(configurarAba, /btnBaixar\.addEventListener/, "PDF completo deve poder ser baixado pela mesma copia em memoria.");
-  assert.match(configurarAba, /aba\.location\.replace\(urlPdf\)/, "Abertura completa deve substituir a aba temporaria sem inserir SharePoint no historico.");
   assert.match(abrirPainel, /agendarPreparoPdfPainel\(documentoDoPainel,\s*tokenCarregamentoPainel\)/, "Selecao do documento deve antecipar a preparacao do PDF.");
   assert.match(abrirPdf, /obterOuIniciarPreparoPdf\(documentoAberto\)/, "Clique deve reutilizar a preparacao ja iniciada no painel.");
-  assert.match(abrirPdf, /configurarAbaVisualizacaoPdf\(aba,\s*documentoAberto,\s*estado\)/, "Clique deve abrir imediatamente o visualizador progressivo.");
+  assert.match(iniciarPreparo, /estado\.promessaCompleta\s*=\s*baixarPdfDocumentoComoBlob/, "Precarregamento deve manter uma unica promessa para o download completo.");
+  assert.doesNotMatch(iniciarPreparo, /promessaPreview/, "Precarregamento nao deve abrir uma segunda visualizacao remota.");
+  assert.match(abrirPdf, /const urlPdfPronta\s*=\s*estado\.status\s*===\s*["']concluido["']\s*\?\s*garantirUrlPdfEstado\(estado\)/, "Clique deve detectar a copia local ja pronta.");
+  assert.match(abrirPdf, /window\.open\(urlPdfPronta\s*\|\|\s*["']["'],\s*["']_blank["']\)/, "Copia pronta deve abrir diretamente no visualizador nativo do navegador.");
+  assert.match(abrirPdf, /await estado\.promessaCompleta/, "Clique antecipado deve aguardar o mesmo download iniciado no painel.");
+  assert.match(abrirPdf, /aba\.location\.replace\(urlPdf\)/, "Clique antecipado deve substituir a aba vazia pelo blob sem inserir SharePoint no historico.");
   assert.doesNotMatch(abrirPdf, /window\.location\.href/, "Falha de pop-up nao deve retirar o usuario do Arquivo Digital.");
   assert.doesNotMatch(abrirPdf, /documentoAberto\.link/, "Abertura nao deve usar a pagina web do documento no SharePoint.");
   assert.match(abrirPdf, /Permita pop-ups para abrir o PDF sem sair do Arquivo Digital/, "Bloqueio de nova aba deve ter orientacao segura.");
-  assert.match(html, /id=["']statusPreparoPdfPainel["']/, "Painel deve expor o progresso iniciado na selecao do documento.");
+  assert.doesNotMatch(js, /function obterUrlPreVisualizacaoPdf\b/, "Fluxo nao deve solicitar preview remoto que carregaria o PDF novamente.");
+  assert.doesNotMatch(js, /function configurarAbaVisualizacaoPdf\b/, "Fluxo nao deve criar visualizador intermediario.");
+  assert.doesNotMatch(html, /id=["']statusPreparoPdfPainel["']/, "Precarregamento deve acontecer sem barra de progresso no painel.");
 });
 
 testar("CSS do dashboard mantem separacao entre contadores e acoes", () => {
