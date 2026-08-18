@@ -101,13 +101,13 @@
        Antes era button:hover:not(:disabled), muito genérico.
        Agora não atinge componentes que já têm visual próprio.
     */
-    button:not(.ignorarHoverGlobal):not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
+    button:not(.ignorarHoverGlobal):not(.secundario):not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnConfirmacaoFecharUpload):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):hover:not(:disabled) {
       background: #123d82;
       box-shadow: 0 5px 14px rgba(15, 47, 102, .16);
     }
 
     /* REGRA_GLOBAL_BUTTON_ACTIVE_LIMITADA_20260527 */
-    button:not(.ignorarHoverGlobal):not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnUploadSecundario):not(.btnConfirmacaoFecharUpload):not(.btnConfiguracoesTopo):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnFecharUpload):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
+    button:not(.ignorarHoverGlobal):not(.secundario):not(.itemArquivo):not(.abaDocumento):not(.botaoFiltroHistoricoGeral):not(.botaoAplicarFiltroHistorico):not(.botaoOrdemHistoricoGeral):not(.cardHistoricoGeral):not(.cardParesIgnorados):not(.centralDuplicidades):not(.btnConfirmacaoFecharUpload):not(.btnNovoDocumentoHero):not(.btnCabecalhoAcao):not(.gavetaCard):not(.btnVersaoSharePoint):not(.btnAlternarVersoes):not(.btnAlterarGaveta):not(.btnFechar):not(.btnCarregarMaisDocumentos):not(#btnRenomear):not(#btnSubstituir):not(#btnArquivar):not(#btnRestaurar):not(#btnMesclar):active:not(:disabled) {
       transform: translateY(1px);
     }
 
@@ -725,6 +725,50 @@ ul {
       margin-bottom: 8px;
     }
 
+    .formAcao input[type="file"].campoArquivoPainel {
+      padding: 6px;
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .formAcao input[type="file"].campoArquivoPainel::file-selector-button,
+    #painelLateral .btnEscolherPdfPainel {
+      min-height: 34px;
+      margin: 0 8px 0 0;
+      padding: 7px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #f1f5f9;
+      color: #1e293b;
+      font: 700 12px/1.2 system-ui, sans-serif;
+      box-shadow: none;
+      cursor: pointer;
+    }
+
+    .formAcao input[type="file"].campoArquivoPainel:hover::file-selector-button,
+    #painelLateral .btnEscolherPdfPainel:hover:not(:disabled),
+    #painelLateral .btnEscolherPdfPainel:focus-visible:not(:disabled) {
+      border-color: #94a3b8;
+      background: #e2e8f0;
+      color: #0f172a;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .seletorArquivoPainel {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 6px;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
     .formAcao small {
       display: block;
       color: #64748b;
@@ -749,7 +793,6 @@ ul {
       border: 1px solid #cbd5e1;
     }
 
-    .arquivoSelecionadoMesclar,
     .statusMesclar {
       margin: 0 0 8px;
       font-size: 12px;
@@ -758,11 +801,22 @@ ul {
     }
 
     .arquivoSelecionadoMesclar {
-      padding: 8px 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: #ffffff;
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
       overflow-wrap: anywhere;
+    }
+
+    #painelLateral .formAcao .linhaBotoes button.secundario:hover:not(:disabled),
+    #painelLateral .formAcao .linhaBotoes button.secundario:focus-visible:not(:disabled) {
+      border-color: #94a3b8;
+      background: #e2e8f0;
+      color: #0f172a;
+      box-shadow: none;
+      transform: none;
     }
 
     .statusMesclar {
