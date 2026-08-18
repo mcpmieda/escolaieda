@@ -128,3 +128,17 @@ A recorrência da V1 permanece em 2 minutos. Near-real-time exige estudo de arqu
 A ordem inicial será diagnóstico do tenant, auditoria de Cargos e descoberta de grupos/IDs antes de qualquer script de escrita.
 
 **Status:** aprovado.
+
+## D-026 — Construção do fluxo passa a ser orientada a definição
+A partir da validação da detecção de candidatos, evitar continuar montando o Power Automate ação por ação quando a mesma alteração puder ser aplicada de forma segura por definição JSON, solução, PowerShell ou API oficial.
+
+O Power Automate continua sendo o motor de produção. A mudança é apenas no método de desenvolvimento e implantação.
+
+**Status:** aprovado.
+
+## D-027 — Tornar o fluxo solution-aware para habilitar automação de desenvolvimento
+Quando tecnicamente suportado pelo ambiente, migrar o fluxo existente para uma solução Dataverse usando os mecanismos oficiais da Microsoft. Isso permite versionar a definição (`clientdata`), trabalhar com API/PowerShell e reduzir alterações manuais no designer.
+
+A migração deve preservar o fluxo existente e ser precedida por validação/backup. Não criar um segundo motor de produção paralelo.
+
+**Status:** aprovado para execução após verificação de pré-requisitos.
