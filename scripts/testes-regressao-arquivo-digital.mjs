@@ -614,6 +614,13 @@ testar("Paineis abrem visualmente antes de tarefas pesadas", () => {
   assert.match(atualizarCentral, /requestAnimationFrame/, "Central deve permitir abertura visual antes da renderizacao pesada.");
 });
 
+testar("Recentes troca a gaveta por Na Lixeira para arquivos arquivados", () => {
+  const renderizar = blocoFuncao("renderizarDocumentos");
+  assert.match(renderizar, /const estaNaLixeiraEmRecentes = modoListaAtual === "recentes" && item\.status === "ARQUIVADO";/, "A troca deve ser restrita a arquivos arquivados em Recentes.");
+  assert.match(renderizar, /\? '<span class="seloLixeiraRecente">Na Lixeira<\/span>'\s*:\s*seloGavetaHtml\(item\.gaveta\)/, "Card arquivado deve trocar o nome da gaveta por Na Lixeira.");
+  assert.match(renderizar, /movimento && !estaNaLixeiraEmRecentes/, "Card arquivado nao deve duplicar os selos Lixeira e Na Lixeira.");
+});
+
 testar("CSS dos paineis usa transform e evita animar left/right", () => {
   assert.match(css, /PERFORMANCE_PAINEIS_CARGA_REAL_V4_20260607/, "Bloco de performance dos paineis deve existir.");
   assert.match(css, /\.painelLateral,[\s\S]*?\.painelDashboard\s*\{[\s\S]*transform:\s*translate3d\(104%,\s*0,\s*0\)/, "Painel lateral/dashboard devem entrar por transform.");

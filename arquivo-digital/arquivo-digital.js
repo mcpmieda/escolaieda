@@ -7197,8 +7197,10 @@ function renderizarDocumentos(listaArquivos) {
         const movimento = item.movimentoRecente || (modoListaAtual !== "na Lixeira"
           ? movimentacoesRecentes.get(chaveId)
           : null);
-        const statusRecente = item.status === "ARQUIVADO" ? "Lixeira" : "Ativo";
-        const classeStatusRecente = item.status === "ARQUIVADO" ? "tagArquivado" : "tagAtivo";
+        const estaNaLixeiraEmRecentes = modoListaAtual === "recentes" && item.status === "ARQUIVADO";
+        const localizacaoCardHtml = estaNaLixeiraEmRecentes
+          ? '<span class="seloLixeiraRecente">Na Lixeira</span>'
+          : seloGavetaHtml(item.gaveta);
         const nomeRepetido = (mapaNomesRepetidos.get(chaveNomeArquivoVisualLimpo(item.nome || "")) || 0) > 1;
 
         return `
@@ -7206,8 +7208,8 @@ function renderizarDocumentos(listaArquivos) {
           <button class="itemArquivo${item.status === "ARQUIVADO" ? " itemArquivoLixeira" : ""}" data-indice-documento="${indiceOriginal}">
             <strong>${escaparHtml(nomeArquivoVisualLimpo(item.nome))}</strong>
             <span class="metadadosArquivo">
-              ${modoListaAtual === "recentes" && movimento ? `<span class="${classeStatusRecente} statusRecenteArquivo">${statusRecente}</span>` : ""}
-              ${seloGavetaHtml(item.gaveta)}
+              ${modoListaAtual === "recentes" && movimento && !estaNaLixeiraEmRecentes ? '<span class="tagAtivo statusRecenteArquivo">Ativo</span>' : ""}
+              ${localizacaoCardHtml}
               ${nomeRepetido ? "<span class=\"seloNomeRepetido\">Nome igual</span>" : ""}
             </span>
             <span>Clique para ver detalhes, histórico e ações</span>
