@@ -324,6 +324,15 @@ testar("V2.12 controla respostas obsoletas do painel lateral", () => {
   assert.match(abrirPainel, /carregarVersoesSharePointDocumento\(documentoDoPainel,\s*tokenCarregamentoPainel\)/, "Versoes devem receber token do painel.");
 });
 
+testar("Mesclar abre o seletor de arquivos somente por clique explicito", () => {
+  const preparar = blocoFuncao("prepararMesclar");
+  const escolher = blocoFuncao("escolherArquivoLocalMesclar");
+  assert.doesNotMatch(preparar, /arquivoLocalMesclar[^;]*\.click\s*\(/, "Abrir o formulario de Mesclar nao deve abrir o explorador automaticamente.");
+  assert.match(escolher, /getElementById\("arquivoLocalMesclar"\)\.click\s*\(/, "Somente o botao Escolher PDF deve abrir o explorador.");
+  assert.match(html, /id="arquivoLocalMesclar"[^>]*\shidden(?:\s|>)/, "Input tecnico de Mesclar deve permanecer oculto.");
+  assert.match(html, /class="seletorArquivoPainel"[\s\S]*?id="btnEscolherArquivoMesclar"[\s\S]*?id="arquivoSelecionadoMesclar"/, "Mesclar deve usar o seletor visual padronizado.");
+});
+
 testar("V2.12 mantem timeout Graph e limite de mesclagem local", () => {
   assert.match(js, /const TEMPO_LIMITE_GRAPH_MS\s*=\s*30000/, "Timeout Graph de 30s deve existir.");
   assert.match(blocoFuncao("fetchGraphComRetry"), /AbortController/, "fetchGraphComRetry deve usar AbortController quando disponivel.");

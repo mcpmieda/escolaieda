@@ -53,8 +53,17 @@ testar("abas e botoes sensiveis nao dependem do hover global", () => {
   const regraGlobal = css.match(/REGRA_GLOBAL_BUTTON_HOVER_LIMITADA[\s\S]*?button:not\(([\s\S]*?)\):hover:not\(:disabled\)/);
   assert.ok(regraGlobal, "Regra global limitada de hover deve existir.");
   assert.match(regraGlobal[0], /:not\(\.abaDocumento\)/, "Abas devem ficar fora do hover global.");
+  assert.match(regraGlobal[0], /:not\(\.secundario\)/, "Botoes secundarios devem ficar fora do hover global para preservar contraste.");
   assert.match(regraGlobal[0], /:not\(\.btnFechar\)/, "Botoes X devem ficar fora do hover global.");
   assert.match(regraGlobal[0], /:not\(\.btnCarregarMaisDocumentos\)/, "Carregar mais deve ter hover proprio.");
+});
+
+testar("controles de arquivo e cancelamento mantem contraste no hover", () => {
+  assert.match(html, /id="arquivoSubstituto"\s+class="campoArquivoPainel"/, "Substituir deve identificar o controle de arquivo padronizado.");
+  assert.match(html, /id="btnEscolherArquivoMesclar"\s+class="secundario btnEscolherPdfPainel"/, "Mesclar deve usar o botao visual padronizado.");
+  assert.match(css, /\.campoArquivoPainel::file-selector-button,[\s\S]*?#painelLateral \.btnEscolherPdfPainel\s*\{[\s\S]*?background:\s*#f1f5f9;[\s\S]*?color:\s*#1e293b;/, "Substituir e Mesclar devem compartilhar a mesma base visual.");
+  assert.match(css, /#painelLateral \.btnEscolherPdfPainel:hover:not\(:disabled\),[\s\S]*?background:\s*#e2e8f0;[\s\S]*?color:\s*#0f172a;/, "Escolher PDF deve continuar legivel no hover.");
+  assert.match(css, /#painelLateral \.formAcao \.linhaBotoes button\.secundario:hover:not\(:disabled\),[\s\S]*?background:\s*#e2e8f0;[\s\S]*?color:\s*#0f172a;/, "Todos os botoes Cancelar dos formularios devem continuar legiveis no hover.");
 });
 
 testar("botoes de gaveta em configuracoes mantem texto legivel no hover", () => {

@@ -4405,8 +4405,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       document.getElementById("arquivoSelecionadoMesclar").textContent = "Nenhum PDF selecionado.";
       document.getElementById("statusMesclar").textContent = "";
       atualizarAcoesFormularioPainel();
-      mostrarMensagemPainel("Escolha no computador o PDF que sera adicionado ao final deste arquivo.");
-      document.getElementById("arquivoLocalMesclar").click();
+      mostrarMensagemPainel("Clique em Escolher PDF do computador para selecionar o arquivo que será adicionado ao final.");
     };
 
     window.cancelarMesclar = function () {
