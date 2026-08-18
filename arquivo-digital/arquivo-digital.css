@@ -4799,13 +4799,6 @@ body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #camp
       color: #526174 !important;
     }
 
-    button.itemArquivo:hover:not(:disabled) .seloGaveta,
-    button.itemArquivo:focus-visible:not(:disabled) .seloGaveta {
-      background: #f0fff6;
-      border-color: #a8d8bb;
-      color: #14532d !important;
-    }
-
     button.itemArquivo:hover:not(:disabled) .linhaMovimentacaoArquivo,
     button.itemArquivo:focus-visible:not(:disabled) .linhaMovimentacaoArquivo {
       background: #ffffff;

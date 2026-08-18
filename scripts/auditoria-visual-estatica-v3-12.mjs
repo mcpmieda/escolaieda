@@ -38,6 +38,7 @@ testar("selos semanticos dos cards preservam as cores no hover", () => {
   assert.ok(blocoBaseSelos, "Bloco estrutural dos selos deve existir.");
   assert.doesNotMatch(blocoBaseSelos, /\n\s*(?:border|background|color):/, "Bloco estrutural nao deve impor uma cor semantica a todos os selos.");
   assert.match(css, /span:not\(\.seloGaveta\):not\(\.seloLixeiraRecente\):not\(\.seloNomeRepetido\):not\(\.tagAtivo\):not\(\.tagArquivado\):not\(\.statusRecenteArquivo\)/, "Hover generico deve excluir todos os selos semanticos.");
+  assert.doesNotMatch(css, /button\.itemArquivo:(?:hover|focus-visible)[^{]*\.seloGaveta\s*\{/, "Selo de gaveta deve manter a mesma cor durante hover e foco.");
   assert.match(css, /button\.itemArquivo \.seloNomeRepetido,[\s\S]*?button\.itemArquivo:hover:not\(:disabled\) \.seloNomeRepetido,[\s\S]*?background:\s*#fef3c7\s*!important;/, "Nome igual deve permanecer amarelo no repouso e no hover.");
 });
 
