@@ -627,15 +627,6 @@ ul {
       line-height: 1.25;
     }
 
-    .btnFechar {
-      background: rgba(255,255,255,.16);
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,.24);
-      padding: 7px 10px;
-      border-radius: 8px;
-      margin: 0;
-    }
-
     .painelConteudo {
       padding: 18px;
       overflow: auto;
@@ -1268,23 +1259,6 @@ ul {
 
     .confirmacaoFecharUploadAcoes .btnConfirmacaoFecharUpload:active:not(:disabled) {
       transform: translateY(1px);
-    }
-
-    .btnFecharUpload {
-      min-width: 42px;
-      min-height: 38px;
-      padding: 8px 12px;
-      font-weight: 800;
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.14);
-    }
-
-    .btnFecharUpload:hover:not(:disabled),
-    .btnFecharUpload:focus-visible:not(:disabled) {
-      background: #fecaca;
-      color: #7f1d1d;
     }
 
     .centralUploadAcoes {
@@ -2856,16 +2830,6 @@ body.modoCompacto {
       padding-bottom: 8px;
     }
 
-    .centralConfiguracoes .btnFechar {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 34px;
-      height: 34px;
-      padding: 0;
-      border-radius: 999px;
-    }
-
     .uploadNomeRepetido {
       border-color: #fde68a !important;
       background: #fffdf5 !important;
@@ -2892,21 +2856,6 @@ body.modoCompacto {
     body.modoCompacto .dashboard:not(.dashboardAcoes):not(.dashboardContadores) .centralDuplicidades {
       min-height: 48px;
       padding: 7px 8px;
-    }
-
-    /* FASE1_UX_BAIXO_RISCO_20260527 */
-    .centralConfiguracoes .btnFechar {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-      font-weight: 800;
-      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.14);
-    }
-
-    .centralConfiguracoes .btnFechar:hover:not(:disabled),
-    .centralConfiguracoes .btnFechar:focus-visible:not(:disabled) {
-      background: #fecaca;
-      color: #7f1d1d;
     }
 
     .listaGavetasConfiguracao {
@@ -4780,6 +4729,7 @@ body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #camp
     }
 
     button.itemArquivo .seloGaveta,
+    button.itemArquivo .seloLixeiraRecente,
     button.itemArquivo .tagAtivo,
     button.itemArquivo .tagArquivado,
     button.itemArquivo .statusRecenteArquivo,
@@ -4845,8 +4795,8 @@ body.visualModernoAbasDoc.visualModernoCampoBusca .navegacaoDocumentosTopo #camp
       color: #0b285c;
     }
 
-    button.itemArquivo:hover:not(:disabled) span,
-    button.itemArquivo:focus-visible:not(:disabled) span,
+    button.itemArquivo:hover:not(:disabled) span:not(.seloGaveta):not(.seloLixeiraRecente):not(.seloNomeRepetido):not(.tagAtivo):not(.tagArquivado):not(.statusRecenteArquivo),
+    button.itemArquivo:focus-visible:not(:disabled) span:not(.seloGaveta):not(.seloLixeiraRecente):not(.seloNomeRepetido):not(.tagAtivo):not(.tagArquivado):not(.statusRecenteArquivo),
     button.itemArquivo:hover:not(:disabled) .linhaDataArquivo,
     button.itemArquivo:focus-visible:not(:disabled) .linhaDataArquivo {
       color: #526174 !important;
@@ -5755,25 +5705,6 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
       overflow-wrap: anywhere;
     }
 
-    #painelLateral > .painelTopo .btnFechar {
-      min-width: 34px;
-      min-height: 34px;
-      padding: 0 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, .30);
-      background: rgba(255, 255, 255, .14);
-      color: #ffffff !important;
-      box-shadow: none;
-    }
-
-    #painelLateral > .painelTopo .btnFechar:hover:not(:disabled),
-    #painelLateral > .painelTopo .btnFechar:focus-visible:not(:disabled) {
-      background: rgba(255, 255, 255, .22);
-      border-color: rgba(255, 255, 255, .48);
-      color: #ffffff !important;
-      transform: none;
-    }
-
     #painelLateral .painelConteudo > .campoInfo:first-of-type {
       border-color: rgba(37, 99, 235, .24);
       background:
@@ -5812,23 +5743,6 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
     .painelDashboard > .painelTopo h2 {
       color: #ffffff !important;
       text-shadow: 0 1px 2px rgba(0, 0, 0, .22);
-    }
-
-    .painelCentralDuplicidades > .painelTopo .btnFechar,
-    .painelDashboard > .painelTopo .btnFechar {
-      border: 1px solid rgba(255, 255, 255, .30);
-      background: rgba(255, 255, 255, .14);
-      color: #ffffff !important;
-    }
-
-    .painelCentralDuplicidades > .painelTopo .btnFechar:hover:not(:disabled),
-    .painelCentralDuplicidades > .painelTopo .btnFechar:focus-visible:not(:disabled),
-    .painelDashboard > .painelTopo .btnFechar:hover:not(:disabled),
-    .painelDashboard > .painelTopo .btnFechar:focus-visible:not(:disabled) {
-      background: rgba(255, 255, 255, .22);
-      border-color: rgba(255, 255, 255, .48);
-      color: #ffffff !important;
-      transform: none;
     }
 
     .centralConfiguracoesTopo {
@@ -6042,10 +5956,6 @@ INICIO_VISUAL_MENSAGENS_FASE6B_20260527
         max-width: 100%;
       }
 
-      #painelLateral > .painelTopo .btnFechar {
-        min-width: 32px;
-        min-height: 32px;
-      }
     }
     /* FIM_LEGIBILIDADE_CABECALHO_PAINEL_FASE6D_PRE_20260527 */
 
@@ -6236,6 +6146,7 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
 
 /* INICIO_COMPLEMENTO_NOMES_REPETIDOS_20260601 */
     .seloGaveta,
+    .seloLixeiraRecente,
     .seloNomeRepetido,
     .tagAtivo,
     .tagArquivado,
@@ -6280,6 +6191,12 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       border: 1px solid #fde68a;
       background: #fffbeb;
       color: #92400e !important;
+    }
+
+    .seloLixeiraRecente {
+      border: 1px solid #fecaca;
+      background: #fee2e2;
+      color: #991b1b !important;
     }
 
     .painelCentralDuplicidades .paresIgnoradosDuplicidade {
@@ -6330,22 +6247,9 @@ INICIO_HOVER_BOTOES_ACOES_PAINEL_FASE6D_HOVER2_20260527
       }
 
       .centralConfiguracoesTopo .btnFechar,
-      .centralUploadTopo .btnFechar,
-      .centralUploadTopo .btnFecharUpload {
-        width: 34px !important;
-        min-width: 34px !important;
-        max-width: 34px !important;
-        height: 34px !important;
-        min-height: 34px !important;
-        padding: 0 !important;
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
+      .centralUploadTopo .btnFechar {
         justify-self: end;
         align-self: start;
-        flex: 0 0 auto;
-        border-radius: 999px;
-        line-height: 1;
       }
 
       .centralUploadTopo > div,
@@ -6915,3 +6819,59 @@ textarea:disabled {
 }
 
 /* FIM_AUDITORIA_VISUAL_E_FUNCIONAL_20260817 */
+
+/* INICIO_CARDS_E_FECHAR_PADRONIZADOS_20260818 */
+button.itemArquivo .seloNomeRepetido,
+button.itemArquivo:hover:not(:disabled) .seloNomeRepetido,
+button.itemArquivo:focus-visible:not(:disabled) .seloNomeRepetido {
+  border-color: #fbbf24 !important;
+  background: #fef3c7 !important;
+  color: #78350f !important;
+}
+
+button.itemArquivo .seloLixeiraRecente,
+button.itemArquivo:hover:not(:disabled) .seloLixeiraRecente,
+button.itemArquivo:focus-visible:not(:disabled) .seloLixeiraRecente {
+  border-color: #fecaca !important;
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+button.btnFechar {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 36px !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid #fecaca !important;
+  border-radius: 999px !important;
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  box-shadow: 0 2px 8px rgba(153, 27, 27, .14) !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+button.btnFechar:hover:not(:disabled),
+button.btnFechar:focus-visible:not(:disabled) {
+  border-color: #fca5a5 !important;
+  background: #fecaca !important;
+  color: #7f1d1d !important;
+  box-shadow: 0 4px 10px rgba(153, 27, 27, .18) !important;
+  transform: none !important;
+}
+
+button.btnFechar:active:not(:disabled) {
+  background: #fca5a5 !important;
+  transform: translateY(1px) !important;
+}
+/* FIM_CARDS_E_FECHAR_PADRONIZADOS_20260818 */

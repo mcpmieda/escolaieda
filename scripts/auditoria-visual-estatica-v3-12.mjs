@@ -22,10 +22,20 @@ testar("notificacao global fica fora do card principal", () => {
 
 testar("botoes X seguem acessiveis", () => {
   const botoesFechar = [...html.matchAll(/<button[^>]+class="[^"]*\bbtnFechar\b[^"]*"[^>]*>/g)];
-  assert.ok(botoesFechar.length >= 4, "Botoes de fechar esperados nao encontrados.");
+  assert.equal(botoesFechar.length, 5, "Todos os cinco botoes X devem usar btnFechar.");
   botoesFechar.forEach(match => {
     assert.match(match[0], /aria-label=/, "Botao X precisa de aria-label.");
   });
+  assert.match(css, /INICIO_CARDS_E_FECHAR_PADRONIZADOS_20260818[\s\S]*?button\.btnFechar\s*\{[\s\S]*?width:\s*36px\s*!important;[\s\S]*?height:\s*36px\s*!important;[\s\S]*?border-radius:\s*999px\s*!important;/, "Botoes X devem compartilhar tamanho e formato finais.");
+  const blocoOficial = css.slice(css.indexOf("/* INICIO_CARDS_E_FECHAR_PADRONIZADOS_20260818 */"));
+  const cssAnterior = css.slice(0, css.indexOf("/* INICIO_CARDS_E_FECHAR_PADRONIZADOS_20260818 */"));
+  assert.equal((blocoOficial.match(/button\.btnFechar\s*\{/g) || []).length, 1, "Visual base dos X deve ter uma unica regra oficial.");
+  assert.doesNotMatch(cssAnterior, /(?:^|\n)\s*(?:\.btnFechar(?:Upload)?|\.centralConfiguracoes \.btnFechar)\s*\{/, "Regras visuais antigas dos X devem ser removidas.");
+});
+
+testar("selos semanticos dos cards preservam as cores no hover", () => {
+  assert.match(css, /span:not\(\.seloGaveta\):not\(\.seloLixeiraRecente\):not\(\.seloNomeRepetido\):not\(\.tagAtivo\):not\(\.tagArquivado\):not\(\.statusRecenteArquivo\)/, "Hover generico deve excluir todos os selos semanticos.");
+  assert.match(css, /button\.itemArquivo \.seloNomeRepetido,[\s\S]*?button\.itemArquivo:hover:not\(:disabled\) \.seloNomeRepetido,[\s\S]*?background:\s*#fef3c7\s*!important;/, "Nome igual deve permanecer amarelo no repouso e no hover.");
 });
 
 testar("paginacao visual tem botao, evento e estado hidden", () => {
