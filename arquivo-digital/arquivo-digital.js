@@ -3912,30 +3912,10 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       ].join("|");
     }
 
-    function formatarTamanhoPdf(bytes) {
-      const tamanho = Math.max(0, Number(bytes) || 0);
-      if (tamanho >= 1024 * 1024) {
-        return `${(tamanho / (1024 * 1024)).toFixed(1).replace(".", ",")} MB`;
-      }
-      return `${Math.round(tamanho / 1024)} KB`;
-    }
-
     function criarErroCancelamentoPdf() {
       const erro = new Error("Preparação do PDF cancelada.");
       erro.name = "AbortError";
       return erro;
-    }
-
-    function estadoPdfPossuiAbaAberta(estado) {
-      if (!estado?.abasVisualizacao) return false;
-      for (const aba of estado.abasVisualizacao) {
-        try {
-          if (!aba.closed) return true;
-        } catch (erro) {
-          return true;
-        }
-      }
-      return false;
     }
 
     function revogarUrlPdfEstado(estado) {
@@ -3955,83 +3935,16 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       clearTimeout(estado.timerRevogacaoUrl);
       estado.timerRevogacaoUrl = setTimeout(() => {
         revogarUrlPdfEstado(estado);
-        emitirEstadoPreparoPdf(estado);
       }, TEMPO_URL_PDF_TEMPORARIA_MS);
       return estado.urlPdf;
     }
 
-    function emitirEstadoPreparoPdf(estado) {
-      atualizarIndicadorPreparoPdfPainel(estado);
-      for (const ouvinte of estado?.ouvintes || []) {
-        try {
-          ouvinte(estado);
-        } catch (erro) {
-          logger.warn("Falha ao atualizar a visualização do PDF.", erro);
-        }
-      }
-    }
-
-    function atualizarProgressoPreparoPdf(estado, carregado, total = 0, etapa = "baixando") {
-      if (!estado) return;
-      estado.carregado = Math.max(0, Number(carregado) || 0);
-      estado.total = Math.max(Number(total) || 0, estado.total || 0);
-      estado.etapa = etapa;
-      estado.status = "baixando";
-      emitirEstadoPreparoPdf(estado);
-    }
-
-    function atualizarIndicadorPreparoPdfPainel(estado) {
-      const caixa = document.getElementById("statusPreparoPdfPainel");
-      if (!caixa) return;
-
-      const chaveSelecionada = chavePreparoPdfDocumento(documentoSelecionado);
-      if (!estado || !documentoSelecionado || estado.chave !== chaveSelecionada) {
-        caixa.hidden = true;
-        return;
-      }
-
-      const texto = document.getElementById("textoPreparoPdfPainel");
-      const detalhe = document.getElementById("detalhePreparoPdfPainel");
-      const trilha = document.getElementById("trilhaPreparoPdfPainel");
-      const barra = document.getElementById("barraPreparoPdfPainel");
-      const total = Number(estado.total) || 0;
-      const carregado = Math.min(Number(estado.carregado) || 0, total || Number(estado.carregado) || 0);
-      const percentual = total > 0 ? Math.min(100, Math.round((carregado / total) * 100)) : 0;
-
-      caixa.hidden = false;
-      caixa.classList.toggle("concluido", estado.status === "concluido");
-      caixa.classList.toggle("comErro", estado.status === "erro");
-      trilha?.classList.toggle("indeterminado", estado.status !== "concluido" && total <= 0);
-      trilha?.setAttribute("aria-valuenow", String(estado.status === "concluido" ? 100 : percentual));
-      if (barra) barra.style.width = `${estado.status === "concluido" ? 100 : percentual}%`;
-
-      if (estado.status === "concluido") {
-        if (texto) texto.textContent = "PDF completo pronto para abrir";
-        if (detalhe) detalhe.textContent = formatarTamanhoPdf(estado.blobPdf?.size || total);
-        return;
-      }
-
-      if (estado.status === "erro") {
-        if (texto) texto.textContent = "Não foi possível preparar o PDF";
-        if (detalhe) detalhe.textContent = "Use ABRIR ARQUIVO para tentar novamente.";
-        return;
-      }
-
-      if (texto) texto.textContent = total > 0 ? `Carregando PDF completo: ${percentual}%` : "Preparando PDF completo...";
-      if (detalhe) {
-        detalhe.textContent = total > 0
-          ? `${formatarTamanhoPdf(carregado)} de ${formatarTamanhoPdf(total)}`
-          : "O carregamento continua mesmo sem rolar as páginas.";
-      }
-    }
-
     function descartarPreparoPdfSemUso(estado) {
-      if (!estado || estadoPdfPossuiAbaAberta(estado)) return;
-      if (estado.status !== "concluido" && estado.status !== "erro") {
+      if (!estado) return;
+      if (estado.status !== "concluido" && estado.status !== "erro" && !estado.aberturaSolicitada) {
         estado.controlador?.abort();
       }
-      revogarUrlPdfEstado(estado);
-      estado.ouvintes?.clear();
+      if (!estado.aberturaSolicitada) revogarUrlPdfEstado(estado);
     }
 
     async function obterContextoDownloadPdf(documento, sinal) {
@@ -4092,33 +4005,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       };
     }
 
-    async function obterUrlPreVisualizacaoPdf(contexto, sinal) {
-      const url = `https://graph.microsoft.com/v1.0/drives/${contexto.driveId}/items/${contexto.driveItemId}/preview`;
-      const resposta = await fetchGraphComRetry(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${contexto.token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ page: "1", zoom: 100 }),
-        cache: "no-store",
-        signal: sinal
-      }, { tentativas: 1 });
-
-      if (!resposta.ok) {
-        throw new Error(`Pré-visualização indisponível (${resposta.status}).`);
-      }
-
-      const dados = await resposta.json();
-      const urlRecebida = dados.getUrl || "";
-      const urlValidada = new URL(urlRecebida);
-      if (urlValidada.protocol !== "https:") {
-        throw new Error("A pré-visualização retornou um endereço inválido.");
-      }
-      return urlValidada.href;
-    }
-
-    function baixarPdfPorUrlTemporaria(url, estado, totalEsperado) {
+    function baixarPdfPorUrlTemporaria(url, estado) {
       return new Promise((resolve, reject) => {
         const requisicao = new XMLHttpRequest();
         const sinal = estado.controlador?.signal;
@@ -4128,14 +4015,13 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         requisicao.open("GET", url, true);
         requisicao.responseType = "blob";
         requisicao.timeout = TEMPO_LIMITE_GRAPH_MS;
-        requisicao.onprogress = evento => {
-          const total = evento.lengthComputable && evento.total > 0 ? evento.total : totalEsperado;
-          atualizarProgressoPreparoPdf(estado, evento.loaded, total, "download-direto");
-        };
         requisicao.onload = () => {
           limpar();
           if (requisicao.status >= 200 && requisicao.status < 300 && requisicao.response) {
-            resolve(new Blob([requisicao.response], { type: "application/pdf" }));
+            const blobRecebido = requisicao.response;
+            resolve(blobRecebido.type === "application/pdf"
+              ? blobRecebido
+              : new Blob([blobRecebido], { type: "application/pdf" }));
             return;
           }
           reject(new Error(`Download temporário do PDF falhou (${requisicao.status || "sem status"}).`));
@@ -4162,42 +4048,21 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       });
     }
 
-    async function respostaPdfParaBlobComProgresso(resposta, estado, totalEsperado) {
-      const totalCabecalho = Number(resposta.headers.get("content-length")) || 0;
-      const total = totalCabecalho || totalEsperado || 0;
-      const leitor = resposta.body?.getReader?.();
-
-      if (!leitor) {
-        const blobOriginal = await resposta.blob();
-        atualizarProgressoPreparoPdf(estado, blobOriginal.size, total || blobOriginal.size, "download-compatibilidade");
-        return new Blob([blobOriginal], { type: "application/pdf" });
-      }
-
-      const partes = [];
-      let carregado = 0;
-      while (true) {
-        const { done, value } = await leitor.read();
-        if (done) break;
-        if (!value) continue;
-        partes.push(value);
-        carregado += value.byteLength;
-        atualizarProgressoPreparoPdf(estado, carregado, total, "download-compatibilidade");
-      }
-
-      return new Blob(partes, { type: "application/pdf" });
+    async function respostaPdfParaBlob(resposta) {
+      const blobOriginal = await resposta.blob();
+      return blobOriginal.type === "application/pdf"
+        ? blobOriginal
+        : new Blob([blobOriginal], { type: "application/pdf" });
     }
 
     async function baixarPdfDocumentoComoBlob(documento, estado) {
       const contexto = await estado.promessaContexto;
-      const totalEsperado = contexto.total || obterTamanhoDocumentoBytes(documento);
-
       if (contexto.urlDownload) {
         try {
-          return await baixarPdfPorUrlTemporaria(contexto.urlDownload, estado, totalEsperado);
+          return await baixarPdfPorUrlTemporaria(contexto.urlDownload, estado);
         } catch (erro) {
           if (erro?.name === "AbortError") throw erro;
           logger.warn("Download direto do PDF indisponível; tentando rota do Microsoft Graph.", erro);
-          atualizarProgressoPreparoPdf(estado, 0, totalEsperado, "download-compatibilidade");
         }
       }
 
@@ -4213,7 +4078,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         throw new Error(await resposta.text());
       }
 
-      return respostaPdfParaBlobComProgresso(resposta, estado, totalEsperado);
+      return respostaPdfParaBlob(resposta);
     }
 
     function obterOuIniciarPreparoPdf(documento, opcoes = {}) {
@@ -4223,7 +4088,6 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
       if (existenteValido && !opcoes.forcar) {
         if (preparoPdfAtual.status === "concluido") garantirUrlPdfEstado(preparoPdfAtual);
-        emitirEstadoPreparoPdf(preparoPdfAtual);
         return preparoPdfAtual;
       }
 
@@ -4235,61 +4099,29 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         documento,
         controlador,
         status: "preparando",
-        etapa: "contexto",
-        carregado: 0,
-        total: obterTamanhoDocumentoBytes(documento),
-        previewUrl: "",
-        previewFinalizada: false,
-        previewFalhou: false,
         blobPdf: null,
         urlPdf: "",
         urlRevogada: false,
         timerRevogacaoUrl: null,
-        ouvintes: new Set(),
-        abasVisualizacao: new Set()
+        aberturaSolicitada: false
       };
 
       preparoPdfAtual = estado;
-      estado.promessaContexto = obterContextoDownloadPdf(estado.documento, controlador.signal).then(contexto => {
-        estado.total = contexto.total || estado.total;
-        emitirEstadoPreparoPdf(estado);
-        return contexto;
-      });
-
-      estado.promessaPreview = estado.promessaContexto
-        .then(contexto => obterUrlPreVisualizacaoPdf(contexto, controlador.signal))
-        .then(urlPreview => {
-          estado.previewUrl = urlPreview;
-          estado.previewFinalizada = true;
-          emitirEstadoPreparoPdf(estado);
-          return urlPreview;
-        })
-        .catch(erro => {
-          estado.previewFinalizada = true;
-          estado.previewFalhou = true;
-          emitirEstadoPreparoPdf(estado);
-          throw erro;
-        });
-      estado.promessaPreview.catch(() => {});
+      estado.promessaContexto = obterContextoDownloadPdf(estado.documento, controlador.signal);
 
       estado.promessaCompleta = baixarPdfDocumentoComoBlob(estado.documento, estado)
         .then(blobPdf => {
           estado.blobPdf = blobPdf;
-          estado.carregado = blobPdf.size;
-          estado.total = estado.total || blobPdf.size;
           estado.status = "concluido";
           garantirUrlPdfEstado(estado);
-          emitirEstadoPreparoPdf(estado);
           return blobPdf;
         })
         .catch(erro => {
           estado.status = erro?.name === "AbortError" ? "cancelado" : "erro";
           estado.erro = erro;
-          emitirEstadoPreparoPdf(estado);
           throw erro;
         });
       estado.promessaCompleta.catch(() => {});
-      emitirEstadoPreparoPdf(estado);
       return estado;
     }
 
@@ -4303,10 +4135,9 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
 
     function cancelarPreparoPdfPainelSemVisualizacao() {
       clearTimeout(timerPreparoPdfPainel);
-      if (!preparoPdfAtual || estadoPdfPossuiAbaAberta(preparoPdfAtual)) return;
+      if (!preparoPdfAtual || preparoPdfAtual.aberturaSolicitada) return;
       descartarPreparoPdfSemUso(preparoPdfAtual);
       preparoPdfAtual = null;
-      atualizarIndicadorPreparoPdfPainel(null);
     }
 
     window.prepararRenomear = function () {
@@ -5593,221 +5424,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       anotacaoUltimoTextoSalvo = "";
     };
 
-/* INICIO_VISUALIZADOR_PDF_PROGRESSIVO_20260817 */
-    function criarElementoVisualizadorPdf(documentoAba, tag, classe = "", texto = "") {
-      const elemento = documentoAba.createElement(tag);
-      if (classe) elemento.className = classe;
-      if (texto) elemento.textContent = texto;
-      return elemento;
-    }
-
-    function configurarAbaVisualizacaoPdf(aba, documento, estado) {
-      const documentoAba = aba.document;
-      const nomeArquivo = sanitizarNomeArquivo(documento.nome || "DOCUMENTO.pdf");
-      documentoAba.documentElement.lang = "pt-BR";
-      documentoAba.title = nomeArquivo;
-      documentoAba.head.textContent = "";
-      documentoAba.body.textContent = "";
-
-      const metaViewport = documentoAba.createElement("meta");
-      metaViewport.name = "viewport";
-      metaViewport.content = "width=device-width, initial-scale=1";
-      documentoAba.head.appendChild(metaViewport);
-
-      const estilo = documentoAba.createElement("style");
-      estilo.textContent = `
-        :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        * { box-sizing: border-box; }
-        body { margin: 0; min-height: 100vh; overflow: hidden; background: #e8eef7; color: #0f172a; }
-        .visualizador { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 100vh; }
-        .topo { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: 1px solid #cbd5e1; background: #fff; box-shadow: 0 2px 10px rgba(15, 23, 42, .08); z-index: 2; }
-        .identificacao { min-width: 0; display: grid; gap: 2px; }
-        .identificacao small { color: #64748b; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-        .identificacao strong { overflow: hidden; color: #0f2f66; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
-        .botoes { display: flex; flex: 0 0 auto; gap: 8px; }
-        button { min-height: 38px; padding: 0 13px; border: 1px solid #94a3b8; border-radius: 10px; background: #fff; color: #0f2f66; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; }
-        button.principal { border-color: #1d4ed8; background: #1d4ed8; color: #fff; }
-        button:hover:not(:disabled), button:focus-visible:not(:disabled) { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .16); }
-        button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
-        button:disabled { opacity: .5; cursor: wait; }
-        .palco { position: relative; min-height: 0; background: #dbe4f0; }
-        iframe { width: 100%; height: 100%; min-height: 0; border: 0; background: #fff; }
-        .espera { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; padding: 24px; text-align: center; }
-        .espera[hidden] { display: none; }
-        .icone { width: 58px; height: 72px; margin: 0 auto; border: 3px solid #2563eb; border-radius: 8px; background: linear-gradient(145deg, #fff 72%, #dbeafe 72%); box-shadow: 0 12px 25px rgba(30, 64, 175, .16); }
-        .espera strong { color: #0f2f66; font-size: 18px; }
-        .espera span { max-width: 480px; color: #475569; line-height: 1.5; }
-        .rodape { display: grid; gap: 7px; padding: 10px 16px 12px; border-top: 1px solid #cbd5e1; background: #fff; z-index: 2; }
-        .linhaStatus { display: flex; justify-content: space-between; gap: 16px; color: #334155; font-size: 12px; font-weight: 700; }
-        .trilha { position: relative; height: 8px; overflow: hidden; border-radius: 999px; background: #dbe4f0; }
-        .barra { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2563eb, #0ea5e9); transition: width .16s ease; }
-        .trilha.indeterminada .barra { width: 35%; animation: mover 1.1s ease-in-out infinite; }
-        .rodape.concluido .barra { background: #16a34a; }
-        .rodape.erro .barra { width: 100%; background: #dc2626; }
-        @keyframes mover { from { transform: translateX(-110%); } to { transform: translateX(310%); } }
-        @media (max-width: 720px) {
-          .topo { align-items: stretch; flex-direction: column; gap: 9px; padding: 10px; }
-          .botoes { display: grid; grid-template-columns: 1fr 1fr auto; }
-          button { min-height: 42px; padding: 0 10px; }
-          .rodape { padding: 9px 10px 11px; }
-          .linhaStatus { align-items: flex-start; flex-direction: column; gap: 3px; }
-        }
-        @media (prefers-reduced-motion: reduce) { .barra { transition: none; } .trilha.indeterminada .barra { animation-duration: 2.2s; } }
-      `;
-      documentoAba.head.appendChild(estilo);
-
-      const visualizador = criarElementoVisualizadorPdf(documentoAba, "main", "visualizador");
-      const topo = criarElementoVisualizadorPdf(documentoAba, "header", "topo");
-      const identificacao = criarElementoVisualizadorPdf(documentoAba, "div", "identificacao");
-      identificacao.appendChild(criarElementoVisualizadorPdf(documentoAba, "small", "", "Arquivo Digital"));
-      identificacao.appendChild(criarElementoVisualizadorPdf(documentoAba, "strong", "", nomeArquivo));
-      topo.appendChild(identificacao);
-
-      const botoes = criarElementoVisualizadorPdf(documentoAba, "div", "botoes");
-      const btnAbrirCompleto = criarElementoVisualizadorPdf(documentoAba, "button", "principal", "ABRIR COMPLETO");
-      const btnBaixar = criarElementoVisualizadorPdf(documentoAba, "button", "", "BAIXAR PDF");
-      const btnFechar = criarElementoVisualizadorPdf(documentoAba, "button", "", "FECHAR");
-      btnAbrirCompleto.type = "button";
-      btnBaixar.type = "button";
-      btnFechar.type = "button";
-      btnAbrirCompleto.disabled = true;
-      btnBaixar.disabled = true;
-      botoes.append(btnAbrirCompleto, btnBaixar, btnFechar);
-      topo.appendChild(botoes);
-      visualizador.appendChild(topo);
-
-      const palco = criarElementoVisualizadorPdf(documentoAba, "section", "palco");
-      const iframe = criarElementoVisualizadorPdf(documentoAba, "iframe");
-      iframe.title = `Pré-visualização de ${nomeArquivo}`;
-      iframe.referrerPolicy = "no-referrer";
-      iframe.hidden = true;
-      const espera = criarElementoVisualizadorPdf(documentoAba, "div", "espera");
-      espera.appendChild(criarElementoVisualizadorPdf(documentoAba, "span", "icone"));
-      const esperaTitulo = criarElementoVisualizadorPdf(documentoAba, "strong", "", "Preparando visualização rápida...");
-      const esperaTexto = criarElementoVisualizadorPdf(documentoAba, "span", "", "O PDF completo já está sendo carregado em segundo plano.");
-      espera.append(esperaTitulo, esperaTexto);
-      palco.append(iframe, espera);
-      visualizador.appendChild(palco);
-
-      const rodape = criarElementoVisualizadorPdf(documentoAba, "footer", "rodape");
-      const linhaStatus = criarElementoVisualizadorPdf(documentoAba, "div", "linhaStatus");
-      const textoStatus = criarElementoVisualizadorPdf(documentoAba, "span", "", "Preparando PDF completo...");
-      const detalheStatus = criarElementoVisualizadorPdf(documentoAba, "span", "", "0%");
-      linhaStatus.append(textoStatus, detalheStatus);
-      const trilha = criarElementoVisualizadorPdf(documentoAba, "div", "trilha indeterminada");
-      trilha.setAttribute("role", "progressbar");
-      trilha.setAttribute("aria-label", "Carregamento do PDF completo");
-      trilha.setAttribute("aria-valuemin", "0");
-      trilha.setAttribute("aria-valuemax", "100");
-      trilha.setAttribute("aria-valuenow", "0");
-      const barra = criarElementoVisualizadorPdf(documentoAba, "span", "barra");
-      trilha.appendChild(barra);
-      rodape.append(linhaStatus, trilha);
-      visualizador.appendChild(rodape);
-      documentoAba.body.appendChild(visualizador);
-
-      let previewAplicada = false;
-      let navegacaoAutomaticaFeita = false;
-      const atualizarVisualizador = estadoAtualizado => {
-        if (aba.closed) {
-          estadoAtualizado.ouvintes.delete(atualizarVisualizador);
-          estadoAtualizado.abasVisualizacao.delete(aba);
-          return;
-        }
-
-        const total = Number(estadoAtualizado.total) || 0;
-        const carregado = Number(estadoAtualizado.carregado) || 0;
-        const percentual = estadoAtualizado.status === "concluido"
-          ? 100
-          : (total > 0 ? Math.min(100, Math.round((carregado / total) * 100)) : 0);
-
-        trilha.classList.toggle("indeterminada", total <= 0 && estadoAtualizado.status !== "concluido");
-        trilha.setAttribute("aria-valuenow", String(percentual));
-        barra.style.width = `${percentual}%`;
-        detalheStatus.textContent = total > 0
-          ? `${percentual}% · ${formatarTamanhoPdf(carregado)} de ${formatarTamanhoPdf(total)}`
-          : `${formatarTamanhoPdf(carregado)} carregados`;
-
-        if (estadoAtualizado.previewUrl && !previewAplicada) {
-          previewAplicada = true;
-          esperaTitulo.textContent = "Abrindo visualização rápida...";
-          iframe.hidden = false;
-          iframe.src = estadoAtualizado.previewUrl;
-          iframe.addEventListener("load", () => {
-            espera.hidden = true;
-          }, { once: true });
-        }
-
-        if (estadoAtualizado.status === "concluido") {
-          garantirUrlPdfEstado(estadoAtualizado);
-          rodape.classList.add("concluido");
-          textoStatus.textContent = "PDF completo carregado e pronto para baixar";
-          btnAbrirCompleto.disabled = false;
-          btnBaixar.disabled = false;
-
-          if (estadoAtualizado.previewFinalizada && estadoAtualizado.previewFalhou && !navegacaoAutomaticaFeita) {
-            navegacaoAutomaticaFeita = true;
-            aba.location.replace(estadoAtualizado.urlPdf);
-          }
-          return;
-        }
-
-        if (estadoAtualizado.status === "erro") {
-          rodape.classList.add("erro");
-          textoStatus.textContent = previewAplicada
-            ? "A visualização rápida abriu, mas o PDF completo não terminou de carregar"
-            : "Não foi possível carregar o PDF";
-          esperaTitulo.textContent = "Não foi possível preparar o arquivo";
-          esperaTexto.textContent = "Feche esta aba e use ABRIR ARQUIVO para tentar novamente.";
-          return;
-        }
-
-        textoStatus.textContent = total > 0
-          ? `Carregando PDF completo: ${percentual}%`
-          : "Carregando PDF completo em segundo plano...";
-      };
-
-      btnAbrirCompleto.addEventListener("click", () => {
-        const urlPdf = garantirUrlPdfEstado(estado);
-        if (urlPdf) aba.location.replace(urlPdf);
-      });
-      btnBaixar.addEventListener("click", () => {
-        const urlPdf = garantirUrlPdfEstado(estado);
-        if (!urlPdf) return;
-        const linkDownload = documentoAba.createElement("a");
-        linkDownload.href = urlPdf;
-        linkDownload.download = nomeArquivo;
-        documentoAba.body.appendChild(linkDownload);
-        linkDownload.click();
-        linkDownload.remove();
-      });
-      btnFechar.addEventListener("click", () => aba.close());
-      aba.addEventListener("beforeunload", () => {
-        estado.ouvintes.delete(atualizarVisualizador);
-        estado.abasVisualizacao.delete(aba);
-      }, { once: true });
-
-      estado.abasVisualizacao.add(aba);
-      estado.ouvintes.add(atualizarVisualizador);
-      atualizarVisualizador(estado);
-      aba.opener = null;
-    }
-
-    function aguardarPrimeiraVisualizacaoPdf(estado) {
-      return new Promise((resolve, reject) => {
-        let falhas = 0;
-        let ultimoErro = null;
-        const registrarFalha = erro => {
-          falhas++;
-          ultimoErro = erro;
-          if (falhas >= 2) reject(ultimoErro || new Error("Não foi possível abrir o PDF."));
-        };
-
-        estado.promessaPreview.then(resolve, registrarFalha);
-        estado.promessaCompleta.then(resolve, registrarFalha);
-      });
-    }
-
+/* INICIO_ABRIR_PDF_PRECARREGADO_DIRETO_20260818 */
     window.abrirPdfSelecionado = async function () {
       if (!documentoSelecionado) {
         mostrarMensagemPainel("Nenhum documento selecionado.", "erro");
@@ -5818,23 +5435,48 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
       const operacao = iniciarOperacaoCritica("abrir-pdf", "btnAbrirArquivoPainel", "A abertura do arquivo já foi iniciada. Aguarde.");
       if (!operacao) return;
 
-      const aba = window.open("", "_blank");
+      const estado = obterOuIniciarPreparoPdf(documentoAberto);
+      const urlPdfPronta = estado.status === "concluido" ? garantirUrlPdfEstado(estado) : "";
+      const aba = window.open(urlPdfPronta || "", "_blank");
       if (!aba) {
         finalizarOperacaoCritica(operacao);
         mostrarMensagemPainel("O navegador bloqueou a nova aba. Permita pop-ups para abrir o PDF sem sair do Arquivo Digital.", "erro");
         return;
       }
 
+      estado.aberturaSolicitada = true;
+
       try {
-        const estado = obterOuIniciarPreparoPdf(documentoAberto);
-        configurarAbaVisualizacaoPdf(aba, documentoAberto, estado);
-        mostrarMensagemPainel("Visualizador aberto. O PDF completo continua carregando em segundo plano.");
-        await aguardarPrimeiraVisualizacaoPdf(estado);
+        try {
+          aba.opener = null;
+        } catch (erroOpener) {
+          logger.warn("Não foi possível remover a referência da aba de origem.", erroOpener);
+        }
+
+        if (!urlPdfPronta) {
+          aba.document.documentElement.lang = "pt-BR";
+          aba.document.title = "Abrindo PDF";
+          aba.document.body.textContent = "Abrindo o PDF já carregado pelo Arquivo Digital...";
+          aba.document.body.style.cssText = "margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:#f8fafc;color:#0f2f66;font:700 16px/1.5 system-ui,sans-serif;text-align:center";
+        }
+
+        await estado.promessaCompleta;
 
         if (aba.closed) {
           throw new Error("A aba do PDF foi fechada antes da abertura terminar.");
         }
+
+        const urlPdf = garantirUrlPdfEstado(estado);
+        if (!urlPdf) {
+          throw new Error("O PDF foi carregado, mas a cópia local não pôde ser aberta.");
+        }
+
+        if (!urlPdfPronta) {
+          aba.location.replace(urlPdf);
+        }
       } catch (erro) {
+        estado.aberturaSolicitada = false;
+        descartarPreparoPdfSemUso(estado);
         logger.error(erro);
         try {
           if (!aba.closed) aba.close();
@@ -5862,7 +5504,7 @@ function abrirPainelDashboard(titulo, conteudoHtml, opcoes = {}) {
         }
       }, 0);
     };
-/* FIM_VISUALIZADOR_PDF_PROGRESSIVO_20260817 */
+/* FIM_ABRIR_PDF_PRECARREGADO_DIRETO_20260818 */
 
         let driveDocumentosAtivosId = null;
 
