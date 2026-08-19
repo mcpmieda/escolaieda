@@ -1,0 +1,25 @@
+# Configuração por tenant
+CONFIG.local.psd1
+*.local.psd1
+
+# Saídas locais
+output-local/
+*.local.json
+
+# Definições e metadados brutos do Power Automate/Dataverse
+flow-clientdata-*.json
+flow-metadados-local.json
+*clientdata*.json
+
+# Relatórios com dados reais
+*.private.csv
+*.private.json
+*.private.log
+
+# Segredos/certificados
+*.pfx
+*.p12
+*.pem
+*.key
+*.secret
+*.token
