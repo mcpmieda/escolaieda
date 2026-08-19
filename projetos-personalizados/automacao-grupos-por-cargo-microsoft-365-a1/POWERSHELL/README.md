@@ -77,8 +77,49 @@ Conecta ao Microsoft Graph e:
 
 Esse arquivo local contém IDs do tenant e **não deve ser commitado**.
 
+### `02-validar-clientdata.ps1`
+Validador local para uma definição `clientdata` exportada.
+
+Uso:
+
+```powershell
+.\02-validar-clientdata.ps1 -ClientDataPath .\flow-clientdata-local.json
+```
+
+Ele verifica antes do deploy:
+
+- JSON válido;
+- existência de `properties.definition.actions`;
+- profundidade máxima;
+- limite padrão de 8;
+- referências `runAfter` que apontam para ação fora do mesmo nível.
+
+Saída válida:
+
+```text
+RESULTADO_FINAL=CLIENTDATA_OK
+```
+
+### `lib/FlowDefinitionTools.psm1`
+Módulo reutilizável do instalador.
+
+Funções atuais:
+
+```text
+Get-FlowMaxActionDepth
+Get-FlowRunAfterIssues
+Test-FlowClientData
+Assert-FlowClientData
+New-SharePointChoiceObject
+```
+
+Esse módulo concentra correções aprendidas durante a construção real do fluxo e deve ser reutilizado nos próximos scripts de deploy, em vez de duplicar lógica de validação.
+
 ### `regras.example.csv`
 Modelo de carga de regras. É apenas exemplo; cada tenant pode usar nomes e regras diferentes.
+
+### `.gitignore`
+Bloqueia configuração local, exports de `clientdata`, certificados e arquivos com dados reais que não devem chegar ao repositório público.
 
 ## Método recomendado de implantação
 
@@ -110,6 +151,8 @@ Flow solution-aware
 Connection References
 ↓
 Backup clientdata
+↓
+Validação local de clientdata
 ↓
 Deploy / validação / rollback
 ↓
