@@ -46,6 +46,8 @@ Deve responder rapidamente:
 - onde está a documentação principal;
 - como começar.
 
+Quando a arquitetura tiver vários componentes, considerar diagrama Mermaid no próprio Markdown.
+
 ## 4. DOCUMENTO_BASE
 
 É criado antes da execução e contém arquitetura, escopo, restrições, critérios de sucesso, riscos, testes e rollback.
@@ -90,11 +92,13 @@ v1.4.2
 Separar claramente:
 
 - teste planejado;
-- resultado esperado;
+- comportamento esperado;
 - resultado observado;
 - aprovado/reprovado;
 - ambiente;
 - versão testada.
+
+Dar preferência a testes derivados do comportamento esperado, para que continuem válidos mesmo depois de refatorações internas.
 
 ## 9. ERROS_CONHECIDOS
 
@@ -151,16 +155,19 @@ Criar checkpoint quando houver:
 
 ## 13. Commits
 
-Preferir mensagens que expliquem intenção:
+Adotar, quando adequado, padrão inspirado em Conventional Commits:
 
 ```text
-docs: consolida arquitetura final
-fix: corrige leitura de Choice no SharePoint
-feat: adiciona reconciliação periódica
-chore: atualiza baseline seguro
+feat: nova funcionalidade
+fix: correção
+refactor: reorganização sem mudança de comportamento
+docs: documentação
+test: testes
+chore: manutenção
+security: hardening/segurança
 ```
 
-Evitar commits genéricos como `ajustes`, `teste`, `novo` quando puder existir descrição melhor.
+Preferir mensagens que expliquem intenção. Evitar commits genéricos como `ajustes`, `teste`, `novo` quando puder existir descrição melhor.
 
 ## 14. Repositório público
 
@@ -180,7 +187,75 @@ Nunca commitar:
 
 Usar arquivos `.example` e `.gitignore`.
 
-## 15. Continuidade entre IAs
+## 15. Guardrails automáticos
+
+Em projetos relevantes, avaliar a criação de checks automáticos para reduzir dependência de disciplina manual.
+
+Exemplos:
+
+- secret scanning e push protection nativos quando disponíveis;
+- GitHub Actions para validação de JSON/YAML e testes;
+- lint de documentação como qualidade opcional;
+- ferramenta adicional de varredura de segredos somente quando houver cobertura extra justificável;
+- branch protection/rulesets para exigir checks antes de merge em projetos de maior risco.
+
+A regra é simples: automatizar proteção com retorno real. Não adicionar ferramentas só para aumentar cerimônia.
+
+## 16. Branch protection e PRs
+
+Para repositórios de produção ou maior criticidade, considerar:
+
+```text
+branch principal protegida
+→ alterações por branch/PR
+→ checks obrigatórios
+→ merge somente com validações aprovadas
+```
+
+Não transformar isso em obrigação para todo repositório pequeno ou experimental. A governança deve ser proporcional ao risco.
+
+## 17. Releases e changelog automáticos
+
+Ferramentas como `release-please` ou `semantic-release` podem automatizar tags e changelog a partir dos commits.
+
+Adotar somente quando:
+
+- a estratégia de versionamento estiver definida;
+- estiver claro qual componente recebe a versão;
+- o repositório não misturar produtos de forma ambígua, ou houver configuração específica para monorepo;
+- uma tag automática representar realmente uma release válida.
+
+Antes disso, manter changelog/checkpoints semiautomáticos é mais seguro.
+
+## 18. Post-mortem
+
+`ERROS_CONHECIDOS.md` é adequado para bugs comuns.
+
+Para incidente grave, criar arquivo próprio, por exemplo:
+
+```text
+POSTMORTEM_YYYY-MM-DD.md
+```
+
+Estrutura mínima:
+
+```text
+linha do tempo
+impacto real
+causa raiz
+fatores contribuintes
+contenção imediata
+ação corretiva
+ação preventiva
+detecção futura
+responsável/prazo quando aplicável
+```
+
+O post-mortem deve ser técnico e orientado a prevenção, não a culpa.
+
+## 19. Continuidade entre IAs
+
+Ao iniciar uma sessão, recuperar `AI_CONTEXT.md` diretamente do repositório quando acessível.
 
 Ao terminar uma sessão importante, garantir que outra IA consiga responder estas perguntas lendo o GitHub:
 
