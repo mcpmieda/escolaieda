@@ -6,6 +6,15 @@ Todo projeto relevante deve começar com um documento-base detalhado contendo ob
 
 Esse documento não precisa estar perfeito, mas deve existir antes da execução para impedir que decisões importantes fiquem dispersas apenas no chat.
 
+Para tarefas pequenas, usar triagem rápida antes de criar estrutura pesada:
+
+```text
+alto impacto + baixo esforço  → priorizar
+alto impacto + alto esforço   → planejar formalmente
+baixo impacto + baixo esforço → fazer se útil
+baixo impacto + alto esforço  → normalmente descartar
+```
+
 ## 2. Criar um baseline estável
 
 Definir explicitamente a última versão conhecida como segura.
@@ -61,14 +70,15 @@ Auditoria completa somente quando:
 ```text
 1. Definir escopo
 2. Confirmar baseline
-3. Fazer backup
-4. Alterar o mínimo
-5. Validar sintaxe/contrato
-6. Testar comportamento alterado
-7. Testar regressão direta
-8. Confirmar estado estável
-9. Registrar no GitHub
-10. Atualizar baseline se aprovado
+3. Classificar risco da mudança
+4. Fazer backup se necessário
+5. Alterar o mínimo
+6. Validar sintaxe/contrato
+7. Testar comportamento alterado
+8. Testar regressão direta
+9. Confirmar estado estável
+10. Registrar no GitHub
+11. Atualizar baseline se aprovado
 ```
 
 ## 6. Testes por camadas
@@ -101,7 +111,25 @@ Repetir somente os testes que podem ter sido afetados pela mudança.
 
 Reservada para marcos finais ou quando realmente necessária.
 
-## 7. Desenvolvimento orientado à definição
+## 7. Testes derivados do comportamento
+
+Sempre que possível, definir o teste a partir da regra de negócio antes de olhar a implementação.
+
+Exemplo:
+
+```text
+Comportamento esperado:
+“Executar a mesma operação duas vezes não duplica o registro.”
+
+Teste:
+1. executar
+2. repetir
+3. confirmar um único resultado final
+```
+
+Esse estilo cria contratos mais duráveis e evita testes excessivamente acoplados à estrutura interna do código.
+
+## 8. Desenvolvimento orientado à definição
 
 Quando o editor visual se torna gargalo, considerar JSON/API/CLI/PowerShell/arquivos declarativos.
 
@@ -114,7 +142,7 @@ Antes disso, garantir:
 - rollback;
 - versionamento.
 
-## 8. Configuração parametrizada
+## 9. Configuração parametrizada
 
 Projetos que podem migrar ou escalar devem usar:
 
@@ -131,7 +159,7 @@ O instalador deve descobrir automaticamente o máximo possível:
 - objetos reais;
 - capacidades disponíveis.
 
-## 9. Automação só depois de conhecimento suficiente
+## 10. Automação só depois de conhecimento suficiente
 
 Uma tarefa manual repetitiva vira boa candidata a automação quando:
 
@@ -141,7 +169,60 @@ Uma tarefa manual repetitiva vira boa candidata a automação quando:
 - entradas e saídas estão definidas;
 - rollback é possível.
 
-## 10. Encerramento de projeto
+## 11. Guardrails antes da execução
+
+Sempre que uma regra importante depender de lembrar manualmente, avaliar se ela pode virar:
+
+```text
+preflight
+validação estática
+lint
+check de CI
+teste automatizado
+proteção de branch
+script
+assert
+```
+
+A automação do guardrail deve ser proporcional ao risco e não criar manutenção maior que o problema prevenido.
+
+## 12. Rollout controlado
+
+Para mudanças de maior risco, avaliar implantação gradual:
+
+```text
+teste local/controlado
+→ piloto
+→ produção limitada
+→ produção ampla
+```
+
+Se a funcionalidade puder precisar de desligamento rápido, considerar kill switch/feature flag compatível com a arquitetura existente.
+
+## 13. Início de sessão de trabalho
+
+Se existir `AI_CONTEXT.md`, recuperar primeiro:
+
+- objetivo;
+- baseline;
+- estado atual;
+- próxima ação.
+
+Não pedir que o usuário reexplique contexto já disponível no repositório.
+
+## 14. Encerramento de sessão ou marco
+
+Ao concluir trabalho relevante:
+
+- atualizar resumo simples quando necessário;
+- registrar checkpoint/changelog;
+- atualizar `AI_CONTEXT.md` se o estado vigente mudou;
+- registrar testes relevantes;
+- registrar versão estável quando aprovada;
+- registrar erros/aprendizados;
+- deixar próxima ação concreta.
+
+## 15. Encerramento de projeto
 
 Antes de considerar um projeto concluído:
 
