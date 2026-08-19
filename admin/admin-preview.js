@@ -54,7 +54,7 @@ async function abrirPrevia({ incluirRascunhoPublicacao }) {
 
     definirStatus(incluirRascunhoPublicacao && lerRascunhoPublicacao()
       ? "Prévia local com a publicação em edição. Nada foi salvo."
-      : "Prévia local da página. Nada foi salvo.");
+      : "Prévia local da página com as alterações atuais do editor. Nada foi salvo.");
   } catch (erro) {
     console.error("Falha ao montar prévia completa:", erro);
     definirStatus("Não foi possível montar a prévia completa. Recarregue o painel e tente novamente.", true);
@@ -233,11 +233,133 @@ function prepararDocumento(html, dadosPrevia) {
   `;
   documento.head.appendChild(estiloPrevia);
 
+  aplicarHomeDiretamente(documento, dadosPrevia.home || {});
+
   const dadosVirtuais = documento.createElement("script");
   dadosVirtuais.textContent = criarScriptFonteVirtual(dadosPrevia);
   renderizador.parentNode.insertBefore(dadosVirtuais, renderizador);
   renderizador.dataset.fonte = FONTE_PREVIEW_PATH;
   return documento;
+}
+
+function aplicarHomeDiretamente(documento, home) {
+  definirTextoDocumento(documento, "[data-home-titulo]", home.titulo);
+  definirTextoDocumento(documento, "[data-home-subtitulo]", home.subtitulo);
+  definirTextoDocumento(documento, "[data-home-missao]", home.missao);
+  definirTextoDocumento(documento, "[data-home-info-texto]", home.infoTexto);
+
+  if (home.corDestaque) {
+    documento.documentElement.style.setProperty("--azul", home.corDestaque);
+  }
+
+  const secoes = Array.isArray(home.secoes) ? home.secoes : [];
+  secoes.forEach((secao) => aplicarSecaoDiretamente(documento, secao));
+
+  const banner = documento.querySelector('[data-publicacoes-local="banner"]');
+  if (banner) banner.classList.toggle("hidden-by-cms", home.mostrarBanners === false);
+}
+
+function aplicarSecaoDiretamente(documento, secao) {
+  const id = normalizarId(secao.id || secao.titulo);
+  let bloco = documento.querySelector(`[data-home-section="${id}"]`);
+  if (!bloco) bloco = criarSecaoDinamicaPrevia(documento, { ...secao, id });
+  if (!bloco) return;
+
+  bloco.classList.toggle("hidden-by-cms", secao.visivel === false);
+  definirTextoDocumento(bloco, `[data-section-title="${id}"]`, secao.titulo);
+  definirTextoDocumento(bloco, `[data-section-text="${id}"]`, secao.texto);
+
+  const apresentacao = bloco.querySelector("[data-section-presentation]") || bloco.querySelector(".faixa, .titulo-secao");
+  if (apresentacao) {
+    apresentacao.dataset.sectionPresentation = "";
+    const destaque = secao.tipo === "destaque-indicadores" || id === "numeros";
+    apresentacao.classList.toggle("faixa", destaque);
+    apresentacao.classList.toggle("titulo-secao", !destaque);
+
+    let indicadores = apresentacao.querySelector("[data-section-indicators]");
+    if (!indicadores) {
+      indicadores = documento.createElement("div");
+      indicadores.className = "numeros";
+      indicadores.dataset.sectionIndicators = "";
+      apresentacao.appendChild(indicadores);
+    }
+
+    const itens = normalizarIndicadores(secao.indicadores);
+    indicadores.hidden = !destaque || !itens.length;
+    indicadores.replaceChildren(...itens.map((item) => criarIndicadorPrevia(documento, item)));
+  }
+
+  const lista = bloco.querySelector(`[data-publicacoes-local="${id}"]`);
+  if (lista) {
+    const layoutLista = secao.layout === "lista";
+    lista.dataset.layout = layoutLista ? "lista" : "blocos";
+    lista.classList.toggle("layout-lista", layoutLista);
+    lista.classList.toggle("layout-blocos", !layoutLista);
+  }
+}
+
+function criarSecaoDinamicaPrevia(documento, secao) {
+  const main = documento.querySelector("main");
+  if (!main) return null;
+
+  const bloco = documento.createElement("section");
+  bloco.className = "container reveal ativo secao-vazia";
+  bloco.id = secao.id;
+  bloco.dataset.homeSection = secao.id;
+  bloco.dataset.publicacoesSection = "";
+
+  const apresentacao = documento.createElement("div");
+  apresentacao.className = "titulo-secao";
+  apresentacao.dataset.sectionPresentation = "";
+
+  const titulo = documento.createElement("h2");
+  titulo.dataset.sectionTitle = secao.id;
+  apresentacao.appendChild(titulo);
+
+  const texto = documento.createElement("p");
+  texto.dataset.sectionText = secao.id;
+  apresentacao.appendChild(texto);
+
+  const indicadores = documento.createElement("div");
+  indicadores.className = "numeros";
+  indicadores.dataset.sectionIndicators = "";
+  indicadores.hidden = true;
+  apresentacao.appendChild(indicadores);
+
+  const publicacoes = documento.createElement("div");
+  publicacoes.className = "publicacoes-grid";
+  publicacoes.dataset.publicacoesLocal = secao.id;
+
+  bloco.append(apresentacao, publicacoes);
+  const contato = documento.querySelector('[data-home-section="contato"]');
+  main.insertBefore(bloco, contato || null);
+  return bloco;
+}
+
+function criarIndicadorPrevia(documento, item) {
+  const bloco = documento.createElement("div");
+  bloco.className = "numero";
+  const valor = documento.createElement("strong");
+  valor.textContent = item.valor;
+  const rotulo = documento.createElement("span");
+  rotulo.textContent = item.rotulo;
+  bloco.append(valor, rotulo);
+  return bloco;
+}
+
+function definirTextoDocumento(raiz, seletor, valor) {
+  const elemento = raiz.querySelector(seletor);
+  if (elemento && valor !== undefined && valor !== null) elemento.textContent = String(valor);
+}
+
+function normalizarIndicadores(indicadores) {
+  return (Array.isArray(indicadores) ? indicadores : [])
+    .map((item) => ({
+      valor: String(item?.valor || "").trim(),
+      rotulo: String(item?.rotulo || "").trim()
+    }))
+    .filter((item) => item.valor || item.rotulo)
+    .slice(0, 12);
 }
 
 function criarScriptFonteVirtual(dadosPrevia) {
