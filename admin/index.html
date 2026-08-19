@@ -7,8 +7,9 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0f3d5e">
   <link rel="icon" type="image/png" href="../imagens/favicon.png">
-  <link rel="stylesheet" href="admin.css?v=20260609-1">
+  <link rel="stylesheet" href="admin.css?v=20260819-1">
   <script type="module" src="admin.js?v=20260609-1"></script>
+  <script type="module" src="admin-preview.js?v=20260819-1"></script>
 </head>
 <body>
   <main class="appShell">
@@ -90,6 +91,7 @@
         <section class="view" id="view-publicacoes">
           <div class="cmsToolbar">
             <button class="primaryButton" id="btnNovaPublicacao" type="button">Nova publicação</button>
+            <button class="secondaryButton" id="btnPreviaPagina" type="button">Prévia da página</button>
             <span id="contadorPublicacoes">0 itens</span>
           </div>
 
@@ -257,7 +259,6 @@
               <div class="homeSectionsList" id="listaSecoesHome"></div>
               <div class="buttonRow">
                 <button class="primaryButton" type="submit">Salvar editor da home</button>
-                <button class="secondaryButton" id="btnPreviaHome" type="button">Prévia local</button>
               </div>
               <p class="hintText">Cada seção pode receber publicações pelo campo "Onde aparece". O formato Lista/Blocos vale para as publicações daquela seção no site.</p>
             </form>
@@ -353,5 +354,26 @@
       </div>
     </section>
   </main>
+
+  <section class="sitePreviewOverlay hidden" id="sitePreviewOverlay" role="dialog" aria-modal="true" aria-labelledby="sitePreviewTitle" aria-hidden="true">
+    <div class="sitePreviewDialog">
+      <header class="sitePreviewHeader">
+        <div>
+          <h2 id="sitePreviewTitle">Prévia da página inicial</h2>
+          <p id="sitePreviewStatus">Prévia local. Nenhuma alteração é publicada por esta janela.</p>
+        </div>
+        <button class="ghostButton" id="btnFecharPreview" type="button">Fechar</button>
+      </header>
+      <div class="sitePreviewToolbar" aria-label="Tamanho da prévia">
+        <button class="previewDeviceButton active" id="btnPreviewDesktop" type="button" aria-pressed="true">Computador</button>
+        <button class="previewDeviceButton" id="btnPreviewMobile" type="button" aria-pressed="false">Celular</button>
+      </div>
+      <div class="sitePreviewStage">
+        <div class="sitePreviewViewport" id="sitePreviewViewport" data-device="desktop">
+          <iframe id="sitePreviewFrame" class="sitePreviewFrame" title="Prévia da página pública da Escola Iêda" sandbox></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
