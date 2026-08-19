@@ -1,0 +1,111 @@
+name: Portal V2 - CMS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "portal-v2/**"
+      - ".github/workflows/portal-v2-cms-ci.yml"
+  pull_request:
+    paths:
+      - "portal-v2/**"
+      - ".github/workflows/portal-v2-cms-ci.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: portal-v2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: portal-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: portal-v2/package-lock.json
+      - name: Instalar dependências
+        run: npm ci --no-audit --no-fund
+      - name: Auditar conteúdo TinaCMS
+        run: npm run cms:audit
+      - name: Verificar Astro e TypeScript
+        run: npm run check
+      - name: Compilar site
+        run: npm run build
+
+  publicar-v2:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validar
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
+      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: portal-v2/package-lock.json
+
+      - name: Verificar credenciais TinaCloud
+        run: |
+          test -n "$TINA_PUBLIC_CLIENT_ID" || (echo "TINA_PUBLIC_CLIENT_ID ausente" && exit 1)
+          test -n "$TINA_TOKEN" || (echo "TINA_TOKEN ausente" && exit 1)
+
+      - name: Instalar dependências
+        working-directory: portal-v2
+        run: npm ci --no-audit --no-fund
+
+      - name: Compilar painel TinaCMS
+        working-directory: portal-v2
+        run: |
+          OK=0
+          for tentativa in 1 2 3 4 5 6; do
+            echo "Tentativa $tentativa de conexão com TinaCloud..."
+            if npm run cms:build; then
+              OK=1
+              break
+            fi
+            if [ "$tentativa" -lt 6 ]; then
+              echo "TinaCloud ainda não está pronto; nova tentativa em 30 segundos."
+              sleep 30
+            fi
+          done
+          test "$OK" -eq 1 || (echo "Não foi possível compilar o painel TinaCMS." && exit 1)
+
+      - name: Compilar Portal V2
+        working-directory: portal-v2
+        run: npm run build
+
+      - name: Atualizar somente /v2
+        run: |
+          rm -rf v2
+          mkdir -p v2
+          cp -R portal-v2/dist/. v2/
+
+      - name: Publicar preview V2
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v2
+          if git diff --cached --quiet; then
+            echo "Sem alterações para publicar."
+            exit 0
+          fi
+          git commit -m "chore(v2): atualizar preview com CMS [skip ci]"
+          git push origin main

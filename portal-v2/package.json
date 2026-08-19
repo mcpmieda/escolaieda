@@ -1,0 +1,27 @@
+{
+  "name": "escola-ieda-portal-v2",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "cms:audit": "tinacms audit",
+    "cms:build": "tinacms build --noTelemetry"
+  },
+  "dependencies": {
+    "astro": "^6.4.4",
+    "tinacms": "3.11.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@tinacms/cli": "2.5.6",
+    "@types/node": "^24.0.0",
+    "typescript": "^6.0.3"
+  }
+}

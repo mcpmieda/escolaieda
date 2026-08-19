@@ -1,0 +1,33 @@
+---
+interface LinkItem {
+  icon: string;
+  title: string;
+  description: string;
+  href: string;
+}
+
+interface Props {
+  items: LinkItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="quick-section" id="acessos">
+  <div class="container">
+    <div class="section-heading compact-heading" data-reveal="up">
+      <div><span class="section-kicker">Encontre rapidamente</span><h2>Acessos principais</h2></div>
+      <p>Os pontos mais úteis da página, sem repetir caminhos ou serviços.</p>
+    </div>
+
+    <div class="quick-grid">
+      {items.map((item, index) => (
+        <a class="quick-card" href={item.href} data-reveal="up" style={`--delay:${index * 80}ms`}>
+          <span class="quick-icon" aria-hidden="true">{item.icon}</span>
+          <div><h3>{item.title}</h3><p>{item.description}</p></div>
+          <span class="quick-arrow" aria-hidden="true">→</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
