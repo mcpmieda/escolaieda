@@ -1,13 +1,18 @@
 ---
 import '../styles/global.css';
+import TinaIsland from '@tinacms/astro/TinaIsland.astro';
 import SiteHeader from '../components/SiteHeader.astro';
-import Hero from '../components/Hero.astro';
-import QuickLinks from '../components/QuickLinks.astro';
-import InfoBanner from '../components/InfoBanner.astro';
-import SchoolOverview from '../components/SchoolOverview.astro';
-import ContactSection from '../components/ContactSection.astro';
+import HomeBody from '../components/HomeBody.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import { homeContent } from '../data/home';
+import { getHome } from '../lib/home-data';
+import { islands } from '../lib/islands';
+
+const homeResult = await getHome();
+const homeContent = homeResult.data?.home;
+
+if (!homeContent) {
+  return new Response('Conteúdo da página inicial não encontrado.', { status: 404 });
+}
 ---
 
 <!doctype html>
@@ -22,18 +27,14 @@ import { homeContent } from '../data/home';
   <body>
     <SiteHeader />
 
-    <main id="inicio">
-      <Hero content={homeContent.hero} />
-      <QuickLinks items={homeContent.quickLinks} />
-      <InfoBanner content={homeContent.info} />
-      <SchoolOverview content={homeContent.school} />
-      <ContactSection content={homeContent.contact} />
-    </main>
+    <TinaIsland name="home" wrapper={islands.home.wrapper} primary>
+      <HomeBody content={homeContent} />
+    </TinaIsland>
 
     <SiteFooter
-      email={homeContent.contact.email}
-      whatsappLabel={homeContent.contact.whatsappLabel}
-      whatsappUrl={homeContent.contact.whatsappUrl}
+      email={homeContent.contact?.email ?? ''}
+      whatsappLabel={homeContent.contact?.whatsappLabel ?? ''}
+      whatsappUrl={homeContent.contact?.whatsappUrl ?? ''}
     />
 
     <script is:inline>

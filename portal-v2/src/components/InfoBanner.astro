@@ -1,10 +1,8 @@
 ---
+import { tinaField } from '@tinacms/astro/tina-field';
+
 interface Props {
-  content: {
-    kicker: string;
-    title: string;
-    description: string;
-  };
+  content: any;
 }
 
 const { content } = Astro.props;
@@ -15,9 +13,9 @@ const { content } = Astro.props;
     <div class="notice-card" data-reveal="scale">
       <div class="notice-icon" aria-hidden="true">✦</div>
       <div>
-        <span class="section-kicker">{content.kicker}</span>
-        <h2>{content.title}</h2>
-        <p>{content.description}</p>
+        <span class="section-kicker" data-tina-field={tinaField(content, 'kicker')}>{content.kicker}</span>
+        <h2 data-tina-field={tinaField(content, 'title')}>{content.title}</h2>
+        <p data-tina-field={tinaField(content, 'description')}>{content.description}</p>
       </div>
     </div>
   </div>

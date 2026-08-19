@@ -1,0 +1,22 @@
+---
+import Hero from './Hero.astro';
+import QuickLinks from './QuickLinks.astro';
+import InfoBanner from './InfoBanner.astro';
+import SchoolOverview from './SchoolOverview.astro';
+import ContactSection from './ContactSection.astro';
+import type { CmsHome } from '../lib/home-data';
+
+interface Props {
+  content: CmsHome;
+}
+
+const { content } = Astro.props;
+---
+
+<div id="inicio">
+  <Hero content={content.hero as any} />
+  <QuickLinks items={(content.quickLinks ?? []).filter(Boolean) as any} />
+  <InfoBanner content={content.info as any} />
+  <SchoolOverview content={content.school as any} />
+  <ContactSection content={content.contact as any} />
+</div>

@@ -1,14 +1,8 @@
 ---
+import { tinaField } from '@tinacms/astro/tina-field';
+
 interface Props {
-  content: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    location: string;
-    state: string;
-    grade: string;
-    gradeLabel: string;
-  };
+  content: any;
 }
 
 const { content } = Astro.props;
@@ -22,9 +16,9 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
   <div class="hero-orbit orbit-two" aria-hidden="true"></div>
   <div class="container hero-grid">
     <div class="hero-copy" data-reveal="left">
-      <span class="eyebrow">{content.eyebrow}</span>
-      <h1>{content.title}</h1>
-      <p>{content.description}</p>
+      <span class="eyebrow" data-tina-field={tinaField(content, 'eyebrow')}>{content.eyebrow}</span>
+      <h1 data-tina-field={tinaField(content, 'title')}>{content.title}</h1>
+      <p data-tina-field={tinaField(content, 'description')}>{content.description}</p>
     </div>
     <div class="hero-visual" data-reveal="right" aria-label="Identidade visual da Escola Iêda">
       <div class="logo-shell" data-parallax="0.035">
@@ -32,11 +26,17 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
       </div>
       <div class="floating-card card-top float-slow">
         <span aria-hidden="true">📍</span>
-        <div><strong>{content.location}</strong><small>{content.state}</small></div>
+        <div>
+          <strong data-tina-field={tinaField(content, 'location')}>{content.location}</strong>
+          <small data-tina-field={tinaField(content, 'state')}>{content.state}</small>
+        </div>
       </div>
       <div class="floating-card card-bottom float-reverse">
         <span aria-hidden="true">🏫</span>
-        <div><strong>{content.grade}</strong><small>{content.gradeLabel}</small></div>
+        <div>
+          <strong data-tina-field={tinaField(content, 'grade')}>{content.grade}</strong>
+          <small data-tina-field={tinaField(content, 'gradeLabel')}>{content.gradeLabel}</small>
+        </div>
       </div>
     </div>
   </div>

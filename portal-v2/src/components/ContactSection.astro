@@ -1,15 +1,8 @@
 ---
+import { tinaField } from '@tinacms/astro/tina-field';
+
 interface Props {
-  content: {
-    kicker: string;
-    title: string;
-    description: string;
-    addressLine1: string;
-    addressLine2: string;
-    email: string;
-    whatsappLabel: string;
-    whatsappUrl: string;
-  };
+  content: any;
 }
 
 const { content } = Astro.props;
@@ -18,18 +11,18 @@ const { content } = Astro.props;
 <section class="contact-section" id="contato">
   <div class="container contact-grid">
     <div class="contact-copy" data-reveal="left">
-      <span class="section-kicker">{content.kicker}</span>
-      <h2>{content.title}</h2>
-      <p>{content.description}</p>
+      <span class="section-kicker" data-tina-field={tinaField(content, 'kicker')}>{content.kicker}</span>
+      <h2 data-tina-field={tinaField(content, 'title')}>{content.title}</h2>
+      <p data-tina-field={tinaField(content, 'description')}>{content.description}</p>
       <div class="address-block">
         <strong>Endereço</strong>
-        <span>{content.addressLine1}</span>
-        <span>{content.addressLine2}</span>
+        <span data-tina-field={tinaField(content, 'addressLine1')}>{content.addressLine1}</span>
+        <span data-tina-field={tinaField(content, 'addressLine2')}>{content.addressLine2}</span>
       </div>
     </div>
 
     <div class="contact-cards" data-reveal="right">
-      <a class="contact-card" href={`mailto:${content.email}`}>
+      <a class="contact-card" href={`mailto:${content.email}`} data-tina-field={tinaField(content, 'email')}>
         <span class="contact-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m5 8 7 5 7-5"/></svg>
         </span>
@@ -37,7 +30,7 @@ const { content } = Astro.props;
         <span class="contact-arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="contact-card whatsapp-card" href={content.whatsappUrl} target="_blank" rel="noopener noreferrer">
+      <a class="contact-card whatsapp-card" href={content.whatsappUrl} target="_blank" rel="noopener noreferrer" data-tina-field={tinaField(content, 'whatsappLabel')}>
         <span class="contact-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 0 0-6.7 12.4L4 20l3.7-1.2A8 8 0 1 0 12 4Z"/><path d="M9.2 8.7c.4 2 2 3.7 4.1 4.8.8.4 1.4.4 1.9-.2l.8-1"/></svg>
         </span>
