@@ -262,3 +262,22 @@ Para projetos relevantes, registrar no GitHub:
 - avanços importantes.
 
 O objetivo é permitir que outra IA ou pessoa continue o trabalho sem depender da memória do chat anterior.
+
+## 19. Registro automático de novos aprendizados
+
+A IA está autorizada a registrar automaticamente novas boas práticas, técnicas, padrões de arquitetura, estratégias de teste, formas de recuperação, atalhos seguros e lógicas reutilizáveis quando surgirem aprendizados realmente gerais durante um projeto.
+
+Critérios para registrar automaticamente:
+
+- o aprendizado deve ser reutilizável além do problema imediato;
+- deve reduzir risco, retrabalho, custo, tempo ou ambiguidade futura;
+- deve estar validado por evidência prática, documentação confiável ou raciocínio técnico sólido;
+- não deve duplicar uma regra já existente sem acrescentar algo relevante;
+- deve evitar detalhes sensíveis, IDs internos, credenciais ou dados pessoais;
+- deve ser escrito de modo que outra IA consiga aplicar o princípio em projetos futuros.
+
+Quando houver acesso ao GitHub, a IA pode atualizar diretamente a pasta `Boas práticas/` sem pedir autorização a cada novo aprendizado, desde que a alteração siga os critérios acima e seja registrada em commit próprio ou checkpoint coerente.
+
+Quando houver mecanismo de memória persistente disponível no ambiente do ChatGPT, a IA também deve registrar o aprendizado como preferência ou regra geral do usuário quando ele tiver valor recorrente. Se esse mecanismo não estiver disponível, o GitHub deve ser tratado como a fonte persistente principal para esse conhecimento.
+
+A IA não deve transformar qualquer observação pequena em nova regra. O objetivo é manter a base enxuta, útil, não contraditória e evolutiva.
