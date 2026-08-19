@@ -73,20 +73,7 @@ jobs:
 
       - name: Compilar painel TinaCMS
         working-directory: portal-v2
-        run: |
-          OK=0
-          for tentativa in 1 2 3 4 5 6 7 8 9 10; do
-            echo "Tentativa $tentativa de conexão com TinaCloud..."
-            if npm run cms:build; then
-              OK=1
-              break
-            fi
-            if [ "$tentativa" -lt 10 ]; then
-              echo "TinaCloud ainda não está pronto; nova tentativa em 30 segundos."
-              sleep 30
-            fi
-          done
-          test "$OK" -eq 1 || (echo "Não foi possível compilar o painel TinaCMS." && exit 1)
+        run: npm run cms:build
 
       - name: Compilar Portal V2
         working-directory: portal-v2
@@ -97,12 +84,13 @@ jobs:
           rm -rf v2
           mkdir -p v2
           cp -R portal-v2/dist/. v2/
+          rm -f v2/admin/.gitignore
 
       - name: Publicar preview V2
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add v2
+          git add -A v2
           if git diff --cached --quiet; then
             echo "Sem alterações para publicar."
             exit 0
