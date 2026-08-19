@@ -4,7 +4,7 @@ export const statsBlockSchema: Template = {
   name: "stats",
   label: "Números da escola",
   fields: [
-    { type: "string", name: "title", label: "Título" },
+    { type: "string", name: "title", label: "Título", required: true },
     { type: "string", name: "description", label: "Descrição" },
     {
       type: "object",
