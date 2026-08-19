@@ -4,3 +4,5 @@ dist/
 .env
 .env.*
 !.env.example
+tina/__generated__/
+public/admin/
