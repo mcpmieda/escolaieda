@@ -1,60 +1,66 @@
 # Portal Escola Iêda V2
 
-Nova geração do `escolaieda.com`, desenvolvida de forma isolada enquanto a Home oficial atual permanece em produção.
+Nova geração do `escolaieda.com`, mantida em paralelo com a Home oficial atual.
+
+## Arquitetura adotada
+
+A fonte da V2 fica em `portal-v2/` na branch `main`, mas a Home oficial da raiz continua independente.
+
+- `https://escolaieda.com/` — site oficial atual, preservado durante os testes;
+- `https://escolaieda.com/v2/` — preview público da nova Home;
+- `https://escolaieda.com/v2/admin/` — painel TinaCMS da V2;
+- `portal-v2/` — código-fonte Astro + conteúdo + configuração TinaCMS;
+- `v2/` — saída estática compilada e publicada automaticamente.
+
+Essa organização elimina a necessidade de Codespaces, terminal e sincronização manual de branches para o uso cotidiano do CMS.
 
 ## Estado atual
 
 - Home visual V2 aprovada como base;
-- Astro funcionando e publicado para testes em `https://escolaieda.com/v2/`;
+- Astro 6 com TypeScript;
 - animações e responsividade implementadas;
 - conteúdo público separado de recursos internos da escola;
 - Home dividida em componentes reutilizáveis;
-- conteúdo da Home armazenado em `content/home/home.json`;
-- componentes consomem o JSON sem misturar conteúdo e apresentação;
-- esquema TinaCMS definido em `tina/config.ts`;
-- coleção `Página inicial` configurada como documento único/global;
-- branch `v2/home-visual` preservada como baseline visual estável;
-- a raiz `https://escolaieda.com/` continua usando a Home oficial atual.
+- conteúdo editável em `content/home/home.json`;
+- esquema TinaCMS em `tina/config.ts`;
+- `tina/tina-lock.json` versionado para indexação do TinaCloud;
+- TinaCloud conectado ao repositório;
+- secrets `TINA_PUBLIC_CLIENT_ID` e `TINA_TOKEN` armazenados no GitHub Actions;
+- `v2/home-visual` preservada como baseline visual anterior.
 
 ## Estrutura da Home
 
-- `SiteHeader.astro` — cabeçalho e navegação;
-- `Hero.astro` — capa principal e identidade visual;
-- `QuickLinks.astro` — acessos públicos principais;
-- `InfoBanner.astro` — faixa informativa;
-- `SchoolOverview.astro` — apresentação e dados institucionais;
-- `ContactSection.astro` — contato público;
-- `SiteFooter.astro` — rodapé;
-- `content/home/home.json` — fonte única do conteúdo editável da Home;
-- `src/data/home.ts` — adaptador simples entre o conteúdo e os componentes;
-- `tina/config.ts` — modelo do CMS.
+- `src/components/SiteHeader.astro` — cabeçalho e navegação;
+- `src/components/Hero.astro` — capa principal e identidade visual;
+- `src/components/QuickLinks.astro` — acessos públicos principais;
+- `src/components/InfoBanner.astro` — faixa informativa;
+- `src/components/SchoolOverview.astro` — apresentação e dados institucionais;
+- `src/components/ContactSection.astro` — contato público;
+- `src/components/SiteFooter.astro` — rodapé;
+- `content/home/home.json` — fonte única do conteúdo editável;
+- `src/data/home.ts` — adaptador entre conteúdo e componentes;
+- `tina/config.ts` — modelo e configuração do CMS.
 
-## Estratégia
+## Publicação automática
 
-1. ~~validar uma Home moderna em Astro puro~~ — concluído;
-2. ~~consolidar componentes e separar conteúdo da apresentação~~ — concluído;
-3. ~~mover a Home para uma fonte de conteúdo estruturada~~ — concluído;
-4. validar o esquema do CMS em CI — em andamento;
-5. conectar o backend de edição e publicar o painel de teste em `/v2/admin/`;
-6. validar o painel com usuário leigo;
-7. decidir se a edição visual completa exige migração da V2 para um host com suporte a rotas dinâmicas;
-8. substituir a Home atual somente após aprovação final.
+O workflow `.github/workflows/portal-v2-cms-ci.yml` observa alterações em `portal-v2/**` na `main`.
 
-## Comandos de desenvolvimento
+Fluxo:
 
-```bash
-npm install
-npm run dev
-```
+1. instala dependências com `npm ci`;
+2. audita o conteúdo TinaCMS;
+3. executa `astro check`;
+4. compila o site;
+5. compila o painel TinaCMS usando os secrets do GitHub;
+6. substitui somente a pasta `/v2/` pelo novo build;
+7. mantém `index.html` da raiz e os sistemas existentes intactos.
 
-## Validação
+Alterações feitas pelo painel TinaCMS no conteúdo da V2 acionam esse mesmo fluxo automaticamente.
 
-```bash
-npm run cms:audit
-npm run check
-npm run build
-```
+## Segurança e rollback
 
-## Regra de segurança
+A V2 não substitui automaticamente a Home oficial. Durante os testes, o workflow pode modificar somente a pasta `/v2/` e os próprios arquivos-fonte de `portal-v2/` quando houver edição autorizada pelo CMS.
 
-A publicação automática da V2 pode atualizar somente a pasta `/v2/` na `main`. Ela não pode substituir o `index.html` da raiz nem os sistemas existentes. A migração da Home oficial só ocorre após validação visual, técnica e administrativa.
+As branches `v2/home-visual` e `v2/cms-integration` permanecem como referências históricas e pontos de recuperação durante a implantação.
+
+A troca da Home oficial só será feita depois de validação visual, técnica e administrativa.
