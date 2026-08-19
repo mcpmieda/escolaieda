@@ -4,7 +4,7 @@ export const quickLinksBlockSchema: Template = {
   name: "quickLinks",
   label: "Acessos rápidos",
   fields: [
-    { type: "string", name: "title", label: "Título" },
+    { type: "string", name: "title", label: "Título", required: true },
     {
       type: "object",
       name: "items",
