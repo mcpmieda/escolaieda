@@ -1,0 +1,18 @@
+---
+import Base from "../layouts/Base.astro";
+import TinaIsland from "@tinacms/astro/TinaIsland.astro";
+import PageBody from "../components/islands/PageBody.astro";
+import { getPage } from "../lib/data";
+import { islands } from "../lib/islands";
+
+const slug = "home";
+const page = await getPage(slug);
+const data = page.data?.page;
+if (!data) return new Response("Página não encontrada", { status: 404 });
+---
+
+<Base title={data.seoTitle} description={data.seoDescription || undefined}>
+  <TinaIsland name="page" wrapper={islands.page.wrapper} params={{ slug }} primary>
+    <PageBody data={data} />
+  </TinaIsland>
+</Base>

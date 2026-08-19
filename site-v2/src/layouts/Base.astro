@@ -1,0 +1,40 @@
+---
+import "../styles/global.css";
+interface Props { title: string; description?: string }
+const { title, description = "Portal oficial da Escola Iêda MCPM" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a3560" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="/" aria-label="Página inicial da Escola Iêda MCPM">
+          <span class="brand-symbol">I</span>
+          <span><strong>Escola Iêda MCPM</strong><small>Medeiros Neto — Bahia</small></span>
+        </a>
+        <nav aria-label="Menu principal">
+          <a href="/institucional/">A escola</a>
+          <a href="/avisos/">Avisos</a>
+          <a href="/site-institucional/calendario.html">Calendário</a>
+          <a class="nav-admin" href="/admin/">Área restrita</a>
+        </nav>
+      </div>
+    </header>
+    <slot />
+    <footer id="contato" class="site-footer">
+      <div class="shell footer-grid">
+        <div><strong>Escola Iêda MCPM</strong><p>Educação, compromisso e formação cidadã.</p></div>
+        <div><strong>Contato</strong><p>secretaria@escolaieda.com<br />(73) 99871-0105</p></div>
+        <div><strong>Endereço</strong><p>Rua Clidenor de Oliveira, S/N — Centro<br />Medeiros Neto — BA</p></div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "seoTitle": "Escola Iêda MCPM | Educação e comunidade escolar",
+  "seoDescription": "Portal oficial da Escola Municipal Professora Iêda Alves de Oliveira MCPM, em Medeiros Neto - Bahia.",
+  "blocks": [
+    {
+      "_template": "hero",
+      "eyebrow": "ESCOLA MUNICIPAL • MEDEIROS NETO — BA",
+      "headline": "Educação que acolhe, ensina e transforma.",
+      "tagline": "Um portal mais simples para aproximar estudantes, famílias, profissionais e toda a comunidade da Escola Iêda MCPM.",
+      "image": "/logo-escola.webp",
+      "primaryLabel": "Conheça a escola",
+      "primaryHref": "/institucional/",
+      "secondaryLabel": "Área restrita",
+      "secondaryHref": "/admin/"
+    },
+    {
+      "_template": "quickLinks",
+      "title": "Tudo o que você precisa, mais perto",
+      "items": [
+        {
+          "marker": "PROF",
+          "title": "Professores",
+          "description": "Equipe, informações e acessos para profissionais.",
+          "href": "/site-institucional/professores.html"
+        },
+        {
+          "marker": "CAL",
+          "title": "Calendário escolar",
+          "description": "Datas, períodos e organização do ano letivo.",
+          "href": "/site-institucional/calendario.html"
+        },
+        {
+          "marker": "DOC",
+          "title": "Documentos",
+          "description": "Materiais e documentos úteis da escola.",
+          "href": "/documentos/"
+        },
+        {
+          "marker": "CONT",
+          "title": "Contato",
+          "description": "Canais oficiais de atendimento da Escola Iêda.",
+          "href": "#contato"
+        }
+      ]
+    },
+    {
+      "_template": "notice",
+      "kicker": "COMUNICAÇÃO ESCOLAR",
+      "title": "Avisos importantes sem complicação",
+      "text": "Este espaço será usado para destacar rapidamente comunicados que precisam chegar à comunidade escolar.",
+      "buttonLabel": "Ver todos os avisos",
+      "href": "/avisos/"
+    },
+    {
+      "_template": "stats",
+      "title": "Uma escola feita por pessoas",
+      "description": "Indicadores institucionais em formato claro e fácil de atualizar pelo Centro de Administração.",
+      "items": [
+        { "value": "1990", "label": "Fundação" },
+        { "value": "6º ao 9º", "label": "Ensino Fundamental" },
+        { "value": "21", "label": "Professores" },
+        { "value": "41", "label": "Funcionários" }
+      ]
+    }
+  ]
+}

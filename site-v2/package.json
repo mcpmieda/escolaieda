@@ -1,0 +1,26 @@
+{
+  "name": "escola-ieda-v2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "scripts": {
+    "dev": "tinacms dev -c \"astro dev\"",
+    "build": "tinacms build --content=local -c \"astro build\"",
+    "build:local": "tinacms build --local --skip-cloud-checks -c \"astro build\"",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "^10.1.4",
+    "@tinacms/astro": "^0.5.1",
+    "astro": "^6.4.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@tinacms/cli": "^2.5.3",
+    "tinacms": "^3.10.0",
+    "typescript": "^6.0.3"
+  }
+}

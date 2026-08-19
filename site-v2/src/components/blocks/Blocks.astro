@@ -1,0 +1,24 @@
+---
+import { tinaField } from "@tinacms/astro/tina-field";
+import Hero from "./Hero.astro";
+import QuickLinks from "./QuickLinks.astro";
+import Notice from "./Notice.astro";
+import Stats from "./Stats.astro";
+import type { CmsPage } from "../../lib/data";
+
+interface Props { data?: CmsPage | null }
+const { data } = Astro.props;
+const blocks = (data?.blocks ?? []).filter((block) => block !== null);
+---
+
+{blocks.map((block) => {
+  const rendered = (() => {
+    switch (block.__typename) {
+      case "PageBlocksHero": return <Hero data={block} />;
+      case "PageBlocksQuickLinks": return <QuickLinks data={block} />;
+      case "PageBlocksNotice": return <Notice data={block} />;
+      case "PageBlocksStats": return <Stats data={block} />;
+    }
+  })();
+  return <div data-tina-field={tinaField(block)}>{rendered}</div>;
+})}

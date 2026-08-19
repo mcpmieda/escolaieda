@@ -1,0 +1,23 @@
+---
+import { tinaField } from "@tinacms/astro/tina-field";
+import type { HeroBlock } from "../../lib/data";
+interface Props { data: HeroBlock }
+const { data } = Astro.props;
+---
+
+<section class="hero-v2">
+  <div class="shell hero-grid">
+    <div class="hero-copy">
+      {data.eyebrow && <p class="eyebrow" data-tina-field={tinaField(data, "eyebrow")}>{data.eyebrow}</p>}
+      <h1 data-tina-field={tinaField(data, "headline")}>{data.headline}</h1>
+      {data.tagline && <p class="hero-lead" data-tina-field={tinaField(data, "tagline")}>{data.tagline}</p>}
+      <div class="hero-actions">
+        {data.primaryLabel && <a class="button primary" href={data.primaryHref || "#"} data-tina-field={tinaField(data, "primaryLabel")}>{data.primaryLabel}</a>}
+        {data.secondaryLabel && <a class="button secondary" href={data.secondaryHref || "#"} data-tina-field={tinaField(data, "secondaryLabel")}>{data.secondaryLabel}</a>}
+      </div>
+    </div>
+    <div class="hero-mark" data-tina-field={tinaField(data, "image")}>
+      {data.image && <img src={data.image} alt="Logomarca da Escola Iêda MCPM" width="360" height="360" />}
+    </div>
+  </div>
+</section>

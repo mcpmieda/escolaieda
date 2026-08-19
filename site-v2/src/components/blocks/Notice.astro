@@ -1,0 +1,19 @@
+---
+import { tinaField } from "@tinacms/astro/tina-field";
+import type { NoticeBlock } from "../../lib/data";
+interface Props { data: NoticeBlock }
+const { data } = Astro.props;
+---
+
+<section class="section">
+  <div class="shell">
+    <div class="notice-card">
+      <div>
+        {data.kicker && <p class="eyebrow light" data-tina-field={tinaField(data, "kicker")}>{data.kicker}</p>}
+        <h2 data-tina-field={tinaField(data, "title")}>{data.title}</h2>
+        {data.text && <p data-tina-field={tinaField(data, "text")}>{data.text}</p>}
+      </div>
+      {data.buttonLabel && <a class="button white" href={data.href || "#"} data-tina-field={tinaField(data, "buttonLabel")}>{data.buttonLabel}</a>}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,26 @@
+---
+import { tinaField } from "@tinacms/astro/tina-field";
+import type { QuickLinksBlock } from "../../lib/data";
+interface Props { data: QuickLinksBlock }
+const { data } = Astro.props;
+const items = (data.items ?? []).filter((item) => item !== null);
+---
+
+<section class="section surface">
+  <div class="shell">
+    <div class="section-heading">
+      <span class="section-kicker">ACESSOS RÁPIDOS</span>
+      <h2 data-tina-field={tinaField(data, "title")}>{data.title}</h2>
+    </div>
+    <div class="quick-grid">
+      {items.map((item) => (
+        <a class="quick-card" href={item.href || "#"} data-tina-field={tinaField(item)}>
+          <span class="quick-marker">{item.marker}</span>
+          <strong>{item.title}</strong>
+          <span>{item.description}</span>
+          <b aria-hidden="true">→</b>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

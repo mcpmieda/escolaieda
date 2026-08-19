@@ -1,0 +1,25 @@
+---
+import { tinaField } from "@tinacms/astro/tina-field";
+import type { StatsBlock } from "../../lib/data";
+interface Props { data: StatsBlock }
+const { data } = Astro.props;
+const items = (data.items ?? []).filter((item) => item !== null);
+---
+
+<section class="section surface" id="numeros">
+  <div class="shell">
+    <div class="section-heading narrow">
+      <span class="section-kicker">NOSSA ESCOLA</span>
+      <h2 data-tina-field={tinaField(data, "title")}>{data.title}</h2>
+      {data.description && <p data-tina-field={tinaField(data, "description")}>{data.description}</p>}
+    </div>
+    <div class="stats-grid">
+      {items.map((item) => (
+        <div class="stat-card" data-tina-field={tinaField(item)}>
+          <strong>{item.value}</strong>
+          <span>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
