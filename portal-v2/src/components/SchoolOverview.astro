@@ -1,0 +1,35 @@
+---
+interface StatItem {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  content: {
+    kicker: string;
+    title: string;
+    paragraphs: string[];
+    stats: StatItem[];
+  };
+}
+
+const { content } = Astro.props;
+---
+
+<section class="school-section" id="escola">
+  <div class="container school-grid">
+    <div class="school-copy" data-reveal="left">
+      <span class="section-kicker">{content.kicker}</span>
+      <h2>{content.title}</h2>
+      {content.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+    <div class="stats-panel" data-reveal="right">
+      {content.stats.map((item, index) => (
+        <div class="stat-item" style={`--delay:${index * 90}ms`}>
+          <strong>{item.value}</strong>
+          <span>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
