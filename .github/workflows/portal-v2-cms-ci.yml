@@ -75,13 +75,13 @@ jobs:
         working-directory: portal-v2
         run: |
           OK=0
-          for tentativa in 1 2 3 4 5 6; do
+          for tentativa in 1 2 3 4 5 6 7 8 9 10; do
             echo "Tentativa $tentativa de conexão com TinaCloud..."
             if npm run cms:build; then
               OK=1
               break
             fi
-            if [ "$tentativa" -lt 6 ]; then
+            if [ "$tentativa" -lt 10 ]; then
               echo "TinaCloud ainda não está pronto; nova tentativa em 30 segundos."
               sleep 30
             fi
