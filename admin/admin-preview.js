@@ -9,9 +9,7 @@ const INDICADORES_PADRAO = [
 
 const el = {
   btnPreviaPagina: document.getElementById("btnPreviaPagina"),
-  btnPreviaHome: document.getElementById("btnPreviaHome"),
   overlay: document.getElementById("sitePreviewOverlay"),
-  dialog: document.querySelector(".sitePreviewDialog"),
   frame: document.getElementById("sitePreviewFrame"),
   viewport: document.getElementById("sitePreviewViewport"),
   status: document.getElementById("sitePreviewStatus"),
@@ -23,8 +21,10 @@ const el = {
 inicializarPrevia();
 
 function inicializarPrevia() {
-  el.btnPreviaPagina?.addEventListener("click", () => abrirPrevia({ incluirRascunhoPublicacao: true }));
-  el.btnPreviaHome?.addEventListener("click", () => abrirPrevia({ incluirRascunhoPublicacao: false }));
+  el.btnPreviaPagina?.addEventListener("click", () => {
+    const publicacoesAtivas = document.getElementById("cmsTab-conteudo")?.classList.contains("active") === true;
+    abrirPrevia({ incluirRascunhoPublicacao: publicacoesAtivas });
+  });
   el.btnDesktop?.addEventListener("click", () => definirDispositivo("desktop"));
   el.btnMobile?.addEventListener("click", () => definirDispositivo("mobile"));
   el.btnFechar?.addEventListener("click", fecharPrevia);
