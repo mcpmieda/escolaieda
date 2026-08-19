@@ -23,33 +23,73 @@ jobs:
   validar:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      lock_changed: ${{ steps.tina_lock.outputs.changed }}
     defaults:
       run:
         working-directory: portal-v2
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: portal-v2/package-lock.json
+
       - name: Instalar dependências
         run: npm ci --no-audit --no-fund
+
+      - name: Sincronizar esquema TinaCMS localmente
+        id: tina_lock
+        run: |
+          set +e
+          timeout 45s npx tinacms dev --noWatch --noSDK --noTelemetry > /tmp/tina-dev.log 2>&1
+          STATUS=$?
+          set -e
+          cat /tmp/tina-dev.log
+          if [ "$STATUS" -ne 0 ] && [ "$STATUS" -ne 124 ]; then
+            exit "$STATUS"
+          fi
+          if git diff --quiet -- tina/tina-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Versionar tina-lock atualizado
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.tina_lock.outputs.changed == 'true'
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add portal-v2/tina/tina-lock.json
+          git commit -m "chore(cms): sincronizar tina-lock"
+          git push origin main
+
       - name: Auditar conteúdo TinaCMS
+        if: steps.tina_lock.outputs.changed != 'true' || github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: npm run cms:audit
+
       - name: Verificar Astro e TypeScript
+        if: steps.tina_lock.outputs.changed != 'true' || github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: npm run check
+
       - name: Compilar site
+        if: steps.tina_lock.outputs.changed != 'true' || github.event_name != 'push' || github.ref != 'refs/heads/main'
         run: npm run build
 
   publicar-v2:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.validar.outputs.lock_changed != 'true'
     needs: validar
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
       TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+      TINA_BRANCH: main
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,7 +113,20 @@ jobs:
 
       - name: Compilar painel TinaCMS
         working-directory: portal-v2
-        run: npm run cms:build
+        run: |
+          OK=0
+          for tentativa in 1 2 3 4 5 6 7 8; do
+            echo "Tentativa $tentativa de conexão com TinaCloud..."
+            if npm run cms:build; then
+              OK=1
+              break
+            fi
+            if [ "$tentativa" -lt 8 ]; then
+              echo "Aguardando indexação do esquema por 30 segundos..."
+              sleep 30
+            fi
+          done
+          test "$OK" -eq 1 || (echo "Não foi possível compilar o painel TinaCMS." && exit 1)
 
       - name: Compilar Portal V2
         working-directory: portal-v2
