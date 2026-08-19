@@ -23,6 +23,10 @@ jobs:
   validar:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
+      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+      TINA_BRANCH: main
     defaults:
       run:
         working-directory: portal-v2
@@ -39,6 +43,8 @@ jobs:
         run: npm run cms:audit
       - name: Verificar Astro e TypeScript
         run: npm run check
+      - name: Testar compilação TinaCloud na main
+        run: npm run cms:build
       - name: Compilar site
         run: npm run build
 
