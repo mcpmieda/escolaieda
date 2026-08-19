@@ -12,6 +12,7 @@ interface Props {
 }
 
 const { content } = Astro.props;
+const base = import.meta.env.BASE_URL;
 ---
 
 <section class="hero">
@@ -27,7 +28,7 @@ const { content } = Astro.props;
     </div>
     <div class="hero-visual" data-reveal="right" aria-label="Identidade visual da Escola Iêda">
       <div class="logo-shell" data-parallax="0.035">
-        <img src="/logo-escola.webp" alt="" aria-hidden="true" />
+        <img src={`${base}logo-escola.webp`} alt="" aria-hidden="true" />
       </div>
       <div class="floating-card card-top float-slow">
         <span aria-hidden="true">📍</span>
