@@ -4,7 +4,7 @@ const branch =
   process.env.TINA_BRANCH ||
   process.env.GITHUB_HEAD_REF ||
   process.env.GITHUB_REF_NAME ||
-  'v2/cms-integration';
+  'main';
 
 export default defineConfig({
   branch,
