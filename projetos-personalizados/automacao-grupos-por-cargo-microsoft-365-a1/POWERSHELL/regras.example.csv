@@ -1,0 +1,10 @@
+CargoNormalizado,Acao,GrupoNome,Ativo
+aluno,ADICIONAR,ALUNOS,true
+equipe de apoio,ADICIONAR,EQUIPE DE APOIO,true
+professor,ADICIONAR,PROFESSORES,true
+visitante,ADICIONAR,VISITANTE,true
+diretor,ADICIONAR,GRUPO DA SECRETARIA - ARQUIVO DIGITAL,true
+auxiliar de secretaria,ADICIONAR,GRUPO DA SECRETARIA - ARQUIVO DIGITAL,true
+secretaria,ADICIONAR,GRUPO DA SECRETARIA - ARQUIVO DIGITAL,true
+coordenador pedagógico,ADICIONAR,GRUPO DA SECRETARIA - ARQUIVO DIGITAL,true
+administrador global,IGNORAR,,true
