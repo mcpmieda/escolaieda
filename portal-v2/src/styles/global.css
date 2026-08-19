@@ -75,7 +75,7 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .quick-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(circle at 20% 10%, rgba(21,103,181,.07), transparent 42%); opacity: 0; transition: opacity .25s ease; }
 .quick-card:hover { transform: translateY(-7px); border-color: #c6dcf0; box-shadow: 0 22px 50px rgba(13,54,91,.11); }
 .quick-card:hover::before { opacity: 1; }
-.quick-icon { position: relative; z-index: 1; width: 48px; height: 48px; display: grid; place-items: center; background: var(--blue-100); color: var(--blue-600); border-radius: 14px; animation: iconDrift 4.8s ease-in-out infinite; }
+.quick-icon { position: relative; z-index: 1; width: 48px; height: 48px; display: grid; place-items: center; background: var(--blue-100); color: var(--blue-600); border-radius: 14px; font-size: 22px; animation: iconDrift 4.8s ease-in-out infinite; }
 .quick-card h3 { position: relative; z-index: 1; margin: 26px 0 8px; font-family: 'Manrope', sans-serif; font-size: 18px; color: var(--navy-950); }
 .quick-card p { position: relative; z-index: 1; margin: 0; color: var(--muted); font-size: 14px; }
 .quick-arrow { position: absolute; z-index: 1; right: 20px; bottom: 18px; color: var(--blue-600); font-size: 22px; transition: transform .25s ease; }
@@ -92,11 +92,11 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .school-section { background: var(--surface-soft); }
 .school-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
 .school-copy p { max-width: 600px; color: var(--muted); font-size: 16px; }
-.stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.stat-item { min-height: 170px; padding: 24px; display: flex; flex-direction: column; justify-content: end; border-radius: var(--radius-md); background: white; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(13,54,91,.04); transition: transform .3s ease, box-shadow .3s ease; animation-delay: var(--delay, 0ms); }
+.stats-panel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.stat-item { min-width: 0; min-height: 170px; padding: 24px; display: flex; flex-direction: column; justify-content: end; border-radius: var(--radius-md); background: white; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(13,54,91,.04); transition: transform .3s ease, box-shadow .3s ease; animation-delay: var(--delay, 0ms); }
 .stat-item:hover { transform: translateY(-5px); box-shadow: 0 18px 42px rgba(13,54,91,.09); }
-.stat-item strong { font-family: 'Manrope', sans-serif; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.05; color: var(--navy-900); }
-.stat-item span { margin-top: 10px; color: var(--muted); font-size: 13px; }
+.stat-item strong { font-family: 'Manrope', sans-serif; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.08; letter-spacing: -.025em; color: var(--navy-900); white-space: nowrap; }
+.stat-item span { margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.45; text-wrap: balance; overflow-wrap: normal; word-break: normal; }
 
 .values-section { padding: 86px 0; background: var(--navy-950); color: white; }
 .values-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
@@ -155,7 +155,8 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
   .hero-visual { min-height: 390px; }
   .quick-grid { grid-template-columns: 1fr; }
   .school-grid, .values-inner, .contact-grid { grid-template-columns: 1fr; gap: 36px; }
-  .stats-panel { grid-template-columns: repeat(3, 1fr); }
+  .stats-panel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stat-item strong { font-size: clamp(24px, 3.2vw, 32px); }
   .footer-main { align-items: flex-start; flex-direction: column; }
   .footer-contact { text-align: left; }
 }
@@ -183,6 +184,7 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
   .notice-icon { width: 52px; height: 52px; }
   .stats-panel { grid-template-columns: 1fr; }
   .stat-item { min-height: 125px; padding: 18px; }
+  .stat-item strong { font-size: 28px; }
   .values-section { padding: 64px 0; }
   .contact-card { grid-template-columns: auto 1fr; }
   .contact-arrow { display: none; }
