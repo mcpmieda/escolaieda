@@ -14,6 +14,8 @@ Automação em produção para incluir usuários em grupos Microsoft 365 conform
 
 A V1 é **ADD-ONLY**: adiciona quando necessário, mas não remove usuários automaticamente de grupos.
 
+Para uma explicação sem termos técnicos, veja [`RESUMO_FACIL.md`](./RESUMO_FACIL.md).
+
 ## Arquitetura final
 
 ```text
@@ -61,6 +63,7 @@ Validado em execução real:
 
 Comece por estes arquivos:
 
+- [`RESUMO_FACIL.md`](./RESUMO_FACIL.md) — explicação curta para usuário não técnico.
 - [`DOCUMENTACAO_FINAL.md`](./DOCUMENTACAO_FINAL.md) — explicação completa da solução e arquitetura final.
 - [`INSTALADOR_MULTI_TENANT.md`](./INSTALADOR_MULTI_TENANT.md) — método para replicar a solução em outros tenants como um instalador por etapas.
 - [`RUNBOOK_OPERACIONAL.md`](./RUNBOOK_OPERACIONAL.md) — operação diária, manutenção, recuperação e testes.
