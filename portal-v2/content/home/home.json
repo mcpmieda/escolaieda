@@ -30,7 +30,7 @@
   ],
   "info": {
     "kicker": "Informação centralizada",
-    "title": "Menos procura, mais clareza.",
+    "title": "Menos procura, mais clareza..",
     "description": "Calendário, orientações, notícias e informações institucionais reunidos para facilitar o dia a dia de estudantes, famílias e comunidade."
   },
   "school": {
@@ -41,9 +41,18 @@
       "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante."
     ],
     "stats": [
-      { "value": "1990", "label": "Fundação" },
-      { "value": "6º ao 9º", "label": "Ensino Fundamental — Anos Finais" },
-      { "value": "Medeiros Neto", "label": "Bahia" }
+      {
+        "value": "1990",
+        "label": "Fundação"
+      },
+      {
+        "value": "6º ao 9º",
+        "label": "Ensino Fundamental — Anos Finais"
+      },
+      {
+        "value": "Medeiros Neto",
+        "label": "Bahia"
+      }
     ]
   },
   "contact": {
