@@ -1,0 +1,23 @@
+---
+interface Props {
+  email: string;
+  whatsappLabel: string;
+  whatsappUrl: string;
+}
+
+const { email, whatsappLabel, whatsappUrl } = Astro.props;
+---
+
+<footer class="site-footer">
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <img src="/logo-escola.webp" alt="" aria-hidden="true" />
+      <div><strong>Escola Municipal Professora Iêda Alves de Oliveira MCPM</strong><p>Medeiros Neto — Bahia</p></div>
+    </div>
+    <div class="footer-contact">
+      <a href={`mailto:${email}`}>{email}</a>
+      <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">{whatsappLabel}</a>
+    </div>
+  </div>
+  <div class="container footer-bottom"><span>Portal da Escola Iêda</span><span>Educação • Compromisso • Cidadania</span></div>
+</footer>
