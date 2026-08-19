@@ -33,7 +33,7 @@ O usuário será adicionado diretamente ao grupo correspondente ao Cargo.
 **Status:** aprovado.
 
 ## D-007 — SharePoint Arquivo Digital como repositório operacional
-Regras, Estado e Log ficarão no site do Arquivo Digital.
+Regras, Estado e Log ficarão no site operacional escolhido pelo tenant.
 
 **Status:** aprovado.
 
@@ -44,10 +44,10 @@ Regras, Estado e Log ficarão no site do Arquivo Digital.
 
 **Status:** aprovado.
 
-## D-009 — Recorrência inicial de 2 minutos
-Equilíbrio inicial entre rapidez e consumo de solicitações.
+## D-009 — Recorrência de 2 minutos
+Equilíbrio entre rapidez e consumo de solicitações. Não constitui SLA rígido.
 
-**Status:** aprovado para piloto, sujeito a medição.
+**Status:** validado em produção.
 
 ## D-010 — Estado contínuo
 Usar conceito `ESTADO DOS USUÁRIOS`, não “usuário processado definitivamente”.
@@ -57,7 +57,7 @@ Usar conceito `ESTADO DOS USUÁRIOS`, não “usuário processado definitivament
 ## D-011 — V1 não remove associações
 V1 somente adiciona. Remoção automática exige rastreabilidade de origem.
 
-**Status:** aprovado.
+**Status:** aprovado e mantido em produção.
 
 ## D-012 — IDs como referência técnica
 Usar `GroupID` e `EntraID` nas operações; nomes são leitura humana.
@@ -65,9 +65,11 @@ Usar `GroupID` e `EntraID` nas operações; nomes são leitura humana.
 **Status:** aprovado.
 
 ## D-013 — Conta administrativa estável
-`adminn@eduieda.onmicrosoft.com` será proprietário/coproprietário administrativo e conta de contingência.
+Cada tenant deve possuir uma conta técnica/administrativa estável para conexões, contingência e operação do fluxo.
 
-**Status:** aprovado.
+O UPN real não deve ser fixado na documentação pública nem no template multi-tenant.
+
+**Status:** aprovado; sanitizado para escala.
 
 ## D-014 — Microsoft Graph não é motor da V1
 Graph fica reservado para auditoria via PowerShell e possível evolução arquitetural futura.
@@ -120,25 +122,91 @@ Pode ser usado para comandos e scripts sem instalação local, mas não será fo
 **Status:** aprovado.
 
 ## D-024 — PowerShell não é atalho para reduzir a recorrência
-A recorrência da V1 permanece em 2 minutos. Near-real-time exige estudo de arquitetura orientada a eventos.
+A recorrência permanece em 2 minutos. Near-real-time orientado a evento exige arquitetura diferente.
 
 **Status:** aprovado.
 
-## D-025 — Primeiros scripts serão de leitura
-A ordem inicial será diagnóstico do tenant, auditoria de Cargos e descoberta de grupos/IDs antes de qualquer script de escrita.
+## D-025 — Scripts começam por leitura
+A ordem de implantação em novo tenant será diagnóstico, auditoria de Cargos e descoberta de grupos/IDs antes de qualquer escrita.
 
 **Status:** aprovado.
 
-## D-026 — Construção do fluxo passa a ser orientada a definição
-A partir da validação da detecção de candidatos, evitar continuar montando o Power Automate ação por ação quando a mesma alteração puder ser aplicada de forma segura por definição JSON, solução, PowerShell ou API oficial.
+## D-026 — Construção do fluxo orientada a definição
+Evitar continuar montando o Power Automate ação por ação quando a alteração puder ser aplicada de forma segura por definição JSON, solução, PowerShell ou API oficial.
 
-O Power Automate continua sendo o motor de produção. A mudança é apenas no método de desenvolvimento e implantação.
+O Power Automate continua sendo o motor de produção. A mudança é no método de desenvolvimento e implantação.
+
+**Status:** aprovado e aplicado.
+
+## D-027 — Fluxo solution-aware
+O fluxo deve estar em uma Solution/Dataverse para administração por código via `clientdata`.
+
+A migração deve preservar o fluxo existente e ser precedida por validação/backup.
+
+**Status:** concluído e validado.
+
+## D-028 — Produção R2 é o baseline estável
+A arquitetura de produção usa preparação de dados + decisão única + `Switch`, com profundidade final validada de 6 níveis.
+
+**Status:** baseline de produção.
+
+## D-029 — Limite estrutural deve ser validado antes do deploy
+Nenhuma definição pode ser enviada sem validação de profundidade e `runAfter`. O instalador deve cancelar localmente se a profundidade exceder 8 ou se existir referência entre níveis incompatíveis.
+
+**Status:** obrigatório.
+
+## D-030 — Reconciliação periódica de 24 horas
+Além da detecção rápida por assinatura, usuários com Estado antigo devem ser reavaliados em 24 horas.
+
+Objetivos:
+
+- reaplicar associação removida manualmente;
+- aplicar regra criada posteriormente;
+- reavaliar estados antigos;
+- cobrir mudanças fora da assinatura curta.
+
+`ERRO` e `PENDENTE_GRUPO` mantêm retry imediato.
+
+**Status:** ativo e validado.
+
+## D-031 — Buscar regras somente quando existirem candidatos
+A consulta da lista de Regras fica dentro do ramo `Há Candidatos = true`.
+
+**Status:** ativo e validado.
+
+## D-032 — Menor privilégio nas listas técnicas
+As três listas usam permissões exclusivas.
+
+- REGRAS: conta técnica com Leitura;
+- ESTADO: conta técnica com Colaboração;
+- LOG: conta técnica com Colaboração;
+- Proprietários: Controle Total;
+- Membros e Visitantes: sem acesso.
+
+**Status:** aplicado e validado em execução verde.
+
+## D-033 — Instalação multi-tenant será orientada por configuração
+Novos tenants usarão `CONFIG.local.psd1` ou equivalente, com nomes lógicos. IDs internos serão descobertos dinamicamente por tenant.
+
+Nenhum GroupID, WorkflowID, ListID, ConnectionID ou TenantID do ambiente original será reutilizado.
 
 **Status:** aprovado.
 
-## D-027 — Tornar o fluxo solution-aware para habilitar automação de desenvolvimento
-Quando tecnicamente suportado pelo ambiente, migrar o fluxo existente para uma solução Dataverse usando os mecanismos oficiais da Microsoft. Isso permite versionar a definição (`clientdata`), trabalhar com API/PowerShell e reduzir alterações manuais no designer.
+## D-034 — Instalador multi-tenant em modo semi-automático primeiro
+A primeira versão escalável automatiza preflight, descoberta, auditoria e preparação; conexões cloud, confirmação das listas e hardening permanecem com checkpoints interativos até o processo estar validado em vários tenants.
 
-A migração deve preservar o fluxo existente e ser precedida por validação/backup. Não criar um segundo motor de produção paralelo.
+Automação total só será adotada depois de autenticação app-only/governança adequada e múltiplas implantações bem-sucedidas.
 
-**Status:** aprovado para execução após verificação de pré-requisitos.
+**Status:** aprovado.
+
+## D-035 — Documentação final substitui planos como referência operacional
+`PLANO_MESTRE.md` e adendos permanecem como histórico. A referência corrente para operação, escala e manutenção passa a ser:
+
+- `README.md`;
+- `DOCUMENTACAO_FINAL.md`;
+- `INSTALADOR_MULTI_TENANT.md`;
+- `RUNBOOK_OPERACIONAL.md`;
+- `ERROS_CONHECIDOS.md`;
+- `POWERSHELL/README.md`.
+
+**Status:** aprovado.
