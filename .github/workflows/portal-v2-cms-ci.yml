@@ -42,6 +42,58 @@ jobs:
       - name: Compilar site
         run: npm run build
 
+  publicar-v2-cms:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/v2/cms-integration'
+    needs: validar-cms
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
+      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+    steps:
+      - name: Baixar V2 CMS
+        uses: actions/checkout@v4
+        with:
+          ref: v2/cms-integration
+          path: source
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Compilar painel e site
+        working-directory: source/portal-v2
+        run: |
+          npm install --no-audit --no-fund
+          npm run cms:build
+          npm run build
+
+      - name: Baixar site oficial
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: published
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Atualizar somente /v2
+        run: |
+          rm -rf published/v2
+          mkdir -p published/v2
+          cp -R source/portal-v2/dist/. published/v2/
+
+      - name: Publicar V2 com painel
+        working-directory: published
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v2
+          if git diff --cached --quiet; then
+            echo "Sem alterações para publicar."
+            exit 0
+          fi
+          git commit -m "chore(v2): publicar preview com CMS"
+          git push origin main
+
   preparar-locks:
     if: github.event_name == 'push' && github.ref == 'refs/heads/v2/cms-integration'
     runs-on: ubuntu-latest
