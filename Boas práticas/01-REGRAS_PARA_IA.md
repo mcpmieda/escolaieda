@@ -281,3 +281,114 @@ Quando houver acesso ao GitHub, a IA pode atualizar diretamente a pasta `Boas pr
 Quando houver mecanismo de memória persistente disponível no ambiente do ChatGPT, a IA também deve registrar o aprendizado como preferência ou regra geral do usuário quando ele tiver valor recorrente. Se esse mecanismo não estiver disponível, o GitHub deve ser tratado como a fonte persistente principal para esse conhecimento.
 
 A IA não deve transformar qualquer observação pequena em nova regra. O objetivo é manter a base enxuta, útil, não contraditória e evolutiva.
+
+## 20. Retomada automática de contexto
+
+Quando um projeto possuir `AI_CONTEXT.md`, `DOCUMENTO_BASE.md` ou equivalente acessível, a IA deve recuperar esses documentos diretamente antes de pedir que o usuário reexplique o projeto.
+
+Prioridade:
+
+```text
+conector do repositório
+→ API/ferramenta do ambiente
+→ URL pública/raw quando aplicável
+→ pedir conteúdo ao usuário apenas se não houver acesso
+```
+
+A memória persistente pode guardar ponteiros para projetos e regras gerais, mas a documentação versionada continua sendo a fonte técnica principal.
+
+## 21. Gate de mudança proporcional ao risco
+
+Não exigir o mesmo nível de confirmação para tudo.
+
+### Baixo risco
+
+Documentação, changelog, checkpoint e correções sem efeito em produção podem ser atualizados automaticamente quando já houver autorização geral.
+
+### Médio risco
+
+Explicar escopo, impacto e o que não será alterado. Pedir confirmação quando a consequência não estiver totalmente coberta pela solicitação atual.
+
+### Alto risco
+
+Para produção, exclusão, operação em massa, permissões, banco/schema, infraestrutura, migração ou alteração estrutural:
+
+```text
+confirmar baseline
+mostrar impacto/diff relevante
+confirmar backup e rollback
+obter autorização explícita para escrita quando ela ainda não tiver sido dada
+```
+
+## 22. Testes orientados ao comportamento
+
+Sempre que possível, transformar requisitos em testes que descrevem o comportamento esperado, e não detalhes internos da implementação.
+
+Esses testes devem funcionar como contrato e continuar válidos mesmo se o código for refatorado.
+
+Exemplos:
+
+- repetir a operação não duplica registro;
+- usuário sem permissão recebe bloqueio esperado;
+- alteração de Cargo muda apenas o destino previsto;
+- falha temporária é recuperada sem criar duplicidade.
+
+## 23. Guardrails automáticos antes de disciplina manual
+
+Quando uma regra importante puder ser convertida em mecanismo simples e confiável, preferir:
+
+- preflight;
+- lint;
+- teste automatizado;
+- validação de schema;
+- secret scanning;
+- proteção de branch/ruleset;
+- check de CI;
+- template;
+- script de validação.
+
+Não adicionar ferramenta apenas para parecer mais rigoroso. O mecanismo precisa reduzir risco ou trabalho de forma concreta.
+
+## 24. Arquitetura visual versionável
+
+Quando a arquitetura tiver vários componentes ou fluxo difícil de entender por texto, usar diagrama como código, preferencialmente Mermaid quando a plataforma suportar.
+
+O diagrama deve complementar a documentação, não substituí-la.
+
+## 25. Incidente grave exige post-mortem
+
+Bugs comuns continuam em `ERROS_CONHECIDOS.md`.
+
+Se houver indisponibilidade relevante, corrupção de dados, execução em massa indevida, exposição de informação ou outro incidente grave, registrar post-mortem com:
+
+```text
+linha do tempo
+impacto
+causa raiz
+fatores contribuintes
+contenção
+correção
+prevenção
+detecção futura
+```
+
+O objetivo é transformar incidente em melhoria executável, não procurar culpados.
+
+## 26. Rollout controlado e kill switch proporcional
+
+Para funcionalidade de risco que possa precisar ser desligada rapidamente, considerar feature flag ou kill switch.
+
+A implementação deve respeitar a arquitetura existente. Não introduzir serviço remoto, dependência ou complexidade nova apenas para ter uma flag.
+
+## 27. Encerramento de sessão/marco
+
+Ao concluir um marco relevante e havendo acesso autorizado ao repositório, a IA deve avaliar automaticamente se precisa:
+
+- registrar checkpoint/changelog;
+- atualizar `AI_CONTEXT.md`;
+- registrar teste;
+- atualizar baseline;
+- registrar erro/aprendizado;
+- indicar próxima ação concreta.
+
+Não depender apenas de o usuário lembrar de pedir esse fechamento.
