@@ -85,7 +85,7 @@ jobs:
         working-directory: published
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "4189828+github-actions[bot]@users.noreply.github.com"
           git add v2
           if git diff --cached --quiet; then
             echo "Sem alterações para publicar."
@@ -108,9 +108,30 @@ jobs:
       - name: Instalar dependências
         working-directory: portal-v2
         run: npm install --no-audit --no-fund
-      - name: Gerar arquivos TinaCMS
+      - name: Gerar tina-lock.json
         working-directory: portal-v2
-        run: npx tinacms build --local --noTelemetry
+        run: |
+          npx tinacms dev --noWatch --noTelemetry > /tmp/tina-dev.log 2>&1 &
+          TINA_PID=$!
+          for i in $(seq 1 90); do
+            if [ -f tina/tina-lock.json ]; then
+              kill "$TINA_PID" 2>/dev/null || true
+              wait "$TINA_PID" 2>/dev/null || true
+              echo "tina-lock.json gerado."
+              exit 0
+            fi
+            if ! kill -0 "$TINA_PID" 2>/dev/null; then
+              cat /tmp/tina-dev.log
+              echo "O Tina dev encerrou antes de gerar tina-lock.json."
+              exit 1
+            fi
+            sleep 1
+          done
+          cat /tmp/tina-dev.log
+          kill "$TINA_PID" 2>/dev/null || true
+          wait "$TINA_PID" 2>/dev/null || true
+          echo "Tempo esgotado aguardando tina-lock.json."
+          exit 1
       - name: Salvar arquivos de controle
         run: |
           git config user.name "github-actions[bot]"
