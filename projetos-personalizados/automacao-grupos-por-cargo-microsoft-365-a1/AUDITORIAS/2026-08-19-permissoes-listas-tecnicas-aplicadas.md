@@ -4,7 +4,7 @@ Data: 2026-08-19
 
 ## Estado final aplicado
 
-As três listas técnicas passaram a usar permissões exclusivas.
+As três listas técnicas usam permissões exclusivas.
 
 - AUTOMAÇÃO - REGRAS DE GRUPOS
   - conta técnica do fluxo: Leitura
@@ -24,6 +24,12 @@ As três listas técnicas passaram a usar permissões exclusivas.
   - grupo Membros: removido
   - grupo Visitantes: removido
 
-A lista de REGRAS já foi validada em execução real com fluxo verde após a restrição. ESTADO e LOG foram ajustadas em seguida e aguardam validação de execução automática após a mudança.
+## Validação
+
+A lista de REGRAS foi restringida primeiro e o fluxo permaneceu verde.
+
+Depois ESTADO e LOG foram restringidas e uma nova execução automática também permaneceu verde.
+
+Conclusão: o princípio de menor privilégio foi aplicado às três listas sem quebrar leitura, criação ou atualização necessária ao fluxo.
 
 Nenhum UPN, GUID interno, ID de grupo ou outro identificador sensível foi registrado neste arquivo.
