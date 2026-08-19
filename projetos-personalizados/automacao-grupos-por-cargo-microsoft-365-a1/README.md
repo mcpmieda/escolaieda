@@ -65,9 +65,12 @@ Comece por estes arquivos:
 
 - [`RESUMO_FACIL.md`](./RESUMO_FACIL.md) — explicação curta para usuário não técnico.
 - [`DOCUMENTACAO_FINAL.md`](./DOCUMENTACAO_FINAL.md) — explicação completa da solução e arquitetura final.
+- [`ARQUITETURA_FLUXO.md`](./ARQUITETURA_FLUXO.md) — árvore final do Power Automate, expressões e contratos técnicos.
+- [`SCHEMA_SHAREPOINT.md`](./SCHEMA_SHAREPOINT.md) — contrato das listas, Choices, índices e permissões.
 - [`INSTALADOR_MULTI_TENANT.md`](./INSTALADOR_MULTI_TENANT.md) — método para replicar a solução em outros tenants como um instalador por etapas.
 - [`RUNBOOK_OPERACIONAL.md`](./RUNBOOK_OPERACIONAL.md) — operação diária, manutenção, recuperação e testes.
 - [`ERROS_CONHECIDOS.md`](./ERROS_CONHECIDOS.md) — erros encontrados no projeto e correções já validadas.
+- [`VERSAO_ATUAL.md`](./VERSAO_ATUAL.md) — baseline seguro e estado do instalador.
 - [`DECISOES.md`](./DECISOES.md) — decisões formais vigentes.
 - [`CHANGELOG.md`](./CHANGELOG.md) — histórico consolidado.
 - [`POWERSHELL/README.md`](./POWERSHELL/README.md) — toolkit de implantação e auditoria multi-tenant.
