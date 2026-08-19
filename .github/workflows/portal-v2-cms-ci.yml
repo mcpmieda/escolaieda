@@ -3,7 +3,7 @@ name: Portal V2 - CMS
 on:
   push:
     branches:
-      - v2/cms-integration
+      - main
     paths:
       - "portal-v2/**"
       - ".github/workflows/portal-v2-cms-ci.yml"
@@ -15,13 +15,14 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: portal-v2-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  validar-cms:
+  validar:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
-      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
     defaults:
       run:
         working-directory: portal-v2
@@ -30,116 +31,81 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: portal-v2/package-lock.json
       - name: Instalar dependências
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Auditar conteúdo TinaCMS
         run: npm run cms:audit
       - name: Verificar Astro e TypeScript
         run: npm run check
-      - name: Compilar painel TinaCMS
-        if: env.TINA_PUBLIC_CLIENT_ID != '' && env.TINA_TOKEN != ''
-        run: npm run cms:build
       - name: Compilar site
         run: npm run build
 
-  publicar-v2-cms:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/v2/cms-integration'
-    needs: validar-cms
+  publicar-v2:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validar
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
       TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
     steps:
-      - name: Baixar V2 CMS
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: v2/cms-integration
-          path: source
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: portal-v2/package-lock.json
 
-      - name: Compilar painel e site
-        working-directory: source/portal-v2
+      - name: Verificar credenciais TinaCloud
         run: |
-          npm install --no-audit --no-fund
-          npm run cms:build
-          npm run build
+          test -n "$TINA_PUBLIC_CLIENT_ID" || (echo "TINA_PUBLIC_CLIENT_ID ausente" && exit 1)
+          test -n "$TINA_TOKEN" || (echo "TINA_TOKEN ausente" && exit 1)
 
-      - name: Baixar site oficial
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: published
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Instalar dependências
+        working-directory: portal-v2
+        run: npm ci --no-audit --no-fund
+
+      - name: Compilar painel TinaCMS
+        working-directory: portal-v2
+        run: |
+          OK=0
+          for tentativa in 1 2 3 4 5 6; do
+            echo "Tentativa $tentativa de conexão com TinaCloud..."
+            if npm run cms:build; then
+              OK=1
+              break
+            fi
+            if [ "$tentativa" -lt 6 ]; then
+              echo "TinaCloud ainda não está pronto; nova tentativa em 30 segundos."
+              sleep 30
+            fi
+          done
+          test "$OK" -eq 1 || (echo "Não foi possível compilar o painel TinaCMS." && exit 1)
+
+      - name: Compilar Portal V2
+        working-directory: portal-v2
+        run: npm run build
 
       - name: Atualizar somente /v2
         run: |
-          rm -rf published/v2
-          mkdir -p published/v2
-          cp -R source/portal-v2/dist/. published/v2/
+          rm -rf v2
+          mkdir -p v2
+          cp -R portal-v2/dist/. v2/
 
-      - name: Publicar V2 com painel
-        working-directory: published
+      - name: Publicar preview V2
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "4189828+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add v2
           if git diff --cached --quiet; then
             echo "Sem alterações para publicar."
             exit 0
           fi
-          git commit -m "chore(v2): publicar preview com CMS"
+          git commit -m "chore(v2): atualizar preview com CMS [skip ci]"
           git push origin main
-
-  preparar-locks:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/v2/cms-integration'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: v2/cms-integration
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Instalar dependências
-        working-directory: portal-v2
-        run: npm install --no-audit --no-fund
-      - name: Gerar tina-lock.json
-        working-directory: portal-v2
-        run: |
-          npx tinacms dev --noWatch --noTelemetry > /tmp/tina-dev.log 2>&1 &
-          TINA_PID=$!
-          for i in $(seq 1 90); do
-            if [ -f tina/tina-lock.json ]; then
-              kill "$TINA_PID" 2>/dev/null || true
-              wait "$TINA_PID" 2>/dev/null || true
-              echo "tina-lock.json gerado."
-              exit 0
-            fi
-            if ! kill -0 "$TINA_PID" 2>/dev/null; then
-              cat /tmp/tina-dev.log
-              echo "O Tina dev encerrou antes de gerar tina-lock.json."
-              exit 1
-            fi
-            sleep 1
-          done
-          cat /tmp/tina-dev.log
-          kill "$TINA_PID" 2>/dev/null || true
-          wait "$TINA_PID" 2>/dev/null || true
-          echo "Tempo esgotado aguardando tina-lock.json."
-          exit 1
-      - name: Salvar arquivos de controle
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add portal-v2/package-lock.json portal-v2/tina/tina-lock.json
-          if git diff --cached --quiet; then
-            echo "Arquivos de controle já estão atualizados."
-            exit 0
-          fi
-          git commit -m "chore(cms): atualizar locks [skip ci]"
-          git push origin v2/cms-integration
