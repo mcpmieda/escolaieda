@@ -13,6 +13,7 @@ export default defineConfig({
   build: {
     outputFolder: 'admin',
     publicFolder: 'public',
+    basePath: 'v2',
   },
   schema: {
     collections: [
