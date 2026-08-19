@@ -2,6 +2,66 @@
 
 Todas as alterações relevantes do projeto devem ser registradas aqui.
 
+## [Produção 1.0] — 2026-08-19
+
+### Concluído
+
+- fluxo migrado para Solution/Dataverse;
+- definição administrável por `clientdata` e Dataverse Web API;
+- detecção de candidatos por assinatura;
+- correção de `Status.Value` para Choice do SharePoint;
+- escrita de Choice como `{Value:...}`;
+- bloco de auditoria de candidatos;
+- Connection Reference do Office 365 Groups;
+- pilotos reais de inclusão;
+- `ListGroupMembers` + `AddMemberToGroup` idempotente;
+- criação de Log;
+- upsert de Estado;
+- produção R2 com roteamento por `Switch`;
+- profundidade reduzida e validada em 6 níveis;
+- retry imediato de `ERRO` e `PENDENTE_GRUPO`;
+- usuário novo validado ponta a ponta;
+- otimização: `Buscar Regras` somente quando existem candidatos;
+- reconciliação automática de 24 horas;
+- reconciliação validada em execução real;
+- permissões exclusivas e mínimo privilégio nas três listas técnicas;
+- execução automática verde após hardening completo.
+
+### Segurança
+
+- REGRAS: conta técnica com Leitura;
+- ESTADO: conta técnica com Colaboração;
+- LOG: conta técnica com Colaboração;
+- Membros e Visitantes removidos das listas técnicas;
+- backups brutos e IDs internos mantidos fora do GitHub público.
+
+### Documentação final
+
+Criados/reorganizados:
+
+- `README.md` como porta de entrada final;
+- `DOCUMENTACAO_FINAL.md`;
+- `INSTALADOR_MULTI_TENANT.md`;
+- `RUNBOOK_OPERACIONAL.md`;
+- `ERROS_CONHECIDOS.md`;
+- `POWERSHELL/CONFIG.example.psd1`;
+- `POWERSHELL/00-preflight.ps1`;
+- `POWERSHELL/01-descobrir-tenant.ps1`;
+- `POWERSHELL/INSTALAR.ps1`;
+- `POWERSHELL/regras.example.csv`;
+- `POWERSHELL/README.md` reorganizado para escala multi-tenant.
+
+### Baseline
+
+- modo: ADD-ONLY;
+- recorrência: 2 minutos;
+- reconciliação: 24 horas;
+- profundidade do fluxo: 6;
+- Power Automate: motor de produção;
+- PowerShell: instalação, auditoria, deploy e recuperação.
+
+---
+
 ## [Planejamento 1.1] — 2026-08-18
 
 ### Adicionado
@@ -12,14 +72,7 @@ Todas as alterações relevantes do projeto devem ser registradas aqui.
 - Power Platform PowerShell previsto para governança e inventário do fluxo.
 - Teams e Exchange Online PowerShell mantidos como ferramentas complementares de diagnóstico/administração.
 - Diretório `POWERSHELL/` incorporado à estrutura oficial.
-- Planejamento dos scripts:
-  - `01-diagnostico-tenant.ps1`
-  - `02-auditar-cargos.ps1`
-  - `03-descobrir-grupos.ps1`
-  - `04-auditar-associacoes.ps1`
-  - `05-validar-sharepoint.ps1`
-  - `06-validar-power-automate.ps1`
-  - `07-relatorio-completo.ps1`
+- Planejamento dos scripts de diagnóstico e auditoria.
 - Separação formal entre plano de produção e plano administrativo.
 - Política de scripts de auditoria somente leitura.
 - Azure Cloud Shell reconhecido como ambiente possível de execução pontual, não como armazenamento permanente.
@@ -28,7 +81,7 @@ Todas as alterações relevantes do projeto devem ser registradas aqui.
 
 - Power Automate como motor de produção.
 - Recorrência inicial de 2 minutos.
-- SharePoint do Arquivo Digital como repositório operacional.
+- SharePoint como repositório operacional.
 - Inclusão direta nos grupos Microsoft 365.
 - V1 em modo `add-only`.
 - GitHub como registro mestre do projeto.
@@ -45,7 +98,7 @@ A incorporação do PowerShell não reduz automaticamente a latência de produç
 
 - Plano Mestre inicial.
 - Arquitetura Power Automate + SharePoint + Microsoft 365 Groups.
-- Mapeamento de oito Cargos para cinco grupos.
+- Mapeamento inicial de Cargos para grupos.
 - Recorrência inicial de 2 minutos.
 - Três listas SharePoint previstas: Regras, Estado e Log.
 - Política de V1 `add-only`.
