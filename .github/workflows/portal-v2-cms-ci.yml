@@ -42,11 +42,11 @@ jobs:
       - name: Instalar dependências
         run: npm ci --no-audit --no-fund
 
-      - name: Sincronizar esquema TinaCMS localmente
+      - name: Sincronizar esquema e cliente TinaCMS localmente
         id: tina_lock
         run: |
           set +e
-          timeout 45s npx tinacms dev --noWatch --noSDK --noTelemetry > /tmp/tina-dev.log 2>&1
+          timeout 45s npx tinacms dev --noWatch --noTelemetry > /tmp/tina-dev.log 2>&1
           STATUS=$?
           set -e
           cat /tmp/tina-dev.log
