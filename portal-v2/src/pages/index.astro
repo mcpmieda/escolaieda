@@ -2,17 +2,16 @@
 import '../styles/global.css';
 
 const acessos = [
-  { icone: '📅', titulo: 'Calendário escolar', texto: 'Datas, períodos e organização do ano letivo.', href: 'https://escolaieda.com/calendario.html' },
-  { icone: '🗂️', titulo: 'Arquivo Digital', texto: 'Acesso aos documentos e serviços administrativos.', href: 'https://escolaieda.com/arquivo-digital/' },
-  { icone: '👩‍🏫', titulo: 'Professores', texto: 'Informações e espaços destinados à equipe docente.', href: 'https://escolaieda.com/professor/' },
-  { icone: '🎓', titulo: 'Alunos', texto: 'Acessos e informações para estudantes.', href: 'https://escolaieda.com/aluno/' },
+  { icone: '📅', titulo: 'Calendário escolar', texto: 'Datas e períodos importantes do ano letivo.', href: 'https://escolaieda.com/calendario.html' },
+  { icone: '🏫', titulo: 'Nossa escola', texto: 'Conheça nossa história, identidade e proposta educacional.', href: 'https://escolaieda.com/institucional/' },
+  { icone: '✦', titulo: 'Informações', texto: 'Orientações e conteúdos úteis para a comunidade escolar.', href: '#informacoes' },
+  { icone: '💬', titulo: 'Contato', texto: 'Encontre os canais institucionais de atendimento da escola.', href: '#contato' },
 ];
 
 const numeros = [
   { valor: '1990', rotulo: 'Fundação' },
   { valor: '6º ao 9º', rotulo: 'Ensino Fundamental — Anos Finais' },
-  { valor: '19', rotulo: 'Professores' },
-  { valor: '45', rotulo: 'Funcionários' },
+  { valor: 'Medeiros Neto', rotulo: 'Bahia' },
 ];
 ---
 
@@ -41,37 +40,34 @@ const numeros = [
           <a href="#informacoes">Informações</a>
           <a href="#contato">Contato</a>
         </nav>
-        <a class="admin-link" href="https://escolaieda.com/admin/">Centro de Administração</a>
       </div>
     </header>
 
     <main id="inicio">
       <section class="hero">
-        <div class="hero-glow hero-glow-one"></div>
-        <div class="hero-glow hero-glow-two"></div>
+        <div class="hero-glow hero-glow-one" data-parallax="0.08"></div>
+        <div class="hero-glow hero-glow-two" data-parallax="-0.05"></div>
+        <div class="hero-orbit orbit-one" aria-hidden="true"></div>
+        <div class="hero-orbit orbit-two" aria-hidden="true"></div>
         <div class="container hero-grid">
-          <div class="hero-copy">
+          <div class="hero-copy" data-reveal="left">
             <span class="eyebrow">Educação pública • Formação cidadã</span>
             <h1>Uma escola conectada com o presente e comprometida com o futuro.</h1>
-            <p>Educação, compromisso e formação cidadã em Medeiros Neto — Bahia. Um portal mais simples para aproximar estudantes, famílias, profissionais e comunidade escolar.</p>
+            <p>Educação, compromisso e formação cidadã em Medeiros Neto — Bahia. Um espaço de aprendizagem, convivência e participação para toda a comunidade escolar.</p>
             <div class="hero-actions">
               <a class="button button-primary" href="#acessos">Acessos rápidos</a>
               <a class="button button-secondary" href="#escola">Conheça a escola</a>
             </div>
-            <div class="hero-note">
-              <span class="pulse"></span>
-              Portal institucional em evolução contínua
-            </div>
           </div>
-          <div class="hero-visual" aria-label="Identidade visual da Escola Iêda">
-            <div class="logo-shell">
+          <div class="hero-visual" data-reveal="right" aria-label="Identidade visual da Escola Iêda">
+            <div class="logo-shell" data-parallax="0.035">
               <img src="/logo-escola.webp" alt="" aria-hidden="true" />
             </div>
-            <div class="floating-card card-top">
+            <div class="floating-card card-top float-slow">
               <span>📍</span>
               <div><strong>Medeiros Neto</strong><small>Bahia</small></div>
             </div>
-            <div class="floating-card card-bottom">
+            <div class="floating-card card-bottom float-reverse">
               <span>🏫</span>
               <div><strong>6º ao 9º ano</strong><small>Ensino Fundamental</small></div>
             </div>
@@ -81,14 +77,14 @@ const numeros = [
 
       <section class="quick-section" id="acessos">
         <div class="container">
-          <div class="section-heading compact-heading">
-            <div><span class="section-kicker">Resolva rápido</span><h2>Acessos principais</h2></div>
-            <p>Os serviços mais procurados da escola, organizados em um único lugar.</p>
+          <div class="section-heading compact-heading" data-reveal="up">
+            <div><span class="section-kicker">Encontre rapidamente</span><h2>Acessos principais</h2></div>
+            <p>Informações públicas e serviços úteis organizados de forma simples e direta.</p>
           </div>
           <div class="quick-grid">
-            {acessos.map((item) => (
-              <a class="quick-card" href={item.href}>
-                <span class="quick-icon" aria-hidden="true">{item.icone}</span>
+            {acessos.map((item, index) => (
+              <a class="quick-card" href={item.href} data-reveal="up" style={`--delay:${index * 80}ms`}>
+                <span class="quick-icon" aria-hidden="true" style={`--icon-delay:${index * -0.7}s`}>{item.icone}</span>
                 <div><h3>{item.titulo}</h3><p>{item.texto}</p></div>
                 <span class="quick-arrow" aria-hidden="true">→</span>
               </a>
@@ -99,30 +95,30 @@ const numeros = [
 
       <section class="notice-wrap" id="informacoes">
         <div class="container">
-          <div class="notice-card">
+          <div class="notice-card" data-reveal="scale">
             <div class="notice-icon" aria-hidden="true">✦</div>
             <div>
               <span class="section-kicker">Informação centralizada</span>
               <h2>Menos procura, mais clareza.</h2>
-              <p>Este novo portal está sendo pensado para concentrar avisos, documentos, calendário, notícias e acessos administrativos sem exigir que o usuário conheça a estrutura interna dos sistemas da escola.</p>
+              <p>Calendário, orientações, notícias e informações institucionais reunidos para facilitar o dia a dia de estudantes, famílias e comunidade.</p>
             </div>
-            <a href="#contato">Ver canais de atendimento <span>→</span></a>
+            <a href="#contato">Canais de atendimento <span>→</span></a>
           </div>
         </div>
       </section>
 
       <section class="school-section" id="escola">
         <div class="container school-grid">
-          <div class="school-copy">
+          <div class="school-copy" data-reveal="left">
             <span class="section-kicker">Nossa Escola</span>
             <h2>Aprendizagem, acolhimento e participação.</h2>
             <p>Um espaço comprometido com o desenvolvimento dos estudantes e com a participação da comunidade escolar.</p>
             <p>Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.</p>
             <a class="text-link" href="https://escolaieda.com/institucional/">Conheça nossa história <span>→</span></a>
           </div>
-          <div class="stats-panel">
-            {numeros.map((item) => (
-              <div class="stat-item"><strong>{item.valor}</strong><span>{item.rotulo}</span></div>
+          <div class="stats-panel" data-reveal="right">
+            {numeros.map((item, index) => (
+              <div class="stat-item" style={`--delay:${index * 90}ms`}><strong>{item.valor}</strong><span>{item.rotulo}</span></div>
             ))}
           </div>
         </div>
@@ -130,8 +126,8 @@ const numeros = [
 
       <section class="feature-section">
         <div class="container feature-grid">
-          <article class="feature-card calendar-card">
-            <div class="feature-image"><img src="/calendario.jpg" alt="Calendário escolar" /></div>
+          <article class="feature-card calendar-card" data-reveal="left">
+            <div class="feature-image"><img src="/calendario.jpg" alt="Calendário escolar" loading="lazy" /></div>
             <div class="feature-content">
               <span class="section-kicker">Organização</span>
               <h3>Calendário escolar</h3>
@@ -139,26 +135,30 @@ const numeros = [
               <a href="https://escolaieda.com/calendario.html">Abrir calendário <span>→</span></a>
             </div>
           </article>
-          <article class="feature-card archive-card">
-            <div class="feature-content archive-content">
-              <div class="archive-logo"><img src="/arquivo-digital-logo.png" alt="Arquivo Digital" /></div>
-              <span class="section-kicker">Secretaria digital</span>
-              <h3>Documentos no lugar certo.</h3>
-              <p>Acesse o Arquivo Digital e os serviços administrativos disponíveis para a equipe.</p>
-              <a href="https://escolaieda.com/arquivo-digital/">Acessar Arquivo Digital <span>→</span></a>
+          <article class="feature-card identity-card" data-reveal="right">
+            <div class="identity-rings" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="feature-content identity-content">
+              <div class="identity-mark"><img src="/logo-escola.webp" alt="" aria-hidden="true" /></div>
+              <span class="section-kicker">Identidade</span>
+              <h3>Educação que aproxima.</h3>
+              <p>Conhecimento, responsabilidade e participação fazem parte da nossa trajetória e da relação com a comunidade.</p>
+              <a href="https://escolaieda.com/institucional/">Conheça a Escola Iêda <span>→</span></a>
             </div>
           </article>
         </div>
       </section>
 
-      <section class="future-section">
-        <div class="container future-inner">
-          <div>
-            <span class="section-kicker light">Próximas etapas</span>
-            <h2>Um portal preparado para crescer sem ficar complicado.</h2>
+      <section class="values-section">
+        <div class="container values-inner">
+          <div data-reveal="left">
+            <span class="section-kicker light">Escola e comunidade</span>
+            <h2>Educar também é criar vínculos que permanecem.</h2>
           </div>
-          <div class="future-list">
-            <span>Notícias</span><span>Avisos</span><span>Galerias</span><span>Eventos</span><span>Documentos</span><span>Equipe</span>
+          <div class="values-list" data-reveal="right">
+            <span><i>✦</i> Aprendizagem</span>
+            <span><i>●</i> Participação</span>
+            <span><i>◆</i> Cidadania</span>
+            <span><i>✧</i> Responsabilidade</span>
           </div>
         </div>
       </section>
@@ -170,10 +170,51 @@ const numeros = [
           <img src="/logo-escola.webp" alt="" aria-hidden="true" />
           <div><strong>Escola Municipal Professora Iêda Alves de Oliveira MCPM</strong><p>Medeiros Neto — Bahia</p></div>
         </div>
-        <div><span class="footer-label">Portal</span><a href="#escola">Nossa Escola</a><a href="#acessos">Acessos rápidos</a><a href="https://escolaieda.com/calendario.html">Calendário</a></div>
-        <div><span class="footer-label">Administração</span><a href="https://escolaieda.com/admin/">Centro de Administração</a><a href="https://escolaieda.com/arquivo-digital/">Arquivo Digital</a></div>
+        <div><span class="footer-label">Portal</span><a href="#escola">Nossa Escola</a><a href="#acessos">Acessos</a><a href="https://escolaieda.com/calendario.html">Calendário</a></div>
+        <div><span class="footer-label">Institucional</span><a href="https://escolaieda.com/institucional/">Sobre a escola</a><a href="#contato">Contato</a></div>
       </div>
       <div class="container footer-bottom"><span>Portal institucional da Escola Iêda</span><span>Educação • Compromisso • Cidadania</span></div>
     </footer>
+
+    <script is:inline>
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!reducedMotion) {
+        const revealItems = document.querySelectorAll('[data-reveal]');
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.14, rootMargin: '0px 0px -6% 0px' });
+
+        revealItems.forEach((item) => observer.observe(item));
+
+        const parallaxItems = [...document.querySelectorAll('[data-parallax]')];
+        let ticking = false;
+
+        const updateParallax = () => {
+          const y = window.scrollY;
+          parallaxItems.forEach((item) => {
+            const speed = Number(item.dataset.parallax || 0);
+            item.style.setProperty('--parallax-y', `${y * speed}px`);
+          });
+          ticking = false;
+        };
+
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            requestAnimationFrame(updateParallax);
+            ticking = true;
+          }
+        }, { passive: true });
+
+        updateParallax();
+      } else {
+        document.querySelectorAll('[data-reveal]').forEach((item) => item.classList.add('is-visible'));
+      }
+    </script>
   </body>
 </html>
