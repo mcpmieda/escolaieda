@@ -1,0 +1,37 @@
+name: Portal V2 - CMS
+
+on:
+  push:
+    branches:
+      - v2/cms-integration
+    paths:
+      - "portal-v2/**"
+      - ".github/workflows/portal-v2-cms-ci.yml"
+  pull_request:
+    paths:
+      - "portal-v2/**"
+      - ".github/workflows/portal-v2-cms-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validar-cms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: portal-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+      - name: Auditar conteúdo TinaCMS
+        run: npm run cms:audit
+      - name: Verificar Astro e TypeScript
+        run: npm run check
+      - name: Compilar site
+        run: npm run build
