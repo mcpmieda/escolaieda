@@ -35,7 +35,9 @@ jobs:
         run: npm run build
 
   publicar-v2:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/v2/home-visual'
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/v2/home-visual') ||
+      (github.event_name == 'pull_request' && github.head_ref == 'v2/home-visual')
     needs: validar
     runs-on: ubuntu-latest
     timeout-minutes: 10
