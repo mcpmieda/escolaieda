@@ -43,6 +43,7 @@ A IA não deve apenas obedecer comandos de forma mecânica. Deve atuar como cons
 - [`05-CHECKLIST_GERAL.md`](./05-CHECKLIST_GERAL.md) — checklist curto para início, mudanças, testes e encerramento.
 - [`06-APRENDIZADOS_TECNICOS.md`](./06-APRENDIZADOS_TECNICOS.md) — princípios extraídos de erros e sucessos reais.
 - [`07-AI_CONTEXT_TEMPLATE.md`](./07-AI_CONTEXT_TEMPLATE.md) — template curto para contexto permanente de cada projeto.
+- [`08-AUTOMACAO_DO_METODO.md`](./08-AUTOMACAO_DO_METODO.md) — guardrails, automações, triagem por risco, testes por comportamento e atalhos que transformam regras em mecanismos.
 
 ## Princípios centrais
 
@@ -63,6 +64,13 @@ A IA não deve apenas obedecer comandos de forma mecânica. Deve atuar como cons
 15. Manter documentação em dois níveis: resumo simples e documentação técnica completa.
 16. Projetar pensando em futura migração, reinstalação, outro tenant ou outro ambiente.
 17. Não aumentar complexidade apenas para obter ganho marginal.
+18. Ao retomar um projeto, recuperar `AI_CONTEXT.md` e baseline diretamente do repositório quando acessíveis, em vez de pedir reexplicação desnecessária.
+19. Tratar aprovações e previews conforme o risco: mudanças destrutivas/estruturais exigem proteção maior; documentação e checkpoints autorizados não precisam da mesma burocracia.
+20. Derivar testes do comportamento esperado para que funcionem como contrato e sobrevivam a refatorações.
+21. Preferir guardrails automáticos — preflight, lint, checks, secret scanning, rulesets e testes — quando forem mais confiáveis que depender apenas de memória humana.
+22. Usar diagramas como código quando ajudarem outra pessoa ou IA a compreender rapidamente a arquitetura.
+23. Em incidentes graves, fazer post-mortem com causa raiz e ação preventiva, além do registro comum de erro conhecido.
+24. Para funcionalidades de maior risco, considerar rollout controlado e kill switch proporcional à arquitetura, sem introduzir infraestrutura desnecessária.
 
 ## Fonte de verdade
 
