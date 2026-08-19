@@ -133,6 +133,7 @@ function montarDadosPrevia(fontePublica, incluirRascunhoPublicacao) {
     cache: "somente memoria",
     home,
     publicacoes,
+    rascunhoPreview: rascunho,
     banners: publicacoes.filter((item) => item.local === "banner"),
     avisos: publicacoes.filter((item) => item.local === "avisos" || item.tipo === "aviso"),
     destaques: publicacoes.filter((item) => item.destaque === true || item.local === "destaques")
@@ -234,6 +235,7 @@ function prepararDocumento(html, dadosPrevia) {
   documento.head.appendChild(estiloPrevia);
 
   aplicarHomeDiretamente(documento, dadosPrevia.home || {});
+  aplicarRascunhoDiretamente(documento, dadosPrevia.rascunhoPreview);
 
   const dadosVirtuais = documento.createElement("script");
   dadosVirtuais.textContent = criarScriptFonteVirtual(dadosPrevia);
@@ -360,6 +362,114 @@ function normalizarIndicadores(indicadores) {
     }))
     .filter((item) => item.valor || item.rotulo)
     .slice(0, 12);
+}
+
+function aplicarRascunhoDiretamente(documento, rascunho) {
+  if (!rascunho?.titulo || !rascunho.local) return;
+
+  const alvo = documento.querySelector(`[data-publicacoes-local="${rascunho.local}"]`);
+  if (!alvo) return;
+
+  if (rascunho.local === "modal") {
+    alvo.removeAttribute("hidden");
+    alvo.replaceChildren(criarModalRascunho(documento, rascunho));
+    return;
+  }
+
+  const item = rascunho.local === "banner"
+    ? criarBannerRascunho(documento, rascunho)
+    : criarCardRascunho(documento, rascunho);
+
+  alvo.prepend(item);
+  const secao = alvo.closest("[data-publicacoes-section]");
+  secao?.classList.remove("secao-vazia");
+  secao?.removeAttribute("hidden");
+}
+
+function criarCardRascunho(documento, item) {
+  const card = documento.createElement("article");
+  card.className = `card publicacao-dinamica estilo-${normalizarId(item.estilo || "padrao")}`;
+  card.dataset.previewDraft = "true";
+
+  if (item.imagem) {
+    const imagem = documento.createElement("img");
+    imagem.className = "public-media";
+    imagem.src = item.imagem;
+    imagem.alt = item.imagemAlt || item.titulo || "";
+    card.appendChild(imagem);
+  }
+
+  const titulo = documento.createElement("h3");
+  titulo.textContent = item.titulo;
+  card.appendChild(titulo);
+
+  if (item.resumo) {
+    const resumo = documento.createElement("p");
+    resumo.className = "public-resumo";
+    resumo.textContent = item.resumo;
+    card.appendChild(resumo);
+  }
+
+  if (item.conteudo) {
+    const conteudo = documento.createElement("p");
+    conteudo.className = "public-conteudo";
+    conteudo.textContent = item.conteudo;
+    card.appendChild(conteudo);
+  }
+
+  if (item.link) {
+    const link = documento.createElement("a");
+    link.className = "publicacao-botao";
+    link.href = item.link;
+    link.textContent = item.botao || "Abrir";
+    card.appendChild(link);
+  }
+
+  return card;
+}
+
+function criarBannerRascunho(documento, item) {
+  const banner = documento.createElement("div");
+  banner.className = "public-banner";
+  banner.dataset.previewDraft = "true";
+
+  const titulo = documento.createElement("strong");
+  titulo.textContent = item.titulo;
+  banner.appendChild(titulo);
+
+  if (item.resumo) {
+    const resumo = documento.createElement("span");
+    resumo.textContent = item.resumo;
+    banner.appendChild(resumo);
+  }
+
+  if (item.conteudo) {
+    const conteudo = documento.createElement("p");
+    conteudo.className = "public-conteudo";
+    conteudo.textContent = item.conteudo;
+    banner.appendChild(conteudo);
+  }
+
+  return banner;
+}
+
+function criarModalRascunho(documento, item) {
+  const modal = documento.createElement("div");
+  modal.className = "public-modal-content";
+  modal.dataset.previewDraft = "true";
+
+  const cabecalho = documento.createElement("div");
+  cabecalho.className = "public-modal-header";
+  const titulo = documento.createElement("strong");
+  titulo.textContent = "Aviso importante";
+  cabecalho.appendChild(titulo);
+
+  const corpo = documento.createElement("div");
+  corpo.className = "public-modal-body";
+  corpo.appendChild(criarCardRascunho(documento, item));
+
+  modal.append(cabecalho, corpo);
+  return modal;
 }
 
 function criarScriptFonteVirtual(dadosPrevia) {
