@@ -25,6 +25,7 @@ Essa organização elimina a necessidade de Codespaces, terminal e sincronizaç�
 - esquema TinaCMS em `tina/config.ts`;
 - `tina/tina-lock.json` versionado para indexação do TinaCloud;
 - TinaCloud conectado ao repositório;
+- branch `main` reconhecida e compilação TinaCloud validada;
 - secrets `TINA_PUBLIC_CLIENT_ID` e `TINA_TOKEN` armazenados no GitHub Actions;
 - `v2/home-visual` preservada como baseline visual anterior.
 
