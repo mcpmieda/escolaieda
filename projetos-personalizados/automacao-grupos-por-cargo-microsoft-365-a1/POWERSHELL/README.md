@@ -80,19 +80,11 @@ Esse arquivo local contém IDs do tenant e **não deve ser commitado**.
 ### `02-validar-clientdata.ps1`
 Validador local para uma definição `clientdata` exportada.
 
-Uso:
-
 ```powershell
 .\02-validar-clientdata.ps1 -ClientDataPath .\flow-clientdata-local.json
 ```
 
-Ele verifica antes do deploy:
-
-- JSON válido;
-- existência de `properties.definition.actions`;
-- profundidade máxima;
-- limite padrão de 8;
-- referências `runAfter` que apontam para ação fora do mesmo nível.
+Valida JSON, `properties.definition.actions`, profundidade e referências `runAfter` no mesmo nível.
 
 Saída válida:
 
@@ -100,10 +92,49 @@ Saída válida:
 RESULTADO_FINAL=CLIENTDATA_OK
 ```
 
-### `lib/FlowDefinitionTools.psm1`
-Módulo reutilizável do instalador.
+### `03-exportar-clientdata.ps1`
+Exporta o `clientdata` de um Modern Flow solution-aware para backup local.
 
-Funções atuais:
+```powershell
+.\03-exportar-clientdata.ps1 `
+  -TenantId '<TENANT-ID>' `
+  -DataverseUrl 'https://org.crm.dynamics.com/' `
+  -WorkflowId '<WORKFLOW-ID>'
+```
+
+O arquivo exportado contém IDs internos e é bloqueado pelo `.gitignore`.
+
+### `04-deploy-clientdata.ps1`
+Script de escrita genérico para aplicar uma definição candidata com proteção.
+
+Exige `-ConfirmWrite` explicitamente.
+
+```powershell
+.\04-deploy-clientdata.ps1 `
+  -TenantId '<TENANT-ID>' `
+  -DataverseUrl 'https://org.crm.dynamics.com/' `
+  -WorkflowId '<WORKFLOW-ID>' `
+  -CandidateClientDataPath '.\flow-clientdata-CANDIDATO.json' `
+  -ExpectedFlowName 'AUTO | Grupos por Cargo | Microsoft 365' `
+  -ConfirmWrite
+```
+
+O script:
+
+1. valida o candidato local;
+2. autentica no Dataverse;
+3. lê e valida o fluxo atual;
+4. cria backup obrigatório;
+5. desativa temporariamente;
+6. aplica PATCH;
+7. relê e valida o servidor;
+8. reativa;
+9. em erro, restaura `clientdata` anterior e garante o fluxo ativo.
+
+Esse é o padrão base para o deploy multi-tenant por definição.
+
+### `lib/FlowDefinitionTools.psm1`
+Funções reutilizáveis para estrutura de fluxo:
 
 ```text
 Get-FlowMaxActionDepth
@@ -113,7 +144,18 @@ Assert-FlowClientData
 New-SharePointChoiceObject
 ```
 
-Esse módulo concentra correções aprendidas durante a construção real do fluxo e deve ser reutilizado nos próximos scripts de deploy, em vez de duplicar lógica de validação.
+### `lib/DataverseFlowTools.psm1`
+Funções reutilizáveis para Modern Flow no Dataverse:
+
+```text
+Connect-DataverseFlowContext
+Get-DataverseModernFlow
+Set-DataverseModernFlowState
+Set-DataverseModernFlowClientData
+Export-DataverseModernFlowClientData
+```
+
+Os módulos concentram correções aprendidas durante a construção real e devem ser reutilizados nos próximos scripts em vez de duplicar lógica.
 
 ### `regras.example.csv`
 Modelo de carga de regras. É apenas exemplo; cada tenant pode usar nomes e regras diferentes.
@@ -150,7 +192,7 @@ Flow solution-aware
 ↓
 Connection References
 ↓
-Backup clientdata
+Export/backup clientdata
 ↓
 Validação local de clientdata
 ↓
@@ -163,7 +205,7 @@ Reconciliação
 Permissões finais
 ```
 
-A parte 2 está documentada em [`../INSTALADOR_MULTI_TENANT.md`](../INSTALADOR_MULTI_TENANT.md). Ela só deve ser convertida em automação total quando o mesmo processo estiver validado em vários tenants, porque criação de conexões e hardening de permissões têm contexto administrativo próprio de cada organização.
+A sequência completa está em [`../INSTALADOR_MULTI_TENANT.md`](../INSTALADOR_MULTI_TENANT.md). Criação de conexões e hardening continuam com checkpoints interativos até o processo estar validado em vários tenants.
 
 ## Princípios obrigatórios
 
@@ -236,35 +278,13 @@ logs contendo UPNs/IDs reais
 
 ## Segurança
 
-Nunca armazenar:
-
-- senha;
-- token;
-- client secret;
-- certificado privado;
-- cookie;
-- código MFA;
-- dumps de usuários;
-- IDs internos de produção desnecessários.
+Nunca armazenar senha, token, client secret, certificado privado, cookie, código MFA, dumps de usuários ou IDs internos de produção desnecessários.
 
 ## Erros já conhecidos
 
-Antes de diagnosticar do zero, consultar:
+Antes de diagnosticar do zero, consultar [`../ERROS_CONHECIDOS.md`](../ERROS_CONHECIDOS.md).
 
-[`../ERROS_CONHECIDOS.md`](../ERROS_CONHECIDOS.md)
-
-O documento cobre, entre outros:
-
-- casing de propriedades do Search Users V2;
-- `Status.Value` em SharePoint Choice;
-- escrita Choice como `{Value:...}`;
-- limite de aninhamento 8;
-- `runAfter` entre níveis;
-- scalar x array no PowerShell;
-- PS5.1 x PS7;
-- autenticação Dataverse;
-- reconciliação;
-- permissões das listas.
+O documento cobre casing do Search Users V2, SharePoint Choice, limite de aninhamento, `runAfter`, scalar x array, PS5.1 x PS7, Dataverse, reconciliação e permissões.
 
 ## Referências oficiais
 
