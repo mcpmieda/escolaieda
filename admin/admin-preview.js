@@ -1,6 +1,7 @@
 const HOME_URL = "/";
 const FONTE_PUBLICA_URL = "/site-data/publicacoes-publicas.json";
 const SCRIPT_RENDERIZADOR_PUBLICO = "/site-data/publicacoes-site.js";
+const FONTE_PREVIEW_PATH = "/__admin-preview-data__.json";
 
 const el = {
   btnPreviaPagina: document.getElementById("btnPreviaPagina"),
@@ -111,14 +112,17 @@ async function carregarJsonOpcional(url) {
 
 function montarDadosPrevia(fontePublica, incluirRascunhoPublicacao) {
   const base = fontePublica && typeof fontePublica === "object" && !Array.isArray(fontePublica) ? fontePublica : {};
+  const marcaPrevia = Date.now();
   let publicacoes = Array.isArray(base.publicacoes)
-    ? base.publicacoes.map((item) => ({ ...item }))
-    : Array.isArray(fontePublica) ? fontePublica.map((item) => ({ ...item })) : [];
+    ? base.publicacoes.map((item, indice) => normalizarItemPrevia(item, indice, marcaPrevia))
+    : Array.isArray(fontePublica) ? fontePublica.map((item, indice) => normalizarItemPrevia(item, indice, marcaPrevia)) : [];
 
   const rascunho = incluirRascunhoPublicacao ? lerRascunhoPublicacao() : null;
   if (rascunho) {
-    publicacoes = publicacoes.filter((item) => String(item.id || "") !== String(rascunho.id || ""));
-    publicacoes.push(rascunho);
+    publicacoes = publicacoes.filter((item) => String(item.idOriginal || item.id || "") !== String(rascunho.id || ""));
+    publicacoes.push(rascunho.local === "modal"
+      ? { ...rascunho, id: `preview-modal-rascunho-${marcaPrevia}` }
+      : rascunho);
   }
 
   const home = lerHomeDoFormulario(base.home || {});
@@ -133,6 +137,15 @@ function montarDadosPrevia(fontePublica, incluirRascunhoPublicacao) {
     avisos: publicacoes.filter((item) => item.local === "avisos" || item.tipo === "aviso"),
     destaques: publicacoes.filter((item) => item.destaque === true || item.local === "destaques")
   };
+}
+
+function normalizarItemPrevia(item, indice, marcaPrevia) {
+  const copia = { ...item };
+  if (copia.local === "modal") {
+    copia.idOriginal = copia.id;
+    copia.id = `preview-modal-${copia.id || indice}-${marcaPrevia}`;
+  }
+  return copia;
 }
 
 function lerHomeDoFormulario(fallback = {}) {
@@ -220,12 +233,40 @@ function prepararDocumento(html, dadosPrevia) {
   `;
   documento.head.appendChild(estiloPrevia);
 
-  renderizador.dataset.fonte = criarDataUrlJson(dadosPrevia);
+  const dadosVirtuais = documento.createElement("script");
+  dadosVirtuais.textContent = criarScriptFonteVirtual(dadosPrevia);
+  renderizador.parentNode.insertBefore(dadosVirtuais, renderizador);
+  renderizador.dataset.fonte = FONTE_PREVIEW_PATH;
   return documento;
 }
 
-function criarDataUrlJson(valor) {
-  return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(valor))}`;
+function criarScriptFonteVirtual(dadosPrevia) {
+  const base64 = textoParaBase64(JSON.stringify(dadosPrevia));
+  return `(() => {
+    const bytes = Uint8Array.from(atob(${JSON.stringify(base64)}), (caractere) => caractere.charCodeAt(0));
+    const json = new TextDecoder().decode(bytes);
+    const fetchOriginal = window.fetch.bind(window);
+    window.fetch = (entrada, opcoes) => {
+      const destino = typeof entrada === "string" ? entrada : entrada?.url || "";
+      const url = new URL(destino, window.location.href);
+      if (url.pathname === ${JSON.stringify(FONTE_PREVIEW_PATH)}) {
+        return Promise.resolve(new Response(json, {
+          status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8" }
+        }));
+      }
+      return fetchOriginal(entrada, opcoes);
+    };
+  })();`;
+}
+
+function textoParaBase64(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  let binario = "";
+  bytes.forEach((byte) => {
+    binario += String.fromCharCode(byte);
+  });
+  return btoa(binario);
 }
 
 function lerIndicadores(texto) {
