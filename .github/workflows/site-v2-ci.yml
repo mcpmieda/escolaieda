@@ -1,0 +1,47 @@
+name: V2 - Validar Astro e TinaCMS
+
+on:
+  pull_request:
+    paths:
+      - "site-v2/**"
+      - ".github/workflows/site-v2-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    name: Build e tipos da V2
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: site-v2
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+
+      - name: Gerar Tina e compilar Astro
+        run: npm run build:local
+
+      - name: Verificar tipos e componentes Astro
+        run: npm run check
+
+      - name: Guardar build para inspeção
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: escola-ieda-v2-build
+          path: site-v2/dist
+          if-no-files-found: error
+          retention-days: 7
