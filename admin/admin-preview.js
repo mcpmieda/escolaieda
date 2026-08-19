@@ -38,6 +38,7 @@ async function abrirPrevia({ incluirRascunhoPublicacao }) {
   definirDispositivo("desktop");
   definirStatus("Montando prévia da página...");
   el.frame.removeAttribute("src");
+  el.frame.setAttribute("sandbox", "allow-scripts allow-same-origin");
   el.frame.srcdoc = "";
 
   try {
