@@ -1,3 +1,5 @@
+import "./admin-navigation.js";
+
 const sistemasStyleHref = new URL("./admin-sistemas.css", import.meta.url).href;
 if (!document.querySelector('link[data-admin-sistemas="1"]')) {
   const link = document.createElement("link");
