@@ -1,3 +1,5 @@
+import "./admin-dashboard.js";
+
 const livroNav = document.getElementById("navLivroPonto");
 const livroView = document.getElementById("view-livro");
 const livroFrame = document.getElementById("livroPontoFrame");
