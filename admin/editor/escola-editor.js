@@ -2,8 +2,7 @@ const GITHUB = Object.freeze({
   repo: "mcpmieda/escolaieda",
   branch: "main",
   indexPath: "index.html",
-  dataPath: "site-data/publicacoes-publicas.json",
-  imageRoot: "imagens/editor"
+  dataPath: "site-data/publicacoes-publicas.json"
 });
 
 const STORAGE_TOKEN = "escolaIedaGithubToken";
@@ -125,10 +124,6 @@ async function inicializarEditor() {
           { name: "Tablet", width: "820px", widthMedia: "992px" },
           { name: "Celular", width: "390px", widthMedia: "640px" }
         ]
-      },
-      assetManager: {
-        upload: false,
-        uploadFile: enviarArquivoAssetManager
       },
       canvas: { styles: preparado.stylesheets },
       components: preparado.bodyHtml,
@@ -257,26 +252,32 @@ function atualizarEstadoHistorico() {
 function configurarProtecoes(editor) {
   const wrapper = editor.getWrapper();
 
-  const configurar = (componente) => {
+  const configurar = (componente, dentroDeAreaProtegida = false) => {
     const attrs = componente.getAttributes?.() || {};
     const tag = String(componente.get("tagName") || "").toLowerCase();
+    const raizProtegida = attrs.id === "topbar" || attrs.id === "inicio" || tag === "footer";
+    const areaProtegida = dentroDeAreaProtegida || raizProtegida;
+    const pai = componente.parent?.();
+    const tagPai = String(pai?.get?.("tagName") || "").toLowerCase();
 
     if (tag === "main") {
       componente.set({ droppable: true, removable: false, copyable: false, draggable: false });
+    } else if (tagPai === "main") {
+      componente.set({ draggable: "main" });
+    }
+
+    if (areaProtegida) {
+      componente.set({ removable: false, copyable: false, draggable: false, droppable: false });
     }
 
     if (tag === "img") {
       componente.set({ editable: false });
     }
 
-    if (attrs.id === "topbar" || attrs.id === "inicio" || tag === "footer") {
-      componente.set({ removable: false, copyable: false, draggable: false, droppable: false });
-    }
-
-    componente.components?.().forEach(configurar);
+    componente.components?.().forEach((filho) => configurar(filho, areaProtegida));
   };
 
-  wrapper.components().forEach(configurar);
+  wrapper.components().forEach((componente) => configurar(componente, false));
 }
 
 function criarSetoresAparencia() {
@@ -751,54 +752,6 @@ async function commitAtomicoGithub(token, arquivos, mensagem, expectedParentSha)
   return novoCommit.sha;
 }
 
-async function enviarArquivoAssetManager(event, callback) {
-  try {
-    const arquivos = [...(event?.dataTransfer?.files || event?.target?.files || [])];
-    if (!arquivos.length) return;
-
-    const token = obterTokenGithub();
-    if (!token) {
-      abrirGithubDialog("Conecte ao GitHub antes de enviar uma imagem.");
-      return;
-    }
-
-    const enviados = [];
-
-    for (const arquivo of arquivos.slice(0, 8)) {
-      if (!/^image\/(jpeg|png|webp|gif|svg\+xml)$/i.test(arquivo.type)) {
-        mostrarToast(`O arquivo ${arquivo.name} não é uma imagem compatível.`, "error");
-        continue;
-      }
-      if (arquivo.size > 8 * 1024 * 1024) {
-        mostrarToast(`A imagem ${arquivo.name} ultrapassa 8 MB.`, "error");
-        continue;
-      }
-
-      const caminho = `${GITHUB.imageRoot}/${Date.now()}-${slugArquivo(arquivo.name)}`;
-      await criarArquivoGithub(token, caminho, await arquivoParaBase64(arquivo), `Adiciona imagem pelo editor visual: ${arquivo.name}`);
-      const asset = { src: `/${caminho}`, name: arquivo.name };
-      state.editor.AssetManager.add(asset);
-      enviados.push(asset);
-      mostrarToast(`Imagem ${arquivo.name} enviada.`, "success");
-    }
-
-    if (enviados.length && typeof callback === "function") {
-      callback({ data: enviados });
-    }
-  } catch (erro) {
-    console.error(erro);
-    mostrarToast(mensagemErroGithub(erro), "error");
-  }
-}
-
-async function criarArquivoGithub(token, path, contentBase64, message) {
-  return github(`/contents/${path.split("/").map(encodeURIComponent).join("/")}`, {
-    method: "PUT",
-    token,
-    body: { message, content: contentBase64, branch: branchAtual() }
-  });
-}
-
 function abrirPreview() {
   if (!state.editor || !el.previewDialog || !el.previewFrame) return;
   el.previewFrame.srcdoc = montarHtmlPreview();
@@ -928,29 +881,6 @@ function mensagemErroGithub(erro) {
   if (erro?.status === 403) return "O token não tem permissão suficiente para salvar este site.";
   if (erro?.status === 409 || erro?.status === 422) return "O site foi alterado em outro lugar. Recarregue o editor antes de salvar novamente.";
   return erro?.message || "Não foi possível salvar agora. Nenhuma alteração local foi descartada.";
-}
-
-function slugArquivo(nome) {
-  const partes = String(nome || "imagem").split(".");
-  const extensao = partes.length > 1 ? partes.pop().toLowerCase().replace(/[^a-z0-9]/g, "") : "";
-  const base = partes.join(".")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 70) || "imagem";
-
-  return extensao ? `${base}.${extensao}` : base;
-}
-
-function arquivoParaBase64(arquivo) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
-    reader.onload = () => resolve(String(reader.result || "").split(",")[1] || "");
-    reader.readAsDataURL(arquivo);
-  });
 }
 
 function escaparTextoHtml(text) {
