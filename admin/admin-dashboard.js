@@ -1,3 +1,5 @@
+import "./admin-sistemas.js";
+
 const dashboardStyleHref = new URL("./admin-dashboard.css", import.meta.url).href;
 if (!document.querySelector('link[data-admin-dashboard="1"]')) {
   const link = document.createElement("link");
