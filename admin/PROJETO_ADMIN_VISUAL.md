@@ -9,6 +9,7 @@ Transformar `https://escolaieda.com/admin/` em uma central administrativa única
 - Repositório: `mcpmieda/escolaieda`
 - Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`
 - Branch de desenvolvimento: `feat/admin-visual-builder`
+- PR draft: `#27`
 - Regra: `main` permanece intocada até validação real e autorização explícita.
 
 ## 3. Problema anterior
@@ -68,14 +69,26 @@ Runtime final esperado:
 
 - `admin/editor/vendor/grapes.min.js`
 - `admin/editor/vendor/grapes.min.css`
+- `admin/editor/vendor/GRAPESJS-LICENSE`
+- `admin/editor/vendor/VERSION.txt`
 
-O runtime é incorporado ao próprio repositório. CDN não é dependência de execução do candidato final. A origem cdnjs é usada apenas pelo processo controlado de vendorização para obter a versão fixada.
+Já incorporados:
+
+- licença oficial;
+- metadados de versão.
+
+Ainda pendentes:
+
+- `grapes.min.js`;
+- `grapes.min.css`.
+
+O candidato final não deve depender de CDN em runtime.
 
 ### Por que GrapesJS substituiu VvvebJs
 
 VvvebJs foi avaliado primeiro, mas sua distribuição exigia uma quantidade grande de arquivos e dependências de runtime. A tentativa de vendorização automática não se materializou na branch.
 
-GrapesJS oferece um bundle distribuível muito menor em superfície operacional e mantém os recursos necessários: seleção visual, blocos, estilos, camadas, asset manager, undo/redo e dispositivos.
+GrapesJS oferece os recursos necessários com superfície operacional menor: seleção visual, blocos, estilos, camadas, Asset Manager, undo/redo e dispositivos.
 
 Não reintroduzir VvvebJs sem nova decisão arquitetural.
 
@@ -83,7 +96,7 @@ Não reintroduzir VvvebJs sem nova decisão arquitetural.
 
 O editor visual trabalha **somente na Home (`index.html`)**.
 
-Foi retirada a criação arbitrária de páginas nesta fase. Essa capacidade aumentava muito o risco de navegação inconsistente e de complexidade para usuário leigo antes mesmo de a edição básica estar validada.
+Foi retirada a criação arbitrária de páginas nesta fase. Essa capacidade aumentava o risco de navegação inconsistente e a complexidade para usuário leigo antes de a edição básica estar validada.
 
 Recursos desta primeira versão:
 
@@ -111,11 +124,11 @@ Para não criar duas versões divergentes, o salvamento visual:
 4. cria os blobs dos dois arquivos;
 5. cria uma nova tree Git;
 6. cria um commit único;
-7. move `main` para esse commit sem `force`.
+7. move o branch-alvo para esse commit sem `force`.
 
 Assim Home e JSON não ficam pela metade se uma gravação falhar.
 
-Uma etapa futura poderá remover definitivamente o bloco `home` do JSON quando a Home visual já estiver comprovada em produção.
+Uma etapa futura poderá remover definitivamente o bloco `home` do JSON quando a Home visual estiver comprovada em produção.
 
 ## 8. Publicações
 
@@ -187,7 +200,8 @@ Removidos na branch:
 
 - `institucional/index.html`, página de teste redundante;
 - `admin/admin-preview.js`, preview customizado duplicado;
-- workflow e adaptadores VvvebJs;
+- workflows e adaptadores VvvebJs;
+- workflow temporário de vendorização GrapesJS que não executou;
 - modelo de criação arbitrária de páginas do primeiro desenho.
 
 Preservado:
@@ -208,47 +222,66 @@ O token:
 
 Home + JSON usam Git Data API para um commit único. Upload de mídia usa a Contents API e é uma operação separada.
 
+### Alvo seguro durante testes
+
+`admin/github-safe-target.js` protege a produção:
+
+- `escolaieda.com` e `www.escolaieda.com` mantêm `main`;
+- qualquer outro hostname redireciona referências GitHub deste repositório de `main` para `feat/admin-visual-builder`;
+- Microsoft Graph e demais origens ficam inalterados.
+
+A camada é carregada antes de `admin.js` e antes de `escola-editor.js`.
+
+Teste isolado realizado: **5/5 aprovado**.
+
+Essa proteção é requisito para testes com token real fora da produção.
+
 ## 14. Vendorização
 
-Workflow:
+A tentativa inicial por GitHub Actions foi descartada porque não houve execução nem na abertura nem na reabertura do PR #27.
 
-`.github/workflows/vendor-grapesjs.yml`
+O workflow temporário foi removido em `5b970391...`.
 
-Ele é restrito ao PR desta branch contra `main`, baixa GrapesJS 0.22.13, valida que JS/CSS/licença existem e grava os arquivos em `admin/editor/vendor/` na própria branch.
+Estado atual:
 
-O workflow antigo `vendor-vvveb.yml` foi removido.
+- licença e versão estão versionadas;
+- os dois bundles compilados JS/CSS ainda precisam ser incorporados ao próprio repositório;
+- o editor não deve ser considerado executável antes disso.
 
-Não considerar o editor executável enquanto os arquivos locais de `vendor/` ainda não estiverem materializados.
+Não adicionar um mecanismo permanente de build ou hospedagem apenas para resolver essa cópia de arquivos.
 
 ## 15. Vercel residual
 
 O código novo não depende de Vercel.
 
-O GitHub ainda apresentou um check externo chamado `Vercel`, associado ao deployment `escolaieda-prova-visual-formato`. Isso é integração residual fora desta arquitetura e precisa de limpeza administrativa separada. Não usar esse deployment como requisito do produto.
+O GitHub ainda apresentou um check externo chamado `Vercel`, associado ao nome `escolaieda-prova-visual-formato`. A equipe Vercel conectada retorna zero projetos acessíveis. Trata-se de uma pendência externa à arquitetura nova.
+
+Não usar esse deployment/check como requisito do produto.
 
 ## 16. Critérios de aceite
 
 Antes de merge:
 
-1. runtime GrapesJS local presente;
+1. runtime GrapesJS local completo;
 2. login Microsoft funcional;
 3. autorização da Secretaria funcional;
 4. dashboard desktop e celular;
 5. Livro de Ponto abre pelo painel;
 6. Arquivo Digital e Notas intactos;
-7. criar/editar/excluir publicação;
+7. criar/editar/excluir publicação na branch segura durante teste;
 8. upload de imagem de publicação;
-9. publicação renderizada no site;
+9. publicação renderizada em ambiente seguro;
 10. editor abre a Home real;
 11. editar texto e imagem;
 12. adicionar/mover bloco;
 13. undo/redo;
 14. modos computador/tablet/celular;
 15. preview sem escrita;
-16. salvar Home + JSON no mesmo commit;
+16. salvar Home + JSON no mesmo commit na branch segura durante teste;
 17. recarregar e confirmar persistência;
-18. nenhuma dependência Vercel/Tina/PHP/CDN em runtime;
-19. nenhum módulo sensível modificado fora do escopo.
+18. nenhuma dependência Vercel/Tina/PHP/CDN em runtime final;
+19. nenhum módulo sensível modificado fora do escopo;
+20. usuário aprovar visual e fluxo real.
 
 ## 17. Rollback
 
@@ -257,6 +290,8 @@ Enquanto estiver isolado, rollback = descartar `feat/admin-visual-builder`.
 Baseline permanente deste marco:
 
 `96e16d599d06768a0ab6a7a0ea807b94a838a168`
+
+A branch acidental `temp-should-not-create` foi neutralizada nesse mesmo baseline e não deve ser usada.
 
 ## 18. Próximos marcos possíveis
 
