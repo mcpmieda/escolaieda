@@ -1,0 +1,172 @@
+/* Camada de simplificação da interface VvvebJs para a Escola Iêda */
+:root {
+  --ieda-navy: #071726;
+  --ieda-blue: #0e659f;
+  --ieda-paper: #f5f7fa;
+}
+
+body { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+.logo img { object-fit: contain; background: #fff; border-radius: 10px; padding: 3px; }
+
+/* Controles que confundem usuários comuns ou dependem do backend original. */
+.pages-tab,
+.sections-tab,
+.nav-item.heading,
+#sidebarNav .nav-item:has(a[href*="index.php"]),
+#download-btn,
+#designer-mode-btn,
+#toggle-hidden,
+#toggle-file-manager-btn,
+#toggle-left-column-btn,
+#toggle-right-column-btn,
+#showChangesBtn,
+.btn-dark-mode { display: none !important; }
+
+#top-panel {
+  min-height: 58px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-bottom: 1px solid rgba(16,34,52,.09);
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(18px);
+}
+
+#left-panel,
+#right-panel { background: #fbfcfd; }
+
+#canvas { background: #edf1f5; }
+
+.save-btn[data-ieda-save] {
+  min-width: 112px;
+  border-radius: 10px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg,#0d5fa3,#117dbd) !important;
+  box-shadow: 0 9px 22px rgba(14,95,163,.22);
+}
+
+.ieda-editor-bar {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1055;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(52vw, 680px);
+  padding: 5px;
+  border: 1px solid rgba(16,34,52,.10);
+  border-radius: 13px;
+  background: rgba(248,250,252,.94);
+  box-shadow: 0 7px 22px rgba(7,23,38,.08);
+  backdrop-filter: blur(14px);
+}
+
+.ieda-editor-bar button,
+.ieda-editor-bar a {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #31495c;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ieda-editor-bar button:hover,
+.ieda-editor-bar a:hover { background:#fff; border-color:rgba(16,34,52,.09); }
+.ieda-editor-bar .ieda-primary { color:#fff; background:var(--ieda-blue); }
+.ieda-editor-bar .ieda-primary:hover { color:#fff; background:#0a578b; }
+
+.ieda-page-name {
+  max-width: 175px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ieda-status {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1080;
+  max-width: 390px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: #fff;
+  background: #0a263a;
+  box-shadow: 0 18px 46px rgba(0,0,0,.22);
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+  transition: .22s ease;
+}
+.ieda-status.show { opacity:1; transform:none; }
+.ieda-status.success { background:#126846; }
+.ieda-status.error { background:#922d3c; }
+
+.ieda-dialog {
+  width: min(92vw, 500px);
+  border: 0;
+  border-radius: 22px;
+  padding: 0;
+  box-shadow: 0 34px 90px rgba(7,23,38,.28);
+}
+.ieda-dialog::backdrop { background:rgba(4,15,25,.58); backdrop-filter:blur(8px); }
+.ieda-dialog-card { padding: 26px; background:#fff; color:#142c40; }
+.ieda-dialog-card h2 { margin:0 0 7px; font-size:22px; letter-spacing:-.035em; }
+.ieda-dialog-card p { margin:0 0 20px; color:#657581; font-size:13px; line-height:1.55; }
+.ieda-dialog-card label { display:grid; gap:6px; margin-top:12px; color:#425566; font-size:12px; font-weight:750; }
+.ieda-dialog-card input,
+.ieda-dialog-card select {
+  width:100%;
+  border:1px solid rgba(16,34,52,.15);
+  border-radius:11px;
+  padding:10px 11px;
+  color:#142c40;
+  background:#fbfcfd;
+}
+.ieda-dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:22px; }
+.ieda-dialog-actions button { border:1px solid rgba(16,34,52,.12); border-radius:10px; padding:9px 13px; background:#f7f9fb; color:#1f3a50; font-weight:750; }
+.ieda-dialog-actions .ieda-primary { border-color:transparent; color:#fff; background:var(--ieda-blue); }
+
+.ieda-page-menu {
+  position: fixed;
+  z-index: 1070;
+  top: 50px;
+  left: 50%;
+  min-width: 230px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 7px;
+  border: 1px solid rgba(16,34,52,.10);
+  border-radius: 13px;
+  background:#fff;
+  box-shadow:0 18px 50px rgba(7,23,38,.16);
+}
+.ieda-page-menu[hidden] { display:none; }
+.ieda-page-menu button { width:100%; border:0; border-radius:9px; padding:9px 10px; background:transparent; color:#263f53; text-align:left; font-size:12px; }
+.ieda-page-menu button:hover { background:#f1f6f9; }
+
+@media (max-width: 980px) {
+  .ieda-editor-bar { left: 135px; transform:none; max-width:calc(100vw - 300px); overflow-x:auto; }
+  .ieda-editor-bar .ieda-hide-medium { display:none; }
+}
+
+@media (max-width: 700px) {
+  .ieda-editor-bar { top:auto; left:8px; right:8px; bottom:8px; max-width:none; transform:none; justify-content:center; box-shadow:0 12px 36px rgba(7,23,38,.18); }
+  .ieda-editor-bar .ieda-hide-small { display:none; }
+  .ieda-status { bottom:60px; right:10px; left:10px; max-width:none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; }
+}

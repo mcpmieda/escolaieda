@@ -3,377 +3,371 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Administrativo | Escola Iêda MCPM</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#0f3d5e">
+  <meta name="theme-color" content="#071726">
+  <title>Centro de Administração | Escola Iêda MCPM</title>
   <link rel="icon" type="image/png" href="../imagens/favicon.png">
-  <link rel="stylesheet" href="admin.css?v=20260819-1">
-  <script type="module" src="admin.js?v=20260609-1"></script>
-  <script type="module" src="admin-preview.js?v=20260819-1"></script>
+  <link rel="stylesheet" href="admin.css?v=20260819-visual1">
+  <script type="module" src="admin.js?v=20260819-visual1"></script>
 </head>
 <body>
+  <div class="ambient ambientOne" aria-hidden="true"></div>
+  <div class="ambient ambientTwo" aria-hidden="true"></div>
+
   <main class="appShell">
-    <section class="loginView" id="loginView">
-      <div class="loginPanel">
-        <img src="../logo_escola.png" alt="Escola Iêda MCPM" class="loginLogo">
-        <h1>Sistema Escola Iêda</h1>
-        <p id="loginStatus">Entre com a conta Microsoft autorizada para acessar o painel administrativo.</p>
-        <button class="primaryButton" id="btnEntrar" type="button">Entrar com Microsoft</button>
+    <section class="gateView" id="loginView">
+      <div class="gateCard">
+        <div class="gateBrand">
+          <img src="../logo_escola.webp" alt="Escola Iêda MCPM" class="gateLogo">
+          <span>Escola Iêda MCPM</span>
+        </div>
+        <div class="gateCopy">
+          <span class="eyebrow">Centro de Administração</span>
+          <h1>Um painel simples para cuidar da escola.</h1>
+          <p id="loginStatus">Entre com sua conta Microsoft autorizada para continuar.</p>
+        </div>
+        <button class="button buttonPrimary buttonLarge" id="btnEntrar" type="button">
+          <span>Entrar com Microsoft</span>
+          <span aria-hidden="true">→</span>
+        </button>
+        <p class="gateFootnote">Ambiente restrito. Nenhuma alteração é feita antes do login.</p>
       </div>
     </section>
 
-    <section class="restrictedView hidden" id="restrictedView">
-      <div class="loginPanel">
-        <img src="../logo_escola.png" alt="Escola Iêda MCPM" class="loginLogo">
-        <h1>Acesso restrito</h1>
-        <p>Sua conta Microsoft foi reconhecida, mas não possui autorização para acessar o painel administrativo.</p>
-        <button class="secondaryButton" id="btnTrocarConta" type="button">Entrar com outra conta</button>
+    <section class="gateView hidden" id="restrictedView">
+      <div class="gateCard compactGate">
+        <div class="gateBrand">
+          <img src="../logo_escola.webp" alt="Escola Iêda MCPM" class="gateLogo">
+          <span>Escola Iêda MCPM</span>
+        </div>
+        <span class="eyebrow dangerEyebrow">Acesso restrito</span>
+        <h1>Esta conta não possui acesso ao painel.</h1>
+        <p>Use uma conta autorizada da Secretaria.</p>
+        <button class="button buttonSecondary buttonLarge" id="btnTrocarConta" type="button">Entrar com outra conta</button>
       </div>
     </section>
 
     <section class="dashboard hidden" id="dashboard">
-      <aside class="sidebar">
-        <div class="brandBlock">
-          <img src="../logo_escola.png" alt="" class="brandLogo">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebarBrand">
+          <img src="../logo_escola.webp" alt="" class="sidebarLogo">
           <div>
-            <strong>Sistema Escola Iêda</strong>
-            <span id="usuarioAtual">Painel Administrativo</span>
+            <strong>Escola Iêda</strong>
+            <span>Administração</span>
           </div>
         </div>
-        <nav class="sideNav" aria-label="Módulos internos">
-          <button class="navItem active" type="button" data-view="inicio">Início</button>
-          <button class="navItem" type="button" data-view="publicacoes">Publicações</button>
-          <button class="navItem" type="button" data-view="ponto">Livro de Ponto</button>
-          <button class="navItem" type="button" data-view="configuracoes">Configurações</button>
+
+        <nav class="sideNav" aria-label="Navegação administrativa">
+          <button class="navItem active" type="button" data-view="inicio">
+            <span class="navIcon" aria-hidden="true">⌂</span>
+            <span>Visão geral</span>
+          </button>
+          <button class="navItem" type="button" data-view="publicacoes">
+            <span class="navIcon" aria-hidden="true">✦</span>
+            <span>Publicações</span>
+          </button>
+          <a class="navItem navLink" href="./editor/">
+            <span class="navIcon" aria-hidden="true">◫</span>
+            <span>Editar site</span>
+          </a>
+          <a class="navItem navLink" href="./livro-ponto/">
+            <span class="navIcon" aria-hidden="true">✓</span>
+            <span>Livro de Ponto</span>
+          </a>
+          <button class="navItem" type="button" data-view="sistemas">
+            <span class="navIcon" aria-hidden="true">◇</span>
+            <span>Sistemas</span>
+          </button>
         </nav>
-        <button class="secondaryButton fullButton" id="btnSair" type="button">Sair</button>
+
+        <div class="sidebarFooter">
+          <div class="connectionMini" id="githubMiniStatus">
+            <span class="statusDot"></span>
+            <span>GitHub não configurado</span>
+          </div>
+          <button class="button buttonGhost fullButton" id="btnSair" type="button">Sair</button>
+        </div>
       </aside>
 
-      <div class="content">
-        <header class="contentHeader">
-          <div>
-            <h1 id="tituloView">Painel Administrativo</h1>
-            <p id="statusSistema">Ambiente restrito à Secretaria.</p>
+      <div class="appBody">
+        <header class="topbar">
+          <button class="iconButton mobileMenuButton" id="btnMenu" type="button" aria-label="Abrir menu">☰</button>
+          <div class="topbarCopy">
+            <span class="eyebrow" id="viewEyebrow">Centro de Administração</span>
+            <h1 id="tituloView">Visão geral</h1>
           </div>
-          <button class="primaryButton" id="btnAtualizar" type="button">Atualizar</button>
+          <div class="topbarActions">
+            <a class="button buttonGhost hideSmall" href="../" target="_blank" rel="noopener">Ver site</a>
+            <button class="userChip" id="userChip" type="button" title="Conta conectada">
+              <span class="userAvatar" id="userAvatar">A</span>
+              <span class="userMeta">
+                <strong id="usuarioAtual">Usuário autorizado</strong>
+                <small>Secretaria</small>
+              </span>
+            </button>
+          </div>
         </header>
 
-        <section class="view active" id="view-inicio">
-          <div class="moduleGrid">
-            <a class="moduleCard" href="../arquivo-digital/">
-              <span>Arquivo Digital</span>
-              <strong>Abrir sistema existente</strong>
-              <small>Fluxo aprovado preservado integralmente.</small>
-            </a>
-            <a class="moduleCard" href="../notas/">
-              <span>Gestão de Notas</span>
-              <strong>Acompanhar banco de notas</strong>
-              <small>Módulo em demonstração, pronto para receber as listas NOTAS_*.</small>
-            </a>
-            <button class="moduleCard" type="button" data-view-target="ponto">
-              <span>Livro de Ponto</span>
-              <strong>Preparado para integração</strong>
-              <small>Estrutura reservada para o próximo módulo interno.</small>
-            </button>
-            <button class="moduleCard" type="button" data-view-target="publicacoes">
-              <span>Publicações do Site</span>
-              <strong>Gerenciar notícias e avisos</strong>
-              <small>Conteúdo administrável no Microsoft 365.</small>
-            </button>
-            <button class="moduleCard" type="button" data-view-target="configuracoes">
-              <span>Configurações Internas</span>
-              <strong>Governança e estrutura</strong>
-              <small>Provisionamento das listas institucionais.</small>
-            </button>
-          </div>
-        </section>
-
-        <section class="view" id="view-publicacoes">
-          <div class="cmsToolbar">
-            <button class="primaryButton" id="btnNovaPublicacao" type="button">Nova publicação</button>
-            <button class="secondaryButton" id="btnPreviaPagina" type="button">Prévia da página</button>
-            <span id="contadorPublicacoes">0 itens</span>
-          </div>
-
-          <div class="cmsTabs" role="tablist" aria-label="Áreas do CMS">
-            <button class="cmsTab active" type="button" data-cms-tab="conteudo">Publicações</button>
-            <button class="cmsTab" type="button" data-cms-tab="home">Página inicial</button>
-            <button class="cmsTab" type="button" data-cms-tab="midias">Imagens e arquivos</button>
-            <button class="cmsTab" type="button" data-cms-tab="enquetes">Enquetes</button>
-          </div>
-
-          <div class="cmsTabPanel active" id="cmsTab-conteudo">
-            <div class="filtersPanel">
-              <label>Buscar
-                <input id="filtroBusca" type="search" placeholder="Título, resumo ou conteúdo">
-              </label>
-              <label>Status
-                <select id="filtroStatus">
-                  <option value="todos">Todos</option>
-                  <option value="publicado">Publicado</option>
-                  <option value="rascunho">Rascunho</option>
-                  <option value="agendado">Agendado</option>
-                  <option value="expirado">Expirado</option>
-                </select>
-              </label>
-              <label>Local
-                <select id="filtroLocal">
-                  <option value="todos">Todos</option>
-                  <option value="sobre">Nossa Escola</option>
-                  <option value="numeros">Números institucionais</option>
-                  <option value="informacoes">Informações</option>
-                  <option value="avisos">Avisos</option>
-                  <option value="destaques">Destaques</option>
-                  <option value="banner">Banner</option>
-                  <option value="documentos">Documentos</option>
-                  <option value="contato">Contato</option>
-                  <option value="modal">Modal</option>
-                </select>
-              </label>
-              <label>Ordenar
-                <select id="filtroOrdenacao">
-                  <option value="atualizado">Mais recentes</option>
-                  <option value="status">Status</option>
-                  <option value="ordem">Prioridade</option>
-                </select>
-              </label>
+        <div class="workspace">
+          <section class="view active" id="view-inicio">
+            <div class="heroPanel">
+              <div class="heroContent">
+                <span class="eyebrow lightEyebrow">Tudo em um só lugar</span>
+                <h2 id="saudacaoTitulo">Administração mais simples.</h2>
+                <p>Publique avisos, edite o site visualmente e acesse os sistemas internos sem navegar por telas técnicas.</p>
+                <div class="heroActions">
+                  <a class="button buttonLight" href="./editor/">Editar o site</a>
+                  <button class="button buttonGlass" type="button" data-view-target="publicacoes">Criar publicação</button>
+                </div>
+              </div>
+              <div class="heroVisual" aria-hidden="true">
+                <div class="heroOrb heroOrbOne"></div>
+                <div class="heroOrb heroOrbTwo"></div>
+                <div class="heroMonogram">IÊDA</div>
+              </div>
             </div>
 
-            <div class="workGrid cmsWorkGrid">
-              <form class="editorPanel" id="formPublicacao">
-                <input type="hidden" id="itemId">
-                <div class="panelTitle">
-                  <h2 id="tituloEditorPublicacao">Nova publicação</h2>
-                  <span id="statusEditorPublicacao">Rascunho</span>
+            <div class="sectionHeading">
+              <div>
+                <span class="eyebrow">Acessos rápidos</span>
+                <h2>O que você precisa fazer?</h2>
+              </div>
+              <span class="systemStatus" id="statusSistema">Painel pronto.</span>
+            </div>
+
+            <div class="actionGrid">
+              <a class="actionCard accentCard" href="./editor/">
+                <span class="cardIcon">◫</span>
+                <span class="cardTag">Construtor visual</span>
+                <h3>Editar o site</h3>
+                <p>Altere textos, imagens, blocos e páginas vendo o resultado na própria tela.</p>
+                <span class="cardArrow">Abrir editor <b>→</b></span>
+              </a>
+
+              <button class="actionCard" type="button" data-view-target="publicacoes">
+                <span class="cardIcon">✦</span>
+                <span class="cardTag">Comunicação</span>
+                <h3>Nova publicação</h3>
+                <p>Crie aviso, destaque, banner ou comunicado e publique direto no site.</p>
+                <span class="cardArrow">Criar agora <b>→</b></span>
+              </button>
+
+              <a class="actionCard" href="./livro-ponto/">
+                <span class="cardIcon">✓</span>
+                <span class="cardTag">Secretaria</span>
+                <h3>Livro de Ponto</h3>
+                <p>Acesse diretamente o módulo de ponto já existente no painel.</p>
+                <span class="cardArrow">Abrir livro <b>→</b></span>
+              </a>
+
+              <a class="actionCard" href="../arquivo-digital/">
+                <span class="cardIcon">▤</span>
+                <span class="cardTag">Documentos</span>
+                <h3>Arquivo Digital</h3>
+                <p>Continue usando o sistema aprovado de documentos da Secretaria.</p>
+                <span class="cardArrow">Abrir arquivo <b>→</b></span>
+              </a>
+            </div>
+
+            <div class="infoStrip">
+              <div>
+                <span class="infoIcon">i</span>
+                <div>
+                  <strong>Nova arquitetura do site</strong>
+                  <p>As publicações agora são salvas diretamente no repositório. O SharePoint não precisa mais criar ou sincronizar listas para o site.</p>
                 </div>
-                <label>Título
-                  <input id="campoTitulo" type="text" required maxlength="180">
+              </div>
+              <button class="textButton" id="btnConfigurarGithubInicio" type="button">Configurar GitHub</button>
+            </div>
+          </section>
+
+          <section class="view" id="view-publicacoes">
+            <div class="pageLead">
+              <div>
+                <span class="eyebrow">Publicações</span>
+                <h2>Publique sem lidar com código.</h2>
+                <p>O conteúdo é gravado diretamente no arquivo público que o site já utiliza.</p>
+              </div>
+              <div class="leadActions">
+                <button class="button buttonSecondary" id="btnConectarGithub" type="button">Conexão GitHub</button>
+                <button class="button buttonPrimary" id="btnNovaPublicacao" type="button">+ Nova publicação</button>
+              </div>
+            </div>
+
+            <div class="publicationLayout">
+              <form class="editorPanel" id="formPublicacao">
+                <div class="panelHeading">
+                  <div>
+                    <span class="eyebrow">Editor</span>
+                    <h3 id="tituloEditorPublicacao">Nova publicação</h3>
+                  </div>
+                  <span class="draftBadge" id="statusEditorPublicacao">Nova</span>
+                </div>
+
+                <input id="pubId" type="hidden">
+                <label class="field fieldWide">Título
+                  <input id="pubTitulo" type="text" maxlength="180" required placeholder="Ex.: Reunião de responsáveis">
                 </label>
-                <label>Chamada curta
-                  <textarea id="campoResumo" rows="3" maxlength="500"></textarea>
+                <label class="field fieldWide">Chamada curta
+                  <textarea id="pubResumo" rows="2" maxlength="500" placeholder="Uma frase curta para apresentar a publicação."></textarea>
                 </label>
-                <label>Texto principal
-                  <textarea id="campoConteudo" rows="7"></textarea>
+                <label class="field fieldWide">Texto
+                  <textarea id="pubConteudo" rows="6" placeholder="Escreva a informação principal."></textarea>
                 </label>
-                <div class="formRow singleField">
-                  <label>Onde aparece
-                    <select id="campoLocal">
-                      <option value="sobre">Nossa Escola</option>
-                      <option value="numeros">Números institucionais</option>
-                      <option value="informacoes">Informações</option>
+
+                <div class="fieldGrid">
+                  <label class="field">Onde aparece
+                    <select id="pubLocal">
                       <option value="avisos">Avisos</option>
                       <option value="destaques">Destaques</option>
-                      <option value="banner">Banner/topo</option>
+                      <option value="banner">Banner do topo</option>
+                      <option value="informacoes">Informações</option>
                       <option value="documentos">Documentos</option>
+                      <option value="sobre">Nossa Escola</option>
                       <option value="contato">Contato</option>
-                      <option value="modal">Modal/aviso importante</option>
+                      <option value="modal">Aviso em destaque</option>
                     </select>
                   </label>
-                </div>
-                <input id="campoImagem" type="hidden">
-                <div class="imageUploadBox">
-                  <label>Imagem da publicação
-                    <input id="campoArquivoImagem" type="file" accept="image/jpeg,image/png,image/webp">
-                  </label>
-                  <div class="imageUploadActions">
-                    <button class="secondaryButton" id="btnEnviarImagemPublicacao" type="button">Enviar imagem</button>
-                    <button class="ghostButton" id="btnRemoverImagemPublicacao" type="button">Remover imagem</button>
-                  </div>
-                  <p class="hintText" id="statusImagemPublicacao">Envie JPG, PNG ou WebP. A imagem será otimizada automaticamente.</p>
-                </div>
-                <div class="formRow singleField">
-                  <label>Descrição da imagem
-                    <input id="campoImagemAlt" type="text" maxlength="180">
-                  </label>
-                </div>
-                <div class="formRow">
-                  <label>Link do botão
-                    <input id="campoLink" type="url" placeholder="https://">
-                  </label>
-                  <label>Texto do botão
-                    <input id="campoBotao" type="text" maxlength="60" placeholder="Ver detalhes">
-                  </label>
-                </div>
-                <div class="formRow">
-                  <label>Mostrar a partir de
-                    <input id="campoDataInicial" type="date">
-                  </label>
-                  <label>Mostrar até
-                    <input id="campoDataFinal" type="date">
-                  </label>
-                </div>
-                <div class="formRow">
-                  <label>Prioridade
-                    <input id="campoOrdem" type="number" min="0" step="1" placeholder="0" aria-describedby="ajudaPrioridade">
-                    <small id="ajudaPrioridade">Menor número aparece primeiro. Use 0 quando a ordem não importar.</small>
-                  </label>
-                  <label>Aparência
-                    <select id="campoEstilo">
+                  <label class="field">Aparência
+                    <select id="pubEstilo">
                       <option value="padrao">Padrão</option>
                       <option value="suave">Suave</option>
                       <option value="destaque">Destaque</option>
                       <option value="urgente">Urgente</option>
                     </select>
                   </label>
+                  <label class="field">Mostrar a partir de
+                    <input id="pubDataInicial" type="date">
+                  </label>
+                  <label class="field">Mostrar até
+                    <input id="pubDataFinal" type="date">
+                  </label>
                 </div>
-                <div class="previewBox" id="previaPublicacao"></div>
-                <div class="buttonRow">
-                  <button class="primaryButton" type="submit">PUBLICAR NO SITE</button>
-                  <button class="secondaryButton" id="btnRascunho" type="button">Salvar sem publicar</button>
+
+                <div class="uploadPanel">
+                  <div>
+                    <strong>Imagem</strong>
+                    <span>JPG, PNG ou WebP. O arquivo será salvo no próprio repositório.</span>
+                  </div>
+                  <label class="fileButton">Escolher imagem
+                    <input id="pubImagemArquivo" type="file" accept="image/jpeg,image/png,image/webp">
+                  </label>
+                  <span class="uploadName" id="pubImagemNome">Nenhuma imagem selecionada</span>
+                  <input id="pubImagemAtual" type="hidden">
                 </div>
+
+                <div class="fieldGrid">
+                  <label class="field">Link do botão
+                    <input id="pubLink" type="url" placeholder="https://">
+                  </label>
+                  <label class="field">Texto do botão
+                    <input id="pubBotao" type="text" maxlength="60" placeholder="Saiba mais">
+                  </label>
+                </div>
+
+                <label class="switchRow">
+                  <input id="pubPublicado" type="checkbox" checked>
+                  <span class="switch"></span>
+                  <span>
+                    <strong>Publicar agora</strong>
+                    <small>Desative para salvar como rascunho.</small>
+                  </span>
+                </label>
+
+                <div class="editorActions">
+                  <button class="button buttonPrimary" type="submit">Salvar publicação</button>
+                  <button class="button buttonGhost" id="btnCancelarEdicao" type="button">Limpar</button>
+                </div>
+                <p class="inlineStatus" id="statusPublicacao" role="status"></p>
               </form>
 
               <div class="listPanel">
-                <div class="panelTitle">
-                  <h2>Publicações</h2>
-                  <span id="resumoFiltros">Lista completa</span>
+                <div class="panelHeading stickyHeading">
+                  <div>
+                    <span class="eyebrow">No site</span>
+                    <h3>Publicações</h3>
+                  </div>
+                  <span class="countBadge" id="contadorPublicacoes">0</span>
                 </div>
+                <label class="searchBox">
+                  <span>⌕</span>
+                  <input id="buscaPublicacoes" type="search" placeholder="Buscar publicação">
+                </label>
                 <div class="publicationList" id="listaPublicacoes"></div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div class="cmsTabPanel" id="cmsTab-home">
-            <form class="settingsPanel homeEditor" id="formHome">
-              <div class="panelTitle">
-                <h2>Página inicial</h2>
-                <span>Seções e visibilidade</span>
+          <section class="view" id="view-sistemas">
+            <div class="pageLead">
+              <div>
+                <span class="eyebrow">Sistemas</span>
+                <h2>Ferramentas da escola.</h2>
+                <p>Atalhos para os módulos que continuam independentes do editor do site.</p>
               </div>
-              <div class="formRow">
-                <label>Título principal
-                  <input id="homeTitulo" type="text">
-                </label>
-                <label>Subtítulo
-                  <input id="homeSubtitulo" type="text">
-                </label>
-              </div>
-              <div class="formRow">
-                <label>Cor de destaque
-                  <input id="homeCorDestaque" type="color" value="#003366">
-                </label>
-              </div>
-              <div class="sectionEditorHeader">
-                <h3>Seções da página</h3>
-                <button class="secondaryButton" id="btnAdicionarSecaoHome" type="button">Adicionar seção</button>
-              </div>
-              <div class="homeSectionsList" id="listaSecoesHome"></div>
-              <div class="buttonRow">
-                <button class="primaryButton" type="submit">Salvar editor da home</button>
-              </div>
-              <p class="hintText">Cada seção pode receber publicações pelo campo "Onde aparece". O formato Lista/Blocos vale para as publicações daquela seção no site.</p>
-            </form>
-          </div>
-
-          <div class="cmsTabPanel" id="cmsTab-midias">
-            <div class="settingsPanel">
-              <div class="panelTitle">
-                <h2>Imagens e arquivos</h2>
-                <span>Biblioteca pública</span>
-              </div>
-              <p>Envie imagens para reutilizar nas publicações. Os arquivos são otimizados e publicados no repositório do site.</p>
-              <div class="formRow">
-                <label>Selecionar imagem
-                  <input id="midiaArquivo" type="file" accept="image/jpeg,image/png,image/webp">
-                </label>
-                <label>Descrição da imagem
-                  <input id="midiaAlt" type="text" maxlength="180">
-                </label>
-              </div>
-              <button class="primaryButton" id="btnEnviarMidia" type="button">Enviar imagem</button>
-              <p class="hintText" id="statusMidia">Nenhuma imagem selecionada.</p>
-              <div class="mediaList" id="listaMidias"></div>
             </div>
-          </div>
 
-          <div class="cmsTabPanel" id="cmsTab-enquetes">
-            <div class="settingsPanel">
-              <div class="panelTitle">
-                <h2>Enquetes</h2>
-                <span>Preparado para etapa futura</span>
-              </div>
-              <p>A estrutura administrativa está reservada para pergunta, opções, status e período. A votação pública ainda não foi ativada.</p>
-              <div class="formRow">
-                <label>Pergunta
-                  <input id="enquetePergunta" type="text" placeholder="Ex.: Qual tema você prefere?">
-                </label>
-                <label>Status
-                  <select id="enqueteStatus">
-                    <option>Rascunho</option>
-                    <option>Publicado</option>
-                  </select>
-                </label>
-              </div>
-              <label>Opções
-                <textarea id="enqueteOpcoes" rows="4" placeholder="Uma opção por linha"></textarea>
-              </label>
+            <div class="systemGrid">
+              <a class="systemCard" href="../arquivo-digital/">
+                <span class="systemGlyph">▤</span>
+                <div><strong>Arquivo Digital</strong><small>Documentos da Secretaria</small></div>
+                <span>→</span>
+              </a>
+              <a class="systemCard" href="./livro-ponto/">
+                <span class="systemGlyph">✓</span>
+                <div><strong>Livro de Ponto</strong><small>Controle de frequência</small></div>
+                <span>→</span>
+              </a>
+              <a class="systemCard" href="../notas/">
+                <span class="systemGlyph">▥</span>
+                <div><strong>Gestão de Notas</strong><small>Acompanhamento de notas</small></div>
+                <span>→</span>
+              </a>
+              <a class="systemCard" href="../" target="_blank" rel="noopener">
+                <span class="systemGlyph">↗</span>
+                <div><strong>Site público</strong><small>escolaieda.com</small></div>
+                <span>→</span>
+              </a>
             </div>
-          </div>
-        </section>
 
-        <section class="view" id="view-ponto">
-          <div class="emptyState">
-            <h2>Livro de Ponto</h2>
-            <p>Módulo reservado para integração futura, sem interferir no Arquivo Digital.</p>
-          </div>
-        </section>
-
-        <section class="view" id="view-configuracoes">
-          <div class="settingsGrid">
-            <div class="settingsPanel">
-              <h2>Estrutura Microsoft 365</h2>
-              <p>As estruturas principais já estão preparadas. Use esta área apenas em manutenção orientada.</p>
-              <details>
-                <summary>Ferramentas técnicas</summary>
-                <button class="primaryButton" id="btnProvisionar" type="button">Preparar SharePoint</button>
-                <pre id="logProvisionamento" class="logBox">Aguardando ação.</pre>
-              </details>
-            </div>
-            <div class="settingsPanel">
-              <h2>Fonte pública</h2>
-              <p>Configure a publicação automática da fonte que a página inicial consome sem login.</p>
-              <label>URL JSON pública
-                <input id="campoFontePublica" type="url" placeholder="https://.../publicacoes-publicas.json">
-              </label>
-              <label>Token GitHub
-                <input id="campoGithubToken" type="password" autocomplete="off" placeholder="Token com permissão de conteúdo no repositório">
-              </label>
-              <div class="formRow">
-                <label>Repositório
-                  <input id="campoGithubRepo" type="text" value="mcpmieda/escolaieda">
-                </label>
-                <label>Branch
-                  <input id="campoGithubBranch" type="text" value="main">
-                </label>
+            <div class="settingsPanel compactSettings">
+              <div>
+                <span class="eyebrow">Conexão do site</span>
+                <h3>GitHub</h3>
+                <p>Necessário apenas para salvar publicações e alterações do construtor visual.</p>
               </div>
-              <button class="secondaryButton" id="btnSalvarFontePublica" type="button">Salvar configuração</button>
-              <button class="primaryButton" id="btnSincronizarFontePublica" type="button">Sincronizar agora</button>
-              <p class="hintText" id="statusFontePublica">O token é usado somente para atualizar o JSON público no repositório. Use um token restrito ao repositório mcpmieda/escolaieda.</p>
+              <div class="connectionBlock">
+                <span class="connectionBadge" id="githubStatusBadge">Não configurado</span>
+                <button class="button buttonSecondary" id="btnConfigurarGithubSistemas" type="button">Configurar</button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </section>
   </main>
 
-  <section class="sitePreviewOverlay hidden" id="sitePreviewOverlay" role="dialog" aria-modal="true" aria-labelledby="sitePreviewTitle" aria-hidden="true">
-    <div class="sitePreviewDialog">
-      <header class="sitePreviewHeader">
-        <div>
-          <h2 id="sitePreviewTitle">Prévia da página inicial</h2>
-          <p id="sitePreviewStatus">Prévia local. Nenhuma alteração é publicada por esta janela.</p>
-        </div>
-        <button class="ghostButton" id="btnFecharPreview" type="button">Fechar</button>
-      </header>
-      <div class="sitePreviewToolbar" aria-label="Tamanho da prévia">
-        <button class="previewDeviceButton active" id="btnPreviewDesktop" type="button" aria-pressed="true">Computador</button>
-        <button class="previewDeviceButton" id="btnPreviewMobile" type="button" aria-pressed="false">Celular</button>
+  <dialog class="modalDialog" id="githubDialog">
+    <form method="dialog" class="modalCard" id="githubForm">
+      <button class="modalClose" value="cancel" aria-label="Fechar">×</button>
+      <span class="eyebrow">Configuração única</span>
+      <h2>Conectar ao GitHub</h2>
+      <p>Use um token de acesso restrito somente ao repositório <strong>mcpmieda/escolaieda</strong>. Ele não será gravado no código do site.</p>
+      <label class="field fieldWide">Token GitHub
+        <input id="githubTokenInput" type="password" autocomplete="off" placeholder="github_pat_...">
+      </label>
+      <label class="rememberRow">
+        <input id="githubRemember" type="checkbox">
+        <span>Lembrar neste dispositivo</span>
+      </label>
+      <div class="modalActions">
+        <button class="button buttonGhost" value="cancel" type="button" id="btnCancelarGithub">Cancelar</button>
+        <button class="button buttonPrimary" type="submit">Testar e salvar</button>
       </div>
-      <div class="sitePreviewStage">
-        <div class="sitePreviewViewport" id="sitePreviewViewport" data-device="desktop">
-          <iframe id="sitePreviewFrame" class="sitePreviewFrame" title="Prévia da página pública da Escola Iêda" sandbox></iframe>
-        </div>
-      </div>
-    </div>
-  </section>
+      <p class="inlineStatus" id="githubDialogStatus" role="status"></p>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

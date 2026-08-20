@@ -1,142 +1,132 @@
-# AI_CONTEXT — Centro de Administração da Escola Iêda
-
-## Objetivo
-
-Manter e evoluir o painel administrativo em `admin/` como centro simples de gestão do site e acesso aos módulos internos da Escola Iêda, preservando o que já funciona e evitando acoplamento indevido com o Arquivo Digital Escolar.
+# AI_CONTEXT — Centro de Administração Escola Iêda
 
 ## Estado atual
 
-- Baseline estável de referência: `main` em `c564fd5cf34666e9b9a314aeee8194ab802ceee1`.
-- O painel funciona como mini-CMS da home pública.
-- SharePoint é a fonte administrativa principal.
-- `site-data/publicacoes-publicas.json` é a fonte pública derivada consumida pela home.
-- A prévia completa da página está implementada como candidata na branch `feat/admin-preview-completa` e no PR #19.
-- Validações estáticas da prévia foram aprovadas; smoke test visual com sessão real ainda é obrigatório antes de merge em `main`.
+Projeto em desenvolvimento isolado na branch `feat/admin-visual-builder`.
 
-## Arquitetura
+Baseline seguro anterior ao marco:
 
-```text
-admin/index.html
-  → interface do painel
-admin/admin.css
-  → apresentação do painel
-admin/admin.js
-  → MSAL + Microsoft Graph + SharePoint + sincronização GitHub
-admin/admin-preview.js
-  → prévia local isolada, sem escrita externa
-site-data/publicacoes-publicas.json
-  → snapshot público derivado
-site-data/publicacoes-site.js
-  → renderizador público reutilizado também pela prévia
-index.html
-  → página pública real usada pela prévia
-```
+`96e16d599d06768a0ab6a7a0ea807b94a838a168`
 
-A prévia carrega a `index.html` real em memória, remove scripts que não pertencem à renderização pública, alimenta `site-data/publicacoes-site.js` com uma fonte JSON virtual dentro do iframe e permite alternar o viewport entre computador e celular.
+Não alterar `main` sem validação real e autorização explícita do usuário.
 
-`admin/livro-ponto/` é um módulo separado dentro da área administrativa e atualmente usa armazenamento local no navegador.
+## Objetivo
 
-## Restrições obrigatórias
+Entregar um painel administrativo único, moderno e simples para usuário não técnico, evitando desenvolver um CMS artesanal recurso por recurso.
 
-- Não reescrever o painel do zero.
-- Trabalhar por escopo incremental e revisar por diff.
-- Não alterar `arquivo-digital/` sem solicitação explícita.
-- Não alterar autenticação, permissões, SharePoint, listas ou schema como efeito colateral de mudanças visuais do painel.
-- Não inventar IDs, propriedades ou contratos do Microsoft Graph.
-- Não colocar tokens ou segredos no repositório.
-- Preservar o fluxo SharePoint → JSON derivado → GitHub Pages.
-- Mudanças estruturais exigem baseline, impacto, backup/rollback e validação específica.
+## Arquitetura aprovada
 
-## Baseline seguro
+- `/admin/` = central administrativa.
+- `/admin/editor/` = construtor visual do site baseado em VvvebJs vendorizado.
+- `/admin/livro-ponto/` = Livro de Ponto já existente, apenas linkado diretamente.
+- `/arquivo-digital/` e `/notas/` permanecem módulos independentes e não devem ser refatorados neste projeto.
+- GitHub é a fonte de verdade para conteúdo público e páginas.
+- Microsoft/Graph permanece apenas para login e validação de acesso da Secretaria.
+- SharePoint NÃO é mais CMS do site.
 
-Baseline vigente até aprovação do PR #19:
+## VvvebJs
 
-```text
-c564fd5cf34666e9b9a314aeee8194ab802ceee1
-```
+Upstream: `givanz/VvvebJs`.
+Licença: Apache-2.0.
+Versão fixada obrigatoriamente:
 
-Comportamentos que devem ser preservados:
+`1acbab7ebfe3e7b004f1f18c039d26550fc04bd8`
 
-- login Microsoft e validação de acesso da Secretaria;
-- CRUD de publicações;
-- rascunho, agendamento e expiração;
-- editor de seções da home;
-- sincronização automática agrupada para o GitHub;
-- upload/otimização WebP;
-- logs administrativos;
-- ausência de alterações no Arquivo Digital durante trabalho do CMS.
+Nunca atualizar automaticamente para `master`.
 
-## Método de trabalho
+O runtime deve ficar dentro do próprio repositório em `admin/editor/`. Não introduzir Vercel, TinaCMS/TinaCloud, PHP, banco de dados ou CMS hospedado externamente.
 
-- entender antes de alterar;
-- escopo fechado;
-- mudanças pequenas;
-- revisão por diff;
-- testes dirigidos ao comportamento afetado;
-- sem reauditoria completa em cada ajuste;
-- checkpoint no GitHub ao concluir marco relevante.
+## Publicações
 
-## Decisões vigentes
+Fonte pública existente:
 
-- SharePoint continua sendo a fonte administrativa principal.
-- O JSON público continua sendo derivado e reconstruível.
-- O token GitHub não deve entrar no código-fonte.
-- A prévia completa é somente leitura e não grava em SharePoint ou GitHub.
-- A prévia reutiliza a `index.html` e o renderizador público reais para reduzir divergência futura.
-- O JSON temporário da prévia usa uma rota virtual interceptada somente dentro do iframe; a tentativa inicial com `data:` URL foi descartada porque o cache-busting do renderizador invalidava o corpo JSON.
-- Publicações do tipo Modal recebem identificador temporário na prévia para não serem ocultadas por estado de sessão anterior da home pública.
+`site-data/publicacoes-publicas.json`
 
-## Dependências principais
+Renderizador existente:
 
-- Microsoft Entra ID / MSAL Browser.
-- Microsoft Graph.
-- SharePoint.
-- GitHub Contents API.
-- GitHub Pages.
+`site-data/publicacoes-site.js`
 
-## Testes obrigatórios
+Novo fluxo:
 
-Para mudanças comuns no CMS:
+`admin → GitHub Contents API → JSON público → site`
 
-```text
-node --check admin/admin.js
-node --check admin/admin-preview.js
-node --check site-data/publicacoes-site.js
-git diff --check
-```
+Não restaurar o fluxo `SharePoint Lists → sincronização → GitHub` sem decisão explícita.
 
-Para a prévia completa:
+## GitHub
 
-```text
-abrir prévia sem salvar → nenhuma escrita externa ocorre
-modo computador → home completa é exibida na largura ampla
-modo celular → mesma home é exibida em viewport móvel
-alterar título/seção sem salvar → prévia reflete a edição
-pré-visualizar publicação não salva → item aparece apenas na prévia
-fechar prévia → retorna ao painel sem perder os campos editados
-```
+Repositório fixo: `mcpmieda/escolaieda`.
+Branch de produção: `main`.
 
-Resultados e pendências ficam em `admin/TESTES.md`.
+Token:
 
-## Segurança
+- nunca versionar;
+- sessão por padrão;
+- `localStorage` somente se usuário optar por lembrar;
+- token de menor privilégio possível, restrito ao repositório.
 
-- `arquivo-digital/` é sistema separado e sensível.
-- Não ampliar `Sites.ReadWrite.All` nem alterar permissões neste ciclo sem trabalho explícito de segurança/autenticação.
-- O token GitHub deve permanecer fora do repositório e com privilégio mínimo.
-- O iframe da prévia executa somente o renderizador público controlado; os demais scripts da home são removidos da cópia de prévia.
+## Páginas criadas pelo editor
 
-## Operação e recuperação
+- Home: `index.html`.
+- Novas páginas gerenciadas pelo construtor: `paginas/<slug>/index.html`.
+- Imagens do editor: `imagens/editor/`.
+- Imagens de publicações: `imagens/publicacoes/`.
 
-- Para mudanças de código, usar o baseline registrado como ponto de retorno.
-- Não empilhar correções sobre tentativa incerta; reverter ao último checkpoint estável quando necessário.
-- A publicação pública pode ser reconstruída pelo fluxo de sincronização existente.
-- O PR #19 permanece em rascunho até smoke test visual e autorização de merge.
+Não permitir que o editor ofereça edição de módulos internos como `arquivo-digital/`, `notas/`, `admin/livro-ponto/` ou outros sistemas operacionais sem uma decisão separada.
 
-## Últimos checkpoints
+## Itens removidos deste painel
 
-- `c564fd5cf34666e9b9a314aeee8194ab802ceee1` — baseline estável anterior ao desenvolvimento da prévia.
-- `feat/admin-preview-completa` / PR #19 — candidata da prévia completa; ainda não é baseline de produção.
+- provisionamento de listas SharePoint;
+- botão “Preparar SharePoint”;
+- publicações armazenadas em listas SharePoint;
+- formulário customizado da Home;
+- enquetes inacabadas;
+- prévia separada `admin-preview.js`;
+- configurações técnicas expostas ao usuário comum.
 
-## Próxima ação concreta
+## Página institucional
 
-Executar smoke test visual da prévia com uma conta autorizada, conferindo computador/celular, edição não salva de home/publicação, Modal/Banner quando disponíveis e ausência de escrita externa. Se aprovado, revisar o diff final e então decidir o merge em `main`.
+`institucional/index.html` era somente uma página de teste e deve ser removida.
+
+NÃO remover `site-institucional/` automaticamente: contém conteúdo real/legado e precisa de auditoria própria.
+
+## UI
+
+Diretrizes permanentes:
+
+- interface elegante, limpa e moderna;
+- linguagem simples;
+- ações frequentes visíveis;
+- detalhes técnicos fora do caminho principal;
+- responsiva;
+- foco de teclado visível;
+- respeitar `prefers-reduced-motion`;
+- não depender de hover para ação essencial;
+- evitar `innerHTML` com dados externos;
+- mensagens de erro amigáveis.
+
+## Desenvolvimento
+
+Fluxo obrigatório:
+
+1. manter branch isolada;
+2. revisar somente o escopo alterado e dependências diretas;
+3. preservar módulos sensíveis;
+4. validar diff contra o baseline;
+5. testar no navegador real antes de qualquer merge;
+6. documentar decisões em `admin/PROJETO_ADMIN_VISUAL.md`;
+7. atualizar `admin/TESTES.md` quando o comportamento mudar.
+
+## Regra de aceite
+
+Não considerar pronto apenas porque compila. O marco precisa comprovar no navegador:
+
+- login;
+- acesso da Secretaria;
+- publicação direta no GitHub;
+- upload de imagem;
+- renderização no site;
+- editor visual abrindo a Home;
+- edição e salvamento da Home;
+- criação de página;
+- uso em celular;
+- Livro de Ponto abrindo corretamente.

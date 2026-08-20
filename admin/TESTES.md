@@ -1,94 +1,130 @@
-# TESTES — Centro de Administração
+# TESTES — Centro de Administração Visual
 
-## Convenção
+## Regra
 
-Registrar aqui somente testes relevantes do painel administrativo. Testes específicos do Arquivo Digital pertencem à documentação e aos runners próprios daquele sistema.
+Executar testes por escopo. Não reauditar Arquivo Digital, Notas ou Livro de Ponto se os arquivos desses módulos não forem alterados.
 
-## Marco — prévia completa da página
+Branch de teste: `feat/admin-visual-builder`.
+Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
 
-Branch de desenvolvimento: `feat/admin-preview-completa`
+## 1. Validação estática
 
-Baseline de comparação: `c564fd5cf34666e9b9a314aeee8194ab802ceee1`
+- [ ] `admin/admin.js` sem erro de sintaxe.
+- [ ] `admin/editor/escola-editor.js` sem erro de sintaxe.
+- [ ] `admin/editor/escola-componentes.js` sem erro de sintaxe.
+- [ ] HTML principal abre sem recursos ausentes críticos.
+- [ ] diff não altera `arquivo-digital/`, `notas/` ou `admin/livro-ponto/`.
+- [ ] não existem TinaCMS, Vercel, Astro ou PHP introduzidos.
+- [ ] nenhum token/segredo versionado.
 
-### Comportamentos esperados
+## 2. Login e acesso
 
-1. Abrir a prévia não grava em SharePoint nem GitHub.
-2. A prévia reutiliza a `index.html` real e o renderizador público `site-data/publicacoes-site.js`.
-3. Alterações ainda não salvas no editor da home aparecem na prévia.
-4. Na aba Publicações, a publicação em edição aparece na prévia sem ser salva.
-5. Computador e Celular usam a mesma página, alterando somente a largura do viewport.
-6. Fechar a prévia retorna ao painel sem apagar os campos em edição.
-7. Scripts da home que não pertencem à renderização pública não são executados na prévia.
+- [ ] abrir `/admin/` sem sessão → tela de login.
+- [ ] entrar com conta autorizada → dashboard.
+- [ ] entrar com conta não autorizada → acesso restrito.
+- [ ] botão Sair encerra sessão e volta ao site.
+- [ ] nome do usuário aparece corretamente.
 
-### Validações executadas
+## 3. UI
 
-#### Sintaxe do novo módulo
+Desktop:
 
-Comando equivalente executado sobre o conteúdo atual de `admin/admin-preview.js`:
+- [ ] sidebar estável.
+- [ ] Visão geral abre sem rolagem horizontal.
+- [ ] cards têm hover/foco sem ocultar ações.
+- [ ] navegação troca de tela corretamente.
+- [ ] modal GitHub abre e fecha.
 
-```text
-node --check admin/admin-preview.js
-```
+Celular:
 
-Resultado: **APROVADO**.
+- [ ] menu lateral abre/fecha.
+- [ ] cards ficam em uma coluna.
+- [ ] formulário de publicação é utilizável.
+- [ ] botões não ficam cortados.
+- [ ] não há rolagem horizontal inesperada.
 
-#### Ausência de escrita externa no novo módulo
+Acessibilidade:
 
-Foi verificado o novo `admin/admin-preview.js` em busca de métodos/indicadores de escrita (`POST`, `PATCH`, `PUT`, `DELETE`), endpoints Graph/GitHub, `Authorization` e token de sessão.
+- [ ] tabulação alcança controles principais.
+- [ ] foco de teclado é visível.
+- [ ] `prefers-reduced-motion` reduz movimentos.
 
-Resultado: **APROVADO** — o módulo de prévia faz somente leitura da home/JSON público e manipulação local de DOM/iframe.
+## 4. Atalhos dos sistemas
 
-#### Fonte virtual e cache-busting
+- [ ] Livro de Ponto abre `/admin/livro-ponto/`.
+- [ ] Arquivo Digital abre `/arquivo-digital/`.
+- [ ] Gestão de Notas abre `/notas/`.
+- [ ] Ver site abre a Home pública.
 
-O renderizador público acrescenta `?v=<timestamp>` à URL de dados. A primeira tentativa com `data:` URL foi descartada porque o query string passava a fazer parte do corpo e invalidava o JSON.
+## 5. GitHub
 
-A implementação final usa uma rota virtual somente dentro do iframe (`/__admin-preview-data__.json`) e intercepta o `fetch` local antes de executar o renderizador público.
+Usar token restrito ao repositório.
 
-Teste isolado reproduzindo o cache-busting e a interceptação:
+- [ ] sem token, salvar publicação pede configuração.
+- [ ] token inválido produz mensagem amigável.
+- [ ] token válido é aceito.
+- [ ] opção sem “lembrar” grava somente na sessão.
+- [ ] opção “lembrar” persiste apenas no dispositivo.
+- [ ] token não aparece em nenhum commit ou arquivo público.
 
-```text
-/__admin-preview-data__.json?v=123
-→ interceptado pelo pathname
-→ Response JSON temporária
-→ JSON.parse aprovado
-```
+## 6. Publicações
 
-Resultado: **APROVADO**.
+- [ ] criar publicação como rascunho.
+- [ ] criar publicação publicada.
+- [ ] editar publicação existente.
+- [ ] excluir publicação.
+- [ ] pesquisar por título/conteúdo/local.
+- [ ] enviar imagem JPG.
+- [ ] enviar imagem PNG ou WebP.
+- [ ] imagem é criada em `imagens/publicacoes/`.
+- [ ] JSON mantém o objeto `home` existente.
+- [ ] JSON mantém publicações não editadas.
+- [ ] conflito de SHA não sobrescreve silenciosamente outra alteração.
+- [ ] publicação aparece no site conforme `local`.
+- [ ] rascunho não aparece no site.
+- [ ] datas inicial/final são respeitadas pelo renderizador público.
 
-#### Revisão por diff
+## 7. Editor visual
 
-O escopo da branch foi comparado com o baseline.
+- [ ] `/admin/editor/` abre sem backend PHP.
+- [ ] Home real é carregada como página inicial.
+- [ ] texto existente pode ser selecionado e editado.
+- [ ] elemento pode ser movido.
+- [ ] bloco Escola Iêda pode ser inserido.
+- [ ] undo funciona.
+- [ ] redo funciona.
+- [ ] preview funciona.
+- [ ] visualização celular funciona.
+- [ ] Salvar atualiza `index.html` pelo GitHub.
+- [ ] recarregar confirma persistência da alteração.
+- [ ] criar nova página gera `paginas/<slug>/index.html`.
+- [ ] página recém-criada pode ser reaberta.
+- [ ] upload do editor cria arquivo em `imagens/editor/`.
+- [ ] imagem enviada pode ser aplicada a um elemento de imagem selecionado.
+- [ ] editor não oferece edição direta de `arquivo-digital/`, `notas/` e Livro de Ponto.
 
-Arquivos de código afetados neste marco:
+## 8. Regressão pública
 
-```text
-admin/index.html
-admin/admin.css
-admin/admin-preview.js
-```
+- [ ] `https://escolaieda.com/` mantém carregamento normal.
+- [ ] menus e atalhos da Home continuam funcionando.
+- [ ] `site-data/publicacoes-site.js` continua carregando.
+- [ ] nenhuma publicação antiga é perdida.
+- [ ] calendário/professor/portais continuam acessíveis.
 
-Documentação adicionada:
+## 9. Limpeza
 
-```text
-admin/AI_CONTEXT.md
-admin/TESTES.md
-```
+- [ ] `institucional/index.html` removido.
+- [ ] `site-institucional/` preservado.
+- [ ] `admin/admin-preview.js` removido e sem referência restante.
+- [ ] nenhum botão “Preparar SharePoint”.
+- [ ] nenhuma tela de enquetes inacabada.
+- [ ] nenhuma tela de configuração de listas SharePoint.
 
-Resultado: **APROVADO** — nenhuma alteração em `arquivo-digital/`, autenticação, permissões, SharePoint, schema, `site-data/` ou home pública.
+## 10. Antes do merge
 
-### Smoke test visual ainda necessário antes do merge em `main`
-
-Executar no painel real com uma conta autorizada:
-
-```text
-[ ] abrir Publicações → Prévia da página
-[ ] confirmar carregamento da home completa
-[ ] alternar Computador ↔ Celular
-[ ] digitar uma publicação sem salvar e confirmar que aparece somente na prévia
-[ ] editar título/subtítulo/seção da home sem salvar e confirmar a prévia
-[ ] conferir Banner, seção comum e Modal quando houver itens disponíveis
-[ ] fechar a prévia e confirmar que os campos editados continuam preenchidos
-[ ] confirmar que nenhuma ação da prévia criou commit ou alteração no SharePoint
-```
-
-Até esse smoke test ser concluído, a branch deve permanecer candidata e o PR deve continuar em rascunho.
+- [ ] comparar branch inteira com `main`.
+- [ ] revisar permissões Microsoft realmente necessárias.
+- [ ] revisar todas as chamadas GitHub de escrita.
+- [ ] confirmar licença/commit vendorizado do VvvebJs.
+- [ ] usuário aprovar visual e fluxo real.
+- [ ] somente então solicitar autorização explícita para merge.
