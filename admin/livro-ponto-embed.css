@@ -34,13 +34,15 @@
 
 #view-publicacoes .pageLead,
 #view-sistemas .pageLead,
-#view-livro .pageLead {
+#view-livro .pageLead,
+#view-notas .pageLead {
   align-items: flex-start;
 }
 
 #view-publicacoes .leadActions,
 #view-sistemas .leadActions,
-#view-livro .leadActions {
+#view-livro .leadActions,
+#view-notas .leadActions {
   align-items: center;
   justify-content: flex-end;
 }
@@ -160,6 +162,49 @@
   background: #f7f8fc;
 }
 
+/* Gestão de Notas integrada à área Sistemas. */
+.workspace:has(#view-notas.active) {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  margin: 0;
+  padding: clamp(18px, 3vw, 34px) clamp(18px, 3vw, 38px) 0;
+  overflow: hidden;
+}
+
+#view-notas.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+#view-notas .pageLead {
+  flex: 0 0 auto;
+  margin-bottom: 14px;
+}
+
+.notasEmbedShell {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(16, 34, 52, .08);
+  border-radius: 18px 18px 0 0;
+  background: #071a33;
+  box-shadow: 0 14px 36px rgba(16, 34, 52, .07);
+}
+
+.notasFrame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  background: #071a33;
+}
+
 @media (max-width: 1180px) {
   #view-inicio .actionGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -179,7 +224,8 @@
 
   #view-publicacoes .leadActions,
   #view-sistemas .leadActions,
-  #view-livro .leadActions {
+  #view-livro .leadActions,
+  #view-notas .leadActions {
     width: 100%;
     justify-content: flex-start;
   }
@@ -198,9 +244,14 @@
     border-radius: 15px;
   }
 
-  .workspace:has(#view-livro.active) {
+  .workspace:has(#view-livro.active),
+  .workspace:has(#view-notas.active) {
     height: 100dvh;
     padding: 14px 12px 0;
+  }
+
+  .notasEmbedShell {
+    border-radius: 14px 14px 0 0;
   }
 }
 
