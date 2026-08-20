@@ -32,27 +32,31 @@ Motor aprovado: GrapesJS.
 
 Versão fixada deste marco: `0.22.13`.
 Licença: BSD-3-Clause.
-Runtime final local:
+Runtime local materializado na branch:
 
 - `admin/editor/vendor/grapes.min.js`
 - `admin/editor/vendor/grapes.min.css`
+- `admin/editor/vendor/GRAPESJS-LICENSE`
+- `admin/editor/vendor/VERSION.txt`
 
-O runtime deve ficar dentro do próprio repositório. Não usar CDN em runtime, Vercel, TinaCMS/TinaCloud, PHP, banco novo ou CMS hospedado externamente.
+O navegador usa os arquivos locais. Não usar CDN em runtime, Vercel, TinaCMS/TinaCloud, PHP, banco novo ou CMS hospedado externamente.
 
-### Bundles validados
+### Bundles validados e incorporados
 
-Em 2026-08-19 o usuário forneceu os dois bundles pelo celular.
+Em 2026-08-19 o usuário forneceu os dois bundles pelo celular e depois fez o upload para a branch de desenvolvimento.
 
 `grapes.min.js`
 - tamanho: `1095002` bytes
 - SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`
+- Git blob SHA: `7e6965661f682e20915b4489cbeb3f85ec8706df`
 - `node --check`: aprovado
 
 `grapes.min.css`
 - tamanho: `60968` bytes
 - SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`
+- Git blob SHA: `62009a27142982215ecb7eb02f114eadf4e93841`
 
-A conexão GitHub desta sessão não aceita anexar arquivos locais grandes ao repositório. Não criar workaround arquitetural permanente por causa dessa limitação. Antes de considerar o editor materializado, confirmar que os dois arquivos presentes na branch batem exatamente com os hashes acima.
+Os blobs presentes no GitHub coincidem exatamente com os arquivos locais validados. **Não tratar mais a vendorização como pendente.**
 
 ### Escopo deliberadamente reduzido
 
@@ -174,7 +178,7 @@ Fluxo obrigatório:
 5. testar no navegador real antes de merge;
 6. atualizar `admin/PROJETO_ADMIN_VISUAL.md` e `admin/EXECUCAO_ADMIN_VISUAL.md`;
 7. manter `admin/TESTES.md` coerente com o comportamento real;
-8. não declarar runtime GrapesJS pronto enquanto `admin/editor/vendor/grapes.min.js` e `.css` não estiverem fisicamente na branch e validados pelos hashes.
+8. manter GrapesJS fixado em `0.22.13` neste marco e não substituir os bundles sem nova validação de hash/versão.
 
 ## Regra de aceite
 
