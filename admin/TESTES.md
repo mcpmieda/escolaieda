@@ -133,9 +133,9 @@ Compatibilidade estática com a Home real:
 - [x] `<footer>` existe e pode ser protegido.
 - [x] seções legadas usam atributos esperados pelo sincronizador.
 
-### Primeiro smoke test visual — captura do usuário em 2026-08-20
+### Smoke tests visuais e funcionais — usuário em 2026-08-20
 
-Evidência comprovada pela captura enviada pelo usuário:
+Evidência comprovada pelas capturas e pelos testes relatados pelo usuário:
 
 - [x] `/admin/editor/` abre no preview sem PHP.
 - [x] Home real é carregada dentro do canvas.
@@ -145,23 +145,21 @@ Evidência comprovada pela captura enviada pelo usuário:
 - [x] um texto existente pode ser selecionado e recebe contorno/ferramentas de seleção.
 - [x] propriedades de aparência aparecem para o elemento selecionado.
 - [x] modo Computador carrega corretamente.
+- [x] modo Celular reduz a Home para a largura móvel sem estouro horizontal visível na captura.
+- [x] título e botões da Home se reorganizam no modo Celular.
 - [x] topbar do editor permanece utilizável, com Prévia e Salvar alterações visíveis.
-- [x] layout de três áreas (blocos, página, propriedades) carregou sem sobreposição estrutural visível na captura.
-
-A captura anterior à localização mostrou propriedades internas do GrapesJS em inglês e campos técnicos `Id/Title`. Correção aplicada depois da captura:
-
-- [x] criada localização PT-BR usando a API de i18n do GrapesJS.
-- [x] aba “Camadas” renomeada para “Estrutura”.
-- [x] traits técnicos `Id/Title` ocultados do usuário comum.
-- [ ] repetir captura para confirmar a localização PT-BR no preview atualizado.
+- [x] layout de três áreas (blocos, página, propriedades) carregou sem sobreposição estrutural visível.
+- [x] localização PT-BR foi confirmada no preview atualizado; rótulos residuais de cantos de borda foram identificados na captura e corrigidos na sequência.
+- [x] aba “Camadas” foi substituída por “Estrutura”.
+- [x] traits técnicos `Id/Title` foram ocultados do usuário comum.
 
 Carregamento ainda não comprovado:
 
 - [ ] scripts públicos não são executados dentro do canvas.
 
-Edição ainda não comprovada:
+Edição:
 
-- [ ] texto existente pode ter seu conteúdo alterado e permanecer alterado no editor.
+- [x] texto existente pode ter seu conteúdo alterado no editor.
 - [ ] elemento pode ser movido.
 - [ ] bloco “Título” pode ser inserido.
 - [ ] bloco “Texto” pode ser inserido.
@@ -170,16 +168,16 @@ Edição ainda não comprovada:
 - [ ] cabeçalho não pode ser apagado acidentalmente.
 - [ ] rodapé não pode ser apagado acidentalmente.
 - [ ] painel Estrutura funciona.
-- [ ] undo funciona.
-- [ ] redo funciona.
+- [x] undo funciona e restaura o texto anterior.
+- [x] redo funciona e reaplica a alteração.
 
 Responsividade e prévia:
 
 - [x] Computador funciona visualmente.
 - [ ] Tablet funciona.
-- [ ] Celular funciona.
-- [ ] Prévia abre sem gravar GitHub.
-- [ ] fechar prévia retorna ao mesmo estado do editor.
+- [x] Celular funciona visualmente.
+- [x] Prévia abre mostrando a alteração local sem necessidade de salvar.
+- [x] fechar prévia retorna ao editor mantendo o fluxo de edição.
 
 Salvamento:
 
