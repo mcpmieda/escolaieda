@@ -8,6 +8,9 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 
 let previewFrame = null;
+let previewHtmlBase = "";
+let previewHome = {};
+let previewLocalAtual = "";
 let previewObjectUrl = "";
 let uploadPendente = null;
 let previewTimer = null;
@@ -33,12 +36,20 @@ function inicializarPublicacoesV2() {
   view.dataset.publicacoesV2 = "1";
 
   document.getElementById("btnNovaPublicacao")?.remove();
+  ajustarAtalhosDashboard();
   ajustarConexaoGithub();
   prepararStatusImagem();
   prepararPreview(layout, form, listPanel);
   vincularFormulario(form);
-  atualizarPreview();
   testarConexaoGithubExistente();
+}
+
+function ajustarAtalhosDashboard() {
+  requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll("#view-inicio .heroActions button").forEach((botao) => {
+      if (/nova publicação/i.test(botao.textContent || "")) botao.textContent = "Publicações";
+    });
+  })));
 }
 
 function ajustarConexaoGithub() {
@@ -48,15 +59,15 @@ function ajustarConexaoGithub() {
     texto.innerHTML = "Conecte este dispositivo uma única vez ao repositório <strong>mcpmieda/escolaieda</strong>. A credencial fica somente neste navegador e nunca é publicada no código do site.";
   }
 
-  const remember = document.getElementById("githubRemember");
-  if (remember && !obterTokenGithub()) remember.checked = true;
-
   document.addEventListener("click", (event) => {
     const alvo = event.target instanceof Element ? event.target : null;
     if (!alvo?.closest("#btnConectarGithub, #btnConfigurarGithubInicio, #btnConfigurarGithubSistemas")) return;
     requestAnimationFrame(() => {
       const checkbox = document.getElementById("githubRemember");
-      if (checkbox && !obterTokenGithub()) checkbox.checked = true;
+      if (!checkbox) return;
+      const persistente = Boolean(localStorage.getItem(TOKEN_LOCAL));
+      const somenteSessao = Boolean(sessionStorage.getItem(TOKEN_SESSAO));
+      checkbox.checked = persistente || somenteSessao || !obterTokenGithub();
     });
   });
 }
@@ -70,7 +81,8 @@ async function testarConexaoGithubExistente() {
 
   try {
     const resposta = await fetch(`https://api.github.com/repos/${REPO}/contents/site-data/publicacoes-publicas.json?ref=${encodeURIComponent(BRANCH)}`, {
-      headers: cabecalhosGithub(token)
+      headers: cabecalhosGithub(token),
+      cache: "no-store"
     });
     atualizarRotulosGithub(resposta.ok);
   } catch {
@@ -102,8 +114,6 @@ function prepararStatusImagem() {
 }
 
 function prepararPreview(layout, form, listPanel) {
-  if (document.getElementById("publicationLivePreview")) return;
-
   const panel = document.createElement("section");
   panel.id = "publicationLivePreview";
   panel.className = "publicationLivePreview";
@@ -112,12 +122,12 @@ function prepararPreview(layout, form, listPanel) {
     <div class="publicationPreviewHead">
       <div>
         <strong>Prévia real do site</strong>
-        <small>Usa a Home e os estilos reais de escolaieda.com</small>
+        <small>HTML e estilos atuais da Home, sem Analytics no quadro de edição</small>
       </div>
       <span class="publicationPreviewBadge">Ao vivo</span>
     </div>
     <div class="publicationPreviewViewport">
-      <iframe class="publicationPreviewFrame" id="publicationPreviewFrame" title="Prévia real da publicação no site" loading="eager"></iframe>
+      <iframe class="publicationPreviewFrame" id="publicationPreviewFrame" title="Prévia real da publicação no site" sandbox="allow-same-origin"></iframe>
     </div>
   `;
 
@@ -130,10 +140,40 @@ function prepararPreview(layout, form, listPanel) {
   if (heading) heading.textContent = "Publicações salvas";
 
   previewFrame = document.getElementById("publicationPreviewFrame");
-  previewFrame?.addEventListener("load", () => {
-    aplicarPreviewNoSite();
-  });
-  if (previewFrame) previewFrame.src = `../?admin-live-preview=${Date.now()}`;
+  previewFrame?.addEventListener("load", aplicarPreviewNoSite);
+  carregarFontePreview();
+}
+
+async function carregarFontePreview() {
+  try {
+    const [pagina, dados] = await Promise.all([
+      fetch(`../?admin-preview-source=${Date.now()}`, { cache: "no-store" }),
+      fetch(`../site-data/publicacoes-publicas.json?v=${Date.now()}`, { cache: "no-store" })
+    ]);
+    if (!pagina.ok) throw new Error("HOME_INDISPONIVEL");
+
+    const html = await pagina.text();
+    previewHtmlBase = prepararHtmlSeguro(html);
+    if (dados.ok) {
+      const siteData = await dados.json();
+      previewHome = siteData?.home && typeof siteData.home === "object" ? siteData.home : {};
+    }
+
+    previewLocalAtual = obterPublicacaoDoFormulario().local;
+    if (previewFrame) previewFrame.srcdoc = previewHtmlBase;
+  } catch (erro) {
+    console.warn("Não foi possível carregar a Home para a prévia.", erro);
+    const viewport = document.querySelector(".publicationPreviewViewport");
+    if (viewport) viewport.innerHTML = '<div style="padding:28px;color:#5e6d7c">Não foi possível carregar a prévia real agora.</div>';
+  }
+}
+
+function prepararHtmlSeguro(html) {
+  const semScripts = String(html).replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "");
+  if (/<head[^>]*>/i.test(semScripts)) {
+    return semScripts.replace(/<head([^>]*)>/i, '<head$1><base href="/">');
+  }
+  return `<base href="/">${semScripts}`;
 }
 
 function vincularFormulario(form) {
@@ -186,12 +226,18 @@ function vincularFormulario(form) {
   const statusPublicacao = document.getElementById("statusPublicacao");
   if (statusPublicacao) {
     new MutationObserver(() => {
-      const sucesso = statusPublicacao.classList.contains("success") && /salva com sucesso/i.test(statusPublicacao.textContent || "");
+      const texto = statusPublicacao.textContent || "";
+      const sucesso = statusPublicacao.classList.contains("success") && /salva com sucesso/i.test(texto);
+      const erro = statusPublicacao.classList.contains("error");
+
       if (sucesso && uploadPendente) {
         const esperado = uploadPendente;
         uploadPendente = null;
         verificarUploadNoRepositorio(esperado);
+      } else if (erro) {
+        uploadPendente = null;
       }
+
       requestAnimationFrame(atualizarPreview);
     }).observe(statusPublicacao, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["class"] });
   }
@@ -234,7 +280,16 @@ function validarImagem(arquivo, focar) {
 }
 
 function atualizarPreview() {
-  if (!previewFrame?.contentDocument) return;
+  if (!previewFrame || !previewHtmlBase) return;
+  const item = obterPublicacaoDoFormulario();
+
+  if (previewLocalAtual && item.local !== previewLocalAtual) {
+    previewLocalAtual = item.local;
+    previewFrame.srcdoc = previewHtmlBase;
+    return;
+  }
+
+  previewLocalAtual = item.local;
   aplicarPreviewNoSite();
 }
 
@@ -260,7 +315,7 @@ function aplicarPreviewNoSite() {
   if (!doc || !win) return;
 
   const item = obterPublicacaoDoFormulario();
-  limparPreviewAnterior(doc);
+  limparModal(doc);
 
   if (item.local === "modal") {
     renderizarModalPreview(doc, item);
@@ -271,6 +326,7 @@ function aplicarPreviewNoSite() {
   if (!alvo) return;
 
   const secao = alvo.closest("[data-publicacoes-section]");
+  aplicarLayoutDoSite(alvo, item.local);
   if (secao) {
     secao.hidden = false;
     secao.classList.remove("secao-vazia", "hidden-by-cms");
@@ -285,15 +341,22 @@ function aplicarPreviewNoSite() {
   });
 }
 
-function limparPreviewAnterior(doc) {
-  doc.querySelectorAll("[data-admin-publication-preview]").forEach((elemento) => elemento.remove());
+function aplicarLayoutDoSite(alvo, local) {
+  const secoes = Array.isArray(previewHome?.secoes) ? previewHome.secoes : [];
+  const secao = secoes.find((item) => String(item?.id || "") === local);
+  const layout = secao?.layout === "lista" ? "lista" : "blocos";
+  alvo.dataset.layout = layout;
+  alvo.classList.toggle("layout-lista", layout === "lista");
+  alvo.classList.toggle("layout-blocos", layout !== "lista");
+}
+
+function limparModal(doc) {
   const modal = doc.querySelector("[data-publicacoes-local='modal']");
-  if (modal?.dataset.adminPreviewModal === "1") {
-    modal.replaceChildren();
-    modal.hidden = true;
-    delete modal.dataset.adminPreviewModal;
-    doc.body.classList.remove("modal-open");
-  }
+  if (!modal) return;
+  modal.replaceChildren();
+  modal.hidden = true;
+  delete modal.dataset.adminPreviewModal;
+  doc.body.classList.remove("modal-open");
 }
 
 function criarCardReal(doc, item) {
@@ -381,7 +444,6 @@ function renderizarModalPreview(doc, item) {
 
   alvo.dataset.adminPreviewModal = "1";
   alvo.hidden = false;
-  alvo.replaceChildren();
   doc.body.classList.add("modal-open");
 
   const modal = doc.createElement("div");
