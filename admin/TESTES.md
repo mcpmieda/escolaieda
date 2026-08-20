@@ -5,22 +5,41 @@
 Executar testes por escopo. Não reauditar Arquivo Digital, Notas ou Livro de Ponto se os arquivos desses módulos não forem alterados.
 
 Branch: `feat/admin-visual-builder`.
+PR draft: `#27`.
 Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
+
+Não marcar teste visual como aprovado sem execução real no navegador.
 
 ## 1. Validação estática
 
 - [ ] `admin/admin.js` sem erro de sintaxe.
 - [ ] `admin/editor/escola-editor.js` sem erro de sintaxe.
+- [x] `admin/github-safe-target.js` revisado e testado isoladamente.
 - [ ] `admin/editor/index.html` sem recurso local crítico ausente.
 - [ ] `admin/editor/vendor/grapes.min.js` existe e não está vazio.
 - [ ] `admin/editor/vendor/grapes.min.css` existe e não está vazio.
-- [ ] licença GrapesJS está versionada em `admin/editor/vendor/`.
-- [ ] diff não altera `arquivo-digital/`, `notas/` ou `admin/livro-ponto/`.
-- [ ] não existem TinaCMS, TinaCloud, Astro, PHP ou dependência Vercel introduzidos.
+- [x] licença GrapesJS está versionada em `admin/editor/vendor/`.
+- [x] `VERSION.txt` registra GrapesJS 0.22.13 e BSD-3-Clause.
+- [x] diff não altera `arquivo-digital/`, `notas/` ou `admin/livro-ponto/` nas comparações já realizadas.
+- [x] workflow temporário de vendorização GrapesJS foi removido após não executar.
+- [ ] confirmar por busca final que não existem TinaCMS, TinaCloud, Astro, PHP ou dependência Vercel introduzidos no código ativo.
 - [ ] editor final não usa CDN em runtime.
-- [ ] nenhum token/segredo foi versionado.
+- [x] busca no diff por padrão `ghp_` não encontrou token GitHub.
+- [ ] executar busca final por demais formatos de segredo/token antes de merge.
 
-## 2. Login e acesso
+## 2. Proteção de produção
+
+- [x] em hostname não oficial, `contents?...ref=main` é redirecionado à branch de desenvolvimento.
+- [x] em hostname não oficial, `/git/ref/heads/main` é redirecionado à branch de desenvolvimento.
+- [x] em hostname não oficial, `/git/refs/heads/main` é redirecionado à branch de desenvolvimento.
+- [x] em hostname não oficial, corpo JSON `branch: main` é redirecionado à branch de desenvolvimento.
+- [x] chamadas Microsoft Graph permanecem inalteradas.
+- [ ] confirmar em navegador que preview/local realmente grava em `feat/admin-visual-builder` com token de teste.
+- [ ] confirmar no domínio oficial que a proteção não altera chamadas legítimas de produção.
+
+Resultado do teste unitário isolado da camada `github-safe-target.js`: **5/5 aprovado**.
+
+## 3. Login e acesso
 
 - [ ] abrir `/admin/` sem sessão → login.
 - [ ] conta autorizada → dashboard.
@@ -29,7 +48,7 @@ Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
 - [ ] nome do usuário aparece corretamente.
 - [ ] validar compatibilidade real da permissão Graph antes de reduzir `Sites.ReadWrite.All`.
 
-## 3. UI do painel
+## 4. UI do painel
 
 Desktop:
 
@@ -53,14 +72,14 @@ Acessibilidade:
 - [ ] foco visível.
 - [ ] `prefers-reduced-motion` reduz movimentos.
 
-## 4. Atalhos dos sistemas
+## 5. Atalhos dos sistemas
 
 - [ ] Livro de Ponto abre `/admin/livro-ponto/`.
 - [ ] Arquivo Digital abre `/arquivo-digital/`.
 - [ ] Gestão de Notas abre `/notas/`.
 - [ ] Ver site abre a Home.
 
-## 5. GitHub
+## 6. GitHub
 
 Usar token restrito ao repositório.
 
@@ -71,7 +90,9 @@ Usar token restrito ao repositório.
 - [ ] com “lembrar” → apenas navegador local.
 - [ ] token não aparece em commit, HTML, JSON ou log público.
 
-## 6. Publicações
+## 7. Publicações
+
+Executar primeiro em ambiente não oficial, onde a proteção deve direcionar a escrita para `feat/admin-visual-builder`.
 
 - [ ] criar rascunho.
 - [ ] criar publicação publicada.
@@ -80,23 +101,30 @@ Usar token restrito ao repositório.
 - [ ] buscar publicação.
 - [ ] enviar JPG.
 - [ ] enviar PNG/WebP.
-- [ ] imagem vai para `imagens/publicacoes/`.
+- [ ] imagem vai para `imagens/publicacoes/` na branch de teste.
 - [ ] JSON mantém o objeto `home`.
 - [ ] publicações não editadas permanecem.
 - [ ] conflito não sobrescreve silenciosamente outra alteração.
-- [ ] publicação aparece no `local` correto.
+- [ ] publicação aparece no `local` correto em ambiente seguro.
 - [ ] rascunho não aparece.
 - [ ] período inicial/final é respeitado.
 
-## 7. Runtime GrapesJS
+## 8. Runtime GrapesJS
 
-- [ ] workflow do PR incorpora GrapesJS `0.22.13`.
-- [ ] `VERSION.txt` registra versão/origem/licença.
-- [ ] JS vendorizado tem tamanho esperado (> 1 MB).
-- [ ] CSS vendorizado tem tamanho esperado (> 50 KB).
-- [ ] abrir editor com rede externa bloqueada continua funcionando, exceto serviços já necessários ao admin como GitHub quando salvar.
+Estado atual:
 
-## 8. Editor visual
+- [x] versão fixada em `0.22.13`.
+- [x] licença oficial local.
+- [x] `VERSION.txt` local.
+- [ ] `grapes.min.js` incorporado ao repositório.
+- [ ] `grapes.min.css` incorporado ao repositório.
+- [ ] JS local tem tamanho esperado (> 1 MB).
+- [ ] CSS local tem tamanho esperado (> 50 KB).
+- [ ] abrir editor com rede externa bloqueada continua funcionando, exceto serviços necessários quando o usuário salva.
+
+Não existe mais workflow de vendorização ativo neste marco.
+
+## 9. Editor visual
 
 Carregamento:
 
@@ -132,6 +160,7 @@ Responsividade e prévia:
 Salvamento:
 
 - [ ] Salvar sem token pede conexão.
+- [ ] em ambiente de teste, escrita vai para `feat/admin-visual-builder`.
 - [ ] Home + JSON são gravados no mesmo commit Git.
 - [ ] `force:false` impede avanço destrutivo do ref em conflito.
 - [ ] título/subtítulo/missão conhecidos sincronizam com `home` do JSON.
@@ -143,18 +172,18 @@ Salvamento:
 
 Mídia:
 
-- [ ] upload cria arquivo em `imagens/editor/`.
+- [ ] upload cria arquivo em `imagens/editor/` na branch-alvo correta.
 - [ ] limite defensivo de 8 MB é respeitado.
 - [ ] arquivo não-imagem é recusado.
 - [ ] imagem enviada aparece no Asset Manager.
 
 Escopo:
 
-- [ ] editor não oferece criação arbitrária de novas páginas.
-- [ ] editor não oferece `arquivo-digital`, `notas` ou Livro de Ponto para edição.
-- [ ] editor não expõe edição de scripts ao usuário comum.
+- [x] editor não oferece criação arbitrária de novas páginas no código atual.
+- [x] editor não oferece `arquivo-digital`, `notas` ou Livro de Ponto para edição no código atual.
+- [x] editor não expõe edição de scripts ao usuário comum no desenho atual.
 
-## 9. Regressão pública
+## 10. Regressão pública
 
 - [ ] Home mantém carregamento normal.
 - [ ] menus e atalhos continuam funcionando.
@@ -164,30 +193,32 @@ Escopo:
 - [ ] calendário e professores continuam acessíveis.
 - [ ] Área Restrita continua abrindo `/admin/`.
 
-## 10. Limpeza
+## 11. Limpeza
 
 - [x] `institucional/index.html` removido na branch.
 - [x] `site-institucional/` preservado.
 - [x] `admin/admin-preview.js` removido.
 - [x] workflow VvvebJs removido.
+- [x] workflow temporário GrapesJS removido após não executar.
 - [x] adaptador `escola-componentes.js` do VvvebJs removido.
 - [x] criação arbitrária de páginas retirada do primeiro marco.
 - [ ] confirmar ausência de botão “Preparar SharePoint”.
 - [ ] confirmar ausência de tela de enquetes inacabada.
 - [ ] confirmar ausência de tela de configuração de listas SharePoint.
 
-## 11. Vercel residual
+## 12. Vercel residual
 
-- [ ] identificar a integração externa que cria o check `Vercel`.
-- [ ] remover/desconectar essa integração administrativamente.
-- [ ] confirmar que nenhum teste obrigatório depende dela.
+- [x] código novo não depende de Vercel nas comparações já realizadas.
+- [x] equipe Vercel conectada retorna zero projetos acessíveis.
+- [ ] identificar/remover administrativamente a integração externa que ainda cria o check `Vercel`, se possível.
+- [x] nenhum teste obrigatório deve depender dela.
 
-## 12. Antes do merge
+## 13. Antes do merge
 
-- [ ] comparar branch inteira com `main`.
-- [ ] revisar chamadas GitHub de escrita.
+- [ ] comparar branch inteira com `main` novamente.
+- [ ] revisar chamadas GitHub de escrita novamente após smoke test.
 - [ ] revisar permissão Microsoft/Entra em conjunto com o código.
-- [ ] confirmar licença e versão local do GrapesJS.
+- [ ] confirmar bundles, licença e versão local do GrapesJS.
 - [ ] executar smoke test real no navegador.
 - [ ] usuário aprovar visual e fluxo.
 - [ ] somente então solicitar autorização explícita para merge.
