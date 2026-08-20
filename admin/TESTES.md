@@ -5,50 +5,35 @@
 Executar testes por escopo. Não reauditar Arquivo Digital, Notas ou Livro de Ponto se os arquivos desses módulos não forem alterados.
 
 Branch: `feat/admin-visual-builder`.
-PR draft: `#27`.
 Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
-
-Não marcar teste visual como aprovado sem execução real no navegador.
 
 ## 1. Validação estática
 
-- [ ] `admin/admin.js` sem erro de sintaxe.
-- [ ] `admin/editor/escola-editor.js` sem erro de sintaxe.
-- [x] `admin/github-safe-target.js` revisado e testado isoladamente.
+- [ ] `admin/admin.js` sem erro de sintaxe em ambiente de execução real.
+- [ ] `admin/editor/escola-editor.js` sem erro de sintaxe em ambiente de execução real.
 - [ ] `admin/editor/index.html` sem recurso local crítico ausente.
-- [ ] `admin/editor/vendor/grapes.min.js` existe e não está vazio.
-- [ ] `admin/editor/vendor/grapes.min.css` existe e não está vazio.
+- [ ] `admin/editor/vendor/grapes.min.js` existe fisicamente na branch.
+- [ ] `admin/editor/vendor/grapes.min.css` existe fisicamente na branch.
 - [x] licença GrapesJS está versionada em `admin/editor/vendor/`.
-- [x] `VERSION.txt` registra GrapesJS 0.22.13 e BSD-3-Clause.
-- [x] diff não altera `arquivo-digital/`, `notas/` ou `admin/livro-ponto/` nas comparações já realizadas.
-- [x] workflow temporário de vendorização GrapesJS foi removido após não executar.
-- [ ] confirmar por busca final que não existem TinaCMS, TinaCloud, Astro, PHP ou dependência Vercel introduzidos no código ativo.
+- [x] bundles fornecidos pelo usuário identificados como GrapesJS 0.22.13.
+- [x] `grapes.min.js` fornecido passa em `node --check`.
+- [x] tamanho e SHA-256 dos dois bundles registrados em `vendor/VERSION.txt`.
+- [x] diff não altera `arquivo-digital/`, `notas/` ou arquivos internos de `admin/livro-ponto/` nas comparações realizadas.
+- [x] não foram introduzidos TinaCMS, TinaCloud, Astro, PHP ou dependência Vercel no código novo.
+- [x] nenhum token/segredo foi encontrado no diff revisado.
 - [ ] editor final não usa CDN em runtime.
-- [x] busca no diff por padrão `ghp_` não encontrou token GitHub.
-- [ ] executar busca final por demais formatos de segredo/token antes de merge.
 
-## 2. Proteção de produção
-
-- [x] em hostname não oficial, `contents?...ref=main` é redirecionado à branch de desenvolvimento.
-- [x] em hostname não oficial, `/git/ref/heads/main` é redirecionado à branch de desenvolvimento.
-- [x] em hostname não oficial, `/git/refs/heads/main` é redirecionado à branch de desenvolvimento.
-- [x] em hostname não oficial, corpo JSON `branch: main` é redirecionado à branch de desenvolvimento.
-- [x] chamadas Microsoft Graph permanecem inalteradas.
-- [ ] confirmar em navegador que preview/local realmente grava em `feat/admin-visual-builder` com token de teste.
-- [ ] confirmar no domínio oficial que a proteção não altera chamadas legítimas de produção.
-
-Resultado do teste unitário isolado da camada `github-safe-target.js`: **5/5 aprovado**.
-
-## 3. Login e acesso
+## 2. Login e acesso
 
 - [ ] abrir `/admin/` sem sessão → login.
 - [ ] conta autorizada → dashboard.
 - [ ] conta não autorizada → acesso restrito.
 - [ ] Sair encerra sessão.
 - [ ] nome do usuário aparece corretamente.
-- [ ] validar compatibilidade real da permissão Graph antes de reduzir `Sites.ReadWrite.All`.
+- [x] código restaurado temporariamente para `Sites.ReadWrite.All`, escopo já utilizado pelo ambiente funcional anterior.
+- [ ] em marco posterior, reduzir permissão Graph somente junto com App Registration/consentimento e teste específico.
 
-## 4. UI do painel
+## 3. UI do painel
 
 Desktop:
 
@@ -72,17 +57,24 @@ Acessibilidade:
 - [ ] foco visível.
 - [ ] `prefers-reduced-motion` reduz movimentos.
 
-## 5. Atalhos dos sistemas
+## 4. Atalhos dos sistemas
 
-- [ ] Livro de Ponto abre `/admin/livro-ponto/`.
-- [ ] Arquivo Digital abre `/arquivo-digital/`.
-- [ ] Gestão de Notas abre `/notas/`.
-- [ ] Ver site abre a Home.
+- [x] código do painel aponta Livro de Ponto para `/admin/livro-ponto/`.
+- [x] código do painel aponta Arquivo Digital para `/arquivo-digital/`.
+- [x] código do painel aponta Gestão de Notas para `/notas/`.
+- [ ] validar os três atalhos em navegador real.
 
-## 6. GitHub
+## 5. GitHub e proteção de teste
 
 Usar token restrito ao repositório.
 
+- [x] `admin/github-safe-target.js` existe.
+- [x] teste isolado da proteção de branch: 5/5 cenários aprovados.
+- [x] fora de `escolaieda.com`, `?ref=main` é redirecionado para `feat/admin-visual-builder`.
+- [x] Git refs de `main` são redirecionados para a branch de desenvolvimento.
+- [x] corpo JSON com `branch: main` é redirecionado.
+- [x] chamada Microsoft Graph não é alterada pela proteção GitHub.
+- [ ] repetir teste de escrita real com token depois que o runtime estiver na branch.
 - [ ] sem token, gravação pede conexão.
 - [ ] token inválido mostra mensagem simples.
 - [ ] token válido é aceito.
@@ -90,10 +82,9 @@ Usar token restrito ao repositório.
 - [ ] com “lembrar” → apenas navegador local.
 - [ ] token não aparece em commit, HTML, JSON ou log público.
 
-## 7. Publicações
+## 6. Publicações
 
-Executar primeiro em ambiente não oficial, onde a proteção deve direcionar a escrita para `feat/admin-visual-builder`.
-
+- [x] contrato de campos comparado com `site-data/publicacoes-site.js` e compatível estaticamente.
 - [ ] criar rascunho.
 - [ ] criar publicação publicada.
 - [ ] editar.
@@ -101,30 +92,39 @@ Executar primeiro em ambiente não oficial, onde a proteção deve direcionar a 
 - [ ] buscar publicação.
 - [ ] enviar JPG.
 - [ ] enviar PNG/WebP.
-- [ ] imagem vai para `imagens/publicacoes/` na branch de teste.
+- [ ] imagem vai para `imagens/publicacoes/`.
 - [ ] JSON mantém o objeto `home`.
 - [ ] publicações não editadas permanecem.
 - [ ] conflito não sobrescreve silenciosamente outra alteração.
-- [ ] publicação aparece no `local` correto em ambiente seguro.
+- [ ] publicação aparece no `local` correto.
 - [ ] rascunho não aparece.
 - [ ] período inicial/final é respeitado.
 
-## 8. Runtime GrapesJS
+## 7. Runtime GrapesJS
 
-Estado atual:
+Hashes esperados:
 
-- [x] versão fixada em `0.22.13`.
-- [x] licença oficial local.
-- [x] `VERSION.txt` local.
-- [ ] `grapes.min.js` incorporado ao repositório.
-- [ ] `grapes.min.css` incorporado ao repositório.
-- [ ] JS local tem tamanho esperado (> 1 MB).
-- [ ] CSS local tem tamanho esperado (> 50 KB).
-- [ ] abrir editor com rede externa bloqueada continua funcionando, exceto serviços necessários quando o usuário salva.
+`grapes.min.js`
+- tamanho: `1095002` bytes
+- SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`
 
-Não existe mais workflow de vendorização ativo neste marco.
+`grapes.min.css`
+- tamanho: `60968` bytes
+- SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`
 
-## 9. Editor visual
+- [ ] arquivos presentes na branch batem exatamente com esses hashes.
+- [ ] abrir editor com rede externa bloqueada continua funcionando, exceto serviços necessários ao salvamento/autenticação.
+
+## 8. Editor visual
+
+Compatibilidade estática com a Home real:
+
+- [x] `[data-home-titulo]` existe.
+- [x] `[data-home-subtitulo]` existe.
+- [x] `[data-home-missao]` existe.
+- [x] `#topbar` existe e pode ser protegido.
+- [x] `<footer>` existe e pode ser protegido.
+- [x] seções legadas usam atributos esperados pelo sincronizador.
 
 Carregamento:
 
@@ -160,7 +160,6 @@ Responsividade e prévia:
 Salvamento:
 
 - [ ] Salvar sem token pede conexão.
-- [ ] em ambiente de teste, escrita vai para `feat/admin-visual-builder`.
 - [ ] Home + JSON são gravados no mesmo commit Git.
 - [ ] `force:false` impede avanço destrutivo do ref em conflito.
 - [ ] título/subtítulo/missão conhecidos sincronizam com `home` do JSON.
@@ -172,18 +171,18 @@ Salvamento:
 
 Mídia:
 
-- [ ] upload cria arquivo em `imagens/editor/` na branch-alvo correta.
+- [ ] upload cria arquivo em `imagens/editor/`.
 - [ ] limite defensivo de 8 MB é respeitado.
 - [ ] arquivo não-imagem é recusado.
 - [ ] imagem enviada aparece no Asset Manager.
 
 Escopo:
 
-- [x] editor não oferece criação arbitrária de novas páginas no código atual.
-- [x] editor não oferece `arquivo-digital`, `notas` ou Livro de Ponto para edição no código atual.
-- [x] editor não expõe edição de scripts ao usuário comum no desenho atual.
+- [x] editor não oferece criação arbitrária de novas páginas.
+- [x] editor não oferece Arquivo Digital, Notas ou Livro de Ponto para edição.
+- [x] editor não expõe edição de scripts ao usuário comum.
 
-## 10. Regressão pública
+## 9. Regressão pública
 
 - [ ] Home mantém carregamento normal.
 - [ ] menus e atalhos continuam funcionando.
@@ -193,32 +192,30 @@ Escopo:
 - [ ] calendário e professores continuam acessíveis.
 - [ ] Área Restrita continua abrindo `/admin/`.
 
-## 11. Limpeza
+## 10. Limpeza
 
 - [x] `institucional/index.html` removido na branch.
 - [x] `site-institucional/` preservado.
 - [x] `admin/admin-preview.js` removido.
 - [x] workflow VvvebJs removido.
-- [x] workflow temporário GrapesJS removido após não executar.
+- [x] workflow temporário GrapesJS removido depois de não executar.
 - [x] adaptador `escola-componentes.js` do VvvebJs removido.
 - [x] criação arbitrária de páginas retirada do primeiro marco.
-- [ ] confirmar ausência de botão “Preparar SharePoint”.
-- [ ] confirmar ausência de tela de enquetes inacabada.
-- [ ] confirmar ausência de tela de configuração de listas SharePoint.
+- [x] contrato `PUBLICACOES_SITE` não aparece no novo `admin.js` revisado.
+- [ ] confirmar visualmente ausência das telas antigas no navegador.
 
-## 12. Vercel residual
+## 11. Vercel residual
 
-- [x] código novo não depende de Vercel nas comparações já realizadas.
-- [x] equipe Vercel conectada retorna zero projetos acessíveis.
-- [ ] identificar/remover administrativamente a integração externa que ainda cria o check `Vercel`, se possível.
-- [x] nenhum teste obrigatório deve depender dela.
+- [x] confirmado que o check `Vercel` continua externo ao código novo.
+- [x] conta Vercel conectada nesta sessão não apresenta o projeto desse deployment residual.
+- [ ] remover/desconectar a integração administrativamente.
+- [x] nenhum teste obrigatório foi desenhado para depender dela.
 
-## 13. Antes do merge
+## 12. Antes do merge
 
-- [ ] comparar branch inteira com `main` novamente.
-- [ ] revisar chamadas GitHub de escrita novamente após smoke test.
-- [ ] revisar permissão Microsoft/Entra em conjunto com o código.
-- [ ] confirmar bundles, licença e versão local do GrapesJS.
+- [ ] incorporar os dois bundles locais no PR.
+- [ ] comparar branch inteira com `main` após os bundles.
 - [ ] executar smoke test real no navegador.
+- [ ] testar escrita somente contra branch protegida.
 - [ ] usuário aprovar visual e fluxo.
 - [ ] somente então solicitar autorização explícita para merge.
