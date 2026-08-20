@@ -38,26 +38,29 @@ Os blobs do GitHub coincidem exatamente com os arquivos validados antes do uploa
 
 - `index.html`: shell simplificado do editor.
 - `escola-editor.css`: interface visual da Escola Iêda.
-- `escola-editor.js`: integração GrapesJS, GitHub, preview, upload e salvamento.
+- `escola-editor.js`: integração GrapesJS, GitHub, prévia e salvamento.
 - `vendor/`: runtime local fixado do GrapesJS, licença e metadados de versão/hash.
 
 ## Como funciona
 
 1. O editor carrega `../../index.html` sem executar os scripts da página dentro do canvas.
-2. Textos, imagens e blocos podem ser selecionados e editados visualmente.
-3. Cabeçalho e rodapé recebem proteção contra exclusão acidental.
-4. A prévia é local e não grava nada.
-5. Ao salvar, o editor monta o HTML completo novamente.
-6. Campos antigos de `site-data/publicacoes-publicas.json > home` são sincronizados com a Home para manter compatibilidade com o renderizador público existente.
-7. `index.html` e `site-data/publicacoes-publicas.json` são enviados no **mesmo commit Git**, usando Git Data API. Isso evita um estado parcial em que somente um dos dois arquivos seja atualizado.
+2. Textos e blocos podem ser selecionados e editados visualmente.
+3. Imagens existentes permanecem visíveis, mas a troca de imagem foi retirada da V1.
+4. Cabeçalho e rodapé recebem proteção contra exclusão acidental.
+5. A prévia é local e não grava nada.
+6. Ao salvar, o editor preserva o HTML canônico e atualiza o conteúdo visual da Home.
+7. Campos antigos de `site-data/publicacoes-publicas.json > home` são sincronizados com a Home para manter compatibilidade com o renderizador público existente.
+8. `index.html` e `site-data/publicacoes-publicas.json` são enviados no **mesmo commit Git**, usando Git Data API. Isso evita um estado parcial em que somente um dos dois arquivos seja atualizado.
 
-## Imagens
+## Imagens na V1
 
-O Asset Manager do GrapesJS envia imagens para:
+O bloco **Imagem** e a troca de imagens existentes foram retirados da primeira versão do editor visual.
 
-`imagens/editor/`
+Durante os testes em navegador real, o envio físico do arquivo para `imagens/editor/` funcionou, mas a imagem escolhida não permaneceu associada ao bloco após salvar e recarregar. Como esse refinamento estava consumindo esforço desproporcional ao valor do primeiro marco, o recurso foi retirado da interface em vez de ser mantido parcialmente funcional.
 
-Formatos aceitos pelo adaptador: JPG, PNG, WebP, GIF e SVG. Limite defensivo: 8 MB por imagem.
+Os arquivos usados apenas nesses testes foram removidos da branch.
+
+Isso **não afeta imagens de Publicações**. O formulário estruturado de `/admin/` possui fluxo independente para imagem de aviso/comunicado em `imagens/publicacoes/` e deve ser testado separadamente.
 
 ## GitHub
 
@@ -67,21 +70,36 @@ O token é informado pelo próprio usuário no navegador e pode ficar apenas na 
 
 ## Microsoft / Graph
 
-O novo CMS não escreve no SharePoint. Entretanto, o login do ambiente existente foi comprovado com o escopo `Sites.ReadWrite.All`; esse escopo permanece temporariamente no código para não alterar consentimentos do Entra ID neste marco. A redução para leitura deve ser feita em uma etapa coordenada e testada separadamente.
+O novo CMS não escreve no SharePoint. Entretanto, o login do ambiente existente foi comprovado anteriormente com o escopo `Sites.ReadWrite.All`; esse escopo permanece temporariamente no código para não alterar consentimentos do Entra ID neste marco. A redução para leitura deve ser feita em uma etapa coordenada e testada separadamente.
 
-## Próximo teste obrigatório
+No preview Vercel, o fluxo chegou ao Microsoft Entra, mas o retorno foi bloqueado por `AADSTS50011` porque o domínio temporário não está cadastrado como redirect URI. Por decisão do usuário, esse domínio não será cadastrado. O teste completo de retorno/login fica para o domínio oficial.
 
-Agora que o runtime está local, a próxima barreira é funcional e visual, não de empacotamento. Antes de merge, validar em navegador real:
+## Estado funcional já comprovado
 
-- `/admin/` desktop/celular;
-- login Microsoft;
-- Publicações na branch protegida;
-- `/admin/editor/` carregando a Home;
-- blocos, estilos, camadas, undo/redo e dispositivos;
-- prévia sem escrita;
-- salvamento Home + JSON na branch protegida;
-- upload de imagem;
-- atalhos Livro de Ponto, Arquivo Digital e Notas.
+Em navegador real foram comprovados:
+
+- carregamento da Home no GrapesJS local;
+- edição de texto;
+- blocos Título, Texto, Cartões, Destaque e Botão aparecendo e funcionando na Prévia;
+- undo e redo;
+- modos Computador e Celular;
+- Prévia local;
+- salvamento real protegido na branch de desenvolvimento;
+- `index.html` + JSON no mesmo commit;
+- persistência de bloco de texto após recarregar;
+- `main` mantida intacta durante os testes.
+
+## Próximo marco
+
+O foco não é mais ampliar o editor. Antes de qualquer merge:
+
+- revisar a interface do Centro de Administração;
+- testar Publicações na branch protegida;
+- validar imagem de Publicações separadamente;
+- validar atalhos Livro de Ponto, Arquivo Digital e Notas;
+- fazer revisão final do PR;
+- testar login completo no domínio oficial em momento controlado;
+- obter autorização explícita do usuário para merge.
 
 ## Regras permanentes
 
@@ -91,6 +109,7 @@ Agora que o runtime está local, a próxima barreira é funcional e visual, não
 - não atualizar GrapesJS automaticamente;
 - qualquer atualização da biblioteca exige versão fixada e novo teste;
 - não permitir edição de scripts da Home pelo usuário comum;
+- não reativar troca/upload de imagem no editor visual sem resolver e testar a persistência de ponta a ponta;
 - não misturar edição visual da Home com os módulos internos (`arquivo-digital`, `notas`, `livro-ponto`);
 - não ampliar para criação arbitrária de páginas antes de a Home ser validada por usuário leigo.
 
