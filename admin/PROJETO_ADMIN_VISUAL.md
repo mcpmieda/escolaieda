@@ -86,25 +86,32 @@ VvvebJs foi avaliado primeiro, mas sua distribuição exigia muitos arquivos ind
 
 Não reintroduzir VvvebJs sem nova decisão arquitetural.
 
-## 6. Escopo do primeiro editor
+## 6. Escopo da V1 do editor
 
 O editor visual trabalha **somente na Home (`index.html`)**.
 
-Recursos desta primeira versão:
+Recursos da V1:
 
-- editar textos e elementos existentes;
-- arrastar blocos próprios;
+- editar textos e elementos suportados;
+- arrastar blocos Título, Texto, Cartões, Destaque e Botão;
 - alterar aparência do elemento selecionado;
-- camadas;
+- Estrutura/camadas;
 - undo/redo;
 - computador/tablet/celular;
 - prévia local sem escrita;
-- upload de imagens para `imagens/editor/`;
 - salvar somente por ação explícita;
 - cabeçalho e rodapé protegidos contra exclusão acidental;
 - scripts da Home preservados fora do canvas.
 
 Criação arbitrária de páginas foi retirada até a Home ser validada por usuário leigo.
+
+### Imagens no editor visual
+
+Troca/upload de imagem dentro do editor **não faz parte da V1**.
+
+Nos testes reais, o arquivo foi enviado ao GitHub e apareceu no Asset Manager, mas a imagem escolhida não permaneceu vinculada ao bloco depois de salvar e recarregar. Em vez de manter um recurso parcialmente funcional, o bloco Imagem foi removido e imagens existentes foram protegidas contra troca.
+
+Essa decisão não afeta o upload de imagem no formulário estruturado de Publicações, que é um fluxo separado.
 
 ## 7. Compatibilidade da Home antiga
 
@@ -112,13 +119,14 @@ O renderizador público ainda utiliza o bloco `home` de `site-data/publicacoes-p
 
 Para não criar duas versões divergentes, o salvamento visual:
 
-1. gera o novo `index.html`;
-2. extrai os campos conhecidos da Home;
-3. sincroniza esses valores no bloco `home` do JSON;
-4. cria os blobs dos dois arquivos;
-5. cria uma nova tree Git;
-6. cria um commit único;
-7. move o ref sem `force`.
+1. parte do HTML canônico do GitHub;
+2. aplica o conteúdo suportado da Home;
+3. extrai os campos conhecidos;
+4. sincroniza esses valores no bloco `home` do JSON;
+5. cria blobs dos dois arquivos;
+6. cria uma nova tree Git;
+7. cria um commit único;
+8. move o ref sem `force`.
 
 A Home real foi verificada e contém os seletores usados por essa compatibilidade, incluindo título, subtítulo, missão, `#topbar`, `<footer>` e atributos das seções.
 
@@ -161,6 +169,12 @@ O novo código de conteúdo não escreve no SharePoint.
 
 O ambiente previamente funcional foi validado com `Sites.ReadWrite.All`. Durante a revisão anterior aos testes o código foi restaurado para esse escopo, evitando alterar consentimentos do Entra ID neste marco. A redução para leitura deve ocorrer posteriormente, em conjunto com App Registration, consentimento e teste específico.
 
+### Preview e redirect
+
+No preview Vercel, o login chegou ao Microsoft Entra, mas o retorno foi bloqueado por `AADSTS50011` porque o domínio temporário não está cadastrado no App Registration.
+
+Por decisão do usuário, esse redirect temporário não será adicionado. O teste completo do login fica para o domínio oficial.
+
 ## 10. UI administrativa
 
 Navegação principal:
@@ -172,6 +186,8 @@ Navegação principal:
 - Sistemas
 
 Princípios: poucas decisões por tela, linguagem não técnica, ação frequente evidente, efeitos discretos, responsividade, foco visível e suporte a `prefers-reduced-motion`.
+
+O cartão do editor na Visão Geral foi alinhado ao escopo real da V1 e não promete edição de imagens.
 
 ## 11. Livro de Ponto
 
@@ -187,7 +203,10 @@ Removidos na branch:
 - `admin/admin-preview.js`, preview customizado duplicado;
 - workflows/adaptadores VvvebJs;
 - workflow temporário GrapesJS que não executou;
-- modelo de criação arbitrária de páginas do primeiro desenho.
+- modelo de criação arbitrária de páginas do primeiro desenho;
+- bloco Imagem do editor V1;
+- arquivos usados somente nos testes de `imagens/editor/`;
+- resíduos de HTML/CSS/JSON gerados pelos testes de imagem.
 
 Preservado:
 
@@ -200,50 +219,69 @@ Preservado:
 
 O token nunca entra no repositório, fica na sessão por padrão e só é lembrado localmente por opção do usuário.
 
-Home + JSON usam Git Data API para um commit único. Upload de mídia usa Contents API separadamente.
+Home + JSON usam Git Data API para um commit único. Imagem de Publicações usa Contents API separadamente.
 
-`admin/github-safe-target.js` protege o desenvolvimento: fora dos hosts oficiais, chamadas GitHub destinadas a `main` são redirecionadas para `feat/admin-visual-builder`. O teste isolado dessa proteção passou em 5/5 cenários.
+`admin/github-safe-target.js` protege o desenvolvimento: fora dos hosts oficiais, chamadas GitHub destinadas a `main` são redirecionadas para `feat/admin-visual-builder`.
 
-## 14. Revisão pós-runtime
+A proteção passou em 5/5 cenários isolados e também foi comprovada em escrita real: os commits do editor foram para a branch de desenvolvimento e a `main` permaneceu intacta.
 
-Depois da incorporação dos bundles:
+## 14. Testes reais já executados
 
-- branch comparada novamente com o baseline;
-- estado: `ahead`, `0` commits atrás;
-- runtime local aparece no diff somente em `admin/editor/vendor/`;
-- `arquivo-digital/`, `notas/` e arquivos internos de `admin/livro-ponto/` continuam fora do diff;
-- CodeRabbit retornou sucesso no head pós-upload;
-- nenhuma thread de review está aberta.
+Comprovado em navegador:
+
+- GrapesJS local carrega a Home real;
+- texto pode ser editado;
+- Título, Texto, Cartões, Destaque e Botão funcionam e aparecem na Prévia;
+- undo/redo;
+- modos Computador e Celular;
+- Prévia sem escrita;
+- token GitHub válido aceito;
+- escrita real protegida na branch;
+- Home + JSON no mesmo commit;
+- salvamento textual com diff mínimo após correção;
+- bloco novo persistindo após recarregar.
+
+Falha conhecida encerrada por decisão de escopo:
+
+- imagem no editor visual não persistia e foi retirada da V1.
 
 ## 15. Vercel residual
 
 O código novo não depende de Vercel.
 
-O GitHub ainda apresenta um check externo `Vercel`. A conta Vercel conectada nesta sessão retorna zero projetos relacionados e não acessa o deployment indicado. Isso é limpeza administrativa separada e não requisito do produto.
+O GitHub ainda apresenta um check externo Vercel e o ambiente está sendo usado apenas como preview temporário. Isso é limpeza administrativa separada e não requisito do produto final.
 
-## 16. Critérios de aceite
+## 16. Critérios de aceite antes do merge
 
-Antes de merge:
+Concluídos ou comprovados:
 
-1. bundles GrapesJS presentes na branch e batendo com os hashes fixados — **concluído**;
-2. login Microsoft funcional;
-3. autorização da Secretaria funcional;
-4. dashboard desktop e celular;
-5. Livro de Ponto abre pelo painel;
-6. Arquivo Digital e Notas intactos;
-7. criar/editar/excluir publicação na branch protegida;
-8. upload de imagem;
-9. publicação renderizada;
-10. editor abre a Home real;
-11. editar texto e imagem;
-12. adicionar/mover bloco;
-13. undo/redo;
-14. modos computador/tablet/celular;
-15. preview sem escrita;
-16. salvar Home + JSON no mesmo commit;
-17. recarregar e confirmar persistência;
-18. nenhuma dependência Vercel/Tina/PHP/CDN em runtime;
-19. nenhum módulo sensível modificado fora do escopo.
+1. bundles GrapesJS presentes e validados;
+2. editor abre a Home real;
+3. edição de texto;
+4. blocos principais da V1;
+5. undo/redo;
+6. computador/celular;
+7. prévia sem escrita;
+8. escrita protegida na branch;
+9. Home + JSON no mesmo commit;
+10. persistência de bloco suportado;
+11. nenhuma dependência Vercel/Tina/PHP/CDN em runtime;
+12. módulos sensíveis preservados.
+
+Pendentes para o candidato final:
+
+1. login Microsoft completo no domínio oficial;
+2. autorização da Secretaria;
+3. dashboard desktop/celular autenticado;
+4. Livro de Ponto, Arquivo Digital e Notas abrindo pelo painel;
+5. criar/editar/excluir Publicação na branch protegida;
+6. imagem de Publicação, se mantida;
+7. publicação renderizada no local correto;
+8. regressão pública final;
+9. revisão final de CI/PR;
+10. autorização explícita do usuário para merge.
+
+Imagem dentro do editor visual **não é critério de aceite da V1**.
 
 ## 17. Rollback
 
@@ -255,10 +293,11 @@ Baseline permanente deste marco:
 
 ## 18. Próximos marcos possíveis
 
-Somente após a Home visual ser aprovada por usuário leigo:
+Somente depois que a V1 estiver aprovada:
 
 - ampliar/refinar blocos;
-- biblioteca de mídia mais amigável;
+- retomar biblioteca de mídia com persistência comprovada;
 - avaliar criação controlada de páginas;
 - revisar navegação pública;
-- migrar totalmente a Home para HTML como única fonte, removendo o bloco legado `home` do JSON.
+- migrar totalmente a Home para HTML como única fonte, removendo o bloco legado `home` do JSON;
+- reduzir permissão Graph de forma coordenada.
