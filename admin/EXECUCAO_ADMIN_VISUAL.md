@@ -113,13 +113,12 @@ Preservados:
 
 VvvebJs foi escolhido inicialmente por já oferecer page builder drag-and-drop.
 
-Foi preparado um adaptador e o workflow `.github/workflows/vendor-vvveb.yml` para copiar o commit upstream fixado.
+Foi preparado um adaptador e um workflow temporário para copiar o runtime fixado.
 
 Resultado da avaliação:
 
 - o runtime exigia muitos arquivos independentes;
-- a vendorização não se materializou na branch com os eventos de push produzidos nesta sessão;
-- `admin/editor/index.html` não chegou a existir por esse mecanismo;
+- a vendorização não se materializou na branch;
 - insistir aumentaria a complexidade operacional.
 
 Decisão: **VvvebJs descartado antes do merge**.
@@ -132,11 +131,11 @@ Versão fixada escolhida para o primeiro marco:
 
 `GrapesJS 0.22.13`
 
-Motivo da versão: bundle JS/CSS distribuível e diretamente vendorizável, suficiente para o escopo da Home e sem exigir uma cadeia de build permanente.
+Motivo da versão: bundle JS/CSS distribuível, suficiente para o escopo da Home e sem exigir uma cadeia de build permanente.
 
 Licença: BSD-3-Clause.
 
-Arquivos distribuíveis esperados:
+Arquivos distribuíveis:
 
 - `grapes.min.js` — aproximadamente 1,1 MB;
 - `grapes.min.css` — aproximadamente 61 KB.
@@ -186,6 +185,8 @@ Removidos por isso:
 - `admin/editor/modelos/pagina-basica.html`;
 - adaptador VvvebJs `admin/editor/escola-componentes.js`.
 
+A primeira versão do construtor edita **somente `index.html`**.
+
 ## 2026-08-19 — Salvamento atômico da Home
 
 Descoberta: `site-data/publicacoes-site.js` ainda usa o objeto `home` do JSON para sobrescrever alguns textos conhecidos.
@@ -200,37 +201,102 @@ Ao salvar:
 4. cria blobs Git para HTML e JSON;
 5. cria uma tree baseada na versão atual;
 6. cria **um único commit** com os dois arquivos;
-7. atualiza `main` com `force:false`.
+7. atualiza o branch-alvo com `force:false`.
 
 Objetivo: evitar estado parcial Home/JSON.
 
-## 2026-08-19 — Vendorização GrapesJS
+## 2026-08-19 — PR draft de validação
 
-Criado:
+Aberto o PR draft:
 
-`.github/workflows/vendor-grapesjs.yml`
+`#27 — Admin visual: GrapesJS para edição segura da Home`
 
-Removido:
+Base:
 
-`.github/workflows/vendor-vvveb.yml`
+`main @ 96e16d599d06768a0ab6a7a0ea807b94a838a168`
 
-O novo workflow:
+Head:
 
-- roda apenas no PR desta branch contra `main`;
-- baixa GrapesJS 0.22.13 e licença;
-- valida existência e tamanho mínimo do JS/CSS;
-- grava runtime em `admin/editor/vendor/` na própria branch.
+`feat/admin-visual-builder`
 
-### Estado real
+O PR permanece draft e **não está autorizado para merge**.
 
-**PENDENTE DE MATERIALIZAÇÃO** enquanto o PR ainda não tiver sido criado/disparado.
+## 2026-08-19 — Tentativa de vendorização por GitHub Actions
 
-Não declarar `/admin/editor/` executável antes de existir:
+Foi criado temporariamente `.github/workflows/vendor-grapesjs.yml` para materializar os bundles locais do GrapesJS.
 
-- `admin/editor/vendor/grapes.min.js`;
-- `admin/editor/vendor/grapes.min.css`;
+Foram testados eventos de abertura/sincronização e também fechamento + reabertura do PR para provocar `reopened`.
+
+Resultado observado:
+
+- nenhuma execução de Actions apareceu associada ao head ou ao merge ref do PR;
+- a integração disponível nesta sessão não forneceu um dispatch alternativo utilizável;
+- insistir no workflow adicionaria mecanismo sem evidência de funcionamento.
+
+Decisão: **workflow temporário removido**.
+
+Commit de remoção:
+
+`5b97039125b9599986d534b39b64d3d1917d2bfe`
+
+## 2026-08-19 — Estado real da vendorização GrapesJS
+
+Já versionados localmente no repositório:
+
 - `admin/editor/vendor/GRAPESJS-LICENSE`;
 - `admin/editor/vendor/VERSION.txt`.
+
+Commit:
+
+`d7a33a0280d358cb10ac20093bb451936dd8f1fa`
+
+Origem confirmada:
+
+- GrapesJS `v0.22.13`;
+- licença BSD-3-Clause;
+- bundles públicos correspondentes existem no repositório cdnjs.
+
+Ainda faltam no repositório da escola:
+
+- `admin/editor/vendor/grapes.min.js`;
+- `admin/editor/vendor/grapes.min.css`.
+
+Esse é o **único bloqueio de empacotamento do motor visual**. Enquanto esses dois arquivos não existirem, não declarar `/admin/editor/` executável ou aprovado.
+
+A limitação é operacional: os bundles compilados são arquivos grandes/minificados e não existem no source tag do GrapesJS; o ambiente desta sessão não conseguiu copiá-los de forma íntegra para o repositório. Não contornar isso transformando Vercel, Tina, PHP ou outro serviço em dependência do produto final.
+
+## 2026-08-19 — Proteção contra escrita acidental na produção
+
+Durante a revisão foi identificado um risco importante: `admin/admin.js` e `admin/editor/escola-editor.js` possuem `main` como branch de produção. Um teste em preview/local com token real poderia, sem proteção, atingir produção.
+
+Foi criada a camada única:
+
+`admin/github-safe-target.js`
+
+Regra:
+
+- em `escolaieda.com` e `www.escolaieda.com`, o comportamento de produção permanece apontando para `main`;
+- em qualquer outro hostname, chamadas GitHub deste repositório que apontariam para `main` são redirecionadas para `feat/admin-visual-builder`;
+- chamadas Microsoft Graph e outras origens não são interceptadas.
+
+Integração:
+
+- editor visual: commit `6f539339ae65b239181bc8b9259c6bf02c810f01`;
+- painel/Publicações: commit `12533184b7f2a87a4e29fa342fb9745e2488ebbd`.
+
+### Teste isolado da proteção
+
+Foram verificados cinco casos:
+
+1. `contents?...ref=main` → branch de desenvolvimento;
+2. `/git/ref/heads/main` → branch de desenvolvimento;
+3. `/git/refs/heads/main` → branch de desenvolvimento;
+4. corpo JSON `branch: main` → branch de desenvolvimento;
+5. Microsoft Graph → inalterado.
+
+Resultado: **5/5 aprovado**.
+
+Isso permite planejar testes com token real sem apontar gravações de preview/local para produção.
 
 ## 2026-08-19 — Vercel residual
 
@@ -240,33 +306,46 @@ Os commits da branch continuam recebendo um status externo:
 
 O destino mostrado pelo GitHub usa o nome `escolaieda-prova-visual-formato`.
 
-A API Vercel disponível nesta sessão retornou zero projetos acessíveis, portanto a integração não pôde ser removida por essa conexão.
+A conta Vercel conectada foi consultada novamente:
+
+- equipe: `mcpmieda`;
+- projetos acessíveis: `0`.
 
 Conclusão:
 
 - não existe dependência Vercel no código novo;
 - existe integração/check residual fora do código;
-- precisa ser removida administrativamente em etapa separada;
+- a conexão disponível não expôs um projeto que pudesse ser removido;
 - não usar Vercel como requisito de teste ou hospedagem do admin.
+
+## 2026-08-19 — Branch temporária acidental
+
+Durante uma consulta ao conector GitHub foi criada por engano a branch `temp-should-not-create`.
+
+A branch não recebeu código próprio e foi imediatamente force-movida para o baseline seguro:
+
+`96e16d599d06768a0ab6a7a0ea807b94a838a168`
+
+O conector disponível não oferece exclusão física de branch. Portanto o nome pode continuar visível, mas ele está neutralizado e não deve ser usado.
 
 ## 2026-08-19 — Segurança de escopo
 
-As alterações do projeto permanecem concentradas no admin, documentação, workflow de vendorização e remoção da página institucional de teste.
-
-Não alterar sem escopo específico:
+Comparações da branch com o baseline confirmaram que os módulos operacionais sensíveis continuam fora do diff:
 
 - `arquivo-digital/`;
 - `notas/`;
 - `admin/livro-ponto/`.
 
+Também foi feita busca no diff por padrão típico de token GitHub (`ghp_`), sem ocorrência.
+
 ## Próximas condições antes do merge
 
-1. materializar o runtime GrapesJS local;
+1. incorporar `grapes.min.js` e `grapes.min.css` localmente;
 2. validar sintaxe e recursos locais;
 3. executar smoke test real do admin/editor;
 4. validar login e permissão Graph;
-5. testar Publicações;
-6. testar Home visual em ambiente seguro;
+5. testar Publicações na branch segura;
+6. testar Home visual na branch segura;
 7. revisar diff final contra baseline;
 8. resolver ou registrar formalmente a integração Vercel residual;
 9. obter aprovação do usuário;
