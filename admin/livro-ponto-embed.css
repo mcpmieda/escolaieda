@@ -7,7 +7,7 @@
   visibility: visible;
 }
 
-.topbar.legacyTopbar {
+.topbar {
   display: none;
 }
 
