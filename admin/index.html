@@ -8,6 +8,7 @@
   <title>Centro de Administração | Escola Iêda MCPM</title>
   <link rel="icon" type="image/png" href="../imagens/favicon.png">
   <link rel="stylesheet" href="admin.css?v=20260819-visual1">
+  <link rel="stylesheet" href="livro-ponto-embed.css?v=20260820-1">
   <script src="github-safe-target.js"></script>
   <script type="importmap">
     {
@@ -78,7 +79,7 @@
             <span class="navIcon" aria-hidden="true">◫</span>
             <span>Editar site</span>
           </a>
-          <a class="navItem navLink" href="./livro-ponto/">
+          <a class="navItem navLink" id="navLivroPonto" href="./livro-ponto/" data-open-livro-ponto>
             <span class="navIcon" aria-hidden="true">✓</span>
             <span>Livro de Ponto</span>
           </a>
@@ -160,11 +161,11 @@
                 <span class="cardArrow">Criar agora <b>→</b></span>
               </button>
 
-              <a class="actionCard" href="./livro-ponto/">
+              <a class="actionCard" href="./livro-ponto/" data-open-livro-ponto>
                 <span class="cardIcon">✓</span>
                 <span class="cardTag">Secretaria</span>
                 <h3>Livro de Ponto</h3>
-                <p>Acesse diretamente o módulo de ponto já existente no painel.</p>
+                <p>Use o Livro de Ponto sem sair do Centro de Administração.</p>
                 <span class="cardArrow">Abrir livro <b>→</b></span>
               </a>
 
@@ -306,6 +307,29 @@
             </div>
           </section>
 
+          <section class="view" id="view-livro">
+            <div class="pageLead">
+              <div>
+                <span class="eyebrow">Secretaria</span>
+                <h2>Livro de Ponto Digital.</h2>
+                <p>O módulo completo funciona abaixo sem sair do Centro de Administração.</p>
+              </div>
+              <div class="leadActions">
+                <a class="button buttonSecondary" href="./livro-ponto/" target="_blank" rel="noopener">Abrir em tela cheia</a>
+              </div>
+            </div>
+
+            <div class="livroEmbedShell">
+              <iframe
+                id="livroPontoFrame"
+                class="livroPontoFrame"
+                data-src="./livro-ponto/"
+                title="Livro de Ponto Digital"
+                loading="lazy"
+              ></iframe>
+            </div>
+          </section>
+
           <section class="view" id="view-sistemas">
             <div class="pageLead">
               <div>
@@ -321,9 +345,9 @@
                 <div><strong>Arquivo Digital</strong><small>Documentos da Secretaria</small></div>
                 <span>→</span>
               </a>
-              <a class="systemCard" href="./livro-ponto/">
+              <a class="systemCard" href="./livro-ponto/" data-open-livro-ponto>
                 <span class="systemGlyph">✓</span>
-                <div><strong>Livro de Ponto</strong><small>Controle de frequência</small></div>
+                <div><strong>Livro de Ponto</strong><small>Controle de frequência dentro do painel</small></div>
                 <span>→</span>
               </a>
               <a class="systemCard" href="../notas/">
@@ -377,5 +401,6 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="livro-ponto-embed.js?v=20260820-1"></script>
 </body>
 </html>
