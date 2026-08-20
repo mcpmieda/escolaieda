@@ -11,17 +11,18 @@ Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
 
 - [ ] `admin/admin.js` sem erro de sintaxe em ambiente de execução real.
 - [ ] `admin/editor/escola-editor.js` sem erro de sintaxe em ambiente de execução real.
-- [ ] `admin/editor/index.html` sem recurso local crítico ausente.
-- [ ] `admin/editor/vendor/grapes.min.js` existe fisicamente na branch.
-- [ ] `admin/editor/vendor/grapes.min.css` existe fisicamente na branch.
+- [x] `admin/editor/index.html` aponta somente para o runtime GrapesJS local.
+- [x] `admin/editor/vendor/grapes.min.js` existe fisicamente na branch.
+- [x] `admin/editor/vendor/grapes.min.css` existe fisicamente na branch.
 - [x] licença GrapesJS está versionada em `admin/editor/vendor/`.
 - [x] bundles fornecidos pelo usuário identificados como GrapesJS 0.22.13.
 - [x] `grapes.min.js` fornecido passa em `node --check`.
 - [x] tamanho e SHA-256 dos dois bundles registrados em `vendor/VERSION.txt`.
+- [x] blobs Git dos arquivos da branch coincidem exatamente com os arquivos locais validados.
 - [x] diff não altera `arquivo-digital/`, `notas/` ou arquivos internos de `admin/livro-ponto/` nas comparações realizadas.
 - [x] não foram introduzidos TinaCMS, TinaCloud, Astro, PHP ou dependência Vercel no código novo.
 - [x] nenhum token/segredo foi encontrado no diff revisado.
-- [ ] editor final não usa CDN em runtime.
+- [x] editor não usa CDN para carregar GrapesJS em runtime.
 
 ## 2. Login e acesso
 
@@ -74,7 +75,7 @@ Usar token restrito ao repositório.
 - [x] Git refs de `main` são redirecionados para a branch de desenvolvimento.
 - [x] corpo JSON com `branch: main` é redirecionado.
 - [x] chamada Microsoft Graph não é alterada pela proteção GitHub.
-- [ ] repetir teste de escrita real com token depois que o runtime estiver na branch.
+- [ ] repetir teste de escrita real com token agora que o runtime está na branch.
 - [ ] sem token, gravação pede conexão.
 - [ ] token inválido mostra mensagem simples.
 - [ ] token válido é aceito.
@@ -102,17 +103,20 @@ Usar token restrito ao repositório.
 
 ## 7. Runtime GrapesJS
 
-Hashes esperados:
-
 `grapes.min.js`
-- tamanho: `1095002` bytes
-- SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`
+
+- tamanho esperado/confirmado: `1095002` bytes;
+- SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`;
+- Git blob SHA: `7e6965661f682e20915b4489cbeb3f85ec8706df`.
 
 `grapes.min.css`
-- tamanho: `60968` bytes
-- SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`
 
-- [ ] arquivos presentes na branch batem exatamente com esses hashes.
+- tamanho esperado/confirmado: `60968` bytes;
+- SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`;
+- Git blob SHA: `62009a27142982215ecb7eb02f114eadf4e93841`.
+
+- [x] arquivos presentes na branch batem exatamente com os arquivos validados antes do upload.
+- [x] licença e versão local estão presentes ao lado do runtime.
 - [ ] abrir editor com rede externa bloqueada continua funcionando, exceto serviços necessários ao salvamento/autenticação.
 
 ## 8. Editor visual
@@ -211,10 +215,17 @@ Escopo:
 - [ ] remover/desconectar a integração administrativamente.
 - [x] nenhum teste obrigatório foi desenhado para depender dela.
 
-## 12. Antes do merge
+## 12. Revisão do PR após runtime
 
-- [ ] incorporar os dois bundles locais no PR.
-- [ ] comparar branch inteira com `main` após os bundles.
+- [x] runtime local incorporado ao PR.
+- [x] branch comparada novamente com o baseline após o upload.
+- [x] branch está `ahead` e `0` commits atrás do baseline.
+- [x] arquivos internos de Arquivo Digital, Notas e Livro de Ponto continuam fora do diff.
+- [x] CodeRabbit retornou sucesso no head pós-upload.
+- [x] nenhuma thread de review está aberta.
+
+## 13. Antes do merge
+
 - [ ] executar smoke test real no navegador.
 - [ ] testar escrita somente contra branch protegida.
 - [ ] usuário aprovar visual e fluxo.
