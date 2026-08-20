@@ -9,11 +9,17 @@ const GITHUB = Object.freeze({
 const STORAGE_TOKEN = "escolaIedaGithubToken";
 const SESSION_TOKEN = "escolaIedaGithubTokenSessao";
 
+const REGION_IDS = ["sobre", "numeros", "informacoes", "avisos", "destaques", "documentos", "contato"];
+const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+const INLINE_TAGS = new Set(["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "em", "i", "img", "label", "mark", "small", "span", "strong", "sub", "sup", "time"]);
+
 const state = {
   editor: null,
-  originalHtml: "",
+  previewSourceHtml: "",
   baseInlineCss: "",
-  preservedScripts: [],
+  baselineEditorHtml: "",
+  baselineEditorCss: "",
+  baselineAdminCss: "",
   busy: false,
   pendingSave: false,
   toastTimer: null
@@ -83,13 +89,23 @@ async function inicializarEditor() {
   }
 
   try {
-    const resposta = await fetch(`../../index.html?v=${Date.now()}`, { cache: "no-store" });
-    if (!resposta.ok) throw new Error("Não foi possível carregar a página inicial.");
-    state.originalHtml = await resposta.text();
+    const [respostaHtml, respostaDados] = await Promise.all([
+      fetch(`../../index.html?v=${Date.now()}`, { cache: "no-store" }),
+      fetch(`../../site-data/publicacoes-publicas.json?v=${Date.now()}`, { cache: "no-store" })
+    ]);
 
-    const preparado = prepararDocumento(state.originalHtml);
+    if (!respostaHtml.ok) throw new Error("Não foi possível carregar a página inicial.");
+
+    const htmlRecebido = await respostaHtml.text();
+    let dadosPublicos = null;
+    if (respostaDados.ok) {
+      try { dadosPublicos = await respostaDados.json(); } catch { dadosPublicos = null; }
+    }
+
+    state.previewSourceHtml = hidratarHomeNoHtml(htmlRecebido, dadosPublicos?.home);
+    const preparado = prepararDocumento(state.previewSourceHtml);
     state.baseInlineCss = preparado.inlineCss;
-    state.preservedScripts = preparado.scripts;
+    state.baselineAdminCss = preparado.editorCss;
 
     state.editor = window.grapesjs.init({
       container: "#gjs",
@@ -120,12 +136,14 @@ async function inicializarEditor() {
         uploadFile: enviarArquivoAssetManager
       },
       canvas: { styles: preparado.stylesheets },
-      components: preparado.bodyHtml
+      components: preparado.bodyHtml,
+      style: preparado.editorCss
     });
 
     registrarBlocos(state.editor);
     configurarProtecoes(state.editor);
     configurarEventosEditor(state.editor);
+    capturarBaseline();
     requestAnimationFrame(() => prepararCanvas(state.editor));
     el.loading?.setAttribute("hidden", "");
   } catch (erro) {
@@ -134,16 +152,59 @@ async function inicializarEditor() {
   }
 }
 
+function hidratarHomeNoHtml(html, home) {
+  if (!home || typeof home !== "object") return html;
+
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  definirTexto(doc.querySelector("[data-home-titulo]"), home.titulo);
+  definirTexto(doc.querySelector("[data-home-subtitulo]"), home.subtitulo);
+  definirTexto(doc.querySelector("[data-home-missao]"), home.missao);
+  definirTexto(doc.querySelector("[data-home-info-texto]"), home.infoTexto);
+
+  const secoes = Array.isArray(home.secoes) ? home.secoes : [];
+  secoes.forEach((secao) => {
+    const id = String(secao?.id || "").trim();
+    if (!id) return;
+    const bloco = doc.querySelector(`[data-home-section="${cssEscape(id)}"]`);
+    if (!bloco) return;
+
+    definirTexto(bloco.querySelector(`[data-section-title="${cssEscape(id)}"]`), secao.titulo);
+    definirTexto(bloco.querySelector(`[data-section-text="${cssEscape(id)}"]`), secao.texto);
+
+    if (Array.isArray(secao.indicadores)) {
+      const itens = [...bloco.querySelectorAll("[data-section-indicators] .numero")];
+      secao.indicadores.forEach((indicador, indice) => {
+        const item = itens[indice];
+        if (!item) return;
+        definirTexto(item.querySelector("strong"), indicador?.valor);
+        definirTexto(item.querySelector("span"), indicador?.rotulo);
+      });
+    }
+  });
+
+  return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
+}
+
+function definirTexto(elemento, valor) {
+  if (!elemento || valor === undefined || valor === null) return;
+  elemento.textContent = String(valor);
+}
+
 function prepararDocumento(html) {
   const doc = new DOMParser().parseFromString(html, "text/html");
-  const scripts = [...doc.body.querySelectorAll("script")].map((script) => script.outerHTML);
   doc.body.querySelectorAll("script").forEach((script) => script.remove());
 
   const stylesheets = [...doc.head.querySelectorAll('link[rel="stylesheet"][href]')]
     .map((link) => new URL(link.getAttribute("href"), new URL("../../index.html", window.location.href)).href);
-  const inlineCss = [...doc.head.querySelectorAll("style")].map((style) => style.textContent || "").join("\n");
 
-  return { bodyHtml: doc.body.innerHTML, scripts, stylesheets, inlineCss };
+  const editorStyle = doc.head.querySelector("#admin-editor-estilos");
+  const editorCss = editorStyle?.textContent || "";
+  const inlineCss = [...doc.head.querySelectorAll("style")]
+    .filter((style) => style !== editorStyle)
+    .map((style) => style.textContent || "")
+    .join("\n");
+
+  return { bodyHtml: doc.body.innerHTML, stylesheets, inlineCss, editorCss };
 }
 
 function prepararCanvas(editor) {
@@ -157,14 +218,20 @@ function prepararCanvas(editor) {
     doc.head.prepend(base);
   }
 
-  const style = doc.createElement("style");
-  style.dataset.iedaBaseCss = "";
+  let style = doc.head.querySelector("style[data-ieda-base-css]");
+  if (!style) {
+    style = doc.createElement("style");
+    style.dataset.iedaBaseCss = "";
+    doc.head.appendChild(style);
+  }
   style.textContent = `${state.baseInlineCss}\n.reveal{opacity:1!important;transform:none!important}.secao-vazia[hidden]{display:none!important}`;
-  doc.head.appendChild(style);
 }
 
 function configurarEventosEditor(editor) {
-  editor.on("load", () => prepararCanvas(editor));
+  editor.on("load", () => {
+    prepararCanvas(editor);
+    capturarBaseline();
+  });
   editor.on("canvas:frame:load", () => prepararCanvas(editor));
   editor.on("component:selected", () => el.propertyHelp?.classList.add("hidden"));
   editor.on("component:deselected", () => {
@@ -173,6 +240,19 @@ function configurarEventosEditor(editor) {
   editor.on("update", atualizarEstadoHistorico);
   editor.on("undo redo", atualizarEstadoHistorico);
   atualizarEstadoHistorico();
+}
+
+function capturarBaseline() {
+  if (!state.editor) return;
+  if (!state.baselineEditorHtml) state.baselineEditorHtml = state.editor.getHtml() || "";
+  if (!state.baselineEditorCss) state.baselineEditorCss = state.editor.getCss() || "";
+}
+
+function atualizarBaselineAposSalvar(adminCss) {
+  state.baselineEditorHtml = state.editor?.getHtml() || "";
+  state.baselineEditorCss = state.editor?.getCss() || "";
+  state.baselineAdminCss = adminCss || "";
+  state.editor?.clearDirtyCount?.();
 }
 
 function atualizarEstadoHistorico() {
@@ -221,12 +301,12 @@ function criarSetoresAparencia() {
 
 function registrarBlocos(editor) {
   const blocos = [
-    ["ieda-titulo", "Título", "T", '<section class="container reveal"><div class="titulo-secao"><h2>Novo título</h2><p>Escreva aqui uma frase de apoio.</p></div></section>'],
-    ["ieda-texto", "Texto", "¶", '<section class="container reveal"><div class="card"><h3>Novo conteúdo</h3><p>Digite aqui o texto que deseja publicar na página.</p></div></section>'],
-    ["ieda-cartoes", "Cartões", "▦", '<section class="container reveal"><div class="grid"><div class="card"><h3>Primeiro cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Segundo cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Terceiro cartão</h3><p>Texto do cartão.</p></div></div></section>'],
-    ["ieda-destaque", "Destaque", "✦", '<section class="container reveal"><div class="faixa"><h2>Mensagem em destaque</h2><p>Use este bloco para uma informação que merece mais atenção.</p></div></section>'],
-    ["ieda-botao", "Botão", "↗", '<div class="container reveal" style="text-align:center"><a class="botao botao-login" href="#">Abrir informação</a></div>'],
-    ["ieda-imagem", "Imagem", "▧", '<section class="container reveal"><div class="card" style="padding:12px"><img src="imagens/favicon.png" alt="Descreva a imagem" style="display:block;width:100%;max-height:520px;object-fit:cover;border-radius:16px"></div></section>']
+    ["ieda-titulo", "Título", "T", '<section class="container reveal" data-editor-block="titulo"><div class="titulo-secao"><h2>Novo título</h2><p>Escreva aqui uma frase de apoio.</p></div></section>'],
+    ["ieda-texto", "Texto", "¶", '<section class="container reveal" data-editor-block="texto"><div class="card"><h3>Novo conteúdo</h3><p>Digite aqui o texto que deseja publicar na página.</p></div></section>'],
+    ["ieda-cartoes", "Cartões", "▦", '<section class="container reveal" data-editor-block="cartoes"><div class="grid"><div class="card"><h3>Primeiro cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Segundo cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Terceiro cartão</h3><p>Texto do cartão.</p></div></div></section>'],
+    ["ieda-destaque", "Destaque", "✦", '<section class="container reveal" data-editor-block="destaque"><div class="faixa"><h2>Mensagem em destaque</h2><p>Use este bloco para uma informação que merece mais atenção.</p></div></section>'],
+    ["ieda-botao", "Botão", "↗", '<div class="container reveal" data-editor-block="botao" style="text-align:center"><a class="botao botao-login" href="#">Abrir informação</a></div>'],
+    ["ieda-imagem", "Imagem", "▧", '<section class="container reveal" data-editor-block="imagem"><div class="card" style="padding:12px"><img src="imagens/favicon.png" alt="Descreva a imagem" style="display:block;width:100%;max-height:520px;object-fit:cover;border-radius:16px"></div></section>']
   ];
 
   blocos.forEach(([id, label, icon, content]) => {
@@ -256,17 +336,28 @@ async function salvarPagina() {
 
   state.busy = true;
   alternarSalvando(true);
-  try {
-    const html = montarHtmlCompleto();
-    const dados = await prepararDadosPublicos(html);
-    await commitAtomicoGithub(token, [
-      { path: GITHUB.indexPath, content: html },
-      { path: GITHUB.dataPath, content: `${JSON.stringify(dados, null, 2)}\n` }
-    ], "Atualiza página inicial pelo editor visual");
 
-    state.originalHtml = html;
-    state.editor.clearDirtyCount?.();
-    mostrarToast("Página salva. O GitHub recebeu a Home e os dados compatíveis no mesmo commit.", "success");
+  try {
+    const remoto = await carregarSnapshotGithub(token);
+    const editorHtml = state.editor.getHtml() || "";
+    const editorCss = state.editor.getCss() || "";
+    const proximoAdminCss = reconciliarCssDoEditor(state.baselineEditorCss, editorCss, state.baselineAdminCss);
+    const htmlSeguro = construirHtmlSeguro(remoto.html, editorHtml, proximoAdminCss);
+    const dados = prepararDadosPublicos(remoto.dados, editorHtml);
+
+    await commitAtomicoGithub(
+      token,
+      [
+        { path: GITHUB.indexPath, content: htmlSeguro },
+        { path: GITHUB.dataPath, content: `${JSON.stringify(dados, null, 2)}\n` }
+      ],
+      "Atualiza página inicial pelo editor visual",
+      remoto.headSha
+    );
+
+    state.previewSourceHtml = hidratarHomeNoHtml(htmlSeguro, dados.home);
+    atualizarBaselineAposSalvar(proximoAdminCss);
+    mostrarToast("Página salva na branch segura. HTML e dados foram enviados no mesmo commit.", "success");
   } catch (erro) {
     console.error(erro);
     if (erro.status === 401 || erro.status === 403) limparTokenGithub();
@@ -277,45 +368,325 @@ async function salvarPagina() {
   }
 }
 
-function montarHtmlCompleto({ preview = false } = {}) {
-  const doc = new DOMParser().parseFromString(state.originalHtml, "text/html");
-  const estiloAnterior = doc.head.querySelector("#admin-editor-estilos");
-  const css = state.editor.getCss() || "";
-  if (css.trim()) {
-    const style = estiloAnterior || doc.createElement("style");
-    style.id = "admin-editor-estilos";
-    style.textContent = css;
-    if (!estiloAnterior) doc.head.appendChild(style);
+async function carregarSnapshotGithub(token) {
+  const branch = branchAtual();
+  const ref = await github(`/git/ref/heads/${encodeURIComponent(branch)}`, { token });
+  const headSha = ref.object?.sha;
+  if (!headSha) throw new Error("Não foi possível localizar a versão atual da branch.");
+
+  const [arquivoHtml, arquivoDados] = await Promise.all([
+    github(`/contents/${GITHUB.indexPath}?ref=${encodeURIComponent(headSha)}`, { token }),
+    github(`/contents/${GITHUB.dataPath}?ref=${encodeURIComponent(headSha)}`, { token })
+  ]);
+
+  const html = decodificarBase64Utf8(arquivoHtml.content || "");
+  const dados = JSON.parse(decodificarBase64Utf8(arquivoDados.content || ""));
+
+  return { headSha, html, dados };
+}
+
+function construirHtmlSeguro(canonicalHtml, finalEditorHtml, adminCss) {
+  if (!state.baselineEditorHtml) throw new Error("A base segura do editor não foi inicializada.");
+
+  const baselineDoc = parseEditorBody(state.baselineEditorHtml);
+  const finalDoc = parseEditorBody(finalEditorHtml);
+  let result = canonicalHtml;
+
+  result = aplicarTextosConhecidos(result, baselineDoc, finalDoc);
+
+  const baselineMain = baselineDoc.querySelector("main");
+  const finalMain = finalDoc.querySelector("main");
+  const topologiaMudou = assinaturaTopologia(baselineMain) !== assinaturaTopologia(finalMain);
+
+  if (topologiaMudou) {
+    if (!finalMain) throw new Error("A estrutura principal da página ficou inválida.");
+    result = substituirElementoUnico(result, "main", formatarElemento(finalMain));
   } else {
-    estiloAnterior?.remove();
+    for (const id of REGION_IDS) {
+      const antes = baselineDoc.getElementById(id);
+      const depois = finalDoc.getElementById(id);
+
+      if (!antes && !depois) continue;
+      if (!depois) {
+        result = removerElementoPorId(result, antes?.tagName?.toLowerCase() || "section", id);
+        continue;
+      }
+      if (!antes || antes.outerHTML !== depois.outerHTML) {
+        result = substituirElementoPorId(result, depois.tagName.toLowerCase(), id, formatarElemento(depois));
+      }
+    }
   }
 
-  doc.body.innerHTML = state.editor.getHtml();
-  if (!preview) {
-    state.preservedScripts.forEach((htmlScript) => {
-      const fragmento = doc.createRange().createContextualFragment(htmlScript);
-      doc.body.appendChild(fragmento);
+  for (const id of ["topbar", "inicio"]) {
+    const antes = baselineDoc.getElementById(id);
+    const depois = finalDoc.getElementById(id);
+    if (antes && depois && antes.outerHTML !== depois.outerHTML) {
+      result = substituirElementoPorId(result, depois.tagName.toLowerCase(), id, formatarElemento(depois));
+    }
+  }
+
+  const footerAntes = baselineDoc.querySelector("footer");
+  const footerDepois = finalDoc.querySelector("footer");
+  if (footerAntes && footerDepois && footerAntes.outerHTML !== footerDepois.outerHTML) {
+    result = substituirElementoUnico(result, "footer", formatarElemento(footerDepois));
+  }
+
+  result = aplicarCssAdmin(result, adminCss);
+  return garantirNovaLinhaFinal(result);
+}
+
+function aplicarTextosConhecidos(source, baselineDoc, finalDoc) {
+  let result = source;
+  const specs = [
+    { selector: "[data-home-titulo]", attr: "data-home-titulo" },
+    { selector: "[data-home-subtitulo]", attr: "data-home-subtitulo" },
+    { selector: "[data-home-missao]", attr: "data-home-missao" },
+    { selector: "[data-home-info-texto]", attr: "data-home-info-texto" }
+  ];
+
+  specs.forEach((spec) => {
+    const antes = baselineDoc.querySelector(spec.selector);
+    const depois = finalDoc.querySelector(spec.selector);
+    if (!antes || !depois || antes.textContent === depois.textContent) return;
+    result = substituirTextoPorAtributo(result, spec.attr, null, depois.textContent || "");
+    antes.textContent = depois.textContent || "";
+  });
+
+  ["data-section-title", "data-section-text"].forEach((attr) => {
+    finalDoc.querySelectorAll(`[${attr}]`).forEach((depois) => {
+      const value = depois.getAttribute(attr);
+      if (!value) return;
+      const seletor = `[${attr}="${cssEscape(value)}"]`;
+      const antes = baselineDoc.querySelector(seletor);
+      if (!antes || antes.textContent === depois.textContent) return;
+      result = substituirTextoPorAtributo(result, attr, value, depois.textContent || "");
+      antes.textContent = depois.textContent || "";
     });
+  });
+
+  return result;
+}
+
+function substituirTextoPorAtributo(source, attr, value, text) {
+  const nome = escapeRegExp(attr);
+  const valor = value === null
+    ? `(?:\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+))?`
+    : `\\s*=\\s*(?:"${escapeRegExp(value)}"|'${escapeRegExp(value)}')`;
+  const open = new RegExp(`<([a-zA-Z][\\w:-]*)\\b(?=[^>]*\\b${nome}${valor})[^>]*>`, "i");
+  const match = open.exec(source);
+  if (!match) throw new Error(`Não foi possível localizar o campo ${attr} no HTML atual.`);
+
+  const tag = match[1];
+  const contentStart = match.index + match[0].length;
+  const close = new RegExp(`</${escapeRegExp(tag)}\\s*>`, "i");
+  const closeMatch = close.exec(source.slice(contentStart));
+  if (!closeMatch) throw new Error(`Não foi possível localizar o fechamento de ${attr}.`);
+
+  const contentEnd = contentStart + closeMatch.index;
+  return source.slice(0, contentStart) + escaparTextoHtml(String(text).trim()) + source.slice(contentEnd);
+}
+
+function assinaturaTopologia(main) {
+  if (!main) return "";
+  return [...main.children]
+    .map((node) => `${node.tagName.toLowerCase()}#${node.id || ""}:${node.getAttribute("data-editor-block") || ""}`)
+    .join("|");
+}
+
+function reconciliarCssDoEditor(baselineCss, currentCss, baselineAdminCss) {
+  const antes = mapaCss(baselineCss);
+  const agora = mapaCss(currentCss);
+  const admin = mapaCss(baselineAdminCss);
+  const chaves = new Set([...antes.keys(), ...agora.keys()]);
+
+  chaves.forEach((chave) => {
+    const anterior = antes.get(chave);
+    const atual = agora.get(chave);
+    if (anterior === atual) return;
+    if (atual === undefined) admin.delete(chave);
+    else admin.set(chave, atual);
+  });
+
+  return [...admin.values()].join("\n");
+}
+
+function mapaCss(css) {
+  const map = new Map();
+  if (!String(css || "").trim()) return map;
+
+  const style = document.createElement("style");
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  try {
+    [...(style.sheet?.cssRules || [])].forEach((rule, index) => {
+      const chave = rule.selectorText
+        ? `style:${rule.selectorText}`
+        : `${rule.type}:${rule.conditionText || index}`;
+      map.set(chave, rule.cssText);
+    });
+  } finally {
+    style.remove();
   }
 
-  if (preview) {
-    const base = doc.createElement("base");
-    base.href = new URL("../../", window.location.href).href;
-    doc.head.prepend(base);
-    const helper = doc.createElement("style");
-    helper.textContent = ".reveal{opacity:1!important;transform:none!important}";
-    doc.head.appendChild(helper);
+  return map;
+}
+
+function aplicarCssAdmin(source, css) {
+  const range = localizarElementoPorId(source, "style", "admin-editor-estilos");
+  const limpo = String(css || "").trim();
+
+  if (!limpo) {
+    if (!range) return source;
+    return source.slice(0, range.start) + source.slice(range.end);
   }
+
+  const bloco = `<style id="admin-editor-estilos">\n${limpo}\n</style>`;
+  if (range) {
+    return source.slice(0, range.start) + aplicarIndentacao(bloco, range.indent) + source.slice(range.end);
+  }
+
+  const insercao = `  ${bloco.replace(/\n/g, "\n  ")}\n`;
+  return source.replace(/<\/head>/i, `${insercao}</head>`);
+}
+
+function parseEditorBody(html) {
+  return new DOMParser().parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`, "text/html");
+}
+
+function substituirElementoPorId(source, tag, id, replacement) {
+  const range = localizarElementoPorId(source, tag, id);
+  if (!range) throw new Error(`Não foi possível localizar a região ${id} no HTML atual.`);
+  return source.slice(0, range.start) + aplicarIndentacao(replacement, range.indent) + source.slice(range.end);
+}
+
+function removerElementoPorId(source, tag, id) {
+  const range = localizarElementoPorId(source, tag, id);
+  if (!range) return source;
+  return source.slice(0, range.start) + source.slice(range.end);
+}
+
+function substituirElementoUnico(source, tag, replacement) {
+  const range = localizarElementoUnico(source, tag);
+  if (!range) throw new Error(`Não foi possível localizar <${tag}> no HTML atual.`);
+  return source.slice(0, range.start) + aplicarIndentacao(replacement, range.indent) + source.slice(range.end);
+}
+
+function localizarElementoPorId(source, tag, id) {
+  const open = new RegExp(`<${tag}\\b[^>]*\\bid=["']${escapeRegExp(id)}["'][^>]*>`, "i");
+  const match = open.exec(source);
+  if (!match) return null;
+  return expandirFaixaBalanceada(source, tag, match.index, match[0].length);
+}
+
+function localizarElementoUnico(source, tag) {
+  const open = new RegExp(`<${tag}\\b[^>]*>`, "i");
+  const match = open.exec(source);
+  if (!match) return null;
+  return expandirFaixaBalanceada(source, tag, match.index, match[0].length);
+}
+
+function expandirFaixaBalanceada(source, tag, start, openingLength) {
+  const token = new RegExp(`<\\/?${tag}\\b[^>]*>`, "gi");
+  token.lastIndex = start + openingLength;
+  let depth = 1;
+  let end = start + openingLength;
+  let match;
+
+  while ((match = token.exec(source))) {
+    const closing = /^<\//.test(match[0]);
+    if (closing) depth -= 1;
+    else if (!/\/>$/.test(match[0])) depth += 1;
+
+    if (depth === 0) {
+      end = match.index + match[0].length;
+      break;
+    }
+  }
+
+  if (depth !== 0) return null;
+
+  const lineStart = source.lastIndexOf("\n", start - 1) + 1;
+  const leading = source.slice(lineStart, start);
+  const useLineStart = /^[\t ]*$/.test(leading);
+
+  return {
+    start: useLineStart ? lineStart : start,
+    end,
+    indent: useLineStart ? leading : ""
+  };
+}
+
+function aplicarIndentacao(text, indent) {
+  const clean = String(text).trim();
+  if (!indent) return clean;
+  return clean.split("\n").map((line) => indent + line).join("\n");
+}
+
+function formatarElemento(element) {
+  return serializarNo(element, "").trim();
+}
+
+function serializarNo(node, indent) {
+  if (node.nodeType === Node.COMMENT_NODE) return `${indent}<!--${node.data}-->`;
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent?.trim();
+    return text ? `${indent}${escaparTextoHtml(text)}` : "";
+  }
+  if (node.nodeType !== Node.ELEMENT_NODE) return "";
+
+  const tag = node.tagName.toLowerCase();
+  const attrs = [...node.attributes]
+    .map((attr) => `${attr.name}="${escaparAtributoHtml(attr.value)}"`)
+    .join(" ");
+  const opening = `<${tag}${attrs ? ` ${attrs}` : ""}>`;
+
+  if (VOID_TAGS.has(tag)) return `${indent}${opening}`;
+
+  const children = [...node.childNodes]
+    .filter((child) => child.nodeType !== Node.TEXT_NODE || child.textContent?.trim());
+  const hasBlockChild = children.some(
+    (child) => child.nodeType === Node.ELEMENT_NODE && !INLINE_TAGS.has(child.tagName.toLowerCase())
+  );
+
+  if (!hasBlockChild && node.innerHTML.length <= 260 && !node.innerHTML.includes("\n")) {
+    return `${indent}${opening}${node.innerHTML}</${tag}>`;
+  }
+
+  const lines = [`${indent}${opening}`];
+  children.forEach((child) => {
+    const serialized = serializarNo(child, `${indent}  `);
+    if (serialized) lines.push(serialized);
+  });
+  lines.push(`${indent}</${tag}>`);
+  return lines.join("\n");
+}
+
+function montarHtmlPreview() {
+  const doc = new DOMParser().parseFromString(state.previewSourceHtml, "text/html");
+  doc.body.querySelectorAll("script").forEach((script) => script.remove());
+  doc.body.innerHTML = state.editor.getHtml();
+
+  const css = state.editor.getCss() || "";
+  let style = doc.head.querySelector("#admin-editor-preview-estilos");
+  if (!style) {
+    style = doc.createElement("style");
+    style.id = "admin-editor-preview-estilos";
+    doc.head.appendChild(style);
+  }
+  style.textContent = `${css}\n.reveal{opacity:1!important;transform:none!important}`;
+
+  const base = doc.createElement("base");
+  base.href = new URL("../../", window.location.href).href;
+  doc.head.prepend(base);
 
   return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
 }
 
-async function prepararDadosPublicos(html) {
-  const resposta = await fetch(`../../site-data/publicacoes-publicas.json?v=${Date.now()}`, { cache: "no-store" });
-  if (!resposta.ok) throw new Error("Não foi possível sincronizar os textos da Home com as publicações.");
-  const dados = await resposta.json();
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const homeAtual = dados.home && typeof dados.home === "object" ? dados.home : {};
+function prepararDadosPublicos(dadosOriginais, editorHtml) {
+  const dados = normalizarDadosPublicos(dadosOriginais);
+  const doc = parseEditorBody(editorHtml);
+  const homeAtual = dados.home;
   const secoesAtuais = Array.isArray(homeAtual.secoes) ? homeAtual.secoes : [];
 
   const home = {
@@ -336,6 +707,15 @@ async function prepararDadosPublicos(html) {
   };
 }
 
+function normalizarDadosPublicos(dados) {
+  const base = dados && typeof dados === "object" && !Array.isArray(dados) ? dados : {};
+  return {
+    ...base,
+    home: base.home && typeof base.home === "object" ? base.home : {},
+    publicacoes: Array.isArray(base.publicacoes) ? base.publicacoes : []
+  };
+}
+
 function sincronizarSecaoHome(doc, secao) {
   const id = String(secao?.id || "").trim();
   const bloco = id ? doc.querySelector(`[data-home-section="${cssEscape(id)}"]`) : null;
@@ -353,6 +733,7 @@ function sincronizarSecaoHome(doc, secao) {
       rotulo: item.querySelector("span")?.textContent?.trim() || ""
     }))
     .filter((item) => item.valor || item.rotulo);
+
   if (indicadores.length) proxima.indicadores = indicadores;
   return proxima;
 }
@@ -366,10 +747,21 @@ function cssEscape(valor) {
   return String(valor).replace(/[^a-zA-Z0-9_-]/g, "");
 }
 
-async function commitAtomicoGithub(token, arquivos, mensagem) {
-  const ref = await github(`/git/ref/heads/${encodeURIComponent(GITHUB.branch)}`, { token });
+function branchAtual() {
+  return window.__IEDA_GITHUB_TARGET__?.branch || GITHUB.branch;
+}
+
+async function commitAtomicoGithub(token, arquivos, mensagem, expectedParentSha) {
+  const branch = branchAtual();
+  const ref = await github(`/git/ref/heads/${encodeURIComponent(branch)}`, { token });
   const parentSha = ref.object?.sha;
   if (!parentSha) throw new Error("Não foi possível localizar a versão atual do site.");
+
+  if (expectedParentSha && parentSha !== expectedParentSha) {
+    const erro = new Error("O site foi alterado em outro lugar. Recarregue o editor antes de salvar novamente.");
+    erro.status = 409;
+    throw erro;
+  }
 
   const commitAtual = await github(`/git/commits/${parentSha}`, { token });
   const baseTree = commitAtual.tree?.sha;
@@ -390,16 +782,19 @@ async function commitAtomicoGithub(token, arquivos, mensagem) {
     token,
     body: { base_tree: baseTree, tree }
   });
+
   const novoCommit = await github("/git/commits", {
     method: "POST",
     token,
     body: { message: mensagem, tree: novaTree.sha, parents: [parentSha] }
   });
-  await github(`/git/refs/heads/${encodeURIComponent(GITHUB.branch)}`, {
+
+  await github(`/git/refs/heads/${encodeURIComponent(branch)}`, {
     method: "PATCH",
     token,
     body: { sha: novoCommit.sha, force: false }
   });
+
   return novoCommit.sha;
 }
 
@@ -407,6 +802,7 @@ async function enviarArquivoAssetManager(event) {
   try {
     const arquivos = [...(event?.dataTransfer?.files || event?.target?.files || [])];
     if (!arquivos.length) return;
+
     const token = obterTokenGithub();
     if (!token) {
       abrirGithubDialog("Conecte ao GitHub antes de enviar uma imagem.");
@@ -422,6 +818,7 @@ async function enviarArquivoAssetManager(event) {
         mostrarToast(`A imagem ${arquivo.name} ultrapassa 8 MB.`, "error");
         continue;
       }
+
       const caminho = `${GITHUB.imageRoot}/${Date.now()}-${slugArquivo(arquivo.name)}`;
       await criarArquivoGithub(token, caminho, await arquivoParaBase64(arquivo), `Adiciona imagem pelo editor visual: ${arquivo.name}`);
       const url = `/${caminho}`;
@@ -438,13 +835,13 @@ async function criarArquivoGithub(token, path, contentBase64, message) {
   return github(`/contents/${path.split("/").map(encodeURIComponent).join("/")}`, {
     method: "PUT",
     token,
-    body: { message, content: contentBase64, branch: GITHUB.branch }
+    body: { message, content: contentBase64, branch: branchAtual() }
   });
 }
 
 function abrirPreview() {
   if (!state.editor || !el.previewDialog || !el.previewFrame) return;
-  el.previewFrame.srcdoc = montarHtmlCompleto({ preview: true });
+  el.previewFrame.srcdoc = montarHtmlPreview();
   el.previewDialog.showModal();
 }
 
@@ -466,15 +863,18 @@ async function conectarGithub(event) {
   event.preventDefault();
   const token = el.githubToken?.value.trim();
   if (!token) return;
+
   el.githubDialogStatus.textContent = "Verificando acesso...";
   try {
     await github("", { token });
     sessionStorage.setItem(SESSION_TOKEN, token);
     if (el.githubRemember.checked) localStorage.setItem(STORAGE_TOKEN, token);
     else localStorage.removeItem(STORAGE_TOKEN);
+
     el.githubDialog.close();
     el.githubDialogStatus.textContent = "";
     mostrarToast("GitHub conectado.", "success");
+
     if (state.pendingSave) {
       state.pendingSave = false;
       await salvarPagina();
@@ -509,6 +909,7 @@ async function github(path, { method = "GET", token, body } = {}) {
   const texto = await resposta.text();
   let dados = {};
   try { dados = texto ? JSON.parse(texto) : {}; } catch { dados = {}; }
+
   if (!resposta.ok) {
     const erro = new Error(dados.message || `GitHub respondeu ${resposta.status}.`);
     erro.status = resposta.status;
@@ -516,6 +917,12 @@ async function github(path, { method = "GET", token, body } = {}) {
     throw erro;
   }
   return dados;
+}
+
+function decodificarBase64Utf8(base64) {
+  const binario = atob(String(base64).replace(/\s/g, ""));
+  const bytes = Uint8Array.from(binario, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
 }
 
 function alternarSalvando(salvando) {
@@ -538,8 +945,8 @@ function mostrarErroRuntime() {
   if (el.btnSalvar) el.btnSalvar.disabled = true;
   if (el.btnPreview) el.btnPreview.disabled = true;
   mostrarEstadoFatal(
-    "O motor visual ainda não foi incorporado à branch.",
-    "Nenhuma alteração foi feita no site. O runtime local do GrapesJS precisa ser vendorizado antes dos testes."
+    "O motor visual não carregou.",
+    "Nenhuma alteração foi feita no site. Recarregue a página e tente novamente."
   );
 }
 
@@ -547,6 +954,7 @@ function mostrarEstadoFatal(titulo, detalhe) {
   if (!el.loading) return;
   el.loading.removeAttribute("hidden");
   el.loading.replaceChildren();
+
   const forte = document.createElement("strong");
   forte.textContent = titulo;
   const pequeno = document.createElement("small");
@@ -564,7 +972,14 @@ function mensagemErroGithub(erro) {
 function slugArquivo(nome) {
   const partes = String(nome || "imagem").split(".");
   const extensao = partes.length > 1 ? partes.pop().toLowerCase().replace(/[^a-z0-9]/g, "") : "";
-  const base = partes.join(".").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70) || "imagem";
+  const base = partes.join(".")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 70) || "imagem";
+
   return extensao ? `${base}.${extensao}` : base;
 }
 
@@ -575,4 +990,25 @@ function arquivoParaBase64(arquivo) {
     reader.onload = () => resolve(String(reader.result || "").split(",")[1] || "");
     reader.readAsDataURL(arquivo);
   });
+}
+
+function escaparTextoHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function escaparAtributoHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;");
+}
+
+function escapeRegExp(text) {
+  return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function garantirNovaLinhaFinal(text) {
+  return String(text).replace(/\s*$/, "") + "\n";
 }
