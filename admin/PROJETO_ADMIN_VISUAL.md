@@ -56,25 +56,29 @@ Motor: `GrapesJS/grapesjs`.
 Versão fixada neste marco: `0.22.13`.
 Licença: BSD-3-Clause.
 
-Runtime final:
+Runtime local incorporado:
 
 - `admin/editor/vendor/grapes.min.js`
 - `admin/editor/vendor/grapes.min.css`
+- `admin/editor/vendor/GRAPESJS-LICENSE`
+- `admin/editor/vendor/VERSION.txt`
 
-O runtime fica no próprio repositório. CDN não é dependência de execução do candidato final.
+O navegador usa os arquivos do próprio repositório. CDN não é dependência de execução do candidato final.
 
-### Bundles já validados
+### Bundles validados e presentes na branch
 
 `grapes.min.js`
 - 1095002 bytes
 - SHA-256 `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`
+- Git blob SHA `7e6965661f682e20915b4489cbeb3f85ec8706df`
 - `node --check` aprovado
 
 `grapes.min.css`
 - 60968 bytes
 - SHA-256 `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`
+- Git blob SHA `62009a27142982215ecb7eb02f114eadf4e93841`
 
-Esses arquivos foram fornecidos pelo usuário. A conexão GitHub desta sessão não possui parâmetro para anexar arquivos locais grandes, portanto ainda precisam estar fisicamente presentes na branch antes do teste real.
+Os blobs Git coincidem exatamente com os arquivos fornecidos e validados antes do upload.
 
 ### Por que GrapesJS substituiu VvvebJs
 
@@ -200,17 +204,28 @@ Home + JSON usam Git Data API para um commit único. Upload de mídia usa Conten
 
 `admin/github-safe-target.js` protege o desenvolvimento: fora dos hosts oficiais, chamadas GitHub destinadas a `main` são redirecionadas para `feat/admin-visual-builder`. O teste isolado dessa proteção passou em 5/5 cenários.
 
-## 14. Vercel residual
+## 14. Revisão pós-runtime
+
+Depois da incorporação dos bundles:
+
+- branch comparada novamente com o baseline;
+- estado: `ahead`, `0` commits atrás;
+- runtime local aparece no diff somente em `admin/editor/vendor/`;
+- `arquivo-digital/`, `notas/` e arquivos internos de `admin/livro-ponto/` continuam fora do diff;
+- CodeRabbit retornou sucesso no head pós-upload;
+- nenhuma thread de review está aberta.
+
+## 15. Vercel residual
 
 O código novo não depende de Vercel.
 
 O GitHub ainda apresenta um check externo `Vercel`. A conta Vercel conectada nesta sessão retorna zero projetos relacionados e não acessa o deployment indicado. Isso é limpeza administrativa separada e não requisito do produto.
 
-## 15. Critérios de aceite
+## 16. Critérios de aceite
 
 Antes de merge:
 
-1. bundles GrapesJS presentes na branch e batendo com os hashes fixados;
+1. bundles GrapesJS presentes na branch e batendo com os hashes fixados — **concluído**;
 2. login Microsoft funcional;
 3. autorização da Secretaria funcional;
 4. dashboard desktop e celular;
@@ -230,7 +245,7 @@ Antes de merge:
 18. nenhuma dependência Vercel/Tina/PHP/CDN em runtime;
 19. nenhum módulo sensível modificado fora do escopo.
 
-## 16. Rollback
+## 17. Rollback
 
 Enquanto estiver isolado, rollback = descartar `feat/admin-visual-builder`.
 
@@ -238,7 +253,7 @@ Baseline permanente deste marco:
 
 `96e16d599d06768a0ab6a7a0ea807b94a838a168`
 
-## 17. Próximos marcos possíveis
+## 18. Próximos marcos possíveis
 
 Somente após a Home visual ser aprovada por usuário leigo:
 
