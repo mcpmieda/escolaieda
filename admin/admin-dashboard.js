@@ -1,3 +1,12 @@
+const dashboardStyleHref = new URL("./admin-dashboard.css", import.meta.url).href;
+if (!document.querySelector('link[data-admin-dashboard="1"]')) {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = dashboardStyleHref;
+  link.dataset.adminDashboard = "1";
+  document.head.appendChild(link);
+}
+
 requestAnimationFrame(() => requestAnimationFrame(inicializarDashboardSecretaria));
 
 function inicializarDashboardSecretaria() {
