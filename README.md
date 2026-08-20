@@ -1,155 +1,152 @@
-# Escola Ieda MCPM
+# Escola Iêda MCPM
 
-Repositorio do site publico e dos sistemas digitais da Escola Municipal Professora Ieda Alves de Oliveira MCPM.
+Repositório do site público e dos sistemas digitais da Escola Municipal Professora Iêda Alves de Oliveira MCPM.
 
-O projeto e publicado pelo GitHub Pages no dominio `https://escolaieda.com/`. Ele reune a pagina inicial da escola, paginas institucionais, portais em teste, painel administrativo do Sistema Escola Ieda e o sistema interno Arquivo Digital Escolar.
+## Estado do projeto
 
-## Visao Geral
+O projeto está em **candidato final de produção**. A arquitetura principal já está implantada no domínio oficial `https://escolaieda.com/` e a branch de produção é `main`.
 
-- `index.html` e a home publica do site.
-- `admin/` contem o Painel Administrativo do Sistema Escola Ieda.
-- `site-data/` contem a fonte publica consumida pela home.
-- `site-institucional/` concentra paginas publicas da escola, como professores e calendario escolar.
-- `institucional/` e a area institucional/secretaria em teste.
-- `portais/` guarda areas experimentais para aluno, professor e direcao.
-- `arquivo-digital/` e uma aplicacao separada, sensivel, integrada ao Microsoft 365, SharePoint e Microsoft Graph.
-- `scripts/` contem validadores e rotinas auxiliares.
-- `AGENTS.md` preserva o contexto operacional detalhado do Arquivo Digital e nao deve ser apagado.
+A tag final `v1.0.0` ainda não foi criada porque o fechamento formal depende da última rodada de testes funcionais e de regressão pública.
 
-## Sistema Escola Ieda
+## Hospedagem
 
-O Sistema Escola Ieda usa SharePoint como base institucional do painel administrativo. As estruturas principais ja preparadas sao:
+- Site público: GitHub Pages.
+- Domínio oficial: `https://escolaieda.com/`.
+- Fonte de produção: branch `main`.
+- Não há outra plataforma de hospedagem necessária para o funcionamento do produto.
 
-- `PUBLICACOES_SITE`
-- `AVISOS_SITE`
-- `BANNERS_SITE`
-- `DESTAQUES_SITE`
-- `ENQUETES_SITE`
-- `CONFIGURACOES_PORTAL`
-- `PREFERENCIAS_USUARIO`
-- `SERVICOS_PAINEL`
-- `LOGS_PORTAL`
-- `MIDIAS_SITE`
+## Estrutura principal
 
-## Painel Administrativo
+- `index.html` — Home pública.
+- `site-data/` — dados públicos consumidos pela Home.
+- `site-institucional/` — páginas públicas reais, incluindo professores e calendário.
+- `admin/` — Centro de Administração.
+- `admin/editor/` — editor visual da Home com GrapesJS local.
+- `admin/livro-ponto/` — Livro de Ponto Digital.
+- `notas/` — Gestão de Notas e boletins.
+- `arquivo-digital/` — sistema documental protegido da Secretaria.
+- `imagens/` — ativos públicos e imagens de publicações.
+- `scripts/` — validadores e rotinas auxiliares.
+- `AGENTS.md` — contexto operacional do Arquivo Digital; preservar.
 
-O painel em `admin/` permite gerenciar publicacoes do site como um mini CMS escolar simples:
+## Centro de Administração
 
-- criar, editar, duplicar, despublicar e excluir publicacoes;
-- filtrar por busca, status, local e ordenacao;
-- configurar secoes da pagina inicial, incluindo titulo, texto, visibilidade e formato das publicacoes no site;
-- marcar publicacoes como rascunho, visivel no site, agendada ou expirada;
-- escolher onde a publicacao aparece: secoes da home, Banner/topo ou Modal;
-- enviar imagem, configurar link, texto do botao, periodo de exibicao, aparencia e prioridade;
-- visualizar previa antes de publicar;
-- manter uma biblioteca de imagens enviadas para reutilizacao nas publicacoes;
-- manter base administrativa inicial para enquetes futuras.
+O `/admin/` é a central administrativa única. A interface atual contém:
 
-O usuario acessa o login pelo painel em `/admin/`. O Entra ID usa a raiz `https://escolaieda.com/` como URL de retorno cadastrada; a home conclui o callback MSAL e volta automaticamente para `/admin/`. Isso evita depender de uma URL de redirect ainda nao cadastrada no aplicativo.
+- **Visão geral** — dashboard da Secretaria com indicadores de conteúdo e acessos rápidos;
+- **Publicações** — criação, edição, busca e exclusão de conteúdo do site;
+- **Editar página** — editor visual da Home integrado dentro da área de Publicações;
+- **Livro de Ponto** — módulo aberto dentro do próprio painel, com navegação superior;
+- **Sistemas** — central de sistemas internos e portais externos;
+- **Gestão de Notas** — módulo integrado dentro do painel;
+- **Arquivo Digital** — módulo protegido independente, aberto em nova guia.
 
-## Fonte Publica
+O usuário permanece no mesmo shell administrativo ao navegar entre as áreas integradas.
 
-O SharePoint e a fonte principal dos dados. O arquivo `site-data/publicacoes-publicas.json` e apenas uma fonte publica derivada para a home do GitHub Pages consumir sem login.
-
-Ao sincronizar pelo painel, o JSON e reconstruido a partir do estado atual do SharePoint. Isso remove do site itens excluidos, rascunhos, publicacoes expiradas e publicacoes agendadas para o futuro.
-
-Para atualizar o JSON publico pelo painel, e necessario configurar um token GitHub com permissao minima de conteudo restrita ao repositorio `mcpmieda/escolaieda`. O token e usado somente para publicar o arquivo derivado no GitHub Pages e fica registrado em `CONFIGURACOES_PORTAL` para que a Secretaria nao precise redigitar em toda sessao.
-
-Se o token GitHub estiver ausente ou sem permissao, a publicacao fica salva no SharePoint, mas nao aparece no site ate que a fonte publica seja sincronizada com sucesso.
-
-### Token GitHub do CMS
-
-O painel usa a configuracao `githubPublicacoesToken` na lista `CONFIGURACOES_PORTAL`. Essa chave guarda o token usado para atualizar `site-data/publicacoes-publicas.json` via GitHub API.
+## Publicações
 
 Fluxo atual:
 
-1. A Secretaria cria, edita, publica, despublica ou exclui uma publicacao no painel.
-2. O painel salva a mudanca em `PUBLICACOES_SITE`.
-3. O painel le novamente o estado atual do SharePoint.
-4. O painel monta um JSON limpo somente com itens publicos validos.
-5. O painel usa `githubPublicacoesToken` para gravar o JSON no repositorio.
-6. O GitHub Pages passa a servir a fonte publica atualizada.
-
-Todas as publicacoes usam esse mesmo fluxo. Para o usuario, a escolha principal e "Onde aparece"; categoria e tipo tecnico sao derivados automaticamente pelo painel para evitar combinacoes confusas. A secao "Destaques" substitui o antigo uso de um checkbox separado de destaque.
-
-O painel sincroniza automaticamente depois de salvar, publicar, despublicar ou excluir. O botao "Sincronizar agora" fica apenas em Configuracoes como ferramenta de recuperacao, para reconstruir a fonte publica manualmente quando necessario.
-
-Quando varias alteracoes sao feitas em sequencia, o painel agrupa a sincronizacao por alguns segundos antes de atualizar o GitHub. Isso reduz commits intermediarios e evita cancelamentos normais do GitHub Pages em commits antigos.
-
-As imagens enviadas pelo painel sao validadas, redimensionadas e convertidas para WebP antes de serem publicadas em `imagens/publicacoes/`. O arquivo fica no proprio repositorio publico, evitando links do SharePoint que exigiriam autenticacao dos visitantes. A lista de imagens disponiveis para reutilizacao e registrada em `CONFIGURACOES_PORTAL/midiasConfig`.
-
-O link do botao aceita apenas enderecos HTTP ou HTTPS e o painel exige um link quando houver texto de botao. As datas "Mostrar a partir de" e "Mostrar ate" controlam a janela de exibicao. A prioridade ordena os itens dentro da mesma secao: numeros menores aparecem primeiro e `0` deixa a publicacao na ordem normal.
-
-Cuidados:
-
-- o token deve ter permissao minima para conteudo do repositorio `mcpmieda/escolaieda`;
-- o token nao deve ser colocado no codigo fonte;
-- se o token expirar ou for revogado, a sincronizacao avisa erro no painel;
-- em caso de duvida, verificar `CONFIGURACOES_PORTAL/githubPublicacoesToken` e clicar em "Sincronizar site".
-
-## Home Publica
-
-A home publica carrega `site-data/publicacoes-site.js`, que busca `site-data/publicacoes-publicas.json` com cache-busting simples e mantem fallback estatico caso a fonte publica falhe.
-
-A pagina inicial e organizada por secoes configuraveis no painel. Cada secao pode ter titulo, texto, visibilidade e formato das publicacoes:
-
-- `Blocos`: cards lado a lado, com maior espacamento;
-- `Lista`: itens em uma coluna, melhor para muitos avisos ou documentos.
-- `Faixa de destaque com indicadores`: painel azul para apresentar numeros institucionais em pequenos blocos. Cada indicador usa o formato `valor | descricao`, como `1990 | Fundacao`.
-
-As secoes padrao sao Nossa Escola, Numeros institucionais, Informacoes, Avisos, Destaques, Documentos e Contato. O painel tambem permite adicionar novas secoes. Banner/topo e Modal continuam como locais especiais de publicacao.
-
-O modal publico:
-
-- pode ser fechado pelo botao, clique fora ou tecla `Esc`;
-- mantem o foco de teclado dentro da janela enquanto estiver aberto;
-- aparece uma vez por sessao para cada publicacao, evitando interromper o visitante repetidamente.
-
-A home usa uma versao WebP otimizada da logo com fallback PNG. A biblioteca Microsoft de autenticacao so e carregada quando a pagina esta concluindo um retorno de login.
-
-As paginas de professores, calendario, contato e area restrita permanecem preservadas.
-
-## Arquivo Digital
-
-`arquivo-digital/` e o sistema de gestao de documentos escolares em PDF. Ele possui login Microsoft, integracao com SharePoint/Graph, upload, historico, anotacoes, gavetas, lixeira, duplicidades, substituicao, mesclagem e validacoes automatizadas.
-
-`HISTORICO_ACESSOS` e preservado integralmente. Nao existe exclusao, arquivamento por idade nem rotina de retencao automatica. O navegador consulta somente o necessario: a guia Recentes usa a data de modificacao dos documentos, o historico de um documento e consultado diretamente por `ARQUIVO_ID` quando o painel e aberto, e a Central de historico carrega uma pagina por vez, buscando paginas adicionais apenas quando o usuario pedir. O historico completo nunca deve ser baixado na inicializacao do aplicativo.
-
-Essa pasta nao deve ser reorganizada junto com o site institucional. Qualquer alteracao nela deve seguir o `AGENTS.md` e rodar as validacoes proprias.
-
-## Validacoes
-
-Para conferir o estado geral:
-
-```powershell
-git status --short
-git diff --check
-node --check admin/admin.js
-node --check site-data/publicacoes-site.js
+```text
+Centro de Administração
+        ↓
+GitHub
+        ↓
+site-data/publicacoes-publicas.json
+        ↓
+site-data/publicacoes-site.js
+        ↓
+site público
 ```
 
-Para conferir o Arquivo Digital, quando ele for alterado:
+O SharePoint não é mais CMS de Publicações.
 
-```powershell
-node scripts/validar-arquivo-digital.mjs
-node scripts/testes-regressao-arquivo-digital.mjs
-node scripts/testes-utils-arquivo-digital.mjs
-```
+O formulário de Publicações suporta título, resumo, conteúdo, local, aparência, período, imagem, link, texto de botão e estado publicado/rascunho.
 
-## Pendencias e Proximos Passos
+Imagens de Publicações são armazenadas em `imagens/publicacoes/`.
 
-- Ao iniciar uma nova conversa no Codex, ler este README e o estado atual do repositorio antes de alterar o sistema. Tratar as informacoes desta documentacao como continuidade das decisoes anteriores.
-- Proximo passo planejado: criar previa ao vivo da pagina completa dentro do painel, com modos computador e celular, antes de publicar no SharePoint/GitHub.
-- Continuar evoluindo o editor da pagina inicial como um construtor simples: secoes reutilizaveis, faixa de destaque com indicadores, ordenacao de secoes e modelos visuais sem expor opcoes tecnicas ao usuario leigo.
-- Manter o token GitHub de menor permissao atualizado em `CONFIGURACOES_PORTAL`.
-- Rodar "Sincronizar site" no painel quando precisar reconstruir o JSON publico a partir do SharePoint.
-- Ativar votacao publica de enquetes em etapa futura.
-- Melhorar editor visual da home conforme o uso real da Secretaria.
+## Editor visual da Home
 
-## Regras de Manutencao
+Motor: GrapesJS `0.22.13`, vendorizado localmente.
 
-- Nao apagar `AGENTS.md`.
-- Nao mover ou alterar `arquivo-digital/` sem planejamento especifico.
-- Preservar redirecionamentos publicos antigos quando uma pagina mudar de caminho.
-- Evitar commitar arquivos temporarios, relatorios locais ou backups.
-- Preferir alteracoes pequenas, testaveis e com `git diff --check` antes do commit.
+Recursos do marco atual:
+
+- editar textos e elementos suportados;
+- blocos Título, Texto, Cartões, Destaque e Botão;
+- aparência do elemento selecionado;
+- undo/redo;
+- computador/tablet/celular;
+- prévia local;
+- salvamento explícito;
+- cabeçalho e rodapé protegidos;
+- scripts preservados fora do canvas.
+
+A troca/upload de imagem dentro do editor visual não faz parte da V1. Imagem de Publicação é um fluxo separado e continua disponível.
+
+O editor grava `index.html` e a compatibilidade do objeto `home` em `site-data/publicacoes-publicas.json` no mesmo commit Git.
+
+## Microsoft e autorização
+
+O login do Centro de Administração usa Microsoft Entra ID.
+
+O SharePoint é usado apenas como gate de leitura para confirmar acesso da Secretaria por meio de `DOCUMENTOS_ATIVOS`. O novo CMS não grava Publicações no SharePoint.
+
+O domínio oficial já foi validado com login Microsoft e acesso ao dashboard.
+
+A permissão Graph ainda usa `Sites.ReadWrite.All` por compatibilidade com o consentimento existente. A redução para leitura é item de segurança separado e deve ser feita junto com App Registration, consentimento e teste específico.
+
+## GitHub e segurança
+
+- Repositório: `mcpmieda/escolaieda`.
+- Branch de produção: `main`.
+- O token GitHub nunca é versionado.
+- Sessão é o armazenamento padrão; persistência local só ocorre quando o usuário opta por lembrar.
+- Fora dos hosts oficiais, `admin/github-safe-target.js` bloqueia escritas GitHub para impedir alteração acidental de produção.
+
+## Estado funcional já confirmado
+
+Em produção foram confirmados pelo usuário:
+
+- login Microsoft no domínio oficial;
+- carregamento do Centro de Administração;
+- dashboard da Secretaria;
+- navegação unificada;
+- Publicações + Editar página no mesmo painel;
+- Livro de Ponto integrado;
+- Gestão de Notas integrada;
+- Sistemas e portais operacionais;
+- ausência do antigo flash de login durante a navegação normal.
+
+Em testes anteriores do editor foram confirmados edição de texto, blocos, undo/redo, prévia, responsividade básica e persistência de conteúdo suportado.
+
+## Pendências para a tag `v1.0.0`
+
+Somente itens de fechamento, sem adicionar novos recursos:
+
+1. teste completo de Publicações em produção: criar rascunho, publicar, editar, buscar e excluir;
+2. upload de imagem de Publicação;
+3. teste controlado de salvamento do editor visual em produção;
+4. teste de logout e conta não autorizada;
+5. regressão final do site público em desktop e celular;
+6. revisão final de segurança, incluindo a futura redução de permissão Graph;
+7. criar a tag/release `v1.0.0` após aprovação desses testes.
+
+Agenda, enquetes, criação arbitrária de páginas e troca de imagens pelo editor visual são melhorias futuras e não bloqueiam a conclusão da V1.
+
+## Documentação do admin
+
+- `admin/AI_CONTEXT.md` — estado técnico atual para continuidade com IA.
+- `admin/PROJETO_ADMIN_VISUAL.md` — arquitetura e decisões vigentes.
+- `admin/TESTES.md` — matriz atual de validação.
+- `admin/EXECUCAO_ADMIN_VISUAL.md` — diário histórico de execução.
+- `admin/editor/README.md` — documentação específica do editor.
+
+## Regras de manutenção
+
+- preservar `AGENTS.md`;
+- não reorganizar `arquivo-digital/` sem planejamento específico;
+- manter mudanças por escopo fechado;
+- evitar arquivos temporários e branches de teste abandonadas;
+- preferir GitHub como fonte de verdade do site;
+- não introduzir banco, CMS externo ou dependência de hospedagem adicional sem necessidade comprovada;
+- após o fechamento da V1, tratar novas funções como V2.

@@ -1,261 +1,133 @@
-# TESTES — Centro de Administração Visual
+# TESTES — Fechamento da V1
 
-## Regra
+## Estado
 
-Executar testes por escopo. Não reauditar Arquivo Digital, Notas ou Livro de Ponto se os arquivos desses módulos não forem alterados.
+Branch de produção: `main`.
+Domínio oficial: `https://escolaieda.com/`.
 
-Branch: `feat/admin-visual-builder`.
-Baseline seguro: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
-PR: `#27` — Draft, sem autorização de merge.
+Este arquivo registra apenas o estado atual. Testes históricos de branches antigas permanecem no diário `EXECUCAO_ADMIN_VISUAL.md`.
 
-## 1. Validação estática e dependências
+## 1. Autenticação e sessão
 
-- [ ] `admin/admin.js` sem erro de sintaxe em ambiente de execução real.
-- [ ] `admin/editor/escola-editor.js` sem erro de sintaxe após o fechamento final da V1.
-- [x] `admin/editor/index.html` aponta somente para runtime GrapesJS local.
-- [x] `admin/editor/vendor/grapes.min.js` existe fisicamente na branch.
-- [x] `admin/editor/vendor/grapes.min.css` existe fisicamente na branch.
-- [x] licença GrapesJS está versionada.
-- [x] GrapesJS fixado em `0.22.13`.
-- [x] `grapes.min.js` fornecido passou em `node --check`.
-- [x] tamanho e SHA-256 dos bundles registrados em `vendor/VERSION.txt`.
-- [x] blobs Git dos bundles coincidem com os arquivos validados.
-- [x] novo admin reutiliza MSAL 5.11.0 local por import map.
-- [x] GrapesJS/MSAL não dependem de CDN no candidato.
-- [x] não foram introduzidos TinaCMS, TinaCloud, Astro, PHP, banco novo ou dependência Vercel no código do produto.
-- [x] nenhum token/segredo foi encontrado no diff revisado.
-- [x] `arquivo-digital/`, `notas/` e arquivos internos de `admin/livro-ponto/` permanecem fora do escopo alterado.
+- [x] `/admin/` abre no domínio oficial.
+- [x] login Microsoft funciona no domínio oficial.
+- [x] conta autorizada chega ao dashboard.
+- [x] nome/perfil do usuário aparece no painel.
+- [x] navegação entre views não exibe mais a tela de login a cada troca.
+- [ ] testar logout no estado final.
+- [ ] testar conta sem autorização e confirmar tela de acesso restrito.
+- [ ] revisar redução futura de `Sites.ReadWrite.All` para permissão somente de leitura, com consentimento e teste coordenados.
 
-## 2. Login Microsoft e autorização
+## 2. Centro de Administração
 
-Teste no preview em 2026-08-20:
+- [x] dashboard da Secretaria abre corretamente.
+- [x] Visão geral reorganizada com indicadores e acessos rápidos.
+- [x] Publicações abre dentro do shell.
+- [x] Editar página está integrado à área de Publicações.
+- [x] Livro de Ponto abre dentro do admin.
+- [x] Livro de Ponto usa melhor a área útil e navegação superior.
+- [x] Gestão de Notas abre dentro de Sistemas.
+- [x] Sistemas internos e portais operacionais funcionam.
+- [x] Arquivo Digital permanece independente e abre em nova guia.
+- [ ] validar uma rodada final em celular sem rolagem horizontal ou botões cortados.
 
-- [x] `/admin/` abre a interface de login.
-- [x] botão “Entrar com Microsoft” chega ao Microsoft Entra e abre o fluxo de autenticação.
-- [x] retorno do preview foi bloqueado com `AADSTS50011` por redirect URI temporária da Vercel não cadastrada.
-- [x] usuário decidiu **não cadastrar** o domínio temporário no Entra.
-- [ ] conta autorizada retorna ao dashboard no domínio oficial.
-- [ ] conta não autorizada mostra acesso restrito.
-- [ ] Sair encerra sessão.
-- [ ] nome do usuário aparece corretamente.
-- [x] código usa temporariamente `Sites.ReadWrite.All`, escopo já consentido no ambiente anterior.
-- [ ] em marco posterior, reduzir permissão Graph somente junto com App Registration/consentimento e teste específico.
+## 3. Publicações — teste final pendente
 
-O erro `AADSTS50011` do preview não é tratado como regressão do código novo.
+Executar em produção com conteúdo de teste claramente identificável e apagar ao final.
 
-## 3. UI do Centro de Administração
-
-A UI está implementada, mas o dashboard completo ainda não pôde ser aberto no preview por causa do redirect do Entra.
-
-Desktop:
-
-- [ ] sidebar estável em navegador real autenticado.
-- [ ] Visão geral sem rolagem horizontal.
-- [ ] cards com hover/foco sem ocultar ações.
-- [ ] navegação interna correta.
-- [ ] diálogo GitHub abre/fecha no dashboard.
-
-Celular:
-
-- [ ] menu lateral abre/fecha.
-- [ ] cards ficam em uma coluna.
-- [ ] formulário de publicação utilizável.
-- [ ] botões não ficam cortados.
-- [ ] nenhuma rolagem horizontal inesperada.
-
-Estático:
-
-- [x] CSS global contém proteção contra rolagem horizontal no `body`.
-- [x] cartão “Editar o site” foi alinhado ao escopo da V1: textos, blocos e seções; não promete troca de imagens.
-
-## 4. Atalhos dos sistemas
-
-- [x] painel aponta Livro de Ponto para `/admin/livro-ponto/`.
-- [x] painel aponta Arquivo Digital para `/arquivo-digital/`.
-- [x] painel aponta Gestão de Notas para `/notas/`.
-- [ ] validar os três atalhos em navegador real autenticado.
-
-## 5. GitHub e proteção de branch
-
-- [x] `admin/github-safe-target.js` existe.
-- [x] teste isolado da proteção de branch: 5/5 cenários aprovados.
-- [x] fora de `escolaieda.com`, `?ref=main` é redirecionado para `feat/admin-visual-builder`.
-- [x] Git refs de `main` são redirecionados para a branch de desenvolvimento.
-- [x] corpo JSON com `branch: main` é redirecionado.
-- [x] chamada Microsoft Graph não é alterada pela proteção GitHub.
-- [x] escrita real com token foi executada no preview.
-- [x] commits de teste foram para `feat/admin-visual-builder`.
-- [x] `main` permaneceu no baseline seguro durante os testes.
-- [x] sem token, o editor abriu a conexão GitHub.
-- [x] token válido restrito ao repositório foi aceito.
-- [x] token não foi enviado na conversa nem versionado.
-- [ ] token inválido mostra mensagem simples.
-- [ ] comportamento “Lembrar neste navegador” validado explicitamente.
-
-## 6. Publicações
-
-- [x] contrato de campos comparado estaticamente com `site-data/publicacoes-site.js`.
-- [x] fluxo novo grava diretamente no JSON público via GitHub; SharePoint não é mais armazenamento de Publicações.
 - [ ] criar rascunho.
-- [ ] criar publicação publicada.
-- [ ] editar publicação.
-- [ ] excluir publicação.
+- [ ] confirmar que rascunho não aparece no site público.
+- [ ] publicar o item.
+- [ ] confirmar renderização no local correto.
+- [ ] editar título/conteúdo.
 - [ ] buscar publicação.
+- [ ] testar data inicial/final.
 - [ ] enviar JPG.
-- [ ] enviar PNG/WebP.
-- [ ] imagem de Publicação vai para `imagens/publicacoes/`.
-- [ ] JSON mantém o objeto `home`.
-- [ ] publicações não editadas permanecem.
-- [ ] publicação aparece no `local` correto.
-- [ ] rascunho não aparece no site público.
-- [ ] período inicial/final é respeitado.
+- [ ] enviar PNG ou WebP.
+- [ ] confirmar imagem em `imagens/publicacoes/`.
+- [ ] excluir publicação de teste.
+- [ ] confirmar que as demais publicações permanecem intactas.
+- [ ] confirmar que o objeto `home` do JSON permanece intacto.
 
-**Imagem de Publicação é separada da imagem do editor visual.** A retirada do bloco Imagem do editor não remove o upload do formulário de Publicações.
+## 4. Editor visual
 
-## 7. Runtime GrapesJS
+### Já comprovado em testes anteriores
 
-`grapes.min.js`
+- [x] GrapesJS local carrega a Home.
+- [x] edição de texto.
+- [x] Título, Texto, Cartões, Destaque e Botão.
+- [x] undo/redo.
+- [x] prévia local.
+- [x] Computador e Celular.
+- [x] persistência de bloco suportado após recarregar.
+- [x] `index.html` + JSON gravados no mesmo commit em teste protegido.
+- [x] scripts temporários externos não entram no HTML canônico após a correção do salvamento.
+- [x] bloco Imagem foi retirado da V1 após falha de persistência reproduzida.
 
-- tamanho: `1095002` bytes;
-- SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`;
-- Git blob SHA: `7e6965661f682e20915b4489cbeb3f85ec8706df`.
+### Fechamento em produção
 
-`grapes.min.css`
+- [ ] fazer uma alteração textual mínima e reversível pelo editor integrado.
+- [ ] salvar em produção.
+- [ ] recarregar e confirmar persistência.
+- [ ] reverter o texto de teste pelo próprio editor.
+- [ ] testar Tablet explicitamente.
+- [ ] confirmar cabeçalho e rodapé protegidos contra exclusão.
 
-- tamanho: `60968` bytes;
-- SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`;
-- Git blob SHA: `62009a27142982215ecb7eb02f114eadf4e93841`.
+## 5. Livro de Ponto
 
-- [x] arquivos presentes na branch batem com os arquivos validados.
-- [x] licença e versão local presentes.
-- [x] preview real carregou o editor usando runtime local.
+- [x] abre integrado no admin.
+- [x] cabeçalho redundante removido no modo incorporado.
+- [x] navegação interna aparece na parte superior.
+- [x] módulo original não foi reescrito.
+- [ ] rodada final rápida de backup/importação e impressão, sem alterar dados reais desnecessariamente.
 
-## 8. Editor visual — testes reais
+## 6. Gestão de Notas
 
-### Carregamento e interface
+- [x] abre integrada em Sistemas.
+- [x] navegação Notas/Boletim funciona.
+- [x] cabeçalho/perfil redundantes ficam reduzidos no modo incorporado.
+- [x] opção de tela cheia preservada.
 
-- [x] `/admin/editor/` abre no preview sem PHP.
-- [x] Home real carrega dentro do canvas.
-- [x] logo e imagens relativas resolvem corretamente.
-- [x] estilos originais da Home aparecem.
-- [x] blocos próprios aparecem na lateral.
-- [x] elemento existente pode ser selecionado.
-- [x] propriedades de aparência aparecem.
-- [x] localização PT-BR está ativa.
-- [x] aba “Camadas” foi substituída por “Estrutura”.
-- [x] traits técnicos `Id/Title` estão ocultos.
-- [ ] scripts públicos não são executados dentro do canvas — confirmar por teste dirigido antes de produção.
+## 7. Arquivo Digital
 
-### Edição
+- [x] acesso preservado pelo Centro de Administração.
+- [x] abre em nova guia.
+- [x] não foi incorporado ao shell, preservando sua arquitetura Microsoft/Graph independente.
 
-- [x] texto existente pode ser alterado.
-- [x] bloco Título foi inserido e funcionou na Prévia.
-- [x] bloco Texto foi inserido e funcionou na Prévia.
-- [x] bloco Cartões foi inserido e funcionou na Prévia.
-- [x] bloco Destaque foi inserido e funcionou na Prévia.
-- [x] bloco Botão foi inserido e funcionou na Prévia.
-- [x] undo funciona.
-- [x] redo funciona.
-- [ ] mover elemento existente foi validado separadamente.
-- [ ] cabeçalho protegido contra exclusão foi testado manualmente.
-- [ ] rodapé protegido contra exclusão foi testado manualmente.
-- [ ] painel Estrutura foi validado explicitamente.
+Não reauditar internamente o Arquivo Digital sem alteração na pasta `arquivo-digital/`. Seguir `AGENTS.md` quando houver mudança nesse módulo.
 
-### Responsividade e prévia
+## 8. Site público — regressão final pendente
 
-- [x] Computador funciona visualmente.
-- [x] Celular funciona visualmente sem estouro horizontal visível nas capturas.
-- [x] título e botões da Home reorganizam no modo Celular.
-- [x] Prévia abre mostrando alterações locais sem salvar.
-- [x] fechar Prévia retorna ao editor.
-- [ ] Tablet foi validado explicitamente.
+- [ ] Home carrega normalmente em desktop.
+- [ ] Home carrega normalmente em celular.
+- [ ] menu e links principais funcionam.
+- [ ] publicações continuam carregando pelo JSON público.
+- [ ] nenhuma publicação existente foi perdida.
+- [ ] calendário abre.
+- [ ] professores abre.
+- [ ] Área Restrita abre `/admin/`.
+- [ ] imagens principais carregam.
+- [ ] animações/reveal não apresentam regressão.
+- [ ] ausência de rolagem horizontal inesperada.
+- [ ] ausência de erro crítico no console.
 
-### Salvamento protegido
+## 9. Segurança e GitHub
 
-Primeiro teste:
+- [x] token GitHub não está versionado.
+- [x] `main` é branch de produção.
+- [x] fora do domínio oficial, a proteção final deve bloquear escrita GitHub em vez de redirecionar para branch antiga.
+- [ ] validar esse bloqueio após o commit de fechamento documental.
+- [ ] reduzir permissões Graph somente após teste específico de consentimento.
 
-- [x] escrita chegou ao GitHub na branch de teste.
-- [x] detectada reserialização excessiva do HTML e script temporário do preview.
-- [x] commit de teste foi revertido/limpo antes de continuar.
+## 10. Critério para criar `v1.0.0`
 
-Segundo teste, após correção:
+Criar a tag/release somente quando estiverem concluídos:
 
-- [x] alteração textual produziu diff mínimo.
-- [x] `index.html` e `site-data/publicacoes-publicas.json` foram gravados no mesmo commit.
-- [x] subtítulo foi sincronizado com o JSON.
-- [x] script temporário do Vercel não entrou no HTML.
-- [x] `main` permaneceu intacta.
-- [x] texto de teste foi removido depois da validação.
+- [ ] Publicações de ponta a ponta.
+- [ ] imagem de Publicação.
+- [ ] salvamento mínimo do editor em produção.
+- [ ] logout e acesso negado.
+- [ ] regressão pública desktop/celular.
+- [ ] revisão de segurança final.
 
-Persistência estrutural:
-
-- [x] bloco de texto novo foi salvo.
-- [x] após recarregar, o bloco permaneceu.
-- [x] bloco de teste foi removido depois da validação.
-- [x] `<!DOCTYPE html>` e scripts originais foram preservados nas verificações após o salvamento corrigido.
-- [ ] conflito concorrente foi provocado para validar `force:false` na prática.
-
-### Imagem dentro do editor visual
-
-- [x] upload físico para `imagens/editor/` chegou a funcionar durante o experimento.
-- [x] imagem enviada apareceu no Asset Manager.
-- [x] falha reproduzida: imagem escolhida não permaneceu associada ao bloco após salvar e recarregar.
-- [x] usuário decidiu pular esse refinamento e avançar por marcos maiores.
-- [x] bloco **Imagem** foi removido da V1.
-- [x] imagens existentes foram protegidas contra troca pelo editor.
-- [x] arquivos usados somente nos testes foram removidos da branch.
-
-A persistência de imagem **não é requisito de aceite da V1**.
-
-## 9. Regressão pública
-
-Ainda pendente como teste final controlado:
-
-- [ ] Home mantém carregamento normal.
-- [ ] menus e atalhos continuam funcionando.
-- [ ] animações/reveal continuam funcionando após salvar.
-- [ ] `site-data/publicacoes-site.js` continua carregando.
-- [ ] nenhuma publicação existente é perdida.
-- [ ] calendário e professores continuam acessíveis.
-- [ ] Área Restrita continua abrindo `/admin/`.
-
-## 10. Limpeza
-
-- [x] `institucional/index.html` removido na branch.
-- [x] `site-institucional/` preservado.
-- [x] `admin/admin-preview.js` removido.
-- [x] VvvebJs retirado.
-- [x] criação arbitrária de páginas retirada do primeiro marco.
-- [x] provisionamento/CRUD de listas SharePoint retirado do novo painel.
-- [x] `DOCUMENTOS_ATIVOS` permanece somente como gate de leitura para autorização.
-- [x] resíduos dos testes de imagem retirados do `index.html`, JSON e `imagens/editor/`.
-- [ ] confirmar visualmente ausência das telas antigas no dashboard autenticado.
-
-## 11. Vercel residual
-
-- [x] Vercel não é dependência do produto novo.
-- [x] está sendo usado apenas como preview temporário do PR.
-- [x] usuário confirmou que não deseja incorporá-lo à arquitetura final.
-- [ ] remover/desconectar a integração administrativamente após o marco.
-
-## 12. Revisão final do PR
-
-- [x] runtime local incorporado.
-- [x] módulos independentes sensíveis preservados.
-- [x] editor V1 fechado sem recurso de imagem parcialmente funcional.
-- [x] documentação atualizada para refletir testes reais e limitações.
-- [ ] checar status final de CI no head candidato.
-- [ ] executar revisão CodeRabbit real fora do estado Draft, se ainda for útil antes do aceite.
-- [ ] revisar threads/comentários de review.
-
-## 13. Antes de qualquer merge
-
-- [ ] testar Publicações na branch protegida.
-- [ ] testar imagem de Publicação, se mantida no formulário.
-- [ ] testar atalhos no dashboard autenticado.
-- [ ] fazer regressão pública final.
-- [ ] testar login completo no domínio oficial em momento controlado.
-- [ ] apresentar resumo final ao usuário.
-- [ ] obter autorização explícita do usuário para merge.
-
-**Não há autorização de merge neste momento.**
+Depois disso, novas funções passam a ser V2.
