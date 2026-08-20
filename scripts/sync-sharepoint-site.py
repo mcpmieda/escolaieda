@@ -11,8 +11,10 @@ SITE_ID = "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-
 LIBRARY_NAME = "MIDIAS_SITE"
 CMS_ROOT = "CMS_SITE"
 CMS_DATA = f"{CMS_ROOT}/site-data.json"
+CMS_INDEX = f"{CMS_ROOT}/index.html"
 CMS_IMAGES = f"{CMS_ROOT}/imagens"
 PUBLIC_DATA = pathlib.Path("site-data/publicacoes-publicas.json")
+PUBLIC_INDEX = pathlib.Path("index.html")
 PUBLIC_IMAGES = pathlib.Path("imagens/publicacoes")
 GRAPH = "https://graph.microsoft.com/v1.0"
 
@@ -86,6 +88,25 @@ def write_public_data(data):
     PUBLIC_DATA.write_text(text, encoding="utf-8")
 
 
+def sync_index(drive_id):
+    url = f"{GRAPH}/drives/{drive_id}/root:/{encoded_path(CMS_INDEX)}:/content"
+    try:
+        content = request_bytes(url)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            print("CMS_SITE/index.html ainda não existe; mantendo a Home atual do repositório.")
+            return
+        raise
+
+    text = content.decode("utf-8")
+    if "<html" not in text.lower() or "</html>" not in text.lower():
+        raise RuntimeError("CMS_SITE/index.html inválido")
+    current = PUBLIC_INDEX.read_text(encoding="utf-8") if PUBLIC_INDEX.exists() else ""
+    if current != text:
+        PUBLIC_INDEX.write_text(text, encoding="utf-8")
+        print("index.html atualizado a partir do SharePoint.")
+
+
 def sync_images(drive_id, data):
     PUBLIC_IMAGES.mkdir(parents=True, exist_ok=True)
     names = set()
@@ -127,6 +148,7 @@ def main():
     if data is None:
         return 0
     public_data = normalize_public_data(data)
+    sync_index(drive_id)
     sync_images(drive_id, public_data)
     write_public_data(public_data)
     print(f"Publicações encontradas: {len(public_data.get('publicacoes', []))}")
