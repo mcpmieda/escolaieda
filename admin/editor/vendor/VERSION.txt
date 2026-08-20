@@ -1,0 +1,4 @@
+GrapesJS 0.22.13
+Bundle: cdnjs/cdnjs ajax/libs/grapesjs/0.22.13
+Projeto: GrapesJS/grapesjs v0.22.13
+Licença: BSD-3-Clause
