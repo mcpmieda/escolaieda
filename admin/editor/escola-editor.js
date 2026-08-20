@@ -265,6 +265,10 @@ function configurarProtecoes(editor) {
       componente.set({ droppable: true, removable: false, copyable: false, draggable: false });
     }
 
+    if (tag === "img") {
+      componente.set({ editable: false });
+    }
+
     if (attrs.id === "topbar" || attrs.id === "inicio" || tag === "footer") {
       componente.set({ removable: false, copyable: false, draggable: false, droppable: false });
     }
@@ -290,8 +294,7 @@ function registrarBlocos(editor) {
     ["ieda-texto", "Texto", "¶", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="texto"><div class="card"><h3>Novo conteúdo</h3><p>Digite aqui o texto que deseja publicar na página.</p></div></section>'],
     ["ieda-cartoes", "Cartões", "▦", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="cartoes"><div class="grid"><div class="card"><h3>Primeiro cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Segundo cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Terceiro cartão</h3><p>Texto do cartão.</p></div></div></section>'],
     ["ieda-destaque", "Destaque", "✦", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="destaque"><div class="faixa"><h2>Mensagem em destaque</h2><p>Use este bloco para uma informação que merece mais atenção.</p></div></section>'],
-    ["ieda-botao", "Botão", "↗", '<div data-gjs-draggable="main" class="container reveal" data-editor-block="botao" style="text-align:center"><a class="botao botao-login" href="#">Abrir informação</a></div>'],
-    ["ieda-imagem", "Imagem", "▧", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="imagem"><div class="card" style="padding:12px"><img src="imagens/favicon.png" alt="Descreva a imagem" style="display:block;width:100%;max-height:520px;object-fit:cover;border-radius:16px"></div></section>']
+    ["ieda-botao", "Botão", "↗", '<div data-gjs-draggable="main" class="container reveal" data-editor-block="botao" style="text-align:center"><a class="botao botao-login" href="#">Abrir informação</a></div>']
   ];
 
   blocos.forEach(([id, label, icon, content]) => {
