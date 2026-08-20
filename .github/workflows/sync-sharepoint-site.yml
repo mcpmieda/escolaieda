@@ -48,13 +48,13 @@ jobs:
       - name: Publicar alterações na main
         shell: bash
         run: |
-          if git diff --quiet -- site-data/publicacoes-publicas.json imagens/publicacoes; then
+          if git diff --quiet -- index.html site-data/publicacoes-publicas.json imagens/publicacoes; then
             echo "Nenhuma alteração pública encontrada."
             exit 0
           fi
 
           git config user.name "Escola Ieda CMS"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site-data/publicacoes-publicas.json imagens/publicacoes
+          git add index.html site-data/publicacoes-publicas.json imagens/publicacoes
           git commit -m "site: sincronizar CMS SharePoint"
           git push origin HEAD:main
