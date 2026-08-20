@@ -13,31 +13,20 @@ Publicações continuam sendo administradas pela tela estruturada de `/admin/`.
 - Projeto: `GrapesJS/grapesjs`
 - Versão fixada: `0.22.13`
 - Licença: BSD-3-Clause
-- Runtime final esperado: `vendor/grapes.min.js` + `vendor/grapes.min.css`
+- Runtime final: `vendor/grapes.min.js` + `vendor/grapes.min.css`
 
-O candidato final não deve carregar GrapesJS por CDN em runtime.
+O site em produção não deve carregar GrapesJS por CDN.
 
-### Estado atual do runtime
+Em 2026-08-19, os dois bundles oficiais foram fornecidos pelo usuário e validados localmente. Os tamanhos e hashes SHA-256 esperados estão registrados em `vendor/VERSION.txt`.
 
-Já versionados:
-
-- `vendor/GRAPESJS-LICENSE`;
-- `vendor/VERSION.txt`.
-
-Ainda pendentes:
-
-- `vendor/grapes.min.js`;
-- `vendor/grapes.min.css`.
-
-A tentativa de materializar esses arquivos por GitHub Actions não executou no PR e o workflow temporário foi removido. Portanto, **não declarar o editor executável ou aprovado enquanto os dois bundles locais não existirem**.
+A conexão GitHub disponível nesta sessão não aceita anexar diretamente arquivos locais grandes ao repositório. Portanto, enquanto `vendor/grapes.min.js` e `vendor/grapes.min.css` não estiverem fisicamente presentes na branch, o editor deve continuar sendo tratado como **não materializado para teste real**. Não substituir isso por CDN permanente, build externo, Vercel ou outro serviço.
 
 ## Arquivos próprios
 
 - `index.html`: shell simplificado do editor.
 - `escola-editor.css`: interface visual da Escola Iêda.
 - `escola-editor.js`: integração GrapesJS, GitHub, preview, upload e salvamento.
-- `../github-safe-target.js`: proteção para testes fora da produção.
-- `vendor/`: runtime e licença locais do GrapesJS.
+- `vendor/`: runtime local fixado do GrapesJS.
 
 ## Como funciona
 
@@ -47,7 +36,7 @@ A tentativa de materializar esses arquivos por GitHub Actions não executou no P
 4. A prévia é local e não grava nada.
 5. Ao salvar, o editor monta o HTML completo novamente.
 6. Campos antigos de `site-data/publicacoes-publicas.json > home` são sincronizados com a Home para manter compatibilidade com o renderizador público existente.
-7. `index.html` e `site-data/publicacoes-publicas.json` são enviados no **mesmo commit Git**, usando Git Data API.
+7. `index.html` e `site-data/publicacoes-publicas.json` são enviados no **mesmo commit Git**, usando Git Data API. Isso evita um estado parcial em que somente um dos dois arquivos seja atualizado.
 
 ## Imagens
 
@@ -61,16 +50,11 @@ Formatos aceitos pelo adaptador: JPG, PNG, WebP, GIF e SVG. Limite defensivo: 8 
 
 O token é informado pelo próprio usuário no navegador e pode ficar apenas na sessão ou ser lembrado localmente. Ele nunca deve aparecer em código, documentação, log ou commit.
 
-### Alvo de gravação
+`admin/github-safe-target.js` protege o desenvolvimento: fora de `escolaieda.com` e `www.escolaieda.com`, requisições GitHub destinadas a `main` são redirecionadas para `feat/admin-visual-builder`. Isso permite testar escrita sem alterar produção.
 
-O código de produção continua concebido para `main`, porém `admin/github-safe-target.js` protege os testes:
+## Microsoft / Graph
 
-- em `escolaieda.com` e `www.escolaieda.com`, as chamadas mantêm o alvo de produção;
-- em qualquer outro hostname, chamadas GitHub deste repositório que apontariam para `main` são redirecionadas para `feat/admin-visual-builder`.
-
-Essa camada é carregada antes de `escola-editor.js` e teve **5/5 casos isolados aprovados**.
-
-Mesmo assim, o teste real com token deve confirmar no GitHub que a gravação caiu na branch correta antes de qualquer teste destrutivo/mais amplo.
+O novo CMS não escreve no SharePoint. Entretanto, o login do ambiente existente foi comprovado com o escopo `Sites.ReadWrite.All`; esse escopo permanece temporariamente no código para não alterar consentimentos do Entra ID neste marco. A redução para leitura deve ser feita em uma etapa coordenada e testada separadamente.
 
 ## Regras permanentes
 
@@ -81,8 +65,6 @@ Mesmo assim, o teste real com token deve confirmar no GitHub que a gravação ca
 - qualquer atualização da biblioteca exige versão fixada e novo teste;
 - não permitir edição de scripts da Home pelo usuário comum;
 - não misturar edição visual da Home com os módulos internos (`arquivo-digital`, `notas`, `livro-ponto`);
-- não ampliar para criação arbitrária de páginas antes de a Home ser validada por usuário leigo;
-- manter a proteção `github-safe-target.js` durante previews e testes fora do domínio oficial;
-- não fazer merge do PR #27 sem autorização explícita do usuário.
+- não ampliar para criação arbitrária de páginas antes de a Home ser validada por usuário leigo.
 
 Consulte `../PROJETO_ADMIN_VISUAL.md`, `../AI_CONTEXT.md`, `../TESTES.md` e `../EXECUCAO_ADMIN_VISUAL.md`.
