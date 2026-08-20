@@ -2,173 +2,161 @@
 
 ## 1. Objetivo
 
-Transformar `https://escolaieda.com/admin/` em uma central administrativa única, elegante e simples para usuários não técnicos, evitando continuar construindo um CMS próprio recurso por recurso.
-
-O projeto adota um construtor visual open-source pronto e mantém o GitHub como fonte de verdade dos arquivos públicos do site.
+Transformar `https://escolaieda.com/admin/` em uma central administrativa única, elegante e simples para usuários não técnicos, eliminando camadas desnecessárias e evitando desenvolver um CMS artesanal recurso por recurso.
 
 ## 2. Ponto seguro de partida
 
 - Repositório: `mcpmieda/escolaieda`
-- Baseline preservado: `96e16d599d06768a0ab6a7a0ea807b94a838a168`
+- Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`
 - Branch de desenvolvimento: `feat/admin-visual-builder`
-- Regra: a `main` não é alterada durante a construção e validação deste marco.
+- Regra: `main` permanece intocada até validação real e autorização explícita.
 
-Este marco começou depois do descarte integral da experiência anterior Astro + TinaCMS + Vercel. Nenhum código daquela arquitetura deve ser reaproveitado sem nova decisão explícita.
+## 3. Problema anterior
 
-## 3. Problema que estamos resolvendo
+O admin havia acumulado:
 
-O painel anterior tinha crescido como um CMS customizado:
-
-- formulários próprios para página inicial;
+- formulários próprios para Home;
 - gerenciamento próprio de seções;
-- publicação baseada em listas do SharePoint;
-- criação/provisionamento de listas Microsoft 365;
-- sincronização SharePoint → JSON público → GitHub;
-- telas técnicas expostas ao usuário;
-- recursos ainda incompletos, como enquetes;
-- prévia separada do editor real.
+- publicações em listas SharePoint;
+- provisionamento de listas;
+- sincronização SharePoint → JSON → GitHub;
+- configurações técnicas expostas ao usuário;
+- enquetes inacabadas;
+- preview separado do editor real.
 
-Esse caminho exigia desenvolver manualmente capacidades que já existem em construtores visuais maduros.
+Isso contrariava o objetivo de uma rotina simples para a Secretaria.
 
-## 4. Arquitetura escolhida
+## 4. Arquitetura atual
 
 ```text
-Usuário autorizado da Secretaria
+Usuário autorizado
         ↓
 /admin/
         ├── Visão geral
-        ├── Publicações simples
+        ├── Publicações
         ├── Editar site → /admin/editor/
         ├── Livro de Ponto → /admin/livro-ponto/
-        └── Sistemas internos
+        └── Sistemas
 
 Publicações
         ↓
-GitHub Contents API
+GitHub
         ↓
 site-data/publicacoes-publicas.json
         ↓
 site-data/publicacoes-site.js
         ↓
-escolaieda.com
+site público
 
-Editor visual
+Home visual
         ↓
-VvvebJs vendorizado no próprio repositório
+GrapesJS local
         ↓
-GitHub Contents API
+Git Data API
         ↓
-index.html / paginas/*/index.html
+index.html + sincronização de compatibilidade do JSON
 ```
 
-### Dependências externas em tempo de execução
+## 5. Editor visual
 
-Não usar:
+Motor: `GrapesJS/grapesjs`.
 
-- Vercel;
-- TinaCloud/TinaCMS;
-- banco de dados adicional;
-- servidor PHP;
-- CMS hospedado por terceiros.
+Versão fixada neste marco: `0.22.13`.
+Licença: BSD-3-Clause.
 
-O GitHub continua sendo o repositório e o mecanismo de versionamento. A Microsoft continua apenas como autenticação/validação de acesso ao painel administrativo.
+Runtime final esperado:
 
-## 5. Construtor visual
+- `admin/editor/vendor/grapes.min.js`
+- `admin/editor/vendor/grapes.min.css`
 
-Projeto escolhido: `givanz/VvvebJs`.
+O runtime é incorporado ao próprio repositório. CDN não é dependência de execução do candidato final. A origem cdnjs é usada apenas pelo processo controlado de vendorização para obter a versão fixada.
 
-Motivos:
+### Por que GrapesJS substituiu VvvebJs
 
-- open-source;
-- Apache License 2.0;
-- JavaScript puro;
-- editor drag-and-drop já existente;
-- edição direta de HTML;
+VvvebJs foi avaliado primeiro, mas sua distribuição exigia uma quantidade grande de arquivos e dependências de runtime. A tentativa de vendorização automática não se materializou na branch.
+
+GrapesJS oferece um bundle distribuível muito menor em superfície operacional e mantém os recursos necessários: seleção visual, blocos, estilos, camadas, asset manager, undo/redo e dispositivos.
+
+Não reintroduzir VvvebJs sem nova decisão arquitetural.
+
+## 6. Escopo do primeiro editor
+
+O editor visual trabalha **somente na Home (`index.html`)**.
+
+Foi retirada a criação arbitrária de páginas nesta fase. Essa capacidade aumentava muito o risco de navegação inconsistente e de complexidade para usuário leigo antes mesmo de a edição básica estar validada.
+
+Recursos desta primeira versão:
+
+- editar textos e elementos existentes;
+- arrastar blocos próprios;
+- alterar aparência do elemento selecionado;
+- camadas;
 - undo/redo;
-- estilos e componentes;
-- suporte a páginas;
-- não exige React, Astro, Next.js, PHP ou banco de dados para o editor em si.
-
-### Versão fixada
-
-O código vendorizado deve vir exatamente do commit:
-
-`1acbab7ebfe3e7b004f1f18c039d26550fc04bd8`
-
-Não acompanhar `master` automaticamente. Atualizações futuras devem ser deliberadas e testadas.
-
-### Adaptações da Escola Iêda
-
-O editor original é reduzido e adaptado para:
-
-- idioma português;
-- identidade visual da escola;
-- página inicial real como página padrão;
-- criação de páginas em `paginas/<slug>/index.html`;
-- salvamento direto no GitHub;
+- computador/tablet/celular;
+- prévia local sem escrita;
 - upload de imagens para `imagens/editor/`;
-- blocos próprios da escola;
-- remoção do salvamento PHP do projeto original;
-- remoção de exemplos/demo desnecessários;
-- remoção do assistente de IA do upstream;
-- remoção de recursos que dependam de backend do Vvveb.
+- salvar somente por ação explícita;
+- cabeçalho e rodapé protegidos contra exclusão acidental;
+- scripts da Home preservados fora do canvas.
 
-## 6. Publicações
+## 7. Compatibilidade da Home antiga
 
-### Antes
+O renderizador público ainda utiliza o bloco `home` de `site-data/publicacoes-publicas.json` para alguns textos conhecidos.
+
+Para não criar duas versões divergentes, o salvamento visual:
+
+1. gera o novo `index.html`;
+2. extrai título, subtítulo, missão, texto de informações e seções legadas;
+3. sincroniza esses valores no bloco `home` do JSON;
+4. cria os blobs dos dois arquivos;
+5. cria uma nova tree Git;
+6. cria um commit único;
+7. move `main` para esse commit sem `force`.
+
+Assim Home e JSON não ficam pela metade se uma gravação falhar.
+
+Uma etapa futura poderá remover definitivamente o bloco `home` do JSON quando a Home visual já estiver comprovada em produção.
+
+## 8. Publicações
+
+Fluxo antigo:
 
 ```text
-Admin → SharePoint Lists → sincronização → JSON no GitHub → site
+Admin → SharePoint Lists → sincronização → GitHub → site
 ```
 
-### Agora
+Fluxo novo:
 
 ```text
 Admin → GitHub JSON → site
 ```
 
-O renderizador público já consome `site-data/publicacoes-publicas.json`, portanto a camada SharePoint era desnecessária para este caso.
+A tela de Publicações mantém título, resumo, conteúdo, local, aparência, imagem, link, botão, período de exibição, publicado/rascunho, id e atualização.
 
-O painel passa a criar/editar/excluir itens diretamente no array `publicacoes` do JSON público.
+## 9. Microsoft / SharePoint
 
-Campos mantidos:
-
-- título;
-- resumo;
-- conteúdo;
-- local de exibição;
-- aparência;
-- imagem;
-- link e texto do botão;
-- data inicial/final;
-- publicado/rascunho;
-- identificador;
-- data de atualização.
-
-## 7. SharePoint / Microsoft 365
-
-### Mantido
+Mantido:
 
 - login Microsoft;
-- validação de que a conta possui acesso à estrutura da Secretaria usando leitura da biblioteca `DOCUMENTOS_ATIVOS`.
+- leitura de `DOCUMENTOS_ATIVOS` como gate da Secretaria.
 
-### Removido do CMS do site
+Removido do CMS público:
 
-- provisionar listas;
-- criar listas do site;
-- carregar publicações de listas SharePoint;
-- salvar publicações em listas SharePoint;
-- sincronização manual SharePoint → GitHub;
-- configurações de `PUBLICACOES_SITE`, `AVISOS_SITE`, `BANNERS_SITE`, `DESTAQUES_SITE`, `ENQUETES_SITE`, `CONFIGURACOES_PORTAL`, `PREFERENCIAS_USUARIO`, `SERVICOS_PAINEL`, `LOGS_PORTAL`, `MIDIAS_SITE` para o CMS público;
-- botão “Preparar SharePoint”.
+- criar/provisionar listas;
+- “Preparar SharePoint”;
+- CRUD de publicações em listas;
+- sincronização SharePoint → GitHub;
+- telas das listas técnicas do antigo portal.
 
-A permissão Graph do novo painel é reduzida para leitura (`Sites.Read.All`) porque o admin não precisa mais escrever no SharePoint para publicar no site.
+O novo código de conteúdo não escreve no SharePoint.
 
-## 8. Interface administrativa
+### Permissão Graph
 
-A nova UI substitui a estrutura antiga por uma central de tarefas.
+O ambiente previamente funcional foi validado com `Sites.ReadWrite.All`. A redução para `Sites.Read.All` deve ser feita apenas em conjunto com a App Registration do Entra ID. Não assumir que a redução já está pronta apenas porque o novo CMS não precisa escrever no SharePoint.
 
-### Navegação principal
+## 10. UI administrativa
+
+Navegação principal:
 
 - Visão geral
 - Publicações
@@ -176,113 +164,106 @@ A nova UI substitui a estrutura antiga por uma central de tarefas.
 - Livro de Ponto
 - Sistemas
 
-### Princípios de UI
+Princípios:
 
 - poucas decisões por tela;
 - linguagem não técnica;
-- destaque para ações frequentes;
-- navegação consistente;
-- responsividade para celular;
-- animações leves e opcionais;
-- `prefers-reduced-motion` respeitado;
-- contraste e foco de teclado visíveis;
-- detalhes técnicos escondidos da rotina normal.
+- ação frequente evidente;
+- efeitos discretos;
+- responsividade;
+- foco visível;
+- `prefers-reduced-motion`;
+- nenhuma ação essencial dependente de hover.
 
-## 9. Livro de Ponto
+## 11. Livro de Ponto
 
-O módulo já existia em:
+O módulo real já existe em `admin/livro-ponto/`.
 
-`admin/livro-ponto/index.html`
+O novo painel liga diretamente para esse módulo. Nenhum arquivo interno do Livro de Ponto é alterado.
 
-O painel antigo ainda mostrava “preparado para integração”. Isso é removido. Os botões do novo painel apontam diretamente para:
+## 12. Limpeza
 
-`/admin/livro-ponto/`
+Removidos na branch:
 
-Nenhum código interno do Livro de Ponto é alterado neste marco.
+- `institucional/index.html`, página de teste redundante;
+- `admin/admin-preview.js`, preview customizado duplicado;
+- workflow e adaptadores VvvebJs;
+- modelo de criação arbitrária de páginas do primeiro desenho.
 
-## 10. Limpeza de páginas
+Preservado:
 
-`institucional/index.html` era apenas uma página de teste da futura área institucional. Ela é removida porque o `/admin/` passa a cumprir esse papel.
+- `site-institucional/`, pois contém páginas reais/legadas;
+- `arquivo-digital/`;
+- `notas/`;
+- `admin/livro-ponto/`.
 
-A pasta `site-institucional/` NÃO é apagada neste marco. Ela contém páginas reais/legadas (`calendario.html`, `professores.html`) e só deve ser removida após uma auditoria de referências e uma decisão específica.
+## 13. Segurança GitHub
 
-## 11. Segurança do GitHub
+O token:
 
-O token GitHub:
+- nunca entra no repositório;
+- fica na sessão por padrão;
+- só é lembrado localmente por opção do usuário;
+- deve ser restrito ao repositório e a conteúdo.
 
-- nunca é escrito no repositório;
-- pode ficar somente na sessão do navegador;
-- opcionalmente pode ser lembrado em `localStorage` no dispositivo escolhido pelo usuário;
-- deve ser um token restrito ao repositório `mcpmieda/escolaieda` e apenas às permissões necessárias de conteúdo.
+Home + JSON usam Git Data API para um commit único. Upload de mídia usa a Contents API e é uma operação separada.
 
-Ações de gravação usam a API oficial GitHub Contents e o `sha` atual do arquivo para reduzir risco de sobrescrever uma alteração concorrente.
+## 14. Vendorização
 
-## 12. Arquivos do marco
+Workflow:
 
-### Substituídos
+`.github/workflows/vendor-grapesjs.yml`
 
-- `admin/index.html`
-- `admin/admin.css`
-- `admin/admin.js`
-- `admin/AI_CONTEXT.md`
-- `admin/TESTES.md`
+Ele é restrito ao PR desta branch contra `main`, baixa GrapesJS 0.22.13, valida que JS/CSS/licença existem e grava os arquivos em `admin/editor/vendor/` na própria branch.
 
-### Novos
+O workflow antigo `vendor-vvveb.yml` foi removido.
 
-- `admin/PROJETO_ADMIN_VISUAL.md`
-- `admin/editor/escola-editor.js`
-- `admin/editor/escola-componentes.js`
-- `admin/editor/escola-editor.css`
-- `admin/editor/modelos/pagina-basica.html`
-- `admin/editor/README.md`
-- workflow temporário/controlado para vendorizar VvvebJs fixado.
+Não considerar o editor executável enquanto os arquivos locais de `vendor/` ainda não estiverem materializados.
 
-### Removidos
+## 15. Vercel residual
 
-- `admin/admin-preview.js` — a prévia separada deixa de ser necessária quando a edição passa a ocorrer visualmente.
-- `institucional/index.html` — página de teste redundante.
+O código novo não depende de Vercel.
 
-## 13. Critérios de aceite
+O GitHub ainda apresentou um check externo chamado `Vercel`, associado ao deployment `escolaieda-prova-visual-formato`. Isso é integração residual fora desta arquitetura e precisa de limpeza administrativa separada. Não usar esse deployment como requisito do produto.
 
-A arquitetura só deve ir para `main` se os testes reais confirmarem:
+## 16. Critérios de aceite
 
-1. login Microsoft continua funcionando;
-2. conta autorizada entra e não autorizada é bloqueada;
-3. dashboard funciona em desktop e celular;
-4. Livro de Ponto abre pelo cartão/botão;
-5. Arquivo Digital e Notas continuam intactos;
-6. publicação pode ser criada, editada e excluída;
-7. imagem de publicação pode ser enviada;
-8. site público renderiza a publicação nova;
-9. editor visual abre a Home real;
-10. texto pode ser alterado visualmente;
-11. bloco pode ser adicionado e movido;
-12. alteração pode ser salva no GitHub;
-13. nova página pode ser criada e salva em `paginas/`;
-14. imagem pode ser inserida pelo editor;
-15. undo/redo e visualização responsiva funcionam;
-16. nenhuma dependência Vercel/Tina/PHP foi introduzida;
-17. nenhum módulo sensível foi modificado fora do escopo.
+Antes de merge:
 
-## 14. Rollback
+1. runtime GrapesJS local presente;
+2. login Microsoft funcional;
+3. autorização da Secretaria funcional;
+4. dashboard desktop e celular;
+5. Livro de Ponto abre pelo painel;
+6. Arquivo Digital e Notas intactos;
+7. criar/editar/excluir publicação;
+8. upload de imagem de publicação;
+9. publicação renderizada no site;
+10. editor abre a Home real;
+11. editar texto e imagem;
+12. adicionar/mover bloco;
+13. undo/redo;
+14. modos computador/tablet/celular;
+15. preview sem escrita;
+16. salvar Home + JSON no mesmo commit;
+17. recarregar e confirmar persistência;
+18. nenhuma dependência Vercel/Tina/PHP/CDN em runtime;
+19. nenhum módulo sensível modificado fora do escopo.
 
-Enquanto este marco estiver em `feat/admin-visual-builder`, rollback é simplesmente descartar a branch.
+## 17. Rollback
 
-Mesmo depois de eventual merge, o baseline anterior permanece identificado pelo commit:
+Enquanto estiver isolado, rollback = descartar `feat/admin-visual-builder`.
+
+Baseline permanente deste marco:
 
 `96e16d599d06768a0ab6a7a0ea807b94a838a168`
 
-Não fazer rollback por exclusões manuais de arquivos sem antes comparar com esse baseline.
+## 18. Próximos marcos possíveis
 
-## 15. Próximos marcos após validação
+Somente após a Home visual ser aprovada por usuário leigo:
 
-Somente depois do editor básico aprovado:
-
-- refinar os blocos próprios da Escola Iêda;
-- definir modelos de novas páginas;
-- esconder ainda mais controles técnicos do VvvebJs se necessário;
-- criar biblioteca de mídia mais amigável;
-- revisar navegação pública do site;
-- eventualmente modernizar a Home oficial usando o próprio editor visual.
-
-A prioridade é validar a experiência completa antes de acrescentar novos recursos.
+- ampliar/refinar blocos;
+- biblioteca de mídia mais amigável;
+- avaliar criação controlada de páginas;
+- revisar navegação pública;
+- migrar totalmente a Home para HTML como única fonte, removendo o bloco legado `home` do JSON.
