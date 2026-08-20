@@ -1,248 +1,275 @@
 # Diário de execução — Centro de Administração Visual
 
-Este documento registra o que foi efetivamente feito, decisões, descobertas e pendências. Ele deve ser atualizado conforme o projeto avança.
+Este documento registra o que foi efetivamente executado, decisões, descobertas e pendências. Não declarar uma etapa concluída antes da evidência correspondente.
 
 ## 2026-08-19 — Reinício seguro
 
-### Contexto
-
-A experiência anterior de ampliação do admin havia evoluído para Astro + TinaCMS/TinaCloud e chegou a envolver Vercel. O resultado aumentou a complexidade operacional e contrariou a meta do projeto: administração simples para usuário leigo, com o mínimo de infraestrutura e sem desenvolver um CMS artesanal recurso por recurso.
-
-### Ação anterior ao novo marco
-
-A `main` foi devolvida ao commit seguro:
+O trabalho foi reiniciado a partir do baseline:
 
 `96e16d599d06768a0ab6a7a0ea807b94a838a168`
 
-Esse passou a ser o baseline deste novo trabalho.
-
-## 2026-08-19 — Decisão arquitetural
-
-Objetivo definido:
-
-- uma única central em `/admin/`;
-- interface moderna e simples;
-- edição visual do site;
-- criação de novas páginas;
-- blocos reutilizáveis;
-- publicações simples;
-- GitHub como fonte de verdade;
-- nada de TinaCMS/TinaCloud;
-- nada de Vercel como requisito de arquitetura;
-- nada de PHP/banco novo;
-- não reconstruir manualmente recursos de page builder que um projeto maduro já possui.
-
-VvvebJs foi selecionado inicialmente como page builder open-source por oferecer experiência drag-and-drop já pronta e funcionar em JavaScript puro.
-
-Commit upstream fixado para avaliação/vendorização:
-
-`1acbab7ebfe3e7b004f1f18c039d26550fc04bd8`
-
-## 2026-08-19 — Branch isolada
-
-Criada:
+Branch criada:
 
 `feat/admin-visual-builder`
 
-A branch partiu exatamente do baseline seguro. A `main` não recebeu o novo admin.
+A `main` permaneceu preservada.
 
-## 2026-08-19 — Auditoria do admin antigo
+## 2026-08-19 — Decisão arquitetural
 
-Foram confirmados:
+Objetivo aprovado:
 
-1. `admin/livro-ponto/index.html` já existe e é um módulo real. Não era necessário “preparar integração”; bastava ligar o botão diretamente.
-2. `institucional/index.html` era somente uma pequena página de teste da futura área institucional.
-3. `site-institucional/` é diferente: contém páginas reais/legadas e não deve ser apagado automaticamente.
-4. O CMS antigo do site usava listas do SharePoint e depois sincronizava conteúdo para `site-data/publicacoes-publicas.json` no GitHub.
-5. O renderizador público já lê o array `publicacoes` desse JSON, permitindo retirar o SharePoint do caminho de publicação.
+- uma única central em `/admin/`;
+- UI moderna e simples;
+- edição visual da Home;
+- publicações simples;
+- Livro de Ponto ligado diretamente;
+- GitHub como fonte de verdade pública;
+- SharePoint fora do fluxo de CMS;
+- nada de TinaCMS/TinaCloud;
+- nada de Vercel como requisito;
+- nada de PHP/banco novo.
 
-## 2026-08-19 — Nova UI do Centro de Administração
+## 2026-08-19 — Auditoria do admin anterior
 
-Criado novo `admin/index.html` com:
+Confirmado:
 
-- login Microsoft preservado;
-- sidebar escura e central de tarefas;
+1. `admin/livro-ponto/` já é um módulo real.
+2. `institucional/index.html` era apenas página de teste.
+3. `site-institucional/` contém páginas reais/legadas e não deve ser removido em bloco.
+4. o CMS antigo publicava por listas SharePoint e depois sincronizava para GitHub;
+5. o site público já lê `site-data/publicacoes-publicas.json`.
+
+## 2026-08-19 — Nova UI administrativa
+
+`admin/index.html`, `admin/admin.css` e `admin/admin.js` foram reorganizados para uma central com:
+
 - Visão geral;
 - Publicações;
 - Editar site;
 - Livro de Ponto;
 - Sistemas;
-- cartões de acesso rápido;
-- interface responsiva;
-- modal simples de conexão GitHub.
-
-Criado novo `admin/admin.css` com:
-
-- visual moderno;
-- gradientes e efeitos discretos;
-- transparência/blur onde útil;
-- cards com microinterações;
-- layout mobile;
+- layout responsivo;
+- microinterações discretas;
 - foco de teclado;
 - suporte a `prefers-reduced-motion`.
 
-## 2026-08-19 — Simplificação do CMS de publicações
+## 2026-08-19 — Simplificação das publicações
 
-Criado novo `admin/admin.js`.
+Retirado da rotina:
 
-Removido do fluxo operacional:
-
-- criar/provisionar listas SharePoint;
-- botão “Preparar SharePoint”;
-- lista de enquetes inacabada;
-- telas de configuração de listas;
-- formulário customizado da Home;
+- “Preparar SharePoint”;
+- provisionamento de listas;
+- publicações em listas SharePoint;
 - sincronização SharePoint → GitHub;
-- prévia separada da Home.
+- formulário customizado da Home;
+- enquetes inacabadas;
+- configurações técnicas do antigo portal;
+- `admin/admin-preview.js`.
 
-Novo fluxo implementado:
+Novo fluxo:
 
-`Admin → GitHub Contents API → site-data/publicacoes-publicas.json → site`
+`Admin → GitHub → site-data/publicacoes-publicas.json → site`
 
-Suporte implementado para:
-
-- criar publicação;
-- editar;
-- excluir;
-- rascunho/publicado;
-- título/resumo/texto;
-- local de exibição;
-- aparência;
-- período de exibição;
-- imagem;
-- botão/link;
-- busca;
-- upload de imagem para `imagens/publicacoes/`.
+A nova tela suporta criar, editar, excluir, rascunho/publicado, local, aparência, período, imagem e link.
 
 ## 2026-08-19 — Microsoft / SharePoint
 
-Decisão final deste marco:
+Mantido:
 
-- Microsoft continua como autenticação e gate de acesso da Secretaria;
-- a leitura de `DOCUMENTOS_ATIVOS` continua sendo usada para validar acesso;
-- o novo CMS não escreve no SharePoint.
+- login Microsoft;
+- leitura de `DOCUMENTOS_ATIVOS` para validar acesso da Secretaria.
 
-### Compatibilidade de permissão
+O novo CMS não escreve no SharePoint.
 
-Durante a implementação foi considerada a redução de `Sites.ReadWrite.All` para `Sites.Read.All`.
+### Permissão Graph
 
-Essa alteração NÃO deve ser tratada como concluída antes de confirmar/configurar a permissão correspondente no Entra ID. O ambiente atual já foi validado anteriormente com `Sites.ReadWrite.All`. Preservar compatibilidade de login tem prioridade; a redução de privilégio deve ser feita em uma etapa coordenada entre código e App Registration.
+Foi tentada no código uma redução de `Sites.ReadWrite.All` para `Sites.Read.All`. O ambiente anterior já havia sido validado com `Sites.ReadWrite.All`.
+
+Estado: **a redução não deve ser tratada como concluída** até código e App Registration do Entra ID serem ajustados em conjunto. Preservar login funcional tem prioridade; depois reduzir privilégio de forma coordenada.
 
 ## 2026-08-19 — Livro de Ponto
 
-Os novos botões apontam diretamente para:
+O painel novo aponta diretamente para:
 
 `/admin/livro-ponto/`
 
-Nenhum arquivo interno do Livro de Ponto foi alterado.
+O código interno do Livro de Ponto não foi alterado.
 
-## 2026-08-19 — Limpeza
+## 2026-08-19 — Limpeza inicial
 
-Removido na branch:
+Removidos:
 
-`institucional/index.html`
+- `institucional/index.html` — página de teste redundante;
+- `admin/admin-preview.js` — preview customizado duplicado.
 
-Motivo: era somente página de teste e o `/admin/` agora centraliza a administração.
+Preservados:
 
-Preservado:
+- `site-institucional/`;
+- `arquivo-digital/`;
+- `notas/`;
+- `admin/livro-ponto/`.
 
-`site-institucional/`
+## 2026-08-19 — Primeira avaliação: VvvebJs
 
-Motivo: contém páginas reais/legadas e exige auditoria específica antes de eventual remoção.
+VvvebJs foi escolhido inicialmente por já oferecer page builder drag-and-drop.
+
+Foi preparado um adaptador e o workflow `.github/workflows/vendor-vvveb.yml` para copiar o commit upstream fixado.
+
+Resultado da avaliação:
+
+- o runtime exigia muitos arquivos independentes;
+- a vendorização não se materializou na branch com os eventos de push produzidos nesta sessão;
+- `admin/editor/index.html` não chegou a existir por esse mecanismo;
+- insistir aumentaria a complexidade operacional.
+
+Decisão: **VvvebJs descartado antes do merge**.
+
+## 2026-08-19 — Troca aprovada para GrapesJS
+
+O usuário aceitou a recomendação de substituir VvvebJs por GrapesJS.
+
+Versão fixada escolhida para o primeiro marco:
+
+`GrapesJS 0.22.13`
+
+Motivo da versão: bundle JS/CSS distribuível e diretamente vendorizável, suficiente para o escopo da Home e sem exigir uma cadeia de build permanente.
+
+Licença: BSD-3-Clause.
+
+Arquivos distribuíveis esperados:
+
+- `grapes.min.js` — aproximadamente 1,1 MB;
+- `grapes.min.css` — aproximadamente 61 KB.
+
+A aplicação final não deve buscar esses arquivos por CDN em runtime.
+
+## 2026-08-19 — Novo editor GrapesJS
+
+Criado `admin/editor/index.html` com:
+
+- topbar da Escola Iêda;
+- voltar ao admin;
+- desfazer/refazer;
+- computador/tablet/celular;
+- prévia;
+- salvar;
+- painel de blocos;
+- canvas;
+- aparência/camadas;
+- conexão GitHub.
+
+`admin/editor/escola-editor.css` foi refeito para a nova interface.
+
+`admin/editor/escola-editor.js` foi reescrito para GrapesJS com:
+
+- carregamento da Home real;
+- scripts removidos do canvas e preservados para o HTML final;
+- estilos originais injetados no canvas;
+- blocos próprios simples;
+- cabeçalho e rodapé protegidos contra exclusão acidental;
+- undo/redo;
+- dispositivos;
+- prévia local sem escrita;
+- Asset Manager com upload para `imagens/editor/`;
+- limite de 8 MB por imagem;
+- token GitHub apenas no navegador;
+- salvamento explícito.
+
+## 2026-08-19 — Redução de escopo do editor
+
+A criação arbitrária de páginas, prevista no primeiro desenho, foi retirada deste marco.
+
+Motivo: primeiro validar uma experiência segura e simples na Home. Ampliar para várias páginas antes dessa validação aumentaria muito a superfície de erro.
+
+Removidos por isso:
+
+- `admin/editor/modelos/pagina-basica.html`;
+- adaptador VvvebJs `admin/editor/escola-componentes.js`.
+
+## 2026-08-19 — Salvamento atômico da Home
+
+Descoberta: `site-data/publicacoes-site.js` ainda usa o objeto `home` do JSON para sobrescrever alguns textos conhecidos.
+
+Para não quebrar compatibilidade, o editor não removeu isso de uma vez.
+
+Ao salvar:
+
+1. gera o novo `index.html`;
+2. carrega o JSON público;
+3. sincroniza os campos legados conhecidos da Home;
+4. cria blobs Git para HTML e JSON;
+5. cria uma tree baseada na versão atual;
+6. cria **um único commit** com os dois arquivos;
+7. atualiza `main` com `force:false`.
+
+Objetivo: evitar estado parcial Home/JSON.
+
+## 2026-08-19 — Vendorização GrapesJS
+
+Criado:
+
+`.github/workflows/vendor-grapesjs.yml`
 
 Removido:
 
-`admin/admin-preview.js`
-
-Motivo: a estratégia nova é editar visualmente a própria página; manter um segundo mecanismo de prévia customizado duplicaria complexidade.
-
-## 2026-08-19 — Preparação do editor visual
-
-Criados na branch:
-
-- `admin/editor/escola-editor.js`
-- `admin/editor/escola-componentes.js`
-- `admin/editor/escola-editor.css`
-- `admin/editor/modelos/pagina-basica.html`
-- `admin/editor/README.md`
-
-O adaptador da Escola Iêda prevê:
-
-- Home real como página inicial;
-- salvar HTML via GitHub Contents API;
-- `Ctrl+S`;
-- criar páginas em `paginas/<slug>/index.html`;
-- listar páginas criadas;
-- upload de imagens em `imagens/editor/`;
-- blocos Escola Iêda (aviso, destaque, cartões, texto, chamada e galeria);
-- remoção do `save.php` do upstream;
-- redução de controles técnicos.
-
-## 2026-08-19 — Vendorização do VvvebJs
-
-Foi criado um workflow controlado:
-
 `.github/workflows/vendor-vvveb.yml`
 
-Objetivo: copiar o runtime do VvvebJs do commit fixado para `admin/editor/`, adaptar `editor.html` e gravar os arquivos na própria branch.
+O novo workflow:
+
+- roda apenas no PR desta branch contra `main`;
+- baixa GrapesJS 0.22.13 e licença;
+- valida existência e tamanho mínimo do JS/CSS;
+- grava runtime em `admin/editor/vendor/` na própria branch.
 
 ### Estado real
 
-PENDENTE.
+**PENDENTE DE MATERIALIZAÇÃO** enquanto o PR ainda não tiver sido criado/disparado.
 
-Os commits produzidos pela conexão GitHub desta sessão não dispararam a execução do novo workflow. Por isso `admin/editor/index.html` e os diretórios de runtime do upstream ainda não foram gerados.
+Não declarar `/admin/editor/` executável antes de existir:
 
-Não declarar o editor como concluído enquanto estes arquivos não existirem e forem validados.
+- `admin/editor/vendor/grapes.min.js`;
+- `admin/editor/vendor/grapes.min.css`;
+- `admin/editor/vendor/GRAPESJS-LICENSE`;
+- `admin/editor/vendor/VERSION.txt`.
 
-### Regra
+## 2026-08-19 — Vercel residual
 
-Não contornar esta pendência introduzindo CDN, Tina, Vercel ou backend externo. Se o workflow continuar sem executar, escolher outro mecanismo de vendorização controlado ou solicitar uma ação mínima no GitHub apenas para disparar o workflow.
-
-## 2026-08-19 — Descoberta de integração Vercel residual
-
-Durante a validação dos commits da branch, o GitHub retornou um status externo:
+Os commits da branch continuam recebendo um status externo:
 
 `context: Vercel`
 
-Projeto indicado pelo status:
+O destino mostrado pelo GitHub usa o nome `escolaieda-prova-visual-formato`.
 
-`escolaieda-prova-visual-formato`
-
-Isso ocorreu mesmo depois do rollback do código e mesmo com a API Vercel conectada retornando zero projetos para a equipe acessível nesta sessão.
+A API Vercel disponível nesta sessão retornou zero projetos acessíveis, portanto a integração não pôde ser removida por essa conexão.
 
 Conclusão:
 
-- não há dependência Vercel no código atual;
-- porém existe uma integração/check Vercel residual fora do código que ainda reage a commits do repositório;
-- essa integração deve ser removida/desconectada antes de considerar o ecossistema totalmente limpo de Vercel;
-- o novo projeto não deve usar esse deployment para funcionar.
+- não existe dependência Vercel no código novo;
+- existe integração/check residual fora do código;
+- precisa ser removida administrativamente em etapa separada;
+- não usar Vercel como requisito de teste ou hospedagem do admin.
 
-## 2026-08-19 — Diff de segurança
+## 2026-08-19 — Segurança de escopo
 
-Comparação entre baseline e `feat/admin-visual-builder` confirmou mudanças restritas a:
+As alterações do projeto permanecem concentradas no admin, documentação, workflow de vendorização e remoção da página institucional de teste.
 
-- `.github/workflows/vendor-vvveb.yml`;
-- arquivos do `admin/`;
-- novos arquivos `admin/editor/`;
-- remoção de `institucional/index.html`.
-
-Não foram modificados:
+Não alterar sem escopo específico:
 
 - `arquivo-digital/`;
 - `notas/`;
-- `admin/livro-ponto/`;
-- Home pública `index.html`;
-- demais portais operacionais.
+- `admin/livro-ponto/`.
 
-## Próxima condição para avançar
+## Próximas condições antes do merge
 
-1. concluir a vendorização do page builder;
-2. validar sintaxe e dependências;
-3. abrir o painel/editor em navegador real;
-4. testar login e Livro de Ponto;
-5. testar criação de publicação em branch/ambiente seguro;
-6. testar edição visual e criação de página;
-7. revisar integração Vercel residual;
-8. somente depois preparar candidato a merge.
+1. materializar o runtime GrapesJS local;
+2. validar sintaxe e recursos locais;
+3. executar smoke test real do admin/editor;
+4. validar login e permissão Graph;
+5. testar Publicações;
+6. testar Home visual em ambiente seguro;
+7. revisar diff final contra baseline;
+8. resolver ou registrar formalmente a integração Vercel residual;
+9. obter aprovação do usuário;
+10. somente então solicitar autorização explícita para merge.
 
 Nenhum merge na `main` foi autorizado ou realizado neste marco.
