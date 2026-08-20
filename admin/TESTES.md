@@ -23,6 +23,8 @@ Baseline: `96e16d599d06768a0ab6a7a0ea807b94a838a168`.
 - [x] não foram introduzidos TinaCMS, TinaCloud, Astro, PHP ou dependência Vercel no código novo.
 - [x] nenhum token/segredo foi encontrado no diff revisado.
 - [x] editor não usa CDN para carregar GrapesJS em runtime.
+- [x] novo admin reutiliza o MSAL 5.11.0 já versionado em `arquivo-digital/vendor/`, sem `esm.sh` em runtime.
+- [x] adaptador local `admin/editor/grapes-ptbr.js` usa a API nativa de i18n do GrapesJS, sem editar o bundle vendor.
 
 ## 2. Login e acesso
 
@@ -117,6 +119,7 @@ Usar token restrito ao repositório.
 
 - [x] arquivos presentes na branch batem exatamente com os arquivos validados antes do upload.
 - [x] licença e versão local estão presentes ao lado do runtime.
+- [x] primeiro preview real carregou o editor usando os arquivos locais da branch.
 - [ ] abrir editor com rede externa bloqueada continua funcionando, exceto serviços necessários ao salvamento/autenticação.
 
 ## 8. Editor visual
@@ -130,17 +133,35 @@ Compatibilidade estática com a Home real:
 - [x] `<footer>` existe e pode ser protegido.
 - [x] seções legadas usam atributos esperados pelo sincronizador.
 
-Carregamento:
+### Primeiro smoke test visual — captura do usuário em 2026-08-20
 
-- [ ] `/admin/editor/` abre sem PHP.
-- [ ] Home real é carregada.
+Evidência comprovada pela captura enviada pelo usuário:
+
+- [x] `/admin/editor/` abre no preview sem PHP.
+- [x] Home real é carregada dentro do canvas.
+- [x] logo e imagens relativas resolvem corretamente.
+- [x] estilos originais da Home aparecem no canvas.
+- [x] blocos próprios aparecem no painel esquerdo.
+- [x] um texto existente pode ser selecionado e recebe contorno/ferramentas de seleção.
+- [x] propriedades de aparência aparecem para o elemento selecionado.
+- [x] modo Computador carrega corretamente.
+- [x] topbar do editor permanece utilizável, com Prévia e Salvar alterações visíveis.
+- [x] layout de três áreas (blocos, página, propriedades) carregou sem sobreposição estrutural visível na captura.
+
+A captura anterior à localização mostrou propriedades internas do GrapesJS em inglês e campos técnicos `Id/Title`. Correção aplicada depois da captura:
+
+- [x] criada localização PT-BR usando a API de i18n do GrapesJS.
+- [x] aba “Camadas” renomeada para “Estrutura”.
+- [x] traits técnicos `Id/Title` ocultados do usuário comum.
+- [ ] repetir captura para confirmar a localização PT-BR no preview atualizado.
+
+Carregamento ainda não comprovado:
+
 - [ ] scripts públicos não são executados dentro do canvas.
-- [ ] logo/imagens relativas resolvem corretamente.
-- [ ] estilos originais da Home aparecem no canvas.
 
-Edição:
+Edição ainda não comprovada:
 
-- [ ] texto existente selecionável/editável.
+- [ ] texto existente pode ter seu conteúdo alterado e permanecer alterado no editor.
 - [ ] elemento pode ser movido.
 - [ ] bloco “Título” pode ser inserido.
 - [ ] bloco “Texto” pode ser inserido.
@@ -148,14 +169,13 @@ Edição:
 - [ ] bloco “Destaque” pode ser inserido.
 - [ ] cabeçalho não pode ser apagado acidentalmente.
 - [ ] rodapé não pode ser apagado acidentalmente.
-- [ ] propriedades de aparência aparecem para o elemento selecionado.
-- [ ] painel Camadas funciona.
+- [ ] painel Estrutura funciona.
 - [ ] undo funciona.
 - [ ] redo funciona.
 
 Responsividade e prévia:
 
-- [ ] Computador funciona.
+- [x] Computador funciona visualmente.
 - [ ] Tablet funciona.
 - [ ] Celular funciona.
 - [ ] Prévia abre sem gravar GitHub.
@@ -221,12 +241,13 @@ Escopo:
 - [x] branch comparada novamente com o baseline após o upload.
 - [x] branch está `ahead` e `0` commits atrás do baseline.
 - [x] arquivos internos de Arquivo Digital, Notas e Livro de Ponto continuam fora do diff.
-- [x] CodeRabbit retornou sucesso no head pós-upload.
+- [x] check CodeRabbit fica verde no Draft, porém o próprio bot informa `Review skipped — Draft detected`.
+- [ ] executar uma revisão CodeRabbit real depois do smoke test e antes do aceite final.
 - [x] nenhuma thread de review está aberta.
 
 ## 13. Antes do merge
 
-- [ ] executar smoke test real no navegador.
+- [ ] concluir smoke test real no navegador.
 - [ ] testar escrita somente contra branch protegida.
 - [ ] usuário aprovar visual e fluxo.
 - [ ] somente então solicitar autorização explícita para merge.
