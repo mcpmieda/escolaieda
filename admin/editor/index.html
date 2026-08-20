@@ -65,7 +65,7 @@
       <aside class="propertiesPanel" aria-label="Propriedades do elemento selecionado">
         <div class="propertiesTabs" role="tablist">
           <button class="propertyTab active" type="button" data-panel="styles">Aparência</button>
-          <button class="propertyTab" type="button" data-panel="layers">Camadas</button>
+          <button class="propertyTab" type="button" data-panel="layers">Estrutura</button>
         </div>
         <div class="propertyPane active" id="stylesPane">
           <div class="emptyProperty" id="propertyHelp">
@@ -74,7 +74,7 @@
             <p>Depois de clicar em um texto, imagem ou bloco, as opções aparecem aqui.</p>
           </div>
           <div id="styles"></div>
-          <div id="traits"></div>
+          <div id="traits" aria-hidden="true"></div>
         </div>
         <div class="propertyPane" id="layersPane">
           <div id="layers"></div>
@@ -125,6 +125,7 @@
 
   <script src="../github-safe-target.js"></script>
   <script src="vendor/grapes.min.js"></script>
+  <script src="grapes-ptbr.js"></script>
   <script type="module" src="escola-editor.js?v=20260819-grapes1"></script>
 </body>
 </html>
