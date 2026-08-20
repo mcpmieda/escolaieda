@@ -13,20 +13,33 @@ Publicações continuam sendo administradas pela tela estruturada de `/admin/`.
 - Projeto: `GrapesJS/grapesjs`
 - Versão fixada: `0.22.13`
 - Licença: BSD-3-Clause
-- Runtime final: `vendor/grapes.min.js` + `vendor/grapes.min.css`
+- Runtime local: `vendor/grapes.min.js` + `vendor/grapes.min.css`
 
 O site em produção não deve carregar GrapesJS por CDN.
 
-Em 2026-08-19, os dois bundles oficiais foram fornecidos pelo usuário e validados localmente. Os tamanhos e hashes SHA-256 esperados estão registrados em `vendor/VERSION.txt`.
+Em 2026-08-19, os dois bundles foram fornecidos pelo usuário, validados localmente e incorporados à branch `feat/admin-visual-builder`.
 
-A conexão GitHub disponível nesta sessão não aceita anexar diretamente arquivos locais grandes ao repositório. Portanto, enquanto `vendor/grapes.min.js` e `vendor/grapes.min.css` não estiverem fisicamente presentes na branch, o editor deve continuar sendo tratado como **não materializado para teste real**. Não substituir isso por CDN permanente, build externo, Vercel ou outro serviço.
+Validação confirmada:
+
+`grapes.min.js`
+- tamanho: `1095002` bytes
+- SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`
+- Git blob SHA: `7e6965661f682e20915b4489cbeb3f85ec8706df`
+- `node --check`: aprovado
+
+`grapes.min.css`
+- tamanho: `60968` bytes
+- SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`
+- Git blob SHA: `62009a27142982215ecb7eb02f114eadf4e93841`
+
+Os blobs do GitHub coincidem exatamente com os arquivos validados antes do upload. A vendorização não é mais uma pendência.
 
 ## Arquivos próprios
 
 - `index.html`: shell simplificado do editor.
 - `escola-editor.css`: interface visual da Escola Iêda.
 - `escola-editor.js`: integração GrapesJS, GitHub, preview, upload e salvamento.
-- `vendor/`: runtime local fixado do GrapesJS.
+- `vendor/`: runtime local fixado do GrapesJS, licença e metadados de versão/hash.
 
 ## Como funciona
 
@@ -55,6 +68,20 @@ O token é informado pelo próprio usuário no navegador e pode ficar apenas na 
 ## Microsoft / Graph
 
 O novo CMS não escreve no SharePoint. Entretanto, o login do ambiente existente foi comprovado com o escopo `Sites.ReadWrite.All`; esse escopo permanece temporariamente no código para não alterar consentimentos do Entra ID neste marco. A redução para leitura deve ser feita em uma etapa coordenada e testada separadamente.
+
+## Próximo teste obrigatório
+
+Agora que o runtime está local, a próxima barreira é funcional e visual, não de empacotamento. Antes de merge, validar em navegador real:
+
+- `/admin/` desktop/celular;
+- login Microsoft;
+- Publicações na branch protegida;
+- `/admin/editor/` carregando a Home;
+- blocos, estilos, camadas, undo/redo e dispositivos;
+- prévia sem escrita;
+- salvamento Home + JSON na branch protegida;
+- upload de imagem;
+- atalhos Livro de Ponto, Arquivo Digital e Notas.
 
 ## Regras permanentes
 
