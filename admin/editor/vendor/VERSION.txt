@@ -2,3 +2,11 @@ GrapesJS 0.22.13
 Bundle: cdnjs/cdnjs ajax/libs/grapesjs/0.22.13
 Projeto: GrapesJS/grapesjs v0.22.13
 Licença: BSD-3-Clause
+
+grapes.min.js
+Tamanho: 1095002 bytes
+SHA-256: c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6
+
+grapes.min.css
+Tamanho: 60968 bytes
+SHA-256: 1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4
