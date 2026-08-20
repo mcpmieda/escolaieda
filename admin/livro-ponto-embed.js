@@ -7,12 +7,15 @@ const viewEyebrow = document.getElementById("viewEyebrow");
 const topbar = document.querySelector(".topbar");
 const topbarActions = topbar?.querySelector(".topbarActions");
 const mobileMenu = document.getElementById("btnMenu");
+const publicacoesView = document.getElementById("view-publicacoes");
+
+let editorSiteFrame = null;
 
 inicializarShellAdministrativo();
 inicializarLivroPontoEmbutido();
 
 function inicializarShellAdministrativo() {
-  removerAtalhosDuplicadosDoEditor();
+  prepararHubConteudoSite();
   prepararCabecalhosDasViews();
 
   if (topbarActions && mobileMenu && !topbarActions.contains(mobileMenu)) {
@@ -36,18 +39,106 @@ function inicializarShellAdministrativo() {
   requestAnimationFrame(() => posicionarAcoesDaConta("inicio"));
 }
 
-function removerAtalhosDuplicadosDoEditor() {
+function prepararHubConteudoSite() {
   document.querySelectorAll(".sideNav .navLink[href='./editor/'], #view-inicio a[href='./editor/']")
     .forEach((link) => link.remove());
 
-  const acoesPublicacoes = document.querySelector("#view-publicacoes .leadActions");
-  if (acoesPublicacoes && !document.getElementById("btnEditarSitePublicacoes")) {
-    const editarSite = document.createElement("a");
-    editarSite.id = "btnEditarSitePublicacoes";
-    editarSite.className = "button buttonSecondary";
-    editarSite.href = "./editor/";
-    editarSite.innerHTML = "<span aria-hidden=\"true\">◫</span> Editar site";
-    acoesPublicacoes.prepend(editarSite);
+  if (!publicacoesView) return;
+
+  const cabecalho = publicacoesView.querySelector(".pageLead");
+  const layoutPublicacoes = publicacoesView.querySelector(".publicationLayout");
+  if (!cabecalho || !layoutPublicacoes || document.getElementById("conteudoSiteTabs")) return;
+
+  const titulo = cabecalho.querySelector("h2");
+  const descricao = cabecalho.querySelector("p");
+  if (titulo) titulo.textContent = "Conteúdo do site.";
+  if (descricao) descricao.textContent = "Publique avisos ou edite a página inicial sem sair do Centro de Administração.";
+
+  const tabs = document.createElement("div");
+  tabs.id = "conteudoSiteTabs";
+  tabs.className = "contentHubTabs";
+  tabs.setAttribute("role", "tablist");
+  tabs.setAttribute("aria-label", "Conteúdo do site");
+  tabs.innerHTML = `
+    <button class="contentHubTab active" type="button" role="tab" aria-selected="true" data-content-mode="publicacoes">Publicações</button>
+    <button class="contentHubTab" type="button" role="tab" aria-selected="false" data-content-mode="editor">Editar página</button>
+  `;
+
+  cabecalho.insertAdjacentElement("afterend", tabs);
+
+  layoutPublicacoes.id = "conteudoPublicacoesPanel";
+  layoutPublicacoes.classList.add("contentHubPanel", "active");
+
+  const editorPanel = document.createElement("div");
+  editorPanel.id = "conteudoEditorPanel";
+  editorPanel.className = "contentHubPanel siteEditorPanel";
+  editorPanel.innerHTML = `
+    <iframe
+      id="siteEditorFrame"
+      class="siteEditorFrame"
+      title="Editor visual da página inicial"
+      data-src="./editor/?embed=1"
+      loading="lazy"
+    ></iframe>
+  `;
+  layoutPublicacoes.insertAdjacentElement("afterend", editorPanel);
+
+  editorSiteFrame = document.getElementById("siteEditorFrame");
+  editorSiteFrame?.addEventListener("load", prepararFrameEditorSite);
+
+  tabs.querySelectorAll("[data-content-mode]").forEach((botao) => {
+    botao.addEventListener("click", () => abrirModoConteudo(botao.dataset.contentMode || "publicacoes"));
+  });
+}
+
+function abrirModoConteudo(modo) {
+  const editorAtivo = modo === "editor";
+  const painelPublicacoes = document.getElementById("conteudoPublicacoesPanel");
+  const painelEditor = document.getElementById("conteudoEditorPanel");
+
+  painelPublicacoes?.classList.toggle("active", !editorAtivo);
+  painelEditor?.classList.toggle("active", editorAtivo);
+  publicacoesView?.classList.toggle("editorMode", editorAtivo);
+
+  document.querySelectorAll("#conteudoSiteTabs [data-content-mode]").forEach((botao) => {
+    const ativo = botao.dataset.contentMode === modo;
+    botao.classList.toggle("active", ativo);
+    botao.setAttribute("aria-selected", String(ativo));
+  });
+
+  const btnConectar = document.getElementById("btnConectarGithub");
+  const btnNova = document.getElementById("btnNovaPublicacao");
+  if (btnConectar) btnConectar.hidden = editorAtivo;
+  if (btnNova) btnNova.hidden = editorAtivo;
+
+  if (editorAtivo && editorSiteFrame && !editorSiteFrame.getAttribute("src")) {
+    editorSiteFrame.setAttribute("src", editorSiteFrame.dataset.src || "./editor/?embed=1");
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function prepararFrameEditorSite() {
+  try {
+    const documento = editorSiteFrame?.contentDocument;
+    if (!documento) return;
+
+    if (!documento.getElementById("adminEmbeddedEditorStyle")) {
+      const estilo = documento.createElement("style");
+      estilo.id = "adminEmbeddedEditorStyle";
+      estilo.textContent = `
+        .editorBrand{display:none!important}
+        .editorTopbar{grid-template-columns:auto auto minmax(260px,1fr)!important;padding:8px 12px!important;gap:10px!important}
+        .editorTopbar .hideSmall{display:none!important}
+        .topbarActions{justify-content:flex-end!important}
+        .editorShell{height:100vh!important;min-height:0!important}
+        @media(max-width:900px){.editorTopbar{grid-template-columns:auto minmax(220px,1fr)!important}.deviceSwitch{display:none!important}}
+        @media(max-width:640px){.editorTopbar{grid-template-columns:minmax(0,1fr)!important}.editorHistory{display:none!important}.topbarActions{justify-content:flex-end!important}}
+      `;
+      documento.head.appendChild(estilo);
+    }
+  } catch (erro) {
+    console.warn("Editor visual carregado sem ajuste de modo incorporado.", erro);
   }
 }
 
