@@ -141,3 +141,5 @@ jobs:
           fi
           git commit -m "chore(admin): vendorizar VvvebJs fixado"
           git push origin HEAD:feat/admin-visual-builder
+
+# Este comentário força um evento de push via Contents API para iniciar a vendorização.
