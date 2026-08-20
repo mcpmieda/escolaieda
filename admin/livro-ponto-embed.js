@@ -8,14 +8,18 @@ const topbar = document.querySelector(".topbar");
 const topbarActions = topbar?.querySelector(".topbarActions");
 const mobileMenu = document.getElementById("btnMenu");
 const publicacoesView = document.getElementById("view-publicacoes");
+const sistemasView = document.getElementById("view-sistemas");
 
 let editorSiteFrame = null;
+let notasView = null;
+let notasFrame = null;
 
 inicializarShellAdministrativo();
 inicializarLivroPontoEmbutido();
 
 function inicializarShellAdministrativo() {
   prepararHubConteudoSite();
+  prepararGestaoNotasIntegrada();
   prepararCabecalhosDasViews();
 
   if (topbarActions && mobileMenu && !topbarActions.contains(mobileMenu)) {
@@ -139,6 +143,116 @@ function prepararFrameEditorSite() {
     }
   } catch (erro) {
     console.warn("Editor visual carregado sem ajuste de modo incorporado.", erro);
+  }
+}
+
+function prepararGestaoNotasIntegrada() {
+  document.querySelectorAll("a[href='../arquivo-digital/']").forEach((link) => {
+    link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener");
+  });
+
+  if (!sistemasView) return;
+
+  const cardNotas = sistemasView.querySelector(".systemCard[href='../notas/']");
+  if (!cardNotas) return;
+
+  cardNotas.setAttribute("data-open-notas", "");
+  const subtituloNotas = cardNotas.querySelector("small");
+  if (subtituloNotas) subtituloNotas.textContent = "Notas e boletins dentro do painel";
+  cardNotas.addEventListener("click", abrirGestaoNotas);
+
+  const cardArquivo = sistemasView.querySelector(".systemCard[href='../arquivo-digital/']");
+  const subtituloArquivo = cardArquivo?.querySelector("small");
+  if (subtituloArquivo) subtituloArquivo.textContent = "Módulo protegido • abre em nova guia";
+
+  const workspace = document.querySelector(".workspace");
+  if (!workspace) return;
+
+  notasView = document.getElementById("view-notas");
+  if (!notasView) {
+    notasView = document.createElement("section");
+    notasView.className = "view";
+    notasView.id = "view-notas";
+    notasView.innerHTML = `
+      <div class="pageLead">
+        <div>
+          <span class="eyebrow">Sistemas</span>
+          <h2>Gestão de Notas</h2>
+        </div>
+        <div class="leadActions">
+          <a class="button buttonSecondary" href="../notas/" target="_blank" rel="noopener">Abrir em tela cheia</a>
+        </div>
+      </div>
+      <div class="notasEmbedShell">
+        <iframe
+          id="notasFrame"
+          class="notasFrame"
+          data-src="../notas/?embed=1"
+          title="Gestão de Notas"
+          loading="lazy"
+        ></iframe>
+      </div>
+    `;
+    workspace.appendChild(notasView);
+  }
+
+  notasFrame = document.getElementById("notasFrame");
+  notasFrame?.addEventListener("load", prepararFrameGestaoNotas);
+}
+
+function abrirGestaoNotas(event) {
+  event?.preventDefault();
+
+  document.querySelectorAll(".view").forEach((view) => view.classList.remove("active"));
+  document.querySelectorAll("[data-view]").forEach((controle) => controle.classList.remove("active"));
+
+  notasView?.classList.add("active");
+  document.querySelector('[data-view="sistemas"]')?.classList.add("active");
+  livroNav?.classList.remove("active");
+  sidebar?.classList.remove("open");
+
+  if (tituloView) tituloView.textContent = "Gestão de Notas";
+  if (viewEyebrow) viewEyebrow.textContent = "Sistemas";
+
+  if (notasFrame && !notasFrame.getAttribute("src")) {
+    notasFrame.setAttribute("src", notasFrame.dataset.src || "../notas/?embed=1");
+  }
+
+  posicionarAcoesDaConta("notas");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function prepararFrameGestaoNotas() {
+  try {
+    const documento = notasFrame?.contentDocument;
+    if (!documento) return;
+
+    if (!documento.getElementById("adminNotasEmbedStyle")) {
+      const estilo = documento.createElement("style");
+      estilo.id = "adminNotasEmbedStyle";
+      estilo.textContent = `
+        html,body{min-height:100%!important}
+        body{overflow:auto!important}
+        .appShell{min-height:100vh!important;display:flex!important;flex-direction:column!important}
+        .appRail{position:sticky!important;top:0!important;width:100%!important;height:auto!important;min-height:0!important;padding:8px 12px!important;display:flex!important;align-items:center!important;gap:8px!important;border-right:0!important;border-bottom:1px solid var(--line)!important;background:rgba(2,10,22,.86)!important;z-index:40!important}
+        body[data-theme="claro"] .appRail{background:rgba(255,255,255,.95)!important}
+        .brandTile,.railStatus{display:none!important}
+        .railNav{display:flex!important;grid-template-columns:none!important;gap:6px!important}
+        .railNav .navItem{width:auto!important;min-height:40px!important;padding:7px 13px!important;display:flex!important;align-items:center!important;gap:7px!important;border-radius:10px!important}
+        .railNav .navItem svg{width:18px!important;height:18px!important}
+        .railNav .navItem span{font-size:.75rem!important}
+        .mainStage{width:100%!important;max-width:none!important;margin:0!important;padding:12px 16px 26px!important}
+        .systemBar{min-height:52px!important;margin-bottom:8px!important;display:flex!important;justify-content:flex-end!important;align-items:center!important}
+        .systemTitle,.profileBox{display:none!important}
+        .commandCluster{width:min(620px,100%)!important;display:block!important}
+        .searchBox{width:100%!important}
+        @media(max-width:760px){.appRail{overflow-x:auto!important}.railNav{min-width:max-content!important}.mainStage{padding:10px!important}.systemBar{min-height:48px!important}.commandCluster{width:100%!important}}
+      `;
+      documento.head.appendChild(estilo);
+    }
+  } catch (erro) {
+    console.warn("Gestão de Notas carregada sem ajuste visual embutido.", erro);
   }
 }
 
