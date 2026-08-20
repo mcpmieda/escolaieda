@@ -8,8 +8,6 @@ const GITHUB = Object.freeze({
 
 const STORAGE_TOKEN = "escolaIedaGithubToken";
 const SESSION_TOKEN = "escolaIedaGithubTokenSessao";
-
-const REGION_IDS = ["sobre", "numeros", "informacoes", "avisos", "destaques", "documentos", "contato"];
 const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
 const INLINE_TAGS = new Set(["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "em", "i", "img", "label", "mark", "small", "span", "strong", "sub", "sup", "time"]);
 
@@ -120,10 +118,7 @@ async function inicializarEditor() {
       blockManager: { appendTo: "#blocks" },
       layerManager: { appendTo: "#layers" },
       traitManager: { appendTo: "#traits" },
-      styleManager: {
-        appendTo: "#styles",
-        sectors: criarSetoresAparencia()
-      },
+      styleManager: { appendTo: "#styles", sectors: criarSetoresAparencia() },
       deviceManager: {
         devices: [
           { name: "Desktop", width: "" },
@@ -154,8 +149,8 @@ async function inicializarEditor() {
 
 function hidratarHomeNoHtml(html, home) {
   if (!home || typeof home !== "object") return html;
-
   const doc = new DOMParser().parseFromString(html, "text/html");
+
   definirTexto(doc.querySelector("[data-home-titulo]"), home.titulo);
   definirTexto(doc.querySelector("[data-home-subtitulo]"), home.subtitulo);
   definirTexto(doc.querySelector("[data-home-missao]"), home.missao);
@@ -224,14 +219,12 @@ function prepararCanvas(editor) {
     style.dataset.iedaBaseCss = "";
     doc.head.appendChild(style);
   }
+
   style.textContent = `${state.baseInlineCss}\n.reveal{opacity:1!important;transform:none!important}.secao-vazia[hidden]{display:none!important}`;
 }
 
 function configurarEventosEditor(editor) {
-  editor.on("load", () => {
-    prepararCanvas(editor);
-    capturarBaseline();
-  });
+  editor.on("load", () => prepararCanvas(editor));
   editor.on("canvas:frame:load", () => prepararCanvas(editor));
   editor.on("component:selected", () => el.propertyHelp?.classList.add("hidden"));
   editor.on("component:deselected", () => {
@@ -244,8 +237,8 @@ function configurarEventosEditor(editor) {
 
 function capturarBaseline() {
   if (!state.editor) return;
-  if (!state.baselineEditorHtml) state.baselineEditorHtml = state.editor.getHtml() || "";
-  if (!state.baselineEditorCss) state.baselineEditorCss = state.editor.getCss() || "";
+  state.baselineEditorHtml = state.editor.getHtml() || "";
+  state.baselineEditorCss = state.editor.getCss() || "";
 }
 
 function atualizarBaselineAposSalvar(adminCss) {
@@ -263,50 +256,42 @@ function atualizarEstadoHistorico() {
 
 function configurarProtecoes(editor) {
   const wrapper = editor.getWrapper();
-  const proteger = (componente) => {
+
+  const configurar = (componente) => {
     const attrs = componente.getAttributes?.() || {};
     const tag = String(componente.get("tagName") || "").toLowerCase();
-    if (attrs.id === "topbar" || tag === "footer") {
-      componente.set({ removable: false, copyable: false, draggable: false });
+
+    if (tag === "main") {
+      componente.set({ droppable: true, removable: false, copyable: false, draggable: false });
     }
-    componente.components?.().forEach(proteger);
+
+    if (attrs.id === "topbar" || attrs.id === "inicio" || tag === "footer") {
+      componente.set({ removable: false, copyable: false, draggable: false, droppable: false });
+    }
+
+    componente.components?.().forEach(configurar);
   };
-  wrapper.components().forEach(proteger);
+
+  wrapper.components().forEach(configurar);
 }
 
 function criarSetoresAparencia() {
   return [
-    {
-      name: "Texto",
-      open: true,
-      buildProps: ["font-family", "font-size", "font-weight", "color", "line-height", "text-align", "text-decoration"]
-    },
-    {
-      name: "Espaçamento",
-      open: false,
-      buildProps: ["margin", "padding"]
-    },
-    {
-      name: "Fundo e borda",
-      open: false,
-      buildProps: ["background-color", "border", "border-radius", "box-shadow"]
-    },
-    {
-      name: "Tamanho",
-      open: false,
-      buildProps: ["width", "max-width", "min-height"]
-    }
+    { name: "Texto", open: true, buildProps: ["font-family", "font-size", "font-weight", "color", "line-height", "text-align", "text-decoration"] },
+    { name: "Espaçamento", open: false, buildProps: ["margin", "padding"] },
+    { name: "Fundo e borda", open: false, buildProps: ["background-color", "border", "border-radius", "box-shadow"] },
+    { name: "Tamanho", open: false, buildProps: ["width", "max-width", "min-height"] }
   ];
 }
 
 function registrarBlocos(editor) {
   const blocos = [
-    ["ieda-titulo", "Título", "T", '<section class="container reveal" data-editor-block="titulo"><div class="titulo-secao"><h2>Novo título</h2><p>Escreva aqui uma frase de apoio.</p></div></section>'],
-    ["ieda-texto", "Texto", "¶", '<section class="container reveal" data-editor-block="texto"><div class="card"><h3>Novo conteúdo</h3><p>Digite aqui o texto que deseja publicar na página.</p></div></section>'],
-    ["ieda-cartoes", "Cartões", "▦", '<section class="container reveal" data-editor-block="cartoes"><div class="grid"><div class="card"><h3>Primeiro cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Segundo cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Terceiro cartão</h3><p>Texto do cartão.</p></div></div></section>'],
-    ["ieda-destaque", "Destaque", "✦", '<section class="container reveal" data-editor-block="destaque"><div class="faixa"><h2>Mensagem em destaque</h2><p>Use este bloco para uma informação que merece mais atenção.</p></div></section>'],
-    ["ieda-botao", "Botão", "↗", '<div class="container reveal" data-editor-block="botao" style="text-align:center"><a class="botao botao-login" href="#">Abrir informação</a></div>'],
-    ["ieda-imagem", "Imagem", "▧", '<section class="container reveal" data-editor-block="imagem"><div class="card" style="padding:12px"><img src="imagens/favicon.png" alt="Descreva a imagem" style="display:block;width:100%;max-height:520px;object-fit:cover;border-radius:16px"></div></section>']
+    ["ieda-titulo", "Título", "T", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="titulo"><div class="titulo-secao"><h2>Novo título</h2><p>Escreva aqui uma frase de apoio.</p></div></section>'],
+    ["ieda-texto", "Texto", "¶", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="texto"><div class="card"><h3>Novo conteúdo</h3><p>Digite aqui o texto que deseja publicar na página.</p></div></section>'],
+    ["ieda-cartoes", "Cartões", "▦", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="cartoes"><div class="grid"><div class="card"><h3>Primeiro cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Segundo cartão</h3><p>Texto do cartão.</p></div><div class="card"><h3>Terceiro cartão</h3><p>Texto do cartão.</p></div></div></section>'],
+    ["ieda-destaque", "Destaque", "✦", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="destaque"><div class="faixa"><h2>Mensagem em destaque</h2><p>Use este bloco para uma informação que merece mais atenção.</p></div></section>'],
+    ["ieda-botao", "Botão", "↗", '<div data-gjs-draggable="main" class="container reveal" data-editor-block="botao" style="text-align:center"><a class="botao botao-login" href="#">Abrir informação</a></div>'],
+    ["ieda-imagem", "Imagem", "▧", '<section data-gjs-draggable="main" class="container reveal" data-editor-block="imagem"><div class="card" style="padding:12px"><img src="imagens/favicon.png" alt="Descreva a imagem" style="display:block;width:100%;max-height:520px;object-fit:cover;border-radius:16px"></div></section>']
   ];
 
   blocos.forEach(([id, label, icon, content]) => {
@@ -327,6 +312,7 @@ function abrirPainelPropriedades(nome) {
 
 async function salvarPagina() {
   if (!state.editor || state.busy) return;
+
   const token = obterTokenGithub();
   if (!token) {
     state.pendingSave = true;
@@ -379,10 +365,11 @@ async function carregarSnapshotGithub(token) {
     github(`/contents/${GITHUB.dataPath}?ref=${encodeURIComponent(headSha)}`, { token })
   ]);
 
-  const html = decodificarBase64Utf8(arquivoHtml.content || "");
-  const dados = JSON.parse(decodificarBase64Utf8(arquivoDados.content || ""));
-
-  return { headSha, html, dados };
+  return {
+    headSha,
+    html: decodificarBase64Utf8(arquivoHtml.content || ""),
+    dados: JSON.parse(decodificarBase64Utf8(arquivoDados.content || ""))
+  };
 }
 
 function construirHtmlSeguro(canonicalHtml, finalEditorHtml, adminCss) {
@@ -396,39 +383,16 @@ function construirHtmlSeguro(canonicalHtml, finalEditorHtml, adminCss) {
 
   const baselineMain = baselineDoc.querySelector("main");
   const finalMain = finalDoc.querySelector("main");
-  const topologiaMudou = assinaturaTopologia(baselineMain) !== assinaturaTopologia(finalMain);
+  if (!finalMain) throw new Error("A área principal da página ficou inválida.");
 
-  if (topologiaMudou) {
-    if (!finalMain) throw new Error("A estrutura principal da página ficou inválida.");
+  if (!baselineMain || baselineMain.outerHTML !== finalMain.outerHTML) {
     result = substituirElementoUnico(result, "main", formatarElemento(finalMain));
-  } else {
-    for (const id of REGION_IDS) {
-      const antes = baselineDoc.getElementById(id);
-      const depois = finalDoc.getElementById(id);
-
-      if (!antes && !depois) continue;
-      if (!depois) {
-        result = removerElementoPorId(result, antes?.tagName?.toLowerCase() || "section", id);
-        continue;
-      }
-      if (!antes || antes.outerHTML !== depois.outerHTML) {
-        result = substituirElementoPorId(result, depois.tagName.toLowerCase(), id, formatarElemento(depois));
-      }
-    }
   }
 
-  for (const id of ["topbar", "inicio"]) {
-    const antes = baselineDoc.getElementById(id);
-    const depois = finalDoc.getElementById(id);
-    if (antes && depois && antes.outerHTML !== depois.outerHTML) {
-      result = substituirElementoPorId(result, depois.tagName.toLowerCase(), id, formatarElemento(depois));
-    }
-  }
-
-  const footerAntes = baselineDoc.querySelector("footer");
-  const footerDepois = finalDoc.querySelector("footer");
-  if (footerAntes && footerDepois && footerAntes.outerHTML !== footerDepois.outerHTML) {
-    result = substituirElementoUnico(result, "footer", formatarElemento(footerDepois));
+  const heroAntes = baselineDoc.getElementById("inicio");
+  const heroDepois = finalDoc.getElementById("inicio");
+  if (heroAntes && heroDepois && heroAntes.outerHTML !== heroDepois.outerHTML) {
+    result = substituirElementoPorId(result, heroDepois.tagName.toLowerCase(), "inicio", formatarElemento(heroDepois));
   }
 
   result = aplicarCssAdmin(result, adminCss);
@@ -486,13 +450,6 @@ function substituirTextoPorAtributo(source, attr, value, text) {
   return source.slice(0, contentStart) + escaparTextoHtml(String(text).trim()) + source.slice(contentEnd);
 }
 
-function assinaturaTopologia(main) {
-  if (!main) return "";
-  return [...main.children]
-    .map((node) => `${node.tagName.toLowerCase()}#${node.id || ""}:${node.getAttribute("data-editor-block") || ""}`)
-    .join("|");
-}
-
 function reconciliarCssDoEditor(baselineCss, currentCss, baselineAdminCss) {
   const antes = mapaCss(baselineCss);
   const agora = mapaCss(currentCss);
@@ -520,9 +477,7 @@ function mapaCss(css) {
 
   try {
     [...(style.sheet?.cssRules || [])].forEach((rule, index) => {
-      const chave = rule.selectorText
-        ? `style:${rule.selectorText}`
-        : `${rule.type}:${rule.conditionText || index}`;
+      const chave = rule.selectorText ? `style:${rule.selectorText}` : `${rule.type}:${rule.conditionText || index}`;
       map.set(chave, rule.cssText);
     });
   } finally {
@@ -558,12 +513,6 @@ function substituirElementoPorId(source, tag, id, replacement) {
   const range = localizarElementoPorId(source, tag, id);
   if (!range) throw new Error(`Não foi possível localizar a região ${id} no HTML atual.`);
   return source.slice(0, range.start) + aplicarIndentacao(replacement, range.indent) + source.slice(range.end);
-}
-
-function removerElementoPorId(source, tag, id) {
-  const range = localizarElementoPorId(source, tag, id);
-  if (!range) return source;
-  return source.slice(0, range.start) + source.slice(range.end);
 }
 
 function substituirElementoUnico(source, tag, replacement) {
@@ -637,6 +586,7 @@ function serializarNo(node, indent) {
 
   const tag = node.tagName.toLowerCase();
   const attrs = [...node.attributes]
+    .filter((attr) => !attr.name.startsWith("data-gjs-"))
     .map((attr) => `${attr.name}="${escaparAtributoHtml(attr.value)}"`)
     .join(" ");
   const opening = `<${tag}${attrs ? ` ${attrs}` : ""}>`;
@@ -798,7 +748,7 @@ async function commitAtomicoGithub(token, arquivos, mensagem, expectedParentSha)
   return novoCommit.sha;
 }
 
-async function enviarArquivoAssetManager(event) {
+async function enviarArquivoAssetManager(event, callback) {
   try {
     const arquivos = [...(event?.dataTransfer?.files || event?.target?.files || [])];
     if (!arquivos.length) return;
@@ -808,6 +758,8 @@ async function enviarArquivoAssetManager(event) {
       abrirGithubDialog("Conecte ao GitHub antes de enviar uma imagem.");
       return;
     }
+
+    const enviados = [];
 
     for (const arquivo of arquivos.slice(0, 8)) {
       if (!/^image\/(jpeg|png|webp|gif|svg\+xml)$/i.test(arquivo.type)) {
@@ -821,9 +773,14 @@ async function enviarArquivoAssetManager(event) {
 
       const caminho = `${GITHUB.imageRoot}/${Date.now()}-${slugArquivo(arquivo.name)}`;
       await criarArquivoGithub(token, caminho, await arquivoParaBase64(arquivo), `Adiciona imagem pelo editor visual: ${arquivo.name}`);
-      const url = `/${caminho}`;
-      state.editor.AssetManager.add({ src: url, name: arquivo.name });
+      const asset = { src: `/${caminho}`, name: arquivo.name };
+      state.editor.AssetManager.add(asset);
+      enviados.push(asset);
       mostrarToast(`Imagem ${arquivo.name} enviada.`, "success");
+    }
+
+    if (enviados.length && typeof callback === "function") {
+      callback({ data: enviados });
     }
   } catch (erro) {
     console.error(erro);
@@ -916,6 +873,7 @@ async function github(path, { method = "GET", token, body } = {}) {
     erro.details = dados;
     throw erro;
   }
+
   return dados;
 }
 
