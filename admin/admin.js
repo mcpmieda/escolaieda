@@ -6,281 +6,184 @@ const CONFIG = {
   redirectUri: `${window.location.origin}/`,
   postLoginPath: "/admin/",
   siteId: "eduieda.sharepoint.com,7ea13de9-13ae-40d5-b5f0-ad4782e3f585,d31492d1-c5c1-4710-8f6e-bd38e1fcfb17",
-  documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16",
-  publicacoesListName: "PUBLICACOES_SITE",
-  avisosListName: "AVISOS_SITE",
-  bannersListName: "BANNERS_SITE",
-  destaquesListName: "DESTAQUES_SITE",
-  enquetesListName: "ENQUETES_SITE",
-  configuracoesListName: "CONFIGURACOES_PORTAL",
-  preferenciasListName: "PREFERENCIAS_USUARIO",
-  servicosListName: "SERVICOS_PAINEL",
-  logsListName: "LOGS_PORTAL",
-  midiasLibraryName: "MIDIAS_SITE"
+  documentosAtivosListId: "7adea611-e627-4593-a0b0-cecf58744c16"
 };
 
-const FONTE_PUBLICA_PADRAO = "/site-data/publicacoes-publicas.json";
-const CAMINHO_FONTE_PUBLICA = "site-data/publicacoes-publicas.json";
-const STORAGE_GITHUB_REPO = "escolaIedaGithubRepo";
-const STORAGE_GITHUB_BRANCH = "escolaIedaGithubBranch";
+const GITHUB = {
+  repo: "mcpmieda/escolaieda",
+  branch: "main",
+  dataPath: "site-data/publicacoes-publicas.json",
+  imageRoot: "imagens/publicacoes"
+};
+
 const STORAGE_GITHUB_TOKEN = "escolaIedaGithubToken";
-const STORAGE_ULTIMA_ABA = "escolaIedaUltimaAba";
-const STORAGE_FILTROS = "escolaIedaFiltrosPublicacoes";
-const STORAGE_MIDIAS = "escolaIedaMidias";
-const CMS_VERSAO = 1;
-const INDICADORES_NUMEROS_PADRAO = [
-  { valor: "1990", rotulo: "Fundação" },
-  { valor: "6º ao 9º", rotulo: "Ensino Fundamental Anos Finais" },
-  { valor: "21", rotulo: "Professores" },
-  { valor: "41", rotulo: "Funcionários" }
-];
-const LOCAIS_PUBLICACAO = {
-  sobre: { categoria: "Aviso", tipo: "card", rotulo: "Nossa Escola" },
-  numeros: { categoria: "Aviso", tipo: "card", rotulo: "Números institucionais" },
-  informacoes: { categoria: "Aviso", tipo: "card", rotulo: "Informações" },
-  avisos: { categoria: "Aviso", tipo: "aviso", rotulo: "Avisos" },
-  destaques: { categoria: "Destaque", tipo: "card", rotulo: "Destaques" },
-  documentos: { categoria: "Documento", tipo: "link", rotulo: "Documentos" },
-  contato: { categoria: "Aviso", tipo: "card", rotulo: "Contato" },
-  banner: { categoria: "Banner", tipo: "banner", rotulo: "Banner/topo" },
-  modal: { categoria: "Aviso", tipo: "aviso", rotulo: "Modal" }
-};
-
-const SECOES_HOME_PADRAO = [
-  { id: "sobre", titulo: "Nossa Escola", texto: "Um espaço de aprendizagem, acolhimento e desenvolvimento, comprometido com a formação dos estudantes e com a participação da comunidade escolar.", visivel: true, layout: "blocos", fixa: true },
-  { id: "numeros", titulo: "Educar é construir o futuro", texto: "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.", visivel: true, layout: "blocos", tipo: "destaque-indicadores", indicadores: INDICADORES_NUMEROS_PADRAO, fixa: true },
-  { id: "informacoes", titulo: "Informações", texto: "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.", visivel: true, layout: "blocos", fixa: true },
-  { id: "avisos", titulo: "Avisos", texto: "Comunicados rápidos e orientações importantes para estudantes, famílias e comunidade escolar.", visivel: true, layout: "lista", fixa: false },
-  { id: "destaques", titulo: "Destaques", texto: "Conteúdos que precisam de maior visibilidade na página inicial.", visivel: true, layout: "blocos", fixa: false },
-  { id: "documentos", titulo: "Documentos", texto: "Links, documentos e materiais úteis para a rotina escolar.", visivel: true, layout: "lista", fixa: false },
-  { id: "contato", titulo: "Contato", texto: "", visivel: true, layout: "lista", fixa: true }
-];
-
-const HOME_PADRAO = {
-  titulo: "Escola Municipal Professora Iêda Alves de Oliveira MCPM",
-  subtitulo: "Educação, compromisso e formação cidadã em Medeiros Neto - Bahia.",
-  missao: "Nossa missão é contribuir para uma educação de qualidade, fortalecendo valores, conhecimento e responsabilidade social em cada etapa da formação do estudante.",
-  infoTexto: "Um espaço institucional pensado para centralizar conteúdos relevantes da escola.",
-  corDestaque: "#003366",
-  secoes: SECOES_HOME_PADRAO.map((secao) => ({ ...secao })),
-  mostrarBanners: true,
-  mostrarModal: true
-};
+const SESSION_GITHUB_TOKEN = "escolaIedaGithubTokenSessao";
 
 const loginRequest = {
   scopes: ["User.Read", "Sites.ReadWrite.All"],
   prompt: "select_account"
 };
+const tokenRequest = { scopes: ["User.Read", "Sites.ReadWrite.All"] };
 
-const tokenRequest = {
-  scopes: ["User.Read", "Sites.ReadWrite.All"]
-};
-
-const msalInstance = new PublicClientApplication({
+const msal = new PublicClientApplication({
   auth: {
     clientId: CONFIG.clientId,
     authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`,
     redirectUri: CONFIG.redirectUri
   },
-  cache: {
-    cacheLocation: "sessionStorage",
-    storeAuthStateInCookie: false
-  }
+  cache: { cacheLocation: "sessionStorage", storeAuthStateInCookie: false }
 });
 
 const estado = {
   account: null,
-  token: "",
-  publicacoesListId: "",
-  configListId: "",
-  logsListId: "",
-  publicacoes: [],
-  filtros: carregarJsonLocal(STORAGE_FILTROS, {
-    busca: "",
-    status: "todos",
-    local: "todos",
-    ordenacao: "atualizado"
-  }),
-  home: { ...HOME_PADRAO },
-  midias: carregarJsonLocal(STORAGE_MIDIAS, []),
-  githubToken: "",
-  operacaoEmAndamento: false,
-  sincronizando: false,
-  sincronizacaoTimer: null,
-  sincronizacaoResolvers: []
+  graphToken: "",
+  siteData: criarSiteDataVazio(),
+  busca: "",
+  operacao: false,
+  toastTimer: null
 };
 
+const $ = (id) => document.getElementById(id);
 const el = {
-  loginView: document.getElementById("loginView"),
-  restrictedView: document.getElementById("restrictedView"),
-  dashboard: document.getElementById("dashboard"),
-  loginStatus: document.getElementById("loginStatus"),
-  btnEntrar: document.getElementById("btnEntrar"),
-  btnTrocarConta: document.getElementById("btnTrocarConta"),
-  btnSair: document.getElementById("btnSair"),
-  usuarioAtual: document.getElementById("usuarioAtual"),
-  statusSistema: document.getElementById("statusSistema"),
-  tituloView: document.getElementById("tituloView"),
-  btnAtualizar: document.getElementById("btnAtualizar"),
-  btnProvisionar: document.getElementById("btnProvisionar"),
-  logProvisionamento: document.getElementById("logProvisionamento"),
-  listaPublicacoes: document.getElementById("listaPublicacoes"),
-  contadorPublicacoes: document.getElementById("contadorPublicacoes"),
-  resumoFiltros: document.getElementById("resumoFiltros"),
-  formPublicacao: document.getElementById("formPublicacao"),
-  tituloEditorPublicacao: document.getElementById("tituloEditorPublicacao"),
-  statusEditorPublicacao: document.getElementById("statusEditorPublicacao"),
-  previaPublicacao: document.getElementById("previaPublicacao"),
-  btnNovaPublicacao: document.getElementById("btnNovaPublicacao"),
-  btnRascunho: document.getElementById("btnRascunho"),
-  campoArquivoImagem: document.getElementById("campoArquivoImagem"),
-  btnEnviarImagemPublicacao: document.getElementById("btnEnviarImagemPublicacao"),
-  btnRemoverImagemPublicacao: document.getElementById("btnRemoverImagemPublicacao"),
-  statusImagemPublicacao: document.getElementById("statusImagemPublicacao"),
-  filtroBusca: document.getElementById("filtroBusca"),
-  filtroStatus: document.getElementById("filtroStatus"),
-  filtroLocal: document.getElementById("filtroLocal"),
-  filtroOrdenacao: document.getElementById("filtroOrdenacao"),
-  formHome: document.getElementById("formHome"),
-  btnPreviaHome: document.getElementById("btnPreviaHome"),
-  btnAdicionarSecaoHome: document.getElementById("btnAdicionarSecaoHome"),
-  listaSecoesHome: document.getElementById("listaSecoesHome"),
-  midiaArquivo: document.getElementById("midiaArquivo"),
-  midiaAlt: document.getElementById("midiaAlt"),
-  btnEnviarMidia: document.getElementById("btnEnviarMidia"),
-  statusMidia: document.getElementById("statusMidia"),
-  listaMidias: document.getElementById("listaMidias"),
-  campoFontePublica: document.getElementById("campoFontePublica"),
-  campoGithubToken: document.getElementById("campoGithubToken"),
-  campoGithubRepo: document.getElementById("campoGithubRepo"),
-  campoGithubBranch: document.getElementById("campoGithubBranch"),
-  btnSalvarFontePublica: document.getElementById("btnSalvarFontePublica"),
-  btnSincronizarFontePublica: document.getElementById("btnSincronizarFontePublica"),
-  statusFontePublica: document.getElementById("statusFontePublica")
+  loginView: $("loginView"),
+  restrictedView: $("restrictedView"),
+  dashboard: $("dashboard"),
+  loginStatus: $("loginStatus"),
+  btnEntrar: $("btnEntrar"),
+  btnTrocarConta: $("btnTrocarConta"),
+  btnSair: $("btnSair"),
+  btnMenu: $("btnMenu"),
+  sidebar: $("sidebar"),
+  tituloView: $("tituloView"),
+  viewEyebrow: $("viewEyebrow"),
+  usuarioAtual: $("usuarioAtual"),
+  userAvatar: $("userAvatar"),
+  statusSistema: $("statusSistema"),
+  saudacaoTitulo: $("saudacaoTitulo"),
+  githubMiniStatus: $("githubMiniStatus"),
+  githubStatusBadge: $("githubStatusBadge"),
+  githubDialog: $("githubDialog"),
+  githubForm: $("githubForm"),
+  githubTokenInput: $("githubTokenInput"),
+  githubRemember: $("githubRemember"),
+  githubDialogStatus: $("githubDialogStatus"),
+  btnCancelarGithub: $("btnCancelarGithub"),
+  btnConectarGithub: $("btnConectarGithub"),
+  btnConfigurarGithubInicio: $("btnConfigurarGithubInicio"),
+  btnConfigurarGithubSistemas: $("btnConfigurarGithubSistemas"),
+  formPublicacao: $("formPublicacao"),
+  btnNovaPublicacao: $("btnNovaPublicacao"),
+  btnCancelarEdicao: $("btnCancelarEdicao"),
+  tituloEditorPublicacao: $("tituloEditorPublicacao"),
+  statusEditorPublicacao: $("statusEditorPublicacao"),
+  statusPublicacao: $("statusPublicacao"),
+  pubId: $("pubId"),
+  pubTitulo: $("pubTitulo"),
+  pubResumo: $("pubResumo"),
+  pubConteudo: $("pubConteudo"),
+  pubLocal: $("pubLocal"),
+  pubEstilo: $("pubEstilo"),
+  pubDataInicial: $("pubDataInicial"),
+  pubDataFinal: $("pubDataFinal"),
+  pubImagemArquivo: $("pubImagemArquivo"),
+  pubImagemNome: $("pubImagemNome"),
+  pubImagemAtual: $("pubImagemAtual"),
+  pubLink: $("pubLink"),
+  pubBotao: $("pubBotao"),
+  pubPublicado: $("pubPublicado"),
+  buscaPublicacoes: $("buscaPublicacoes"),
+  listaPublicacoes: $("listaPublicacoes"),
+  contadorPublicacoes: $("contadorPublicacoes"),
+  toast: $("toast")
 };
 
-await msalInstance.initialize();
-carregarConfiguracaoGithubLocal();
-carregarFiltrosNaTela();
-preencherHomeFormulario();
+const VIEW_INFO = {
+  inicio: ["Visão geral", "Centro de Administração"],
+  publicacoes: ["Publicações", "Conteúdo do site"],
+  sistemas: ["Sistemas", "Ferramentas da escola"]
+};
+
+await msal.initialize();
 inicializarEventos();
-atualizarOpcoesLocais();
-renderizarMidias();
-atualizarPreviaPublicacao();
+atualizarEstadoGithub();
 await inicializarSessao();
 
 function inicializarEventos() {
-  el.btnEntrar?.addEventListener("click", (event) => executarComBotao(event.currentTarget, entrar, "Abrindo..."));
-  el.btnTrocarConta?.addEventListener("click", (event) => executarComBotao(event.currentTarget, entrar, "Abrindo..."));
+  el.btnEntrar?.addEventListener("click", entrar);
+  el.btnTrocarConta?.addEventListener("click", entrar);
   el.btnSair?.addEventListener("click", sair);
-  el.btnAtualizar?.addEventListener("click", (event) => executarComBotao(event.currentTarget, carregarDados, "Atualizando..."));
-  el.btnProvisionar?.addEventListener("click", (event) => executarComBotao(event.currentTarget, provisionarSharePoint, "Preparando..."));
-  el.formPublicacao?.addEventListener("submit", salvarPublicacao);
-  el.btnNovaPublicacao?.addEventListener("click", limparFormulario);
-  el.btnRascunho?.addEventListener("click", salvarRascunho);
-  el.btnSalvarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, salvarFontePublica, "Salvando..."));
-  el.btnSincronizarFontePublica?.addEventListener("click", (event) => executarComBotao(event.currentTarget, () => sincronizarFontePublica(), "Sincronizando..."));
-  el.formHome?.addEventListener("submit", salvarHome);
-  el.btnPreviaHome?.addEventListener("click", () => aplicarHomeNaTela(lerHomeDoFormulario()));
-  el.btnEnviarImagemPublicacao?.addEventListener("click", (event) => executarComBotao(event.currentTarget, enviarImagemDaPublicacao, "Enviando..."));
-  el.btnRemoverImagemPublicacao?.addEventListener("click", removerImagemDaPublicacao);
-  el.btnEnviarMidia?.addEventListener("click", (event) => executarComBotao(event.currentTarget, enviarMidia, "Enviando..."));
-  el.btnAdicionarSecaoHome?.addEventListener("click", adicionarSecaoHome);
-  el.campoGithubToken?.addEventListener("input", salvarConfiguracaoGithubLocal);
-  el.campoGithubRepo?.addEventListener("input", salvarConfiguracaoGithubLocal);
-  el.campoGithubBranch?.addEventListener("input", salvarConfiguracaoGithubLocal);
-
-  ["filtroBusca", "filtroStatus", "filtroLocal", "filtroOrdenacao"].forEach((id) => {
-    el[id]?.addEventListener("input", atualizarFiltros);
-    el[id]?.addEventListener("change", atualizarFiltros);
-  });
-
-  [
-    "campoTitulo",
-    "campoResumo",
-    "campoConteudo",
-    "campoLocal",
-    "campoImagem",
-    "campoImagemAlt",
-    "campoLink",
-    "campoBotao",
-    "campoDataInicial",
-    "campoDataFinal",
-    "campoOrdem",
-    "campoEstilo"
-  ].forEach((id) => campo(id)?.addEventListener("input", atualizarPreviaPublicacao));
+  el.btnMenu?.addEventListener("click", () => el.sidebar?.classList.toggle("open"));
 
   document.querySelectorAll("[data-view]").forEach((botao) => {
     botao.addEventListener("click", () => abrirView(botao.dataset.view));
   });
-
   document.querySelectorAll("[data-view-target]").forEach((botao) => {
     botao.addEventListener("click", () => abrirView(botao.dataset.viewTarget));
   });
-
-  document.querySelectorAll("[data-cms-tab]").forEach((botao) => {
-    botao.addEventListener("click", () => abrirAbaCms(botao.dataset.cmsTab));
+  document.querySelectorAll(".navLink").forEach((link) => {
+    link.addEventListener("click", () => el.sidebar?.classList.remove("open"));
   });
 
-  const ultimaAba = localStorage.getItem(STORAGE_ULTIMA_ABA);
-  if (ultimaAba) abrirAbaCms(ultimaAba);
-}
+  [el.btnConectarGithub, el.btnConfigurarGithubInicio, el.btnConfigurarGithubSistemas]
+    .filter(Boolean)
+    .forEach((botao) => botao.addEventListener("click", abrirGithubDialog));
 
-async function executarComBotao(botao, tarefa, textoEnquanto = "Aguarde...") {
-  if (estado.operacaoEmAndamento || typeof tarefa !== "function") return undefined;
-  estado.operacaoEmAndamento = true;
-  const textoOriginal = botao?.textContent;
-  if (botao) {
-    botao.disabled = true;
-    botao.setAttribute("aria-busy", "true");
-    botao.textContent = textoEnquanto;
-  }
-  try {
-    return await tarefa();
-  } finally {
-    estado.operacaoEmAndamento = false;
-    if (botao) {
-      botao.removeAttribute("aria-busy");
-      botao.disabled = false;
-      botao.textContent = textoOriginal;
+  el.btnCancelarGithub?.addEventListener("click", fecharGithubDialog);
+  el.githubForm?.addEventListener("submit", salvarConfiguracaoGithub);
+  el.formPublicacao?.addEventListener("submit", salvarPublicacao);
+  el.btnNovaPublicacao?.addEventListener("click", () => {
+    limparFormularioPublicacao();
+    el.pubTitulo?.focus();
+  });
+  el.btnCancelarEdicao?.addEventListener("click", limparFormularioPublicacao);
+  el.pubImagemArquivo?.addEventListener("change", atualizarNomeImagem);
+  el.buscaPublicacoes?.addEventListener("input", () => {
+    estado.busca = el.buscaPublicacoes.value.trim().toLocaleLowerCase("pt-BR");
+    renderizarPublicacoes();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (window.innerWidth <= 820 && el.sidebar?.classList.contains("open")) {
+      const clicouNoMenu = el.sidebar.contains(event.target) || el.btnMenu?.contains(event.target);
+      if (!clicouNoMenu) el.sidebar.classList.remove("open");
     }
-  }
+  });
 }
 
 async function inicializarSessao() {
   try {
-    const response = await msalInstance.handleRedirectPromise();
-    if (response?.account) msalInstance.setActiveAccount(response.account);
-    estado.account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0] || null;
+    const resposta = await msal.handleRedirectPromise();
+    if (resposta?.account) msal.setActiveAccount(resposta.account);
+    estado.account = msal.getActiveAccount() || msal.getAllAccounts()[0] || null;
 
     if (!estado.account) {
       mostrarSomente("login");
       return;
     }
 
-    msalInstance.setActiveAccount(estado.account);
+    msal.setActiveAccount(estado.account);
     await autenticarEValidar();
   } catch (erro) {
     console.error(erro);
-    atualizarLoginStatus("Não foi possível concluir o login Microsoft. Tente novamente.");
+    definirLoginStatus("Não foi possível concluir o login. Tente novamente.");
     mostrarSomente("login");
   }
 }
 
 async function entrar() {
-  atualizarLoginStatus("Abrindo login Microsoft...");
+  definirLoginStatus("Abrindo o login Microsoft...");
   sessionStorage.setItem("escolaIedaDestinoLogin", CONFIG.postLoginPath);
-  await msalInstance.loginRedirect(loginRequest);
+  await msal.loginRedirect(loginRequest);
 }
 
 async function sair() {
   sessionStorage.removeItem("escolaIedaDestinoLogin");
-  await msalInstance.logoutRedirect({ postLogoutRedirectUri: "https://escolaieda.com/" });
+  await msal.logoutRedirect({ postLogoutRedirectUri: "https://escolaieda.com/" });
 }
 
 async function autenticarEValidar() {
-  atualizarLoginStatus("Verificando autorização da Secretaria...");
-  estado.token = await obterToken();
+  definirLoginStatus("Verificando autorização da Secretaria...");
+  estado.graphToken = await obterGraphToken();
   const permitido = await verificarAcessoSecretaria();
 
   if (!permitido) {
@@ -289,1398 +192,508 @@ async function autenticarEValidar() {
   }
 
   mostrarSomente("dashboard");
-  el.usuarioAtual.textContent = estado.account?.name || estado.account?.username || "Usuário autorizado";
-  await carregarDados();
+  preencherUsuario();
+  await carregarDadosPublicos();
 }
 
-async function obterToken() {
+async function obterGraphToken() {
   try {
-    const resposta = await msalInstance.acquireTokenSilent({ ...tokenRequest, account: estado.account });
+    const resposta = await msal.acquireTokenSilent({ ...tokenRequest, account: estado.account });
     return resposta.accessToken;
   } catch {
-    await msalInstance.acquireTokenRedirect(tokenRequest);
-    throw new Error("Redirecionando para concluir autorização Microsoft.");
+    await msal.acquireTokenRedirect(tokenRequest);
+    throw new Error("Redirecionando para concluir a autorização Microsoft.");
   }
 }
 
 async function verificarAcessoSecretaria() {
   const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${CONFIG.documentosAtivosListId}/items?$top=1`;
-  const resposta = await graph(url);
+  const resposta = await fetch(url, {
+    headers: { Authorization: `Bearer ${estado.graphToken}` }
+  });
   return resposta.ok;
 }
 
-async function carregarDados() {
-  if (!estado.token) return;
-  el.statusSistema.textContent = "Carregando painel...";
+function preencherUsuario() {
+  const nome = estado.account?.name || estado.account?.username || "Usuário autorizado";
+  el.usuarioAtual.textContent = nome;
+  el.userAvatar.textContent = nome.trim().charAt(0).toUpperCase() || "A";
+  const primeiroNome = nome.trim().split(/\s+/)[0] || "Secretaria";
+  el.saudacaoTitulo.textContent = `Olá, ${primeiroNome}.`;
+}
 
+function mostrarSomente(tipo) {
+  el.loginView?.classList.toggle("hidden", tipo !== "login");
+  el.restrictedView?.classList.toggle("hidden", tipo !== "restrito");
+  el.dashboard?.classList.toggle("hidden", tipo !== "dashboard");
+}
+
+function definirLoginStatus(texto) {
+  if (el.loginStatus) el.loginStatus.textContent = texto;
+}
+
+function abrirView(nome) {
+  if (!VIEW_INFO[nome]) nome = "inicio";
+  document.querySelectorAll(".view").forEach((view) => view.classList.remove("active"));
+  document.querySelectorAll("[data-view]").forEach((botao) => botao.classList.toggle("active", botao.dataset.view === nome));
+  $(`view-${nome}`)?.classList.add("active");
+  el.tituloView.textContent = VIEW_INFO[nome][0];
+  el.viewEyebrow.textContent = VIEW_INFO[nome][1];
+  el.sidebar?.classList.remove("open");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function carregarDadosPublicos() {
+  el.statusSistema.textContent = "Carregando conteúdo do site...";
   try {
-    const listas = await obterListas();
-    const publicacoes = listas.find((lista) => lista.displayName === CONFIG.publicacoesListName);
-    const configuracoes = listas.find((lista) => lista.displayName === CONFIG.configuracoesListName);
-    const logs = listas.find((lista) => lista.displayName === CONFIG.logsListName);
-    estado.publicacoesListId = publicacoes?.id || "";
-    estado.configListId = configuracoes?.id || "";
-    estado.logsListId = logs?.id || "";
-
-    if (estado.configListId) {
-      try {
-        await carregarConfiguracoes();
-      } catch (erro) {
-        console.warn("Configurações temporariamente indisponíveis.", erro);
-      }
-    }
-
-    if (estado.publicacoesListId) {
-      await carregarPublicacoes();
-    } else {
-      estado.publicacoes = [];
-      renderizarPublicacoes();
-    }
-
-    el.statusSistema.textContent = estado.publicacoesListId
-      ? "Painel pronto para publicar no site."
-      : "Estrutura de publicações não encontrada. Abra Configurações para manutenção.";
+    const resposta = await fetch(`../site-data/publicacoes-publicas.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!resposta.ok) throw new Error("Fonte pública indisponível.");
+    estado.siteData = normalizarSiteData(await resposta.json());
+    renderizarPublicacoes();
+    el.statusSistema.textContent = "Painel pronto.";
   } catch (erro) {
     console.error(erro);
-    el.statusSistema.textContent = "Não foi possível carregar os dados institucionais.";
+    estado.siteData = criarSiteDataVazio();
+    renderizarPublicacoes();
+    el.statusSistema.textContent = "Não foi possível carregar as publicações agora.";
   }
 }
 
-async function obterListas() {
-  const resposta = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists?$select=id,displayName,webUrl,list`);
-  if (!resposta.ok) throw new Error("Falha ao listar estruturas do SharePoint.");
-  const dados = await resposta.json();
-  return dados.value || [];
+function criarSiteDataVazio() {
+  return { atualizadoEm: "", origem: "GITHUB", cache: "fonte direta do repositório", home: {}, publicacoes: [] };
 }
 
-async function carregarPublicacoes() {
-  const url = `https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items?expand=fields&$top=200`;
-  const resposta = await graph(url);
-  if (!resposta.ok) throw new Error("Falha ao carregar publicações.");
-  const dados = await resposta.json();
-  estado.publicacoes = (dados.value || []).map(normalizarPublicacao).sort(ordenarPublicacoes);
-  renderizarPublicacoes();
-  renderizarMidias();
-}
-
-function normalizarPublicacao(item) {
-  const fields = item.fields || {};
-  const conteudo = extrairConteudo(fields.Conteudo || "");
+function normalizarSiteData(dados) {
+  const base = dados && typeof dados === "object" && !Array.isArray(dados) ? dados : {};
   return {
-    id: item.id,
-    titulo: fields.Title || "",
-    resumo: fields.Resumo || "",
-    conteudo: conteudo.texto,
-    brutoConteudo: fields.Conteudo || "",
-    imagem: fields.Imagem || "",
-    categoria: fields.Categoria || "Aviso",
-    dataInicial: somenteData(fields.DataInicial),
-    dataFinal: somenteData(fields.DataFinal),
-    publicado: Boolean(fields.Publicado),
-    destaque: Boolean(fields.Destaque),
-    autor: fields.Autor || "",
-    criadoEm: fields.DataCriacao || fields.Created || "",
-    atualizadoEm: fields.DataAtualizacao || fields.Modified || "",
-    meta: conteudo.meta
+    ...base,
+    home: base.home && typeof base.home === "object" ? base.home : {},
+    publicacoes: Array.isArray(base.publicacoes) ? base.publicacoes : []
   };
-}
-
-function extrairConteudo(valor) {
-  const texto = String(valor || "");
-  try {
-    const json = JSON.parse(texto);
-    if (json && json.cmsVersao && typeof json.texto === "string") {
-      return { texto: json.texto, meta: normalizarMeta(json.meta || {}) };
-    }
-  } catch {
-    return { texto, meta: normalizarMeta({}) };
-  }
-  return { texto, meta: normalizarMeta({}) };
-}
-
-function normalizarMeta(meta) {
-  const local = normalizarLocalPublicacao(meta.local);
-  return {
-    tipo: tipoPadraoPorLocal(local),
-    local,
-    imagemAlt: meta.imagemAlt || "",
-    link: meta.link || "",
-    botao: meta.botao || "",
-    ordem: Number.isFinite(Number(meta.ordem)) ? Number(meta.ordem) : 0,
-    estilo: meta.estilo || "padrao"
-  };
-}
-
-function montarConteudoEstruturado(texto, meta) {
-  return JSON.stringify({
-    cmsVersao: CMS_VERSAO,
-    texto,
-    meta: normalizarMeta(meta)
-  });
-}
-
-function ordenarPublicacoes(a, b) {
-  const ordemA = Number(a.meta?.ordem || 0);
-  const ordemB = Number(b.meta?.ordem || 0);
-  if (ordemA !== ordemB) return ordemA - ordemB;
-  return String(b.atualizadoEm || b.criadoEm).localeCompare(String(a.atualizadoEm || a.criadoEm));
-}
-
-function obterStatusPublicacao(publicacao, agora = new Date()) {
-  if (!publicacao.publicado) return "rascunho";
-  const inicial = publicacao.dataInicial ? new Date(`${publicacao.dataInicial}T00:00:00`) : null;
-  const final = publicacao.dataFinal ? new Date(`${publicacao.dataFinal}T23:59:59`) : null;
-  if (inicial && inicial > agora) return "agendado";
-  if (final && final < agora) return "expirado";
-  return "publicado";
-}
-
-function publicacaoVisivel(publicacao, agora = new Date()) {
-  return obterStatusPublicacao(publicacao, agora) === "publicado";
 }
 
 function renderizarPublicacoes() {
-  const lista = filtrarPublicacoes();
-  el.contadorPublicacoes.textContent = `${estado.publicacoes.length} item${estado.publicacoes.length === 1 ? "" : "s"}`;
-  el.resumoFiltros.textContent = `${lista.length} exibido${lista.length === 1 ? "" : "s"}`;
-  el.listaPublicacoes.innerHTML = "";
+  if (!el.listaPublicacoes) return;
+  const publicacoes = [...estado.siteData.publicacoes]
+    .sort((a, b) => String(b.atualizadoEm || "").localeCompare(String(a.atualizadoEm || "")))
+    .filter((item) => {
+      if (!estado.busca) return true;
+      return [item.titulo, item.resumo, item.conteudo, item.local]
+        .some((valor) => String(valor || "").toLocaleLowerCase("pt-BR").includes(estado.busca));
+    });
 
-  if (!lista.length) {
-    el.listaPublicacoes.innerHTML = '<div class="publicationItem"><p>Nenhuma publicação encontrada com estes filtros.</p></div>';
+  el.listaPublicacoes.replaceChildren();
+  el.contadorPublicacoes.textContent = String(estado.siteData.publicacoes.length);
+
+  if (!publicacoes.length) {
+    const vazio = document.createElement("div");
+    vazio.className = "emptyList";
+    vazio.textContent = estado.busca ? "Nenhuma publicação encontrada." : "Ainda não há publicações. Crie a primeira quando precisar.";
+    el.listaPublicacoes.appendChild(vazio);
     return;
   }
 
-  lista.forEach((publicacao) => {
-    const item = document.createElement("article");
-    const status = obterStatusPublicacao(publicacao);
-    item.className = "publicationItem";
-    item.innerHTML = `
-      <div class="publicationTop">
-        <strong>${escaparHtml(publicacao.titulo || "Sem título")}</strong>
-        <div class="publicationMeta">
-          <span class="badge ${classeStatus(status)}">${rotuloStatus(status)}</span>
-        </div>
-      </div>
-      <p>${escaparHtml(publicacao.resumo || publicacao.categoria || "Sem resumo")}</p>
-      <div class="publicationMeta">
-        <small>${escaparHtml(publicacao.categoria)}</small>
-        <small>${escaparHtml(rotuloLocal(publicacao.meta.local))}</small>
-        <small>Prioridade ${Number(publicacao.meta.ordem || 0)}</small>
-      </div>
-      <div class="itemActions">
-        <button type="button" data-acao="editar" data-id="${publicacao.id}">Editar</button>
-        <button type="button" data-acao="duplicar" data-id="${publicacao.id}">Duplicar</button>
-        <button type="button" data-acao="visualizar" data-id="${publicacao.id}">Visualizar</button>
-        ${publicacao.publicado ? `<button type="button" data-acao="despublicar" data-id="${publicacao.id}">Tirar do site</button>` : ""}
-        <button class="dangerMini" type="button" data-acao="excluir" data-id="${publicacao.id}">Excluir</button>
-      </div>
-    `;
-    item.addEventListener("click", tratarAcaoPublicacao);
-    el.listaPublicacoes.appendChild(item);
-  });
+  publicacoes.forEach((item) => el.listaPublicacoes.appendChild(criarCardPublicacao(item)));
 }
 
-function filtrarPublicacoes() {
-  const termo = normalizarTexto(estado.filtros.busca);
-  const lista = estado.publicacoes.filter((publicacao) => {
-    const texto = normalizarTexto(`${publicacao.titulo} ${publicacao.resumo} ${publicacao.conteudo}`);
-    const status = obterStatusPublicacao(publicacao);
-    const local = publicacao.meta?.local || "informacoes";
-    return (!termo || texto.includes(termo))
-      && (estado.filtros.status === "todos" || estado.filtros.status === status)
-      && (estado.filtros.local === "todos" || estado.filtros.local === local);
-  });
+function criarCardPublicacao(item) {
+  const card = document.createElement("article");
+  card.className = "publicationCard";
 
-  return lista.sort((a, b) => {
-    if (estado.filtros.ordenacao === "status") {
-      return obterStatusPublicacao(a).localeCompare(obterStatusPublicacao(b)) || ordenarPublicacoes(a, b);
-    }
-    if (estado.filtros.ordenacao === "ordem") {
-      return Number(a.meta?.ordem || 0) - Number(b.meta?.ordem || 0) || ordenarPublicacoes(a, b);
-    }
-    return ordenarPublicacoes(a, b);
-  });
+  const topo = document.createElement("div");
+  topo.className = "publicationTop";
+  const titulo = document.createElement("h4");
+  titulo.textContent = item.titulo || "Publicação sem título";
+  topo.appendChild(titulo);
+  card.appendChild(topo);
+
+  const meta = document.createElement("div");
+  meta.className = "publicationMeta";
+  meta.append(
+    criarPill(item.publicado === true ? "Publicado" : "Rascunho", item.publicado === true ? "live" : "draft"),
+    criarPill(rotuloLocal(item.local))
+  );
+  card.appendChild(meta);
+
+  if (item.resumo || item.conteudo) {
+    const resumo = document.createElement("p");
+    resumo.textContent = item.resumo || item.conteudo;
+    card.appendChild(resumo);
+  }
+
+  const acoes = document.createElement("div");
+  acoes.className = "cardActions";
+  const editar = document.createElement("button");
+  editar.type = "button";
+  editar.className = "miniButton";
+  editar.textContent = "Editar";
+  editar.addEventListener("click", () => editarPublicacao(item.id));
+  const excluir = document.createElement("button");
+  excluir.type = "button";
+  excluir.className = "miniButton danger";
+  excluir.textContent = "Excluir";
+  excluir.addEventListener("click", () => excluirPublicacao(item.id));
+  acoes.append(editar, excluir);
+  card.appendChild(acoes);
+
+  return card;
 }
 
-async function tratarAcaoPublicacao(event) {
-  const botao = event.target.closest("button[data-acao]");
-  if (!botao) return;
-  event.preventDefault();
-  const publicacao = estado.publicacoes.find((item) => item.id === botao.dataset.id);
-  if (!publicacao) return;
+function criarPill(texto, classe = "") {
+  const pill = document.createElement("span");
+  pill.className = `metaPill ${classe}`.trim();
+  pill.textContent = texto;
+  return pill;
+}
 
-  const acoes = {
-    editar: () => preencherFormulario(publicacao),
-    duplicar: () => duplicarPublicacao(publicacao),
-    visualizar: () => abrirPrevia(publicacao),
-    despublicar: () => despublicarPublicacao(publicacao.id),
-    excluir: () => excluirPublicacao(publicacao.id)
+function rotuloLocal(local) {
+  const locais = {
+    avisos: "Avisos",
+    destaques: "Destaques",
+    banner: "Banner",
+    informacoes: "Informações",
+    documentos: "Documentos",
+    sobre: "Nossa Escola",
+    contato: "Contato",
+    modal: "Aviso em destaque"
   };
-  const textos = {
-    editar: "Abrindo...",
-    duplicar: "Duplicando...",
-    visualizar: "Abrindo...",
-    despublicar: "Tirando...",
-    excluir: "Excluindo..."
-  };
-  await executarComBotao(botao, acoes[botao.dataset.acao], textos[botao.dataset.acao]);
+  return locais[local] || "Site";
 }
 
-function preencherFormulario(publicacao) {
-  campo("itemId").value = publicacao.id;
-  campo("campoTitulo").value = publicacao.titulo;
-  campo("campoResumo").value = publicacao.resumo;
-  campo("campoConteudo").value = publicacao.conteudo;
-  campo("campoLocal").value = publicacao.meta.local;
-  campo("campoImagem").value = publicacao.imagem;
-  campo("campoImagemAlt").value = publicacao.meta.imagemAlt;
-  campo("campoLink").value = publicacao.meta.link;
-  campo("campoBotao").value = publicacao.meta.botao;
-  campo("campoDataInicial").value = publicacao.dataInicial;
-  campo("campoDataFinal").value = publicacao.dataFinal;
-  campo("campoOrdem").value = publicacao.meta.ordem || "";
-  campo("campoEstilo").value = publicacao.meta.estilo;
-  atualizarStatusImagemPublicacao();
+function editarPublicacao(id) {
+  const item = estado.siteData.publicacoes.find((publicacao) => publicacao.id === id);
+  if (!item) return;
+  abrirView("publicacoes");
+  el.pubId.value = item.id || "";
+  el.pubTitulo.value = item.titulo || "";
+  el.pubResumo.value = item.resumo || "";
+  el.pubConteudo.value = item.conteudo || "";
+  el.pubLocal.value = item.local || "avisos";
+  el.pubEstilo.value = item.estilo || "padrao";
+  el.pubDataInicial.value = normalizarDataInput(item.dataInicial);
+  el.pubDataFinal.value = normalizarDataInput(item.dataFinal);
+  el.pubImagemAtual.value = item.imagem || "";
+  el.pubImagemNome.textContent = item.imagem ? `Imagem atual: ${item.imagem}` : "Nenhuma imagem selecionada";
+  el.pubLink.value = item.link || "";
+  el.pubBotao.value = item.botao || "";
+  el.pubPublicado.checked = item.publicado === true;
   el.tituloEditorPublicacao.textContent = "Editar publicação";
-  el.statusEditorPublicacao.textContent = rotuloStatus(obterStatusPublicacao(publicacao));
-  atualizarPreviaPublicacao();
+  el.statusEditorPublicacao.textContent = item.publicado === true ? "Publicada" : "Rascunho";
+  definirStatusPublicacao("");
+  el.formPublicacao.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function limparFormulario() {
-  el.formPublicacao.reset();
-  campo("itemId").value = "";
-  campo("campoLocal").value = "informacoes";
-  campo("campoEstilo").value = "padrao";
-  campo("campoImagem").value = "";
-  if (el.campoArquivoImagem) el.campoArquivoImagem.value = "";
-  atualizarStatusImagemPublicacao();
+function limparFormularioPublicacao() {
+  el.formPublicacao?.reset();
+  el.pubId.value = "";
+  el.pubImagemAtual.value = "";
+  el.pubImagemNome.textContent = "Nenhuma imagem selecionada";
+  el.pubPublicado.checked = true;
+  el.pubLocal.value = "avisos";
+  el.pubEstilo.value = "padrao";
   el.tituloEditorPublicacao.textContent = "Nova publicação";
-  el.statusEditorPublicacao.textContent = "Rascunho";
-  atualizarPreviaPublicacao();
+  el.statusEditorPublicacao.textContent = "Nova";
+  definirStatusPublicacao("");
+}
+
+function atualizarNomeImagem() {
+  const arquivo = el.pubImagemArquivo.files?.[0];
+  el.pubImagemNome.textContent = arquivo ? arquivo.name : (el.pubImagemAtual.value ? `Imagem atual: ${el.pubImagemAtual.value}` : "Nenhuma imagem selecionada");
 }
 
 async function salvarPublicacao(event) {
   event.preventDefault();
-  await executarComBotao(event.submitter || el.formPublicacao.querySelector("[type='submit']"), () => persistirPublicacao(true), "Salvando...");
-}
-
-async function salvarRascunho(event) {
-  await executarComBotao(event?.currentTarget, () => persistirPublicacao(false), "Salvando...");
-}
-
-async function persistirPublicacao(publicado) {
-  if (!estado.publicacoesListId) {
-    el.statusSistema.textContent = "A lista de publicações não foi encontrada.";
+  if (estado.operacao) return;
+  if (!obterGithubToken()) {
+    definirStatusPublicacao("Configure a conexão GitHub antes de salvar.", "error");
+    abrirGithubDialog();
     return;
   }
 
-  const id = campo("itemId").value;
-  const agora = new Date().toISOString();
-  const meta = lerMetaFormulario();
-  const categoria = categoriaPadraoPorLocal(meta.local);
-  const fields = {
-    Title: campo("campoTitulo").value.trim(),
-    Resumo: campo("campoResumo").value.trim(),
-    Conteudo: montarConteudoEstruturado(campo("campoConteudo").value.trim(), meta),
-    Imagem: campo("campoImagem").value.trim(),
-    Categoria: categoria,
-    DataInicial: dataOuNull(campo("campoDataInicial").value),
-    DataFinal: dataOuNull(campo("campoDataFinal").value),
-    Publicado: Boolean(publicado),
-    Destaque: meta.local === "destaques",
-    Autor: estado.account?.name || estado.account?.username || "",
-    DataAtualizacao: agora
-  };
+  const titulo = el.pubTitulo.value.trim();
+  if (!titulo) return;
 
-  if (!fields.Title) {
-    el.statusSistema.textContent = "Informe um título antes de salvar.";
-    return;
-  }
-  if (fields.DataInicial && fields.DataFinal && fields.DataInicial > fields.DataFinal) {
-    el.statusSistema.textContent = "A data final não pode ser anterior à data inicial.";
-    campo("campoDataFinal").focus();
-    return;
-  }
-  if (meta.botao && !meta.link) {
-    el.statusSistema.textContent = "Informe o link do botão ou deixe o texto do botão vazio.";
-    campo("campoLink").focus();
-    return;
-  }
-  if (meta.link && !linkPublicacaoValido(meta.link)) {
-    el.statusSistema.textContent = "O link do botão deve começar com https:// ou http://.";
-    campo("campoLink").focus();
-    return;
-  }
+  estado.operacao = true;
+  definirStatusPublicacao("Salvando no site...");
+  const botao = el.formPublicacao.querySelector("button[type='submit']");
+  alternarBotao(botao, true, "Salvando...");
 
-  const resposta = id
-    ? await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items/${id}/fields`, { method: "PATCH", body: JSON.stringify(fields) })
-    : await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items`, { method: "POST", body: JSON.stringify({ fields: { ...fields, DataCriacao: agora } }) });
+  try {
+    const remoto = await obterSiteDataGithub();
+    const id = el.pubId.value || gerarId();
+    const anterior = remoto.dados.publicacoes.find((item) => item.id === id) || {};
+    let imagem = el.pubImagemAtual.value || anterior.imagem || "";
+    const arquivoImagem = el.pubImagemArquivo.files?.[0];
+    if (arquivoImagem) imagem = await enviarImagemGithub(arquivoImagem);
 
-  if (!resposta.ok) {
-    el.statusSistema.textContent = "Não foi possível salvar a publicação.";
-    return;
-  }
-
-  await registrarLogPortal(id ? "editou publicação" : "criou publicação", fields.Title);
-  limparFormulario();
-  await carregarPublicacoes();
-  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
-  el.statusSistema.textContent = sincronizado
-    ? (publicado ? "Publicação salva e enviada para o site." : "Rascunho salvo e removido da fonte pública.")
-    : "Publicação salva no SharePoint. Sincronize a fonte pública quando o token estiver configurado.";
-}
-
-function lerMetaFormulario() {
-  const local = normalizarLocalPublicacao(campo("campoLocal").value);
-  return normalizarMeta({
-    tipo: tipoPadraoPorLocal(local),
-    local,
-    imagemAlt: campo("campoImagemAlt").value.trim(),
-    link: campo("campoLink").value.trim(),
-    botao: campo("campoBotao").value.trim(),
-    ordem: campo("campoOrdem").value,
-    estilo: campo("campoEstilo").value
-  });
-}
-
-async function duplicarPublicacao(publicacao) {
-  preencherFormulario(publicacao);
-  campo("itemId").value = "";
-  campo("campoTitulo").value = `${publicacao.titulo} - cópia`;
-  el.tituloEditorPublicacao.textContent = "Duplicar publicação";
-  el.statusEditorPublicacao.textContent = "Rascunho";
-  atualizarPreviaPublicacao();
-}
-
-async function despublicarPublicacao(idInformado) {
-  const id = typeof idInformado === "string" ? idInformado : campo("itemId").value;
-  if (!id) return;
-  const publicacao = estado.publicacoes.find((item) => item.id === id);
-  const resposta = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items/${id}/fields`, {
-    method: "PATCH",
-    body: JSON.stringify({ Publicado: false, DataAtualizacao: new Date().toISOString() })
-  });
-  if (!resposta.ok) {
-    el.statusSistema.textContent = "Não foi possível tirar a publicação do site.";
-    return;
-  }
-  await registrarLogPortal("despublicou publicação", publicacao?.titulo || id);
-  limparFormulario();
-  await carregarPublicacoes();
-  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
-  el.statusSistema.textContent = sincronizado
-    ? "Publicação retirada do site."
-    : "Publicação retirada no SharePoint. A atualização pública depende do token GitHub.";
-}
-
-async function excluirPublicacao(idInformado) {
-  const id = typeof idInformado === "string" ? idInformado : campo("itemId").value;
-  if (!id || !confirm("Excluir esta publicação? Ela também será removida do site.")) return;
-  const publicacao = estado.publicacoes.find((item) => item.id === id);
-  const resposta = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.publicacoesListId}/items/${id}`, { method: "DELETE" });
-
-  if (!resposta.ok) {
-    el.statusSistema.textContent = "Não foi possível excluir a publicação.";
-    return;
-  }
-
-  await registrarLogPortal("excluiu publicação", publicacao?.titulo || id);
-  limparFormulario();
-  await carregarPublicacoes();
-  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
-  el.statusSistema.textContent = sincronizado
-    ? "Publicação excluída e removida do site."
-    : "Publicação excluída no SharePoint. A atualização pública depende do token GitHub.";
-}
-
-function abrirPrevia(publicacao) {
-  preencherFormulario(publicacao);
-  el.previaPublicacao.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
-function atualizarPreviaPublicacao() {
-  if (!el.previaPublicacao) return;
-  const titulo = campo("campoTitulo")?.value || "Título da publicação";
-  const resumo = campo("campoResumo")?.value || "Resumo curto da publicação.";
-  const imagem = campo("campoImagem")?.value || "";
-  const meta = lerMetaFormularioSeguro();
-  el.previaPublicacao.innerHTML = criarHtmlCardPublico({
-    titulo,
-    resumo,
-    conteudo: campo("campoConteudo")?.value || "",
-    imagem,
-    categoria: categoriaPadraoPorLocal(campo("campoLocal")?.value),
-    meta
-  });
-}
-
-function lerMetaFormularioSeguro() {
-  if (!campo("campoLocal")) return normalizarMeta({});
-  return lerMetaFormulario();
-}
-
-async function carregarConfiguracoes() {
-  const resposta = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items?expand=fields&$top=200`);
-  if (!resposta.ok) return;
-  const dados = await resposta.json();
-  const mapa = new Map((dados.value || []).map((item) => [item.fields?.Chave, item.fields?.Valor]));
-  el.campoFontePublica.value = mapa.get("fontePublicaPublicacoes") || FONTE_PUBLICA_PADRAO;
-  estado.githubToken = mapa.get("githubPublicacoesToken") || "";
-  if (estado.githubToken && el.campoGithubToken && !el.campoGithubToken.value) {
-    el.campoGithubToken.placeholder = "Token configurado no SharePoint";
-  }
-  const midiasSalvas = carregarJsonDeTexto(mapa.get("midiasConfig"), []);
-  if (Array.isArray(midiasSalvas)) {
-    estado.midias = [...midiasSalvas, ...estado.midias]
-      .filter((item, index, lista) => item?.url && lista.findIndex((outra) => outra.url === item.url) === index)
-      .slice(0, 30);
-    localStorage.setItem(STORAGE_MIDIAS, JSON.stringify(estado.midias));
-    renderizarMidias();
-  }
-  estado.home = normalizarHome(carregarJsonDeTexto(mapa.get("homeConfig"), {}));
-  preencherHomeFormulario();
-  atualizarOpcoesLocais();
-}
-
-function preencherHomeFormulario() {
-  campo("homeTitulo").value = estado.home.titulo;
-  campo("homeSubtitulo").value = estado.home.subtitulo;
-  campo("homeCorDestaque").value = estado.home.corDestaque || HOME_PADRAO.corDestaque;
-  renderizarSecoesHome();
-}
-
-function lerHomeDoFormulario() {
-  const secoes = [...el.listaSecoesHome.querySelectorAll(".homeSectionItem")].map((item) => ({
-    id: normalizarIdSecao(item.querySelector("[data-section-field='id']").value),
-    titulo: item.querySelector("[data-section-field='titulo']").value.trim(),
-    texto: item.querySelector("[data-section-field='texto']").value.trim(),
-    visivel: item.querySelector("[data-section-field='visivel']").checked,
-    layout: item.querySelector("[data-section-field='layout']").value === "lista" ? "lista" : "blocos",
-    tipo: item.querySelector("[data-section-field='tipo']").value === "destaque-indicadores" ? "destaque-indicadores" : "padrao",
-    indicadores: lerIndicadores(item.querySelector("[data-section-field='indicadores']").value),
-    fixa: item.dataset.fixa === "true"
-  })).filter((secao) => secao.id && secao.titulo);
-
-  return {
-    titulo: campo("homeTitulo").value.trim() || HOME_PADRAO.titulo,
-    subtitulo: campo("homeSubtitulo").value.trim() || HOME_PADRAO.subtitulo,
-    missao: textoSecao(secoes, "numeros") || HOME_PADRAO.missao,
-    infoTexto: textoSecao(secoes, "informacoes") || HOME_PADRAO.infoTexto,
-    corDestaque: campo("homeCorDestaque").value || HOME_PADRAO.corDestaque,
-    secoes,
-    mostrarSobre: secaoVisivel(secoes, "sobre"),
-    mostrarNumeros: secaoVisivel(secoes, "numeros"),
-    mostrarInformacoes: secaoVisivel(secoes, "informacoes"),
-    mostrarContato: secaoVisivel(secoes, "contato"),
-    mostrarBanners: true,
-    mostrarAvisos: secaoVisivel(secoes, "avisos"),
-    mostrarModal: true
-  };
-}
-
-function normalizarHome(config) {
-  const legado = { ...HOME_PADRAO, ...(config || {}) };
-  const secoesRecebidas = Array.isArray(legado.secoes) && legado.secoes.length
-    ? legado.secoes
-    : SECOES_HOME_PADRAO.map((secao) => ({
-      ...secao,
-      texto: secao.id === "numeros" ? legado.missao || secao.texto : secao.id === "informacoes" ? legado.infoTexto || secao.texto : secao.texto,
-      visivel: secao.id === "sobre" ? legado.mostrarSobre !== false
-        : secao.id === "numeros" ? legado.mostrarNumeros !== false
-        : secao.id === "informacoes" ? legado.mostrarInformacoes !== false
-        : secao.id === "avisos" ? legado.mostrarAvisos !== false
-        : secao.id === "contato" ? legado.mostrarContato !== false
-        : secao.visivel !== false
-    }));
-
-  return {
-    ...legado,
-    secoes: normalizarSecoesHome(secoesRecebidas)
-  };
-}
-
-function normalizarSecoesHome(secoes) {
-  const mapaFixas = new Map(SECOES_HOME_PADRAO.map((secao) => [secao.id, secao]));
-  const recebidas = (Array.isArray(secoes) ? secoes : []).map((secao) => {
-    const id = normalizarIdSecao(secao.id || secao.titulo);
-    const padrao = mapaFixas.get(id) || {};
-    return {
+    const item = {
+      ...anterior,
       id,
-      titulo: secao.titulo || padrao.titulo || "Nova seção",
-      texto: secao.texto || padrao.texto || "",
-      visivel: secao.visivel !== false,
-      layout: secao.layout === "lista" ? "lista" : "blocos",
-      tipo: secao.tipo === "destaque-indicadores" || id === "numeros" ? "destaque-indicadores" : "padrao",
-      indicadores: normalizarIndicadores(secao.indicadores, id === "numeros" ? INDICADORES_NUMEROS_PADRAO : []),
-      fixa: Boolean(secao.fixa || padrao.fixa)
+      titulo,
+      resumo: el.pubResumo.value.trim(),
+      conteudo: el.pubConteudo.value.trim(),
+      local: el.pubLocal.value,
+      estilo: el.pubEstilo.value,
+      imagem,
+      imagemAlt: titulo,
+      link: el.pubLink.value.trim(),
+      botao: el.pubBotao.value.trim(),
+      dataInicial: el.pubDataInicial.value || "",
+      dataFinal: el.pubDataFinal.value || "",
+      ordem: Number(anterior.ordem || 0),
+      publicado: el.pubPublicado.checked,
+      destaque: el.pubLocal.value === "destaques",
+      atualizadoEm: new Date().toISOString()
     };
-  }).filter((secao) => secao.id);
 
-  SECOES_HOME_PADRAO.forEach((padrao) => {
-    if (!recebidas.some((secao) => secao.id === padrao.id)) recebidas.push({ ...padrao });
-  });
+    const indice = remoto.dados.publicacoes.findIndex((publicacao) => publicacao.id === id);
+    if (indice >= 0) remoto.dados.publicacoes[indice] = item;
+    else remoto.dados.publicacoes.unshift(item);
 
-  return recebidas;
-}
+    remoto.dados.atualizadoEm = new Date().toISOString();
+    remoto.dados.origem = "GITHUB_ADMIN";
+    remoto.dados.cache = "fonte direta do repositório";
+    await gravarSiteDataGithub(remoto.dados, remoto.sha, `site: ${indice >= 0 ? "atualizar" : "criar"} publicação ${titulo}`);
 
-function renderizarSecoesHome() {
-  if (!el.listaSecoesHome) return;
-  el.listaSecoesHome.innerHTML = estado.home.secoes.map((secao, indice) => `
-    <article class="homeSectionItem" data-fixa="${secao.fixa ? "true" : "false"}">
-      <div class="homeSectionTop">
-        <strong>${escaparHtml(secao.titulo || "Seção")}</strong>
-        <label class="homeSectionVisible">
-          <input type="checkbox" data-section-field="visivel" ${secao.visivel !== false ? "checked" : ""}>
-          Mostrar seção
-        </label>
-      </div>
-      <div class="homeSectionFields">
-        <label>Identificador
-          <input type="text" data-section-field="id" value="${escaparHtml(secao.id)}" ${secao.fixa ? "readonly" : ""}>
-        </label>
-        <label>Título da seção
-          <input type="text" data-section-field="titulo" value="${escaparHtml(secao.titulo)}">
-        </label>
-      </div>
-      <label>Texto da seção
-        <textarea rows="2" data-section-field="texto">${escaparHtml(secao.texto)}</textarea>
-      </label>
-      <div class="homeSectionOptions">
-        <label>Tipo de seção
-          <select data-section-field="tipo">
-            <option value="padrao" ${secao.tipo !== "destaque-indicadores" ? "selected" : ""}>Seção padrão</option>
-            <option value="destaque-indicadores" ${secao.tipo === "destaque-indicadores" ? "selected" : ""}>Faixa de destaque com indicadores</option>
-          </select>
-        </label>
-        <label>Formato das publicações no site
-          <select data-section-field="layout">
-            <option value="blocos" ${secao.layout !== "lista" ? "selected" : ""}>Blocos</option>
-            <option value="lista" ${secao.layout === "lista" ? "selected" : ""}>Lista</option>
-          </select>
-        </label>
-        <button class="dangerButton" type="button" data-remover-secao="${indice}" ${secao.fixa ? "disabled" : ""}>Remover seção</button>
-      </div>
-      <label>Indicadores da faixa
-        <textarea rows="4" data-section-field="indicadores" placeholder="1990 | Fundação&#10;21 | Professores">${escaparHtml(formatarIndicadores(secao.indicadores))}</textarea>
-        <small>Use uma linha por bloco, separando o valor e a descrição com |.</small>
-      </label>
-    </article>
-  `).join("");
-
-  el.listaSecoesHome.querySelectorAll("[data-remover-secao]").forEach((botao) => {
-    botao.addEventListener("click", () => removerSecaoHome(Number(botao.dataset.removerSecao)));
-  });
-}
-
-function adicionarSecaoHome() {
-  estado.home = lerHomeDoFormulario();
-  const numero = estado.home.secoes.length + 1;
-  estado.home.secoes.push({
-    id: `secao-${numero}`,
-    titulo: `Nova seção ${numero}`,
-    texto: "",
-    visivel: true,
-    layout: "blocos",
-    tipo: "padrao",
-    indicadores: [],
-    fixa: false
-  });
-  renderizarSecoesHome();
-  atualizarOpcoesLocais();
-}
-
-function normalizarIndicadores(indicadores, padrao = []) {
-  const lista = Array.isArray(indicadores) ? indicadores : [];
-  const normalizados = lista
-    .map((item) => ({
-      valor: String(item?.valor || "").trim(),
-      rotulo: String(item?.rotulo || "").trim()
-    }))
-    .filter((item) => item.valor || item.rotulo)
-    .slice(0, 12);
-  return normalizados.length ? normalizados : padrao.map((item) => ({ ...item }));
-}
-
-function lerIndicadores(texto) {
-  return normalizarIndicadores(String(texto || "").split(/\r?\n/).map((linha) => {
-    const [valor, ...rotulo] = linha.split("|");
-    return { valor, rotulo: rotulo.join("|") };
-  }));
-}
-
-function formatarIndicadores(indicadores) {
-  return normalizarIndicadores(indicadores).map((item) => `${item.valor} | ${item.rotulo}`).join("\n");
-}
-
-function removerSecaoHome(indice) {
-  estado.home = lerHomeDoFormulario();
-  const secao = estado.home.secoes[indice];
-  if (!secao || secao.fixa) return;
-  estado.home.secoes.splice(indice, 1);
-  renderizarSecoesHome();
-  atualizarOpcoesLocais();
-}
-
-function textoSecao(secoes, id) {
-  return secoes.find((secao) => secao.id === id)?.texto || "";
-}
-
-function secaoVisivel(secoes, id) {
-  return secoes.find((secao) => secao.id === id)?.visivel !== false;
-}
-
-async function salvarHome(event) {
-  event.preventDefault();
-  await executarComBotao(event.submitter || el.formHome.querySelector("[type='submit']"), salvarHomeDados, "Salvando...");
-}
-
-async function salvarHomeDados() {
-  if (!estado.configListId) {
-    el.statusSistema.textContent = "Lista de configurações não encontrada.";
-    return;
-  }
-  estado.home = lerHomeDoFormulario();
-  atualizarOpcoesLocais();
-  const salvo = await salvarConfiguracaoValor("homeConfig", JSON.stringify(estado.home));
-  await registrarLogPortal("editou página inicial", "Configuração da home");
-  const sincronizado = await agendarSincronizacaoFontePublica({ silencioso: true });
-  el.statusSistema.textContent = salvo && sincronizado
-    ? "Editor da home salvo e enviado para o site."
-    : "Editor da home salvo. Sincronize a fonte pública quando possível.";
-}
-
-function aplicarHomeNaTela(home) {
-  el.statusSistema.textContent = `Prévia local: ${home.titulo}`;
-}
-
-async function salvarFontePublica() {
-  if (!estado.configListId) {
-    el.statusSistema.textContent = "Lista de configurações não encontrada.";
-    return;
-  }
-
-  const valor = el.campoFontePublica.value.trim() || FONTE_PUBLICA_PADRAO;
-  const tokenDigitado = el.campoGithubToken?.value.trim();
-  const fonteSalva = await salvarConfiguracaoValor("fontePublicaPublicacoes", valor);
-  let tokenSalvo = true;
-  if (tokenDigitado) {
-    tokenSalvo = await salvarConfiguracaoValor("githubPublicacoesToken", tokenDigitado);
-    estado.githubToken = tokenDigitado;
-    el.campoGithubToken.value = "";
-    el.campoGithubToken.placeholder = "Token configurado no SharePoint";
-  }
-  el.statusSistema.textContent = fonteSalva && tokenSalvo ? "Configuração de publicação salva." : "Não foi possível salvar a configuração.";
-}
-
-async function salvarConfiguracaoValor(chave, valor) {
-  if (!estado.configListId) return false;
-
-  const respostaLista = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items?expand=fields&$top=200`);
-  const dados = respostaLista.ok ? await respostaLista.json() : { value: [] };
-  const item = (dados.value || []).find((i) => i.fields?.Chave === chave);
-  const body = { Chave: chave, Valor: valor };
-
-  const resposta = item
-    ? await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items/${item.id}/fields`, { method: "PATCH", body: JSON.stringify(body) })
-    : await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.configListId}/items`, { method: "POST", body: JSON.stringify({ fields: body }) });
-
-  return resposta.ok;
-}
-
-async function sincronizarFontePublica(opcoes = {}) {
-  if (estado.sincronizando || !estado.publicacoesListId) return false;
-  const token = el.campoGithubToken?.value.trim() || estado.githubToken;
-  const repo = el.campoGithubRepo?.value.trim() || "mcpmieda/escolaieda";
-  const branch = el.campoGithubBranch?.value.trim() || "main";
-
-  if (!token) {
-    definirStatusFontePublica("Token GitHub não configurado. Abra Configurações, informe o token e salve para atualizar o site público.", opcoes.silencioso);
-    return false;
-  }
-
-  estado.sincronizando = true;
-  if (el.btnSincronizarPublicacoes) el.btnSincronizarPublicacoes.disabled = true;
-  el.btnSincronizarFontePublica.disabled = true;
-  definirStatusFontePublica("Sincronizando fonte pública...", opcoes.silencioso);
-  try {
-    await carregarPublicacoes();
-    const fonte = gerarFontePublica();
-    const conteudo = `${JSON.stringify(fonte, null, 2)}\n`;
-    await publicarArquivoGithub({ token, repo, branch, conteudo });
-    if (el.campoGithubToken?.value.trim()) {
-      await salvarConfiguracaoValor("githubPublicacoesToken", token);
-      estado.githubToken = token;
-      el.campoGithubToken.value = "";
-      el.campoGithubToken.placeholder = "Token configurado no SharePoint";
-    }
-    await registrarLogPortal("sincronizou fonte pública", CAMINHO_FONTE_PUBLICA);
-    definirStatusFontePublica(`Sincronização concluída. ${fonte.publicacoes.length} publicação(ões) visível(eis) no JSON público.`, false);
-    return true;
+    estado.siteData = remoto.dados;
+    renderizarPublicacoes();
+    limparFormularioPublicacao();
+    definirStatusPublicacao("Publicação salva com sucesso.", "success");
+    mostrarToast("Publicação salva no site.", "success");
   } catch (erro) {
     console.error(erro);
-    definirStatusFontePublica(`Erro ao atualizar GitHub: ${erro.message || "confira o token e tente novamente."}`, opcoes.silencioso);
-    return false;
+    definirStatusPublicacao(mensagemAmigavelGithub(erro), "error");
+    mostrarToast("Não foi possível salvar a publicação.", "error");
   } finally {
-    estado.sincronizando = false;
-    if (el.btnSincronizarPublicacoes) el.btnSincronizarPublicacoes.disabled = false;
-    el.btnSincronizarFontePublica.disabled = false;
+    estado.operacao = false;
+    alternarBotao(botao, false, "Salvar publicação");
   }
 }
 
-function agendarSincronizacaoFontePublica(opcoes = {}) {
-  if (estado.sincronizacaoTimer) {
-    clearTimeout(estado.sincronizacaoTimer);
-  }
-
-  definirStatusFontePublica("Sincronização automática agendada. Aguarde alguns segundos.", opcoes.silencioso);
-
-  const promessa = new Promise((resolve) => {
-    estado.sincronizacaoResolvers.push(resolve);
-  });
-
-  estado.sincronizacaoTimer = setTimeout(async () => {
-    const resolvers = estado.sincronizacaoResolvers.splice(0);
-    estado.sincronizacaoTimer = null;
-    const resultado = await sincronizarFontePublica(opcoes);
-    resolvers.forEach((resolve) => resolve(resultado));
-  }, 4000);
-
-  return promessa;
-}
-
-function gerarFontePublica() {
-  const agora = new Date();
-  const publicacoes = estado.publicacoes
-    .filter((publicacao) => publicacaoVisivel(publicacao, agora))
-    .sort(ordenarPublicacoes)
-    .map((publicacao) => ({
-      id: publicacao.id,
-      titulo: publicacao.titulo,
-      resumo: publicacao.resumo,
-      conteudo: publicacao.conteudo,
-      imagem: publicacao.imagem,
-      categoria: publicacao.categoria,
-      publicado: true,
-      destaque: publicacao.destaque === true,
-      dataInicial: publicacao.dataInicial || null,
-      dataFinal: publicacao.dataFinal || null,
-      atualizadoEm: publicacao.atualizadoEm || publicacao.criadoEm || null,
-      tipo: publicacao.meta.tipo,
-      local: publicacao.meta.local,
-      imagemAlt: publicacao.meta.imagemAlt,
-      link: publicacao.meta.link,
-      botao: publicacao.meta.botao,
-      ordem: publicacao.meta.ordem,
-      estilo: publicacao.meta.estilo
-    }));
-
-  return {
-    atualizadoEm: agora.toISOString(),
-    origem: "PUBLICACOES_SITE",
-    cache: "derivado do SharePoint",
-    home: estado.home,
-    publicacoes,
-    banners: publicacoes.filter((item) => item.local === "banner"),
-    avisos: publicacoes.filter((item) => item.local === "avisos" || item.tipo === "aviso"),
-    destaques: publicacoes.filter((item) => item.destaque || item.local === "destaques")
-  };
-}
-
-async function publicarArquivoGithub({ token, repo, branch, conteudo }) {
-  const [owner, name] = repo.split("/");
-  if (!owner || !name) throw new Error("Repositório GitHub inválido.");
-
-  const apiBase = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/contents/${CAMINHO_FONTE_PUBLICA}`;
-  const consulta = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`, { headers: cabecalhosGithub(token) });
-
-  let sha = "";
-  if (consulta.ok) {
-    const atual = await consulta.json();
-    sha = atual.sha || "";
-  } else if (consulta.status !== 404) {
-    throw new Error(await mensagemErroGithub(consulta, "Falha ao consultar arquivo público no GitHub."));
-  }
-
-  const resposta = await fetch(apiBase, {
-    method: "PUT",
-    headers: cabecalhosGithub(token),
-    body: JSON.stringify({
-      message: "Atualizar publicações públicas",
-      content: textoParaBase64(conteudo),
-      branch,
-      ...(sha ? { sha } : {})
-    })
-  });
-
-  if (!resposta.ok) throw new Error(await mensagemErroGithub(resposta, "Falha ao publicar fonte pública no GitHub."));
-
-  const validacao = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}&t=${Date.now()}`, { headers: cabecalhosGithub(token) });
-  if (!validacao.ok) throw new Error(await mensagemErroGithub(validacao, "Arquivo publicado, mas não foi possível validar no GitHub."));
-  const publicado = await validacao.json();
-  if (!publicado.sha) throw new Error("GitHub não retornou confirmação do arquivo público.");
-}
-
-async function mensagemErroGithub(resposta, fallback) {
-  try {
-    const dados = await resposta.json();
-    if (resposta.status === 401 || resposta.status === 403) return "token GitHub inválido ou sem permissão para gravar no repositório.";
-    return dados.message || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function cabecalhosGithub(token) {
-  return {
-    Accept: "application/vnd.github+json",
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  };
-}
-
-async function registrarLogPortal(evento, detalhes) {
-  if (!estado.logsListId) return;
-  try {
-    await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists/${estado.logsListId}/items`, {
-      method: "POST",
-      body: JSON.stringify({
-        fields: {
-          Evento: evento,
-          Usuario: estado.account?.name || estado.account?.username || "",
-          Detalhes: detalhes || "",
-          DataHora: new Date().toISOString()
-        }
-      })
-    });
-  } catch (erro) {
-    console.warn("Log do portal indisponível.", erro);
-  }
-}
-
-async function provisionarSharePoint() {
-  el.logProvisionamento.textContent = "Iniciando verificação...\n";
-  const listas = await obterListas();
-
-  await garantirLista(listas, CONFIG.publicacoesListName, "genericList", colunasPublicacaoBase());
-  await garantirLista(listas, CONFIG.avisosListName, "genericList", colunasPublicacaoBase());
-  await garantirLista(listas, CONFIG.bannersListName, "genericList", colunasPublicacaoBase());
-  await garantirLista(listas, CONFIG.destaquesListName, "genericList", colunasPublicacaoBase());
-  await garantirLista(listas, CONFIG.enquetesListName, "genericList", [
-    colunaTexto("Pergunta"),
-    colunaTextoMultilinha("Opcoes"),
-    colunaBoolean("Publicado"),
-    colunaData("DataInicial"),
-    colunaData("DataFinal")
-  ]);
-  await garantirLista(listas, CONFIG.configuracoesListName, "genericList", [
-    colunaTexto("Chave"),
-    colunaTextoMultilinha("Valor")
-  ]);
-  await garantirLista(listas, CONFIG.preferenciasListName, "genericList", [
-    colunaTexto("Usuario"),
-    colunaTexto("Chave"),
-    colunaTextoMultilinha("Valor"),
-    colunaDataHora("DataAtualizacao")
-  ]);
-  await garantirLista(listas, CONFIG.servicosListName, "genericList", [
-    colunaTexto("Nome"),
-    colunaTexto("Status"),
-    colunaTexto("Url"),
-    colunaTextoMultilinha("Descricao"),
-    colunaDataHora("DataAtualizacao")
-  ]);
-  await garantirLista(listas, CONFIG.logsListName, "genericList", [
-    colunaTexto("Evento"),
-    colunaTexto("Usuario"),
-    colunaTextoMultilinha("Detalhes"),
-    colunaDataHora("DataHora")
-  ]);
-  await garantirLista(listas, CONFIG.midiasLibraryName, "documentLibrary", []);
-  await atualizarIdsEstruturas();
-  await salvarConfiguracaoValor("fontePublicaPublicacoes", FONTE_PUBLICA_PADRAO);
-  await carregarDados();
-  registrarLog("Verificação concluída.");
-}
-
-async function atualizarIdsEstruturas() {
-  const listasAtualizadas = await obterListas();
-  estado.publicacoesListId = listasAtualizadas.find((lista) => lista.displayName === CONFIG.publicacoesListName)?.id || "";
-  estado.configListId = listasAtualizadas.find((lista) => lista.displayName === CONFIG.configuracoesListName)?.id || "";
-  estado.logsListId = listasAtualizadas.find((lista) => lista.displayName === CONFIG.logsListName)?.id || "";
-}
-
-async function garantirLista(listas, nome, template, columns) {
-  if (listas.some((lista) => lista.displayName === nome)) {
-    registrarLog(`${nome}: já existe.`);
+async function excluirPublicacao(id) {
+  const item = estado.siteData.publicacoes.find((publicacao) => publicacao.id === id);
+  if (!item) return;
+  if (!confirm(`Excluir “${item.titulo || "esta publicação"}”?`)) return;
+  if (!obterGithubToken()) {
+    abrirGithubDialog();
     return;
   }
 
-  const resposta = await graph(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/lists`, {
-    method: "POST",
-    body: JSON.stringify({ displayName: nome, list: { template }, columns })
-  });
-
-  registrarLog(`${nome}: ${resposta.ok ? "criada" : "falha ao criar"}.`);
-  if (!resposta.ok) registrarLog(await resposta.text());
-}
-
-function atualizarFiltros() {
-  estado.filtros = {
-    busca: el.filtroBusca.value,
-    status: el.filtroStatus.value,
-    local: el.filtroLocal.value,
-    ordenacao: el.filtroOrdenacao.value
-  };
-  localStorage.setItem(STORAGE_FILTROS, JSON.stringify(estado.filtros));
-  renderizarPublicacoes();
-}
-
-function carregarFiltrosNaTela() {
-  if (el.filtroBusca) el.filtroBusca.value = estado.filtros.busca;
-  if (el.filtroStatus) el.filtroStatus.value = estado.filtros.status;
-  if (el.filtroLocal) el.filtroLocal.value = estado.filtros.local;
-  if (el.filtroOrdenacao) el.filtroOrdenacao.value = estado.filtros.ordenacao;
-}
-
-function atualizarOpcoesLocais() {
-  const secoes = normalizarSecoesHome(estado.home.secoes);
-  const locais = [
-    ...secoes.map((secao) => ({ valor: secao.id, rotulo: secao.titulo || rotuloLocal(secao.id) })),
-    { valor: "banner", rotulo: "Banner/topo" },
-    { valor: "modal", rotulo: "Modal/aviso importante" }
-  ];
-  preencherSelectLocal(campo("campoLocal"), locais);
-  preencherSelectLocal(el.filtroLocal, [{ valor: "todos", rotulo: "Todos" }, ...locais.map((local) => ({
-    ...local,
-    rotulo: local.valor === "modal" ? "Modal" : local.rotulo
-  }))]);
-  carregarFiltrosNaTela();
-}
-
-function preencherSelectLocal(select, locais) {
-  if (!select) return;
-  const valorAtual = select.value;
-  select.innerHTML = locais.map((local) => `<option value="${escaparHtml(local.valor)}">${escaparHtml(local.rotulo)}</option>`).join("");
-  select.value = locais.some((local) => local.valor === valorAtual) ? valorAtual : locais[0]?.valor || "informacoes";
-}
-
-async function enviarImagemDaPublicacao() {
   try {
-    const arquivo = el.campoArquivoImagem?.files?.[0];
-    if (!arquivo) {
-      definirStatusImagem("Selecione uma imagem antes de enviar.");
-      return;
-    }
-    const alt = campo("campoImagemAlt").value.trim() || campo("campoTitulo").value.trim();
-    definirStatusImagem("Otimizando e enviando imagem...");
-    const midia = await enviarArquivoImagem(arquivo, alt);
-    campo("campoImagem").value = midia.url;
-    if (!campo("campoImagemAlt").value.trim()) campo("campoImagemAlt").value = midia.alt;
-    await registrarMidia(midia);
-    el.campoArquivoImagem.value = "";
-    definirStatusImagem("Imagem enviada e vinculada à publicação.");
-    atualizarPreviaPublicacao();
+    const remoto = await obterSiteDataGithub();
+    remoto.dados.publicacoes = remoto.dados.publicacoes.filter((publicacao) => publicacao.id !== id);
+    remoto.dados.atualizadoEm = new Date().toISOString();
+    remoto.dados.origem = "GITHUB_ADMIN";
+    remoto.dados.cache = "fonte direta do repositório";
+    await gravarSiteDataGithub(remoto.dados, remoto.sha, `site: excluir publicação ${item.titulo || id}`);
+    estado.siteData = remoto.dados;
+    renderizarPublicacoes();
+    if (el.pubId.value === id) limparFormularioPublicacao();
+    mostrarToast("Publicação excluída.", "success");
   } catch (erro) {
     console.error(erro);
-    definirStatusImagem(erro.message || "Não foi possível enviar a imagem.");
+    mostrarToast(mensagemAmigavelGithub(erro), "error");
   }
 }
 
-async function enviarMidia() {
-  try {
-    const arquivo = el.midiaArquivo?.files?.[0];
-    if (!arquivo) {
-      definirStatusMidia("Selecione uma imagem antes de enviar.");
-      return;
-    }
-    definirStatusMidia("Otimizando e enviando imagem...");
-    const midia = await enviarArquivoImagem(arquivo, el.midiaAlt.value.trim());
-    await registrarMidia(midia);
-    campo("campoImagem").value = midia.url;
-    campo("campoImagemAlt").value = midia.alt;
-    el.midiaArquivo.value = "";
-    el.midiaAlt.value = "";
-    definirStatusMidia("Imagem enviada. Ela já foi selecionada no editor de publicação.");
-    abrirAbaCms("conteudo");
-    atualizarStatusImagemPublicacao();
-    atualizarPreviaPublicacao();
-  } catch (erro) {
-    console.error(erro);
-    definirStatusMidia(erro.message || "Não foi possível enviar a imagem.");
-  }
-}
-
-async function enviarArquivoImagem(arquivo, alt) {
-  validarArquivoImagem(arquivo);
-  const imagem = await otimizarImagem(arquivo);
-  const token = el.campoGithubToken?.value.trim() || estado.githubToken;
-  const repo = el.campoGithubRepo?.value.trim() || "mcpmieda/escolaieda";
-  const branch = el.campoGithubBranch?.value.trim() || "main";
-  if (!token) throw new Error("Token GitHub não configurado. Abra Configurações e salve o token antes de enviar imagens.");
-  const nome = `${Date.now()}-${normalizarNomeArquivo(arquivo.name)}.webp`;
-  const caminho = `imagens/publicacoes/${nome}`;
-  const url = await publicarImagemGithub({ token, repo, branch, caminho, blob: imagem });
-  return { url, alt: alt || arquivo.name.replace(/\.[^.]+$/, "") };
-}
-
-function validarArquivoImagem(arquivo) {
-  const tipos = ["image/jpeg", "image/png", "image/webp"];
-  if (!tipos.includes(arquivo.type)) throw new Error("Formato não aceito. Use JPG, PNG ou WebP.");
-  if (arquivo.size > 8 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 8 MB.");
-}
-
-async function otimizarImagem(arquivo) {
-  const bitmap = await createImageBitmap(arquivo);
-  const limite = 1600;
-  const escala = Math.min(1, limite / Math.max(bitmap.width, bitmap.height));
-  const largura = Math.max(1, Math.round(bitmap.width * escala));
-  const altura = Math.max(1, Math.round(bitmap.height * escala));
-  const canvas = document.createElement("canvas");
-  canvas.width = largura;
-  canvas.height = altura;
-  const contexto = canvas.getContext("2d", { alpha: true });
-  contexto.drawImage(bitmap, 0, 0, largura, altura);
-  bitmap.close();
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.84));
-  if (!blob) throw new Error("Não foi possível otimizar a imagem.");
-  return blob;
-}
-
-async function publicarImagemGithub({ token, repo, branch, caminho, blob }) {
-  const [owner, name] = repo.split("/");
-  if (!owner || !name) throw new Error("Repositório GitHub inválido.");
-  const caminhoApi = caminho.split("/").map(encodeURIComponent).join("/");
-  const api = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/contents/${caminhoApi}`;
-  const resposta = await fetch(api, {
-    method: "PUT",
-    headers: cabecalhosGithub(token),
-    body: JSON.stringify({
-      message: `Adicionar imagem de publicação: ${caminho.split("/").pop()}`,
-      content: await blobParaBase64(blob),
-      branch
-    })
-  });
-  if (!resposta.ok) throw new Error(await mensagemErroGithub(resposta, "Falha ao enviar imagem para o site."));
-  const dados = await resposta.json();
-  const url = dados.content?.download_url;
-  if (!url) throw new Error("GitHub não retornou a URL pública da imagem.");
-  return url;
-}
-
-function blobParaBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const leitor = new FileReader();
-    leitor.onload = () => resolve(String(leitor.result).split(",")[1] || "");
-    leitor.onerror = () => reject(new Error("Não foi possível ler a imagem."));
-    leitor.readAsDataURL(blob);
-  });
-}
-
-function normalizarNomeArquivo(nome) {
-  return String(nome || "imagem")
-    .replace(/\.[^.]+$/, "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60) || "imagem";
-}
-
-async function registrarMidia(midia) {
-  estado.midias = [midia, ...estado.midias.filter((item) => item.url !== midia.url)].slice(0, 30);
-  localStorage.setItem(STORAGE_MIDIAS, JSON.stringify(estado.midias));
-  if (estado.configListId) await salvarConfiguracaoValor("midiasConfig", JSON.stringify(estado.midias));
-  renderizarMidias();
-}
-
-function linkPublicacaoValido(valor) {
-  try {
-    return ["http:", "https:"].includes(new URL(valor).protocol);
-  } catch {
-    return false;
-  }
-}
-
-function removerImagemDaPublicacao() {
-  campo("campoImagem").value = "";
-  if (el.campoArquivoImagem) el.campoArquivoImagem.value = "";
-  definirStatusImagem("Nenhuma imagem vinculada à publicação.");
-  atualizarPreviaPublicacao();
-}
-
-function atualizarStatusImagemPublicacao() {
-  definirStatusImagem(campo("campoImagem")?.value ? "Esta publicação possui uma imagem vinculada." : "Nenhuma imagem vinculada à publicação.");
-}
-
-function definirStatusImagem(texto) {
-  if (el.statusImagemPublicacao) el.statusImagemPublicacao.textContent = texto;
-}
-
-function definirStatusMidia(texto) {
-  if (el.statusMidia) el.statusMidia.textContent = texto;
-}
-
-function renderizarMidias() {
-  const dePublicacoes = estado.publicacoes
-    .filter((item) => item.imagem)
-    .map((item) => ({ url: item.imagem, alt: item.meta?.imagemAlt || item.titulo }));
-  const midias = [...estado.midias, ...dePublicacoes].filter((item, index, lista) => item.url && lista.findIndex((x) => x.url === item.url) === index).slice(0, 20);
-  if (!el.listaMidias) return;
-  el.listaMidias.innerHTML = midias.length
-    ? midias.map((item) => `
-      <button class="mediaItem" type="button" data-url="${escaparHtml(item.url)}" data-alt="${escaparHtml(item.alt || "")}">
-        <img src="${escaparHtml(item.url)}" alt="">
-        <span>${escaparHtml(item.alt || item.url)}</span>
-      </button>
-    `).join("")
-    : '<p class="hintText">Nenhuma mídia cadastrada ainda.</p>';
-  el.listaMidias.querySelectorAll(".mediaItem").forEach((botao) => {
-    botao.addEventListener("click", () => {
-      campo("campoImagem").value = botao.dataset.url;
-      campo("campoImagemAlt").value = botao.dataset.alt || "";
-      abrirAbaCms("conteudo");
-      atualizarStatusImagemPublicacao();
-      atualizarPreviaPublicacao();
-    });
-  });
-}
-
-function abrirAbaCms(nome) {
-  document.querySelectorAll(".cmsTab").forEach((tab) => tab.classList.toggle("active", tab.dataset.cmsTab === nome));
-  document.querySelectorAll(".cmsTabPanel").forEach((panel) => panel.classList.toggle("active", panel.id === `cmsTab-${nome}`));
-  localStorage.setItem(STORAGE_ULTIMA_ABA, nome);
-}
-
-function abrirView(nome) {
-  document.querySelectorAll(".view").forEach((view) => view.classList.remove("active"));
-  document.getElementById(`view-${nome}`)?.classList.add("active");
-  document.querySelectorAll(".navItem").forEach((botao) => botao.classList.toggle("active", botao.dataset.view === nome));
-
-  const titulos = {
-    inicio: "Painel Administrativo",
-    publicacoes: "Publicações do Site",
-    ponto: "Livro de Ponto",
-    configuracoes: "Configurações Internas"
-  };
-  el.tituloView.textContent = titulos[nome] || "Painel Administrativo";
-}
-
-async function graph(url, opcoes = {}) {
-  const metodo = String(opcoes.method || "GET").toUpperCase();
-  const tentativas = metodo === "GET" ? 3 : 1;
-
-  for (let tentativa = 1; tentativa <= tentativas; tentativa += 1) {
-    try {
-      const resposta = await fetch(url, {
-        ...opcoes,
-        cache: metodo === "GET" ? "no-store" : opcoes.cache,
-        headers: {
-          Authorization: `Bearer ${estado.token}`,
-          "Content-Type": "application/json",
-          ...(opcoes.headers || {})
-        }
-      });
-      const transitorio = resposta.status === 429 || resposta.status >= 500;
-      if (!transitorio || tentativa === tentativas) return resposta;
-    } catch (erro) {
-      if (tentativa === tentativas) throw erro;
-    }
-    await aguardar(500 * tentativa);
-  }
-
-  throw new Error("Falha inesperada ao acessar o Microsoft Graph.");
-}
-
-function aguardar(tempo) {
-  return new Promise((resolve) => setTimeout(resolve, tempo));
-}
-
-function mostrarSomente(area) {
-  el.loginView.classList.toggle("hidden", area !== "login");
-  el.restrictedView.classList.toggle("hidden", area !== "restrito");
-  el.dashboard.classList.toggle("hidden", area !== "dashboard");
-}
-
-function atualizarLoginStatus(texto) {
-  if (el.loginStatus) el.loginStatus.textContent = texto;
-}
-
-function registrarLog(texto) {
-  if (el.logProvisionamento) el.logProvisionamento.textContent += `${texto}\n`;
-}
-
-function campo(id) {
-  return document.getElementById(id);
-}
-
-function dataOuNull(valor) {
-  return valor ? `${valor}T00:00:00Z` : null;
-}
-
-function somenteData(valor) {
+function normalizarDataInput(valor) {
   return valor ? String(valor).slice(0, 10) : "";
 }
 
-function colunaTexto(name) {
-  return { name, text: {} };
+function gerarId() {
+  return globalThis.crypto?.randomUUID?.() || `pub-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function colunasPublicacaoBase() {
-  return [
-    colunaTexto("Resumo"),
-    colunaTextoMultilinha("Conteudo"),
-    colunaTexto("Imagem"),
-    colunaTexto("Categoria"),
-    colunaData("DataInicial"),
-    colunaData("DataFinal"),
-    colunaBoolean("Publicado"),
-    colunaBoolean("Destaque"),
-    colunaTexto("Autor"),
-    colunaDataHora("DataCriacao"),
-    colunaDataHora("DataAtualizacao")
-  ];
+function definirStatusPublicacao(texto, tipo = "") {
+  el.statusPublicacao.textContent = texto;
+  el.statusPublicacao.className = `inlineStatus ${tipo}`.trim();
 }
 
-function colunaTextoMultilinha(name) {
-  return { name, text: { allowMultipleLines: true } };
+function alternarBotao(botao, ocupado, texto) {
+  if (!botao) return;
+  botao.disabled = ocupado;
+  botao.setAttribute("aria-busy", ocupado ? "true" : "false");
+  botao.textContent = texto;
 }
 
-function colunaBoolean(name) {
-  return { name, boolean: {} };
+function obterGithubToken() {
+  return sessionStorage.getItem(SESSION_GITHUB_TOKEN) || localStorage.getItem(STORAGE_GITHUB_TOKEN) || "";
 }
 
-function colunaData(name) {
-  return { name, dateTime: { displayAs: "default" } };
+function abrirGithubDialog() {
+  el.githubTokenInput.value = "";
+  el.githubRemember.checked = Boolean(localStorage.getItem(STORAGE_GITHUB_TOKEN));
+  definirStatusGithubDialog(obterGithubToken() ? "Já existe uma conexão neste dispositivo. Você pode testar novamente ou trocar o token." : "");
+  if (typeof el.githubDialog.showModal === "function") el.githubDialog.showModal();
+  else el.githubDialog.setAttribute("open", "");
+  setTimeout(() => el.githubTokenInput.focus(), 50);
 }
 
-function colunaDataHora(name) {
-  return { name, dateTime: { displayAs: "default" } };
+function fecharGithubDialog() {
+  if (typeof el.githubDialog.close === "function") el.githubDialog.close();
+  else el.githubDialog.removeAttribute("open");
 }
 
-function criarHtmlCardPublico(item) {
-  const meta = normalizarMeta(item.meta || item);
-  const titulo = escaparHtml(item.titulo || item.categoria || "Publicação");
-  const resumo = escaparHtml(item.resumo || "");
-  const conteudo = escaparHtml(item.conteudo || "");
-  const imagem = item.imagem ? `<img class="publicMedia" src="${escaparHtml(item.imagem)}" alt="${escaparHtml(meta.imagemAlt || item.titulo || "")}">` : "";
-  const link = meta.link ? `<a class="publicacao-botao" href="${escaparHtml(meta.link)}" target="_blank" rel="noopener noreferrer">${escaparHtml(meta.botao || "Abrir")}</a>` : "";
-  return `
-    <article class="previewCard publicacao-dinamica estilo-${escaparHtml(meta.estilo)}">
-      ${imagem}
-      <h3>${titulo}</h3>
-      ${resumo ? `<p><strong>${resumo}</strong></p>` : ""}
-      ${conteudo ? `<p>${conteudo}</p>` : ""}
-      ${link}
-    </article>
-  `;
+async function salvarConfiguracaoGithub(event) {
+  event.preventDefault();
+  const digitado = el.githubTokenInput.value.trim();
+  const token = digitado || obterGithubToken();
+  if (!token) {
+    definirStatusGithubDialog("Informe um token GitHub.", "error");
+    return;
+  }
+
+  const botao = el.githubForm.querySelector("button[type='submit']");
+  alternarBotao(botao, true, "Testando...");
+  definirStatusGithubDialog("Testando acesso ao repositório...");
+
+  try {
+    await githubRequest(`/contents/${GITHUB.dataPath}?ref=${encodeURIComponent(GITHUB.branch)}`, { token });
+    if (el.githubRemember.checked) {
+      localStorage.setItem(STORAGE_GITHUB_TOKEN, token);
+      sessionStorage.removeItem(SESSION_GITHUB_TOKEN);
+    } else {
+      sessionStorage.setItem(SESSION_GITHUB_TOKEN, token);
+      localStorage.removeItem(STORAGE_GITHUB_TOKEN);
+    }
+    atualizarEstadoGithub(true);
+    definirStatusGithubDialog("Conexão confirmada.", "success");
+    mostrarToast("GitHub conectado.", "success");
+    setTimeout(fecharGithubDialog, 450);
+  } catch (erro) {
+    console.error(erro);
+    definirStatusGithubDialog("Não foi possível acessar o repositório com esse token.", "error");
+  } finally {
+    alternarBotao(botao, false, "Testar e salvar");
+  }
 }
 
-function classeStatus(status) {
-  return {
-    publicado: "",
-    rascunho: "draft",
-    agendado: "scheduled",
-    expirado: "expired"
-  }[status] || "draft";
+function definirStatusGithubDialog(texto, tipo = "") {
+  el.githubDialogStatus.textContent = texto;
+  el.githubDialogStatus.className = `inlineStatus ${tipo}`.trim();
 }
 
-function rotuloStatus(status) {
-  return {
-    publicado: "Publicado",
-    rascunho: "Rascunho",
-    agendado: "Agendado",
-    expirado: "Expirado"
-  }[status] || "Rascunho";
+function atualizarEstadoGithub(forcarConectado = false) {
+  const conectado = forcarConectado || Boolean(obterGithubToken());
+  if (el.githubMiniStatus) {
+    el.githubMiniStatus.classList.toggle("connected", conectado);
+    const texto = el.githubMiniStatus.querySelector("span:last-child");
+    if (texto) texto.textContent = conectado ? "GitHub configurado" : "GitHub não configurado";
+  }
+  if (el.githubStatusBadge) {
+    el.githubStatusBadge.textContent = conectado ? "Configurado" : "Não configurado";
+    el.githubStatusBadge.classList.toggle("connected", conectado);
+  }
 }
 
-function rotuloLocal(local) {
-  const id = normalizarLocalPublicacao(local);
-  return estado.home.secoes?.find((secao) => secao.id === id)?.titulo || LOCAIS_PUBLICACAO[id]?.rotulo || "Informações";
+async function obterSiteDataGithub() {
+  const arquivo = await githubRequest(`/contents/${GITHUB.dataPath}?ref=${encodeURIComponent(GITHUB.branch)}`);
+  const texto = decodificarBase64Utf8(arquivo.content || "");
+  return { sha: arquivo.sha, dados: normalizarSiteData(JSON.parse(texto)) };
 }
 
-function normalizarLocalPublicacao(local) {
-  const valor = normalizarIdSecao(local || "informacoes");
-  if (valor === "calendario") return "informacoes";
-  if (valor === "rodape") return "informacoes";
-  if (estado.home.secoes?.some((secao) => secao.id === valor)) return valor;
-  return LOCAIS_PUBLICACAO[valor] ? valor : "informacoes";
+async function gravarSiteDataGithub(dados, sha, mensagem) {
+  return githubRequest(`/contents/${GITHUB.dataPath}`, {
+    method: "PUT",
+    body: {
+      message: mensagem,
+      content: codificarBase64Utf8(JSON.stringify(dados, null, 2) + "\n"),
+      sha,
+      branch: GITHUB.branch
+    }
+  });
 }
 
-function tipoPadraoPorLocal(local) {
-  return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.tipo || "card";
+async function enviarImagemGithub(arquivo) {
+  const extensao = (arquivo.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const base = slugificar(arquivo.name.replace(/\.[^.]+$/, "")) || "imagem";
+  const caminho = `${GITHUB.imageRoot}/${Date.now()}-${base}.${extensao}`;
+  const conteudo = await arquivoParaBase64(arquivo);
+  await githubRequest(`/contents/${caminho}`, {
+    method: "PUT",
+    body: {
+      message: `site: adicionar imagem ${arquivo.name}`,
+      content: conteudo,
+      branch: GITHUB.branch
+    }
+  });
+  return `/${caminho}`;
 }
 
-function categoriaPadraoPorLocal(local) {
-  return LOCAIS_PUBLICACAO[normalizarLocalPublicacao(local)]?.categoria || "Aviso";
+async function githubRequest(path, { method = "GET", body = null, token = obterGithubToken() } = {}) {
+  if (!token) throw new Error("GITHUB_TOKEN_AUSENTE");
+  const resposta = await fetch(`https://api.github.com/repos/${GITHUB.repo}${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      ...(body ? { "Content-Type": "application/json" } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text();
+    const erro = new Error(`GITHUB_${resposta.status}`);
+    erro.status = resposta.status;
+    erro.detalhe = detalhe;
+    throw erro;
+  }
+  if (resposta.status === 204) return null;
+  return resposta.json();
 }
 
-function normalizarIdSecao(valor) {
+function codificarBase64Utf8(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  let binario = "";
+  const bloco = 0x8000;
+  for (let i = 0; i < bytes.length; i += bloco) {
+    binario += String.fromCharCode(...bytes.subarray(i, i + bloco));
+  }
+  return btoa(binario);
+}
+
+function decodificarBase64Utf8(base64) {
+  const limpo = String(base64).replace(/\s/g, "");
+  const binario = atob(limpo);
+  const bytes = Uint8Array.from(binario, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function arquivoParaBase64(arquivo) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader();
+    leitor.onload = () => resolve(String(leitor.result).split(",")[1] || "");
+    leitor.onerror = () => reject(new Error("FALHA_LEITURA_ARQUIVO"));
+    leitor.readAsDataURL(arquivo);
+  });
+}
+
+function slugificar(valor) {
   return String(valor || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, 40) || "informacoes";
+    .slice(0, 70);
 }
 
-function textoParaBase64(texto) {
-  const bytes = new TextEncoder().encode(texto);
-  let binario = "";
-  bytes.forEach((byte) => {
-    binario += String.fromCharCode(byte);
-  });
-  return btoa(binario);
+function mensagemAmigavelGithub(erro) {
+  if (erro?.message === "GITHUB_TOKEN_AUSENTE") return "Configure a conexão GitHub antes de salvar.";
+  if (erro?.status === 401 || erro?.status === 403) return "A conexão GitHub não tem permissão para salvar. Revise o token.";
+  if (erro?.status === 409) return "O site foi alterado em outro lugar. Atualize a página e tente novamente.";
+  if (erro?.status === 422) return "O GitHub recusou esta alteração. Confira os dados e tente novamente.";
+  return "Não foi possível salvar no GitHub agora.";
 }
 
-function carregarConfiguracaoGithubLocal() {
-  if (el.campoGithubRepo) el.campoGithubRepo.value = localStorage.getItem(STORAGE_GITHUB_REPO) || el.campoGithubRepo.value || "mcpmieda/escolaieda";
-  if (el.campoGithubBranch) el.campoGithubBranch.value = localStorage.getItem(STORAGE_GITHUB_BRANCH) || el.campoGithubBranch.value || "main";
-  if (el.campoGithubToken) el.campoGithubToken.value = sessionStorage.getItem(STORAGE_GITHUB_TOKEN) || "";
-}
-
-function salvarConfiguracaoGithubLocal() {
-  if (el.campoGithubRepo) localStorage.setItem(STORAGE_GITHUB_REPO, el.campoGithubRepo.value.trim());
-  if (el.campoGithubBranch) localStorage.setItem(STORAGE_GITHUB_BRANCH, el.campoGithubBranch.value.trim());
-  if (el.campoGithubToken) sessionStorage.setItem(STORAGE_GITHUB_TOKEN, el.campoGithubToken.value.trim());
-}
-
-function definirStatusFontePublica(texto, silencioso) {
-  if (!silencioso && el.statusFontePublica) el.statusFontePublica.textContent = texto;
-}
-
-function carregarJsonLocal(chave, padrao) {
-  try {
-    return JSON.parse(localStorage.getItem(chave)) || padrao;
-  } catch {
-    return padrao;
-  }
-}
-
-function carregarJsonDeTexto(texto, padrao) {
-  try {
-    return JSON.parse(texto || "") || padrao;
-  } catch {
-    return padrao;
-  }
-}
-
-function normalizarTexto(valor) {
-  return String(valor || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function escaparHtml(valor) {
-  return String(valor || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function mostrarToast(texto, tipo = "") {
+  if (!el.toast) return;
+  clearTimeout(estado.toastTimer);
+  el.toast.textContent = texto;
+  el.toast.className = `toast show ${tipo}`.trim();
+  estado.toastTimer = setTimeout(() => {
+    el.toast.className = "toast";
+  }, 3300);
 }

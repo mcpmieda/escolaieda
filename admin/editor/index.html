@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#071726">
+  <title>Editor visual | Escola Iêda MCPM</title>
+  <link rel="icon" type="image/png" href="../../imagens/favicon.png">
+  <link rel="stylesheet" href="vendor/grapes.min.css">
+  <link rel="stylesheet" href="escola-editor.css?v=20260819-grapes1">
+</head>
+<body>
+  <main class="editorShell">
+    <header class="editorTopbar">
+      <div class="editorBrand">
+        <a class="backButton" href="../" aria-label="Voltar ao Centro de Administração">←</a>
+        <img src="../../logo_escola.webp" alt="" class="editorLogo">
+        <div>
+          <span>Escola Iêda MCPM</span>
+          <strong>Editor visual da página inicial</strong>
+        </div>
+      </div>
+
+      <div class="editorHistory" aria-label="Histórico de edição">
+        <button class="iconButton" id="btnUndo" type="button" title="Desfazer" aria-label="Desfazer">↶</button>
+        <button class="iconButton" id="btnRedo" type="button" title="Refazer" aria-label="Refazer">↷</button>
+      </div>
+
+      <div class="deviceSwitch" aria-label="Tamanho da visualização">
+        <button class="deviceButton active" type="button" data-device="Desktop">Computador</button>
+        <button class="deviceButton" type="button" data-device="Tablet">Tablet</button>
+        <button class="deviceButton" type="button" data-device="Celular">Celular</button>
+      </div>
+
+      <div class="topbarActions">
+        <a class="button buttonGhost hideSmall" href="../../" target="_blank" rel="noopener">Ver site</a>
+        <button class="button buttonGhost" id="btnPreview" type="button">Prévia</button>
+        <button class="button buttonPrimary" id="btnSalvar" type="button">Salvar alterações</button>
+      </div>
+    </header>
+
+    <section class="editorWorkspace">
+      <aside class="blocksPanel" aria-label="Blocos para adicionar">
+        <div class="panelTitle">
+          <span>Adicionar</span>
+          <strong>Blocos</strong>
+        </div>
+        <div id="blocks"></div>
+        <div class="panelTip">
+          <span>i</span>
+          <p>Arraste um bloco para a página. Para editar algo existente, clique nele.</p>
+        </div>
+      </aside>
+
+      <section class="canvasArea">
+        <div class="editorState" id="editorLoading">
+          <span class="loadingMark"></span>
+          <strong>Preparando a página...</strong>
+          <small>Carregando o conteúdo atual sem alterar o site.</small>
+        </div>
+        <div id="gjs" aria-label="Página em edição"></div>
+      </section>
+
+      <aside class="propertiesPanel" aria-label="Propriedades do elemento selecionado">
+        <div class="propertiesTabs" role="tablist">
+          <button class="propertyTab active" type="button" data-panel="styles">Aparência</button>
+          <button class="propertyTab" type="button" data-panel="layers">Estrutura</button>
+        </div>
+        <div class="propertyPane active" id="stylesPane">
+          <div class="emptyProperty" id="propertyHelp">
+            <span>✦</span>
+            <strong>Selecione algo na página</strong>
+            <p>Depois de clicar em um texto, imagem ou bloco, as opções aparecem aqui.</p>
+          </div>
+          <div id="styles"></div>
+          <div id="traits" hidden aria-hidden="true"></div>
+        </div>
+        <div class="propertyPane" id="layersPane">
+          <div id="layers"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="statusToast" id="statusToast" role="status" aria-live="polite"></div>
+
+  <dialog class="editorDialog" id="githubDialog">
+    <form class="dialogCard" id="githubForm" method="dialog">
+      <div class="dialogHeading">
+        <span class="dialogIcon">⌘</span>
+        <div>
+          <span class="eyebrow">Conexão segura</span>
+          <h2>Conectar ao GitHub</h2>
+        </div>
+      </div>
+      <p>O token é usado somente no seu navegador para salvar esta página no repositório da escola. Ele nunca entra no código do site.</p>
+      <label>Token do GitHub
+        <input id="githubToken" type="password" autocomplete="off" spellcheck="false" required placeholder="github_pat_...">
+      </label>
+      <label class="rememberRow">
+        <input id="githubRemember" type="checkbox">
+        <span>Lembrar neste navegador</span>
+      </label>
+      <p class="dialogStatus" id="githubDialogStatus"></p>
+      <div class="dialogActions">
+        <button class="button buttonGhost" id="btnCancelarGithub" type="button">Cancelar</button>
+        <button class="button buttonPrimary" type="submit">Conectar e continuar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="editorDialog previewDialog" id="previewDialog">
+    <div class="previewCard">
+      <div class="previewHeader">
+        <div>
+          <span class="eyebrow">Prévia local</span>
+          <h2>Como a página ficará</h2>
+        </div>
+        <button class="iconButton" id="btnFecharPreview" type="button" aria-label="Fechar prévia">×</button>
+      </div>
+      <iframe id="previewFrame" title="Prévia da página"></iframe>
+    </div>
+  </dialog>
+
+  <script src="../github-safe-target.js"></script>
+  <script src="test-mode-ui.js"></script>
+  <script src="vendor/grapes.min.js"></script>
+  <script src="grapes-ptbr.js"></script>
+  <script type="module" src="escola-editor.js?v=20260820-safe3"></script>
+</body>
+</html>
