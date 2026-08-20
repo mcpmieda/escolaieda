@@ -20,10 +20,10 @@ const STORAGE_GITHUB_TOKEN = "escolaIedaGithubToken";
 const SESSION_GITHUB_TOKEN = "escolaIedaGithubTokenSessao";
 
 const loginRequest = {
-  scopes: ["User.Read", "Sites.Read.All"],
+  scopes: ["User.Read", "Sites.ReadWrite.All"],
   prompt: "select_account"
 };
-const tokenRequest = { scopes: ["User.Read", "Sites.Read.All"] };
+const tokenRequest = { scopes: ["User.Read", "Sites.ReadWrite.All"] };
 
 const msal = new PublicClientApplication({
   auth: {
