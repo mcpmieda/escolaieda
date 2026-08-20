@@ -1,5 +1,6 @@
 import "./admin-navigation.js";
-import "./admin-publicacoes-v2.js";
+import "./admin-sharepoint-cms.js";
+import "./admin-publicacoes-preview.js";
 
 const sistemasStyleHref = new URL("./admin-sistemas.css", import.meta.url).href;
 if (!document.querySelector('link[data-admin-sistemas="1"]')) {
