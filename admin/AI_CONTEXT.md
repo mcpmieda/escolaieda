@@ -4,11 +4,15 @@
 
 Projeto em desenvolvimento isolado na branch `feat/admin-visual-builder`.
 
+PR de validação:
+
+`#27 — Admin visual: GrapesJS para edição segura da Home`
+
 Baseline seguro anterior ao marco:
 
 `96e16d599d06768a0ab6a7a0ea807b94a838a168`
 
-Não alterar `main` sem validação real e autorização explícita do usuário.
+Não alterar ou mesclar `main` sem validação real e autorização explícita do usuário.
 
 ## Objetivo
 
@@ -17,7 +21,7 @@ Entregar um painel administrativo único, moderno e simples para usuário não t
 ## Arquitetura aprovada
 
 - `/admin/` = central administrativa.
-- `/admin/editor/` = editor visual **da Home**, baseado em GrapesJS vendorizado.
+- `/admin/editor/` = editor visual **da Home**, baseado em GrapesJS.
 - `/admin/livro-ponto/` = Livro de Ponto já existente, apenas linkado diretamente.
 - `/arquivo-digital/` e `/notas/` permanecem módulos independentes e não devem ser refatorados neste projeto.
 - GitHub é a fonte de verdade para conteúdo público.
@@ -30,22 +34,37 @@ Motor aprovado: GrapesJS.
 
 Versão fixada deste marco: `0.22.13`.
 Licença: BSD-3-Clause.
-Runtime final local:
+
+Runtime final esperado no próprio repositório:
 
 - `admin/editor/vendor/grapes.min.js`
 - `admin/editor/vendor/grapes.min.css`
+- `admin/editor/vendor/GRAPESJS-LICENSE`
+- `admin/editor/vendor/VERSION.txt`
 
-O runtime deve ficar dentro do próprio repositório. Não usar CDN em runtime, Vercel, TinaCMS/TinaCloud, PHP, banco novo ou CMS hospedado externamente.
+### Estado do runtime
 
-O workflow `.github/workflows/vendor-grapesjs.yml` é apenas um mecanismo de construção para copiar a versão fixada para a branch. Depois da vendorização, o navegador usa arquivos locais.
+Já existem localmente:
+
+- `GRAPESJS-LICENSE`;
+- `VERSION.txt`.
+
+Ainda faltam:
+
+- `grapes.min.js`;
+- `grapes.min.css`.
+
+O workflow temporário de vendorização foi **removido**, porque não houve execução do GitHub Actions nem após abertura/reabertura do PR. Não restaurar esse workflow como se fosse uma solução já comprovada.
+
+Não usar CDN em runtime no candidato final. Não introduzir Vercel, TinaCMS/TinaCloud, PHP, banco novo ou CMS hospedado externamente para contornar o empacotamento.
 
 ### Escopo deliberadamente reduzido
 
 A primeira versão edita somente `index.html`.
 
-Não oferecer criação arbitrária de novas páginas nesta fase. Essa função foi retirada porque aumenta muito a superfície de erro para usuário leigo. Só reconsiderar depois que a edição visual da Home estiver validada no uso real.
+Não oferecer criação arbitrária de novas páginas nesta fase. Só reconsiderar depois que a edição visual da Home estiver validada no uso real.
 
-Cabeçalho e rodapé são protegidos contra exclusão acidental pelo adaptador do editor. Scripts da Home não são executados nem editados dentro do canvas.
+Cabeçalho e rodapé são protegidos contra exclusão acidental. Scripts da Home não são executados nem editados dentro do canvas.
 
 ## Compatibilidade Home + JSON
 
@@ -58,7 +77,7 @@ Por isso, ao salvar visualmente, o adaptador:
 3. atualiza o objeto `home` do JSON para manter compatibilidade;
 4. grava `index.html` e o JSON no **mesmo commit Git**, usando Git Data API.
 
-Essa estratégia evita salvamento parcial e permite migrar a fonte da Home com segurança em etapa futura.
+Essa estratégia evita salvamento parcial.
 
 Blocos novos que não usam os atributos legados da Home ficam somente no HTML e não dependem do JSON.
 
@@ -82,6 +101,7 @@ Não restaurar `SharePoint Lists → sincronização → GitHub` sem decisão ex
 
 Repositório: `mcpmieda/escolaieda`.
 Branch de produção: `main`.
+Branch de desenvolvimento: `feat/admin-visual-builder`.
 
 Token:
 
@@ -93,7 +113,23 @@ Token:
 Imagens do editor: `imagens/editor/`.
 Imagens de publicações: `imagens/publicacoes/`.
 
-O editor visual usa Git Data API para atualizar Home + JSON em um commit atômico. Upload de imagem é uma operação separada e pode criar um commit próprio antes da página ser salva.
+### Proteção de escrita em testes
+
+Arquivo obrigatório neste marco:
+
+`admin/github-safe-target.js`
+
+Regra:
+
+- em `escolaieda.com` e `www.escolaieda.com`, chamadas do admin podem continuar usando `main`;
+- em qualquer outro hostname, referências GitHub deste repositório que apontariam para `main` são redirecionadas para `feat/admin-visual-builder`;
+- Microsoft Graph e outras origens não são alterados.
+
+Essa proteção foi integrada tanto ao `/admin/` quanto ao `/admin/editor/`.
+
+Teste isolado: **5/5 aprovado** para Contents ref, Git refs de leitura/escrita, corpo `branch: main` e preservação de Microsoft Graph.
+
+Não remover essa proteção durante testes de preview/local.
 
 ## Microsoft / Graph
 
@@ -101,7 +137,7 @@ O novo CMS não escreve no SharePoint.
 
 A leitura de `DOCUMENTOS_ATIVOS` continua servindo como gate de autorização da Secretaria.
 
-O ambiente funcional anterior foi validado com `Sites.ReadWrite.All`. A tentativa de reduzir o código para `Sites.Read.All` NÃO deve ser considerada concluída até a App Registration do Entra ID ser revisada em conjunto. Preservar a compatibilidade de login primeiro; depois reduzir o escopo de forma coordenada.
+O ambiente funcional anterior foi validado com `Sites.ReadWrite.All`. A tentativa de reduzir o código para `Sites.Read.All` NÃO deve ser considerada concluída até a App Registration do Entra ID ser revisada em conjunto. Preservar compatibilidade de login primeiro; depois reduzir escopo de forma coordenada.
 
 ## Itens removidos deste painel
 
@@ -125,7 +161,13 @@ NÃO remover `site-institucional/` automaticamente: contém conteúdo real/legad
 
 Não existe dependência Vercel na arquitetura nova.
 
-Foi detectado, porém, um check externo residual `Vercel` associado a commits do repositório. Ele deve ser removido administrativamente antes de encerrar a limpeza do ecossistema. Não usar esse deployment para validar funcionamento obrigatório.
+Foi detectado um check externo residual `Vercel` associado a commits do repositório. A equipe Vercel conectada retorna zero projetos acessíveis. Não usar esse deployment/check para validar funcionamento obrigatório e não reintroduzir Vercel como solução do editor.
+
+## Branch temporária neutralizada
+
+A branch `temp-should-not-create` foi criada acidentalmente durante uso do conector e imediatamente movida para o baseline seguro `96e16d...`.
+
+O conector não oferece exclusão física de branch. Não usar essa branch.
 
 ## UI
 
@@ -154,7 +196,9 @@ Fluxo obrigatório:
 5. testar no navegador real antes de merge;
 6. atualizar `admin/PROJETO_ADMIN_VISUAL.md` e `admin/EXECUCAO_ADMIN_VISUAL.md`;
 7. manter `admin/TESTES.md` coerente com o comportamento real;
-8. não declarar runtime GrapesJS pronto enquanto `admin/editor/vendor/grapes.min.js` e `.css` não estiverem versionados.
+8. não declarar runtime GrapesJS pronto enquanto `grapes.min.js` e `grapes.min.css` não estiverem versionados;
+9. manter PR #27 como draft até aprovação real;
+10. nunca fazer merge sem autorização explícita do usuário.
 
 ## Regra de aceite
 
@@ -163,7 +207,7 @@ Não considerar pronto apenas porque o código existe. O marco precisa comprovar
 - login Microsoft;
 - acesso da Secretaria;
 - painel em desktop e celular;
-- publicação direta no GitHub;
+- publicação direta no GitHub em branch segura durante teste;
 - upload de imagem;
 - renderização pública;
 - editor visual abrindo a Home;
