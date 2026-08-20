@@ -36,7 +36,7 @@ Confirmado:
 1. `admin/livro-ponto/` já é um módulo real.
 2. `institucional/index.html` era apenas página de teste.
 3. `site-institucional/` contém páginas reais/legadas e não deve ser removido em bloco.
-4. o CMS antigo publicava por listas SharePoint e depois sincronizava para GitHub;
+4. o CMS antigo publicava por listas SharePoint e depois sincronizava para GitHub.
 5. o site público já lê `site-data/publicacoes-publicas.json`.
 
 ## 2026-08-19 — Nova UI administrativa
@@ -231,22 +231,30 @@ Validação local:
 - identifica `grapesjs - 0.22.13` no cabeçalho;
 - tamanho: `1095002` bytes;
 - SHA-256: `c459a47bf7ff831e309b10aab4ce27c8d2d8280f62aa35dc6c1b7f776368f8c6`;
+- Git blob SHA esperado: `7e6965661f682e20915b4489cbeb3f85ec8706df`;
 - `node --check`: aprovado.
 
 ### grapes.min.css
 
 - tamanho: `60968` bytes;
 - SHA-256: `1edd206fb9e41c60d70c66cfdb2e79e2b9358df5c952333a8b5a6a5989f8c2d4`;
+- Git blob SHA esperado: `62009a27142982215ecb7eb02f114eadf4e93841`;
 - presença das classes principais `gjs-*`: confirmada.
 
 Os hashes foram gravados em `admin/editor/vendor/VERSION.txt`.
 
-### Limitação operacional atual
+## 2026-08-19 — Upload manual do runtime concluído
 
-O conector GitHub desta sessão aceita conteúdo textual, mas não possui parâmetro de arquivo local para transferir diretamente esses dois bundles grandes. Não criar workaround arquitetural permanente por causa dessa limitação. O candidato final continua exigindo os arquivos reais em:
+O usuário fez o upload dos dois bundles pelo GitHub na branch `feat/admin-visual-builder`.
 
-- `admin/editor/vendor/grapes.min.js`;
-- `admin/editor/vendor/grapes.min.css`.
+Verificação posterior pelo conteúdo da pasta `admin/editor/vendor/`:
+
+- `grapes.min.js` presente com `1095002` bytes e blob `7e6965661f682e20915b4489cbeb3f85ec8706df`;
+- `grapes.min.css` presente com `60968` bytes e blob `62009a27142982215ecb7eb02f114eadf4e93841`;
+- ambos coincidem byte a byte com os arquivos previamente validados;
+- licença e `VERSION.txt` permanecem presentes.
+
+Conclusão: **runtime local GrapesJS materializado e bloqueio de vendorização encerrado**.
 
 ## 2026-08-19 — Compatibilidade com a Home real
 
@@ -261,11 +269,26 @@ Verificado contra `index.html`:
 
 O contrato da nova tela de Publicações também foi comparado com `site-data/publicacoes-site.js`; os campos de publicação, período, estilos e locais usados pelo novo admin são compatíveis com o renderizador público existente.
 
+## 2026-08-19 — Revisão do PR após o runtime
+
+PR: `#27` — `Admin visual: GrapesJS para edição segura da Home`.
+
+Estado observado após o upload:
+
+- PR permanece **draft**;
+- `main` continua no baseline `96e16d599d06768a0ab6a7a0ea807b94a838a168`;
+- branch está `ahead` e `0` commits atrás do baseline;
+- comparação contém 18 arquivos alterados no escopo do projeto;
+- `arquivo-digital/`, `notas/` e arquivos internos de `admin/livro-ponto/` continuam fora do diff;
+- CodeRabbit retornou `success` no head pós-upload;
+- nenhuma thread de review está aberta;
+- check externo `Vercel` também retornou `success`, mas continua classificado como residual e não é requisito do produto.
+
 ## 2026-08-19 — Vercel residual
 
 Os commits da branch continuam recebendo um status externo `Vercel`.
 
-A conta Vercel conectada nesta sessão retorna zero projetos e o deployment indicado pelo status não é acessível por essa conexão. Portanto ele permanece classificado como integração/check residual fora da arquitetura.
+A conta Vercel conectada nesta sessão retorna zero projetos e o deployment indicado pelo status não é acessível por essa conexão. O próprio repositório ainda declara `https://escolaieda-prova-visual-formato.vercel.app` como homepage, mas esse ambiente não será tratado como dependência do novo admin.
 
 Conclusão:
 
@@ -275,12 +298,12 @@ Conclusão:
 
 ## Próximas condições antes do merge
 
-1. colocar fisicamente `grapes.min.js` e `grapes.min.css` em `admin/editor/vendor/` na branch;
-2. executar smoke test real do admin/editor;
-3. testar Publicações e upload de imagem contra a branch protegida;
-4. testar Home visual contra a branch protegida;
-5. revisar diff final contra baseline;
-6. resolver ou registrar formalmente a integração Vercel residual;
+1. executar smoke test real do `/admin/` e `/admin/editor/` em navegador;
+2. validar login Microsoft com conta autorizada e comportamento de conta não autorizada;
+3. testar Publicações e upload de imagem somente contra a branch protegida;
+4. testar edição e salvamento visual da Home somente contra a branch protegida;
+5. confirmar responsividade desktop/celular e atalhos dos sistemas;
+6. registrar resultado final no checklist;
 7. obter aprovação do usuário;
 8. somente então solicitar autorização explícita para merge.
 
