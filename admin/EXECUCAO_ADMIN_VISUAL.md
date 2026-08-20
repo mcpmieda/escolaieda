@@ -161,8 +161,6 @@ Criado `admin/editor/index.html` com:
 - undo/redo;
 - dispositivos;
 - prévia local sem escrita;
-- Asset Manager com upload para `imagens/editor/`;
-- limite de 8 MB por imagem;
 - token GitHub apenas no navegador;
 - salvamento explícito.
 
@@ -278,17 +276,16 @@ Estado observado após o upload:
 - PR permanece **draft**;
 - `main` continua no baseline `96e16d599d06768a0ab6a7a0ea807b94a838a168`;
 - branch está `ahead` e `0` commits atrás do baseline;
-- comparação contém 18 arquivos alterados no escopo do projeto;
 - `arquivo-digital/`, `notas/` e arquivos internos de `admin/livro-ponto/` continuam fora do diff;
 - CodeRabbit retornou `success` no head pós-upload;
-- nenhuma thread de review está aberta;
+- nenhuma thread de review estava aberta;
 - check externo `Vercel` também retornou `success`, mas continua classificado como residual e não é requisito do produto.
 
 ## 2026-08-19 — Vercel residual
 
 Os commits da branch continuam recebendo um status externo `Vercel`.
 
-A conta Vercel conectada nesta sessão retorna zero projetos e o deployment indicado pelo status não é acessível por essa conexão. O próprio repositório ainda declara `https://escolaieda-prova-visual-formato.vercel.app` como homepage, mas esse ambiente não será tratado como dependência do novo admin.
+O ambiente é útil como preview temporário do PR, mas não será tratado como dependência do novo admin.
 
 Conclusão:
 
@@ -296,15 +293,137 @@ Conclusão:
 - precisa ser removido administrativamente em etapa separada;
 - não usar Vercel como requisito do produto.
 
-## Próximas condições antes do merge
+# 2026-08-20 — Testes reais do editor
 
-1. executar smoke test real do `/admin/` e `/admin/editor/` em navegador;
-2. validar login Microsoft com conta autorizada e comportamento de conta não autorizada;
-3. testar Publicações e upload de imagem somente contra a branch protegida;
-4. testar edição e salvamento visual da Home somente contra a branch protegida;
-5. confirmar responsividade desktop/celular e atalhos dos sistemas;
-6. registrar resultado final no checklist;
-7. obter aprovação do usuário;
-8. somente então solicitar autorização explícita para merge.
+O usuário abriu `/admin/editor/` no preview e comprovou em navegador real:
 
-Nenhum merge na `main` foi autorizado ou realizado neste marco.
+- GrapesJS local carregando;
+- Home real dentro do canvas;
+- logo, estilos e imagens relativas resolvendo;
+- seleção de texto;
+- painel de aparência;
+- modo Computador;
+- modo Celular sem estouro horizontal visível;
+- localização PT-BR;
+- edição de texto;
+- undo;
+- redo;
+- Prévia local;
+- fechamento da Prévia preservando o fluxo.
+
+O usuário também relatou que os blocos disponíveis funcionaram e apareceram na Prévia.
+
+## 2026-08-20 — Primeiro salvamento real protegido
+
+O usuário criou um fine-grained PAT restrito ao repositório e realizou o primeiro salvamento real pelo preview.
+
+Resultado:
+
+- escrita foi para `feat/admin-visual-builder`;
+- `main` permaneceu no baseline seguro;
+- `index.html` e JSON foram gravados juntos.
+
+Problema detectado na inspeção do commit:
+
+- GrapesJS reserializou mais HTML do que o necessário;
+- um script temporário do preview Vercel apareceu no HTML salvo.
+
+A alteração de teste foi revertida/limpa antes de continuar.
+
+## 2026-08-20 — Correção do salvamento textual
+
+O mecanismo foi ajustado para partir do HTML canônico do GitHub.
+
+Segundo teste real:
+
+- subtítulo temporário foi salvo;
+- `index.html` teve diff mínimo;
+- JSON sincronizou o mesmo subtítulo;
+- nenhum script temporário do Vercel entrou;
+- `main` permaneceu intacta.
+
+O texto de teste foi removido depois da validação.
+
+## 2026-08-20 — Persistência de bloco
+
+Foi criado e salvo um bloco de texto temporário.
+
+Depois de recarregar o editor, o bloco permaneceu.
+
+Conclusão: persistência estrutural de bloco foi comprovada.
+
+O bloco de teste foi removido depois da validação.
+
+## 2026-08-20 — Testes de imagem no editor
+
+O fluxo de imagem foi testado separadamente.
+
+Comprovado:
+
+- arquivo físico chegou ao GitHub em `imagens/editor/`;
+- imagem apareceu no Asset Manager;
+- imagem escolhida apareceu visualmente no bloco antes de salvar.
+
+Falha reproduzida repetidamente:
+
+- após salvar e recarregar, a imagem escolhida não permanecia vinculada ao bloco.
+
+Foram analisados commits reais e tentadas correções no alvo do Asset Manager e no mecanismo de persistência. As tentativas revelaram que continuar insistindo nesse detalhe aumentaria complexidade e retrabalho sem melhorar o núcleo do primeiro marco.
+
+## 2026-08-20 — Decisão de produto: fechar V1 sem imagem no editor
+
+O usuário pediu explicitamente para “dar passos grandes”.
+
+Decisão:
+
+- parar de investir no refinamento de imagem neste marco;
+- remover o bloco `Imagem` da paleta do editor;
+- proteger imagens existentes contra troca dentro do editor;
+- manter Título, Texto, Cartões, Destaque e Botão;
+- manter imagem em **Publicações** como fluxo independente;
+- remover os arquivos usados somente nos testes de `imagens/editor/`;
+- limpar o `index.html` e JSON de resíduos das tentativas.
+
+Essa limitação está documentada e não é requisito de aceite da V1.
+
+## 2026-08-20 — Login Microsoft no preview
+
+O usuário abriu `/admin/` e acionou o login Microsoft.
+
+O fluxo chegou ao Microsoft Entra, mas o retorno foi bloqueado com:
+
+`AADSTS50011`
+
+Causa: o domínio temporário da Vercel não está cadastrado como redirect URI do App Registration.
+
+O usuário decidiu **não cadastrar** esse domínio temporário.
+
+Conclusão:
+
+- login foi validado parcialmente até o Entra;
+- retorno ao dashboard e gate Graph ficam pendentes para o domínio oficial;
+- não alterar o App Registration apenas para sustentar o preview temporário.
+
+## 2026-08-20 — Fechamento documental da V1
+
+Atualizados:
+
+- `admin/editor/README.md`;
+- `admin/AI_CONTEXT.md`;
+- `admin/TESTES.md`;
+- este diário.
+
+A UI da Visão Geral também deixou de prometer edição de imagens no construtor visual.
+
+## Condições restantes antes de qualquer merge
+
+1. testar Publicações na branch protegida;
+2. validar imagem de Publicação separadamente, se o recurso permanecer;
+3. validar visualmente o dashboard autenticado e seus atalhos;
+4. fazer regressão pública final;
+5. testar login completo no domínio oficial em momento controlado;
+6. revisar o PR candidato e checks finais;
+7. apresentar resumo ao usuário;
+8. obter autorização explícita do usuário para merge.
+
+Nenhum merge na `main` foi autorizado ou realizado.
