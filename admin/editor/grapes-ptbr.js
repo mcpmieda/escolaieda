@@ -115,7 +115,7 @@
   grapes.init = function initComPtBR(config = {}) {
     const i18nAtual = config.i18n || {};
     const mensagensAdicionais = i18nAtual.messagesAdd || {};
-    return initOriginal({
+    const editor = initOriginal({
       ...config,
       i18n: {
         ...i18nAtual,
@@ -128,5 +128,67 @@
         }
       }
     });
+
+    configurarSelecaoDeImagem(editor);
+    return editor;
   };
+
+  function configurarSelecaoDeImagem(editor) {
+    const assetManager = editor?.AssetManager;
+    if (!assetManager?.open || assetManager.__iedaSelecaoImagem) return;
+
+    const abrirOriginal = assetManager.open.bind(assetManager);
+
+    assetManager.open = function abrirComSelecaoPersistente(opcoes = {}) {
+      const alvoInicial = localizarImagem(editor.getSelected());
+      const selecionarOriginal = opcoes?.select;
+
+      return abrirOriginal({
+        ...opcoes,
+        select(asset, complete) {
+          const src = obterSrcAsset(asset);
+          const alvo = localizarImagem(editor.getSelected()) || alvoInicial;
+
+          if (src && alvo?.addAttributes) {
+            alvo.addAttributes({ src });
+          }
+
+          if (typeof selecionarOriginal === "function") {
+            selecionarOriginal(asset, complete);
+          }
+
+          if (complete && assetManager.isOpen?.()) {
+            assetManager.close();
+          }
+        }
+      });
+    };
+
+    Object.defineProperty(assetManager, "__iedaSelecaoImagem", {
+      value: true,
+      configurable: false,
+      enumerable: false,
+      writable: false
+    });
+  }
+
+  function localizarImagem(componente) {
+    if (!componente) return null;
+
+    const tag = String(componente.get?.("tagName") || "").toLowerCase();
+    if (tag === "img" || componente.is?.("image")) return componente;
+
+    const filhos = componente.components?.();
+    const modelos = filhos?.models || filhos || [];
+    for (const filho of modelos) {
+      const imagem = localizarImagem(filho);
+      if (imagem) return imagem;
+    }
+
+    return null;
+  }
+
+  function obterSrcAsset(asset) {
+    return asset?.getSrc?.() || asset?.get?.("src") || asset?.src || "";
+  }
 })();
