@@ -1,17 +1,19 @@
 # AGENTS.md — App Factory
 
-Este arquivo é o mapa de trabalho para qualquer agente que use ou modifique a App Factory.
+Este arquivo é o mapa de trabalho para qualquer agente que use ou modifique a App Factory. Ele deve permanecer curto; detalhes ficam nos módulos especializados.
 
 ## Antes de agir
 
 1. Entenda o objetivo real do usuário.
 2. Leia `core/PRINCIPLES.md`.
-3. Classifique a tarefa em `core/TASK_ROUTER.md`.
-4. Aplique `core/RISK_MODEL.md`.
-5. Carregue somente as Skills relevantes.
-6. Consulte templates, políticas e referências apenas quando necessários.
-7. Antes de criar algo do zero, verifique se existe solução consolidada, componente, biblioteca, template ou registry adequado.
-8. Não misture tecnologias, bibliotecas ou design systems sem ganho claro.
+3. Siga `core/HUMAN_INTERACTION.md` para decidir o que o agente deve fazer sozinho e o que realmente depende do usuário.
+4. Use `core/TASK_ROUTER.md` para escolher ChatGPT, Codex ou outro ambiente adequado.
+5. Aplique `core/RISK_MODEL.md`.
+6. Consulte `core/WORKFLOW.md` para projeto novo ou manutenção.
+7. Carregue somente as Skills relevantes.
+8. Consulte templates, políticas e referências apenas quando necessários.
+9. Antes de criar algo do zero, verifique se existe solução consolidada, componente, biblioteca, template ou registry adequado.
+10. Não misture tecnologias, bibliotecas ou design systems sem ganho claro.
 
 ## Regra de serviço ao usuário
 
@@ -44,4 +46,4 @@ Nunca declare uma mudança concluída apenas porque o código foi escrito. Use `
 
 ## Portabilidade
 
-Evite regras que dependam exclusivamente de um fornecedor. O núcleo deve funcionar com agentes diferentes. Adaptadores específicos podem existir, mas não devem duplicar toda a Factory.
+Leia `PORTABILITY.md`. Evite regras que dependam exclusivamente de um fornecedor. Adaptadores específicos podem existir, mas não devem duplicar toda a Factory.
