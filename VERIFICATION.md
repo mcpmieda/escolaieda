@@ -23,12 +23,21 @@ Execução segura de `scripts/testar-chegada-notas-poc.ps1`, com alteração tem
 
 Correlação: `d555133a-01ea-4cc0-af98-c23adaa338cf`. A duplicata foi recusada e o snapshot terminou com o valor inicial restaurado. Valores e identidade da linha não foram impressos.
 
+Depois da publicação, o mesmo fluxo foi exercitado no navegador autenticado pelo Link 1, com o Link 2 aberto antes da edição:
+
+| Ação no Link 1 | `grade.changed` no Link 2 | `grade.recalculated` no Link 2 |
+| --- | ---: | ---: |
+| alteração temporária | 1.565 ms | 4.394 ms |
+| restauração do original | 1.513 ms | 2.406 ms |
+
+Os quatro eventos ficaram `applied`. A interface voltou a mostrar o valor original e o estado `Recalculado` em 2.555 ms após a restauração. A meta de até 3 segundos para `grade.changed` passou nas duas direções. O p95 agregado das quatro fases foi 4.394 ms porque inclui o recálculo posterior, que deliberadamente não bloqueia a chegada imediata.
+
 ## Reconciliacao
 
 - consulta Graph equivalente à usada pelo navegador: 391 snapshots, dos quais 376 ativos; paginação íntegra;
-- log da POC: quatro eventos de auditoria no momento da conferência;
+- log da POC: oito eventos após o teste terminal e o teste autenticado no navegador;
 - teste final: duplicata lógica zero, snapshot restaurado e divergência zero na chave exercitada;
-- auditoria de privacidade: 369 nomes reais comparados com 190 arquivos de texto, zero ocorrência no worktree e nenhum nome impresso.
+- auditoria de privacidade final: 369 nomes reais comparados com 196 arquivos de texto, zero ocorrência no worktree e nenhum nome impresso.
 
 ## Gates executados
 
@@ -43,7 +52,12 @@ Correlação: `d555133a-01ea-4cc0-af98-c23adaa338cf`. A duplicata foi recusada e
 
 ## Publicacao
 
-Os URLs HTTPS e o teste autenticado modelo → receptor serão registrados aqui depois que o commit alcançar o GitHub Pages. O workbook já está privado no OneDrive institucional e possui somente link organizacional.
+- commit publicado: `f175f55b8d2e5f0c2002a572bea0cded01bbc4c1`;
+- GitHub Pages concluiu o build com estado `built`;
+- modelo, receptor, manifesto, OpenAPI e AsyncAPI responderam por HTTPS com status 200;
+- o modelo autenticado carregou exatamente 376 linhas protegidas;
+- o receptor autenticado iniciou sem contabilizar os quatro eventos anteriores nas métricas e recebeu quatro novos eventos sem recarregar;
+- o workbook está privado no OneDrive institucional e possui somente link organizacional.
 
 ## Limites da prova
 

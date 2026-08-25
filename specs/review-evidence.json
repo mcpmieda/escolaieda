@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-25T12:12:53+00:00",
+  "mode": "clean-context",
+  "verdict": "pass",
+  "spec_fingerprint": "cdf190a13b38a071ae2c0b0872cb4ba057406e6e9db51052e6c73aac99021d2a",
+  "verification_plan_fingerprint": "2f36c9022dc52fd213680103ecbfcd2e79b8586e35a06085c32ec9e0d995c694",
+  "subject_fingerprint": "0fef852da5f3a9b4678c8c01dd3c3fef61c90a1dade525b9416576428ad06090",
+  "criteria": {
+    "AC-001": "pass",
+    "AC-002": "pass",
+    "AC-003": "pass",
+    "AC-004": "pass",
+    "AC-005": "pass",
+    "AC-006": "pass",
+    "AC-007": "pass",
+    "AC-008": "pass",
+    "AC-009": "pass",
+    "AC-010": "pass"
+  },
+  "findings": [
+    "Revisão final confirma cobertura dos dez critérios, incluindo teste autenticado publicado e auditoria de privacidade em 196 arquivos.",
+    "O adaptador permanece explicitamente limitado à POC; banco oficial e implantação ampla continuam fora de escopo."
+  ]
+}

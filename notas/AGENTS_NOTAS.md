@@ -750,6 +750,7 @@ Exceção da regra de publicação: não fazer commit/push apenas se o responsá
 - `/notas-integracao/modelo/` e `/notas-integracao/receptor/` carregam dados somente após autenticação Microsoft e usam Graph como adaptador de prova; o GitHub Pages hospeda apenas código.
 - O modelo e o add-in emitem `grade.changed` sem aguardar cálculo e `grade.recalculated` como segunda fase correlacionada. Idempotência e sequência impedem duplicação lógica e regressão silenciosa.
 - O teste real via terminal registrou chegada/aplicação de `grade.changed` em 1.927 ms, `grade.recalculated` em 1.335 ms e reversão em 1.280 ms; duplicata rejeitada e snapshot restaurado.
+- O teste posterior pelo modelo web publicado registrou `grade.changed` em 1.565 ms na alteração e 1.513 ms na restauração; os `grade.recalculated` correlacionados chegaram em 4.394 ms e 2.406 ms. Os quatro eventos ficaram `applied`, a tela restaurou o valor inicial e nenhuma identidade/nota foi gravada em log público.
 - OpenAPI, AsyncAPI e manifesto Office foram validados; os testes locais, auditoria de dados e auditoria visual responsiva passaram. Nenhum nome real foi encontrado nos arquivos de texto do worktree.
 - A POC comprova a aplicabilidade do transporte e do modelo, mas não torna o SharePoint a API definitiva, não substitui o banco oficial e não autoriza distribuição ampla do add-in.
 
