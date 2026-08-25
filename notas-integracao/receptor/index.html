@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Receptor de Notas · POC Protegida</title>
+  <link rel="icon" href="../../imagens/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../css/integracao.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">IÊ</div><div><strong>Receptor do banco de notas</strong><span>Monitoramento autenticado da POC</span></div></div>
+      <div class="top-actions"><a class="button secondary" href="../modelo/" target="_blank" rel="noopener">Abrir modelo</a><button class="button secondary hidden" id="pauseButton" type="button">Pausar</button><button class="button secondary hidden" id="logoutButton" type="button">Sair</button></div>
+    </header>
+    <section class="hero">
+      <div><p class="eyebrow">Link 2 · recepção ao vivo</p><h1>Eventos chegando sem recarregar</h1><p>O receptor consulta somente o log protegido da POC e mede a diferença entre o envio no cliente, a criação no SharePoint e a observação nesta página.</p></div>
+      <div class="status-pill" id="connectionStatus" data-state="working"><strong>Verificando acesso</strong><span>Nenhum dado foi carregado.</span></div>
+    </section>
+
+    <section class="card auth-card" id="authView">
+      <h2>Acesso institucional necessário</h2>
+      <p>Entre com uma conta autorizada. Nenhuma nota real é colocada no HTML público antes da autenticação.</p>
+      <button class="button" id="loginButton" type="button">Entrar com Microsoft</button>
+    </section>
+
+    <section id="receiverView" class="hidden" aria-busy="true">
+      <div class="metrics">
+        <article class="card metric"><span>Eventos observados</span><strong id="eventCount">0</strong></article>
+        <article class="card metric"><span>Latência mediana</span><strong id="medianLatency">—</strong></article>
+        <article class="card metric"><span>P95 observado</span><strong id="p95Latency">—</strong></article>
+        <article class="card metric"><span>Dentro da meta de 3 s</span><strong id="targetRate">—</strong></article>
+      </div>
+      <section class="card">
+        <div class="table-meta"><strong>Fluxo de eventos</strong><span id="lastPoll">Aguardando primeira consulta</span></div>
+        <div class="event-list" id="eventList"><p class="empty">Nenhum evento da prova foi recebido ainda.</p></div>
+      </section>
+    </section>
+    <p class="live-region" id="liveRegion" aria-live="polite"></p>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

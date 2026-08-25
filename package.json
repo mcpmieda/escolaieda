@@ -1,0 +1,10 @@
+{
+  "name": "escolaieda-static-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/testes-notas.mjs && node scripts/testes-notas-integracao.mjs",
+    "test:visual": "node scripts/auditoria-visual-notas-integracao.mjs"
+  }
+}

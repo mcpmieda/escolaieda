@@ -1,0 +1,84 @@
+asyncapi: 3.1.0
+info:
+  title: Eventos de Sincronização de Notas da Escola Iêda
+  version: 1.0.0
+  description: Contrato futuro do stream autenticado; exemplos são fictícios.
+servers:
+  production:
+    host: api.escolaieda.com
+    protocol: https
+    description: Endereço futuro; não provisionado nesta POC
+channels:
+  gradeEvents:
+    address: /v1/grade-events/stream
+    messages:
+      gradeEventReceipt:
+        $ref: '#/components/messages/GradeEventReceipt'
+operations:
+  receiveGradeEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/gradeEvents'
+    summary: Receptor autenticado acompanha confirmações de eventos
+    messages:
+      - $ref: '#/channels/gradeEvents/messages/gradeEventReceipt'
+components:
+  messages:
+    GradeEventReceipt:
+      name: GradeEventReceipt
+      title: Confirmação de evento de nota
+      contentType: application/json
+      correlationId:
+        location: $message.payload#/correlationId
+      payload:
+        type: object
+        additionalProperties: false
+        required:
+          - schemaVersion
+          - eventId
+          - correlationId
+          - eventType
+          - gradeKey
+          - field
+          - valueAfter
+          - sequence
+          - status
+          - clientSentAt
+          - receivedAt
+        properties:
+          schemaVersion:
+            const: 1
+          eventId:
+            type: string
+            format: uuid
+          correlationId:
+            type: string
+            format: uuid
+          eventType:
+            type: string
+            enum: [grade.changed, grade.recalculated, grade.reverted]
+          gradeKey:
+            type: string
+            example: 2026|T01|M|aluno-ficticio-001
+          field:
+            type: string
+            enum: [NotaT1, NotaT2, NotaT3, RecT1, RecT2, RecT3, Total, TotalRec, NotaFinal]
+          valueAfter:
+            oneOf:
+              - type: number
+              - type: 'null'
+          sequence:
+            type: integer
+            minimum: 1
+          status:
+            type: string
+            enum: [applied, stale, duplicate, queued, rejected]
+          clientSentAt:
+            type: string
+            format: date-time
+          receivedAt:
+            type: string
+            format: date-time
+          sourceKind:
+            type: string
+            enum: [excel-addin, web-model, reconciliation]

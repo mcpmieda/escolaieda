@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xsi:type="TaskPaneApp">
+  <Id>92c64027-67e9-46f2-92b9-8f93cc84f981</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Escola Municipal Professora Iêda Alves de Oliveira MCPM</ProviderName>
+  <DefaultLocale>pt-BR</DefaultLocale>
+  <DisplayName DefaultValue="Sincronização de Notas · POC" />
+  <Description DefaultValue="Monitora TB_LANCAMENTOS e envia eventos idempotentes ao banco de notas." />
+  <IconUrl DefaultValue="https://escolaieda.com/logo_escola.png" />
+  <HighResolutionIconUrl DefaultValue="https://escolaieda.com/logo_escola.png" />
+  <SupportUrl DefaultValue="https://escolaieda.com/notas-integracao/" />
+  <AppDomains>
+    <AppDomain>https://escolaieda.com</AppDomain>
+    <AppDomain>https://login.microsoftonline.com</AppDomain>
+    <AppDomain>https://graph.microsoft.com</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Workbook" />
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.9">
+      <Set Name="ExcelApi" MinVersion="1.9" />
+    </Sets>
+  </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://escolaieda.com/notas-integracao/addin/" />
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+</OfficeApp>

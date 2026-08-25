@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "depth": "domain",
+  "source_contract_fingerprint": "cdf190a13b38a071ae2c0b0872cb4ba057406e6e9db51052e6c73aac99021d2a",
+  "glossary": [
+    {"id": "TERM-001", "term": "lançamento", "definition": "Conjunto de campos de nota para um estudante, turma e componente em um ano letivo.", "aliases": ["registro de nota"]},
+    {"id": "TERM-002", "term": "evento imediato", "definition": "Evento grade.changed criado após a edição aceita e antes de aguardar o recálculo completo.", "aliases": []},
+    {"id": "TERM-003", "term": "evento recalculado", "definition": "Evento grade.recalculated correlacionado, emitido quando Total, TotalRec e NotaFinal estão estáveis.", "aliases": []},
+    {"id": "TERM-004", "term": "chegada", "definition": "Momento em que o receptor autenticado observa a confirmação persistida do evento.", "aliases": ["recepção"]},
+    {"id": "TERM-005", "term": "ausente", "definition": "Valor de nota não lançado; semanticamente diferente do número zero.", "aliases": ["vazio"]},
+    {"id": "TERM-006", "term": "reconciliação", "definition": "Comparação por chave entre origem, modelo, evento e snapshot, com contagem explícita de divergências.", "aliases": []}
+  ],
+  "entities": [
+    {"id": "ENT-001", "name": "Lançamento", "definition": "Registro de notas de uma posição de estudante em um componente.", "attributes": ["gradeKey", "AnoLetivo", "TurmaCodigo", "ComponenteCodigo", "AlunoId", "LinhaOrigem"]},
+    {"id": "ENT-002", "name": "Evento de nota", "definition": "Fato imutável de edição, recálculo ou reversão.", "attributes": ["eventId", "idempotencyKey", "correlationId", "eventType", "sequence", "clientSentAt"]},
+    {"id": "ENT-003", "name": "Snapshot", "definition": "Último estado confirmado por chave e campo na POC.", "attributes": ["gradeKey", "field", "value", "sequence", "lastEventId"]},
+    {"id": "ENT-004", "name": "Origem", "definition": "Workbook/add-in, modelo web ou rotina de reconciliação que produz eventos.", "attributes": ["kind", "workbookId", "worksheetId", "cellAddress", "sourceRevision"]},
+    {"id": "ENT-005", "name": "Receptor", "definition": "Página autenticada que acompanha confirmações sem recarregar.", "attributes": ["lastObservedEventId", "observedAt", "connectionState"]}
+  ],
+  "relations": [
+    {"id": "REL-001", "name": "descreve", "from": "ENT-002", "to": "ENT-001", "min": 1, "max": 1, "definition": "Cada evento descreve exatamente um lançamento; um lançamento pode ter vários eventos."},
+    {"id": "REL-002", "name": "projeta", "from": "ENT-003", "to": "ENT-001", "min": 1, "max": 1, "definition": "Cada snapshot projeta um campo de um lançamento."},
+    {"id": "REL-003", "name": "produzido-por", "from": "ENT-002", "to": "ENT-004", "min": 1, "max": 1, "definition": "Todo evento identifica exatamente uma origem técnica."}
+  ],
+  "states": [
+    {"id": "STATE-001", "name": "queued", "entity_ref": "ENT-002", "definition": "Evento aguardando tentativa de envio."},
+    {"id": "STATE-002", "name": "applied", "entity_ref": "ENT-002", "definition": "Evento aceito e refletido no snapshot."},
+    {"id": "STATE-003", "name": "stale", "entity_ref": "ENT-002", "definition": "Evento auditado, mas mais antigo que o snapshot vigente."},
+    {"id": "STATE-004", "name": "duplicate", "entity_ref": "ENT-002", "definition": "Repetição idempotente sem segundo efeito lógico."},
+    {"id": "STATE-005", "name": "rejected", "entity_ref": "ENT-002", "definition": "Evento inválido ou não autorizado."}
+  ],
+  "transitions": [
+    {"id": "TRANS-001", "entity_ref": "ENT-002", "from": "STATE-001", "to": "STATE-002", "trigger": "persistência confirma evento atual"},
+    {"id": "TRANS-002", "entity_ref": "ENT-002", "from": "STATE-001", "to": "STATE-003", "trigger": "sequência é anterior ao snapshot"},
+    {"id": "TRANS-003", "entity_ref": "ENT-002", "from": "STATE-001", "to": "STATE-004", "trigger": "IdempotencyKey já confirmada com o mesmo payload"},
+    {"id": "TRANS-004", "entity_ref": "ENT-002", "from": "STATE-001", "to": "STATE-005", "trigger": "entrada ou autorização inválida"}
+  ],
+  "requirements": [
+    {
+      "id": "REQ-001", "priority": "must", "pattern": "event", "component": "Gerador do modelo", "scope": ["agenda Nina somente leitura"],
+      "preconditions": ["TB_EXPORT_NOTAS foi construída e validada em cópia técnica"], "trigger": "geração do modelo v2",
+      "response": ["copiar os 16 campos do contrato", "criar fórmulas derivadas", "remover VBA e vínculos externos", "produzir relatório agregado de reconciliação"], "timing": null,
+      "concept_refs": ["ENT-001", "TERM-006"], "acceptance_refs": ["AC-001"], "invariant_refs": ["INV-001", "INV-004", "INV-005"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-002", "priority": "must", "pattern": "policy", "component": "Autorização", "scope": ["modelo web", "receptor", "add-in"],
+      "preconditions": ["o recurso contém ou pode expor dados reais"], "trigger": "cliente tenta ler ou escrever",
+      "response": ["exigir token Microsoft válido", "confiar na autorização efetiva do SharePoint", "não renderizar dado antes da confirmação"], "timing": null,
+      "concept_refs": ["ENT-005"], "acceptance_refs": ["AC-002", "AC-008"], "invariant_refs": ["INV-001", "INV-007"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-003", "priority": "must", "pattern": "event", "component": "Emissor de edição", "scope": ["campo editável válido"],
+      "preconditions": ["identidade do lançamento foi resolvida"], "trigger": "edição é aceita",
+      "response": ["criar grade.changed", "enfileirar sem aguardar cálculo", "registrar tempos técnicos"], "timing": "fila em até 300 ms; chegada alvo em até 3 s",
+      "concept_refs": ["ENT-001", "ENT-002", "TERM-002", "TERM-004"], "acceptance_refs": ["AC-003"], "invariant_refs": ["INV-004", "INV-006"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-004", "priority": "must", "pattern": "policy", "component": "Persistência de eventos", "scope": ["retry e reconexão"],
+      "preconditions": ["pode existir evento com a mesma IdempotencyKey"], "trigger": "evento é recebido",
+      "response": ["aplicar no máximo uma alteração lógica", "retornar confirmação existente para repetição compatível", "rejeitar colisão incompatível"], "timing": null,
+      "concept_refs": ["ENT-002"], "acceptance_refs": ["AC-004"], "invariant_refs": ["INV-002"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-005", "priority": "must", "pattern": "state", "component": "Ordenação do snapshot", "scope": ["eventos da mesma chave e campo"],
+      "preconditions": ["snapshot pode estar em sequência mais nova"], "trigger": "evento tenta atualizar snapshot",
+      "response": ["comparar sequência", "preservar o estado mais novo", "classificar evento antigo como stale"], "timing": null,
+      "concept_refs": ["ENT-002", "ENT-003"], "acceptance_refs": ["AC-005"], "invariant_refs": ["INV-003"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-006", "priority": "must", "pattern": "event", "component": "Add-in Office.js", "scope": ["TB_LANCAMENTOS"],
+      "preconditions": ["add-in autenticado e tabela disponível"], "trigger": "worksheet.onChanged informa célula monitorada",
+      "response": ["resolver linha e campo", "validar valor", "usar grade-event-v1", "repetir falhas transitórias com backoff limitado"], "timing": "não bloquear interação do Excel",
+      "concept_refs": ["ENT-001", "ENT-002", "ENT-004"], "acceptance_refs": ["AC-006"], "invariant_refs": ["INV-002", "INV-004", "INV-006"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-007", "priority": "must", "pattern": "event", "component": "Receptor web", "scope": ["sessão autorizada"],
+      "preconditions": ["receptor está aberto"], "trigger": "confirmação nova fica disponível",
+      "response": ["atualizar lista sem reload", "distinguir changed e recalculated", "exibir estados de rede e recuperação"], "timing": "polling da POC em 1 s",
+      "concept_refs": ["ENT-002", "ENT-005", "TERM-003", "TERM-004"], "acceptance_refs": ["AC-007"], "invariant_refs": ["INV-006", "INV-007"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-008", "priority": "must", "pattern": "policy", "component": "Proteção de dados", "scope": ["repositório público e logs"],
+      "preconditions": ["dados reais são usados no teste"], "trigger": "código, artefato ou evidência é produzido",
+      "response": ["manter dados reais fora do Git", "não registrar valores em logs públicos", "usar inserção DOM segura", "executar secret/data scan"], "timing": null,
+      "concept_refs": ["ENT-001", "ENT-002"], "acceptance_refs": ["AC-008"], "invariant_refs": ["INV-001", "INV-007"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-009", "priority": "must", "pattern": "event", "component": "Publicação", "scope": ["GitHub Pages e OneDrive POC"],
+      "preconditions": ["gates locais passaram"], "trigger": "entrega é publicada",
+      "response": ["confirmar HTTPS das páginas", "criar link organizacional do workbook", "registrar commit e recursos sem dados reais"], "timing": null,
+      "concept_refs": ["ENT-004", "ENT-005"], "acceptance_refs": ["AC-009"], "invariant_refs": ["INV-001", "INV-007"], "formalization_refs": []
+    },
+    {
+      "id": "REQ-010", "priority": "must", "pattern": "event", "component": "Reconciliação final", "scope": ["chaves exercitadas no teste"],
+      "preconditions": ["origem, modelo, eventos e snapshot estão disponíveis"], "trigger": "prova é encerrada",
+      "response": ["comparar valores por chave", "contar duplicatas e divergências", "restaurar o valor inicial da célula de prova"], "timing": null,
+      "concept_refs": ["ENT-001", "ENT-002", "ENT-003", "TERM-006"], "acceptance_refs": ["AC-010"], "invariant_refs": ["INV-002", "INV-003", "INV-004", "INV-005"], "formalization_refs": []
+    }
+  ],
+  "constraints": [],
+  "formalizations": [],
+  "open_questions": [
+    {"id": "Q-001", "severity": "advisory", "text": "Qual AlunoId institucional substituirá LinhaOrigem após o piloto?", "requirement_refs": ["REQ-001", "REQ-010"], "impact": "Impede produção, mas não a prova de transporte com chave transitória."},
+    {"id": "Q-002", "severity": "advisory", "text": "A recuperação deve continuar sendo confiada à planilha ou recalculada pelo banco após as regras pedagógicas finais?", "requirement_refs": ["REQ-001", "REQ-010"], "impact": "A POC apenas reproduz a fórmula comprovada na origem de Nina."}
+  ],
+  "coverage_exceptions": []
+}

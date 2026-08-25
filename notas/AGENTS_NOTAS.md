@@ -2,9 +2,9 @@
 
 > Documento operacional e fonte de verdade para pessoas e inteligências artificiais que trabalharem neste módulo.
 >
-> Última atualização: 12/07/2026
+> Última atualização: 25/08/2026
 >
-> Estado: fase visual controlada — arquivos reais analisados, contrato de exportação proposto e POC Graph confirmada. Em 12/07/2026, a SPA `/notas/` passou a manter `Notas` e a nova guia `Boletim`, reconstruída do zero contra a referência local `aqui.png`. A prévia do Boletim agora mostra todas as folhas em rolagem contínua, com carregamento progressivo e renderização econômica fora da tela; impressão/PDF continuam completas e a auditoria visual cobre cinco viewports. A antiga Estatísticas permanece incorporada em `.notesStatsSection`; demais guias continuam removidas. A tela usa exclusivamente dados fictícios; integração Graph real, listas `NOTAS_*`, Power Automate e leitura pelo conector Excel Online (Business) permanecem pendentes e não autorizadas nesta etapa.
+> Estado: POC real e isolada de sincronização autorizada em 25/08/2026. A SPA operacional `/notas/` continua exclusivamente fictícia e inalterada. Em área separada, `/notas-integracao/`, foram criados modelo/receptor autenticados, add-in Office.js, contratos da API futura e as listas `NOTAS_POC_MODELO_NINA` e `NOTAS_POC_EVENTOS`. O baseline real de Nina permanece apenas no Microsoft 365 autenticado e em artefato privado fora do Git. A POC comprovou transporte Graph, idempotência, ordenação e reversão; ainda não transforma o adaptador SharePoint em banco oficial nem autoriza implantação ampla.
 >
 > Baseline do repositório no início desta fase: commit `899f1a915a126d94507ca0e4e39030458bf19206`, branch `main`.
 
@@ -20,7 +20,7 @@
 - A prévia do `Boletim` mantém todas as folhas em fluxo vertical contínuo, sem botões anterior/próxima; a primeira é imediata e as seguintes são preenchidas em lotes ociosos/priorizadas por proximidade da rolagem.
 - `scripts/auditoria-visual-boletim.mjs` valida automaticamente geometria, overflow, colunas, controles, rolagem contínua, impressão e PDF em 1672×941, 1550×741, 1420×941, 1280×720 e 390×844.
 - Foram corrigidos nesta consolidação: códigos canônicos de componentes; precedência do conselho; nota ausente diferente de zero; recuperação aplicável por etapa; métricas rotuladas como alunos; foco, teclado e semântica acessível; contraste dos chips; impressão marcada como modelo visual; fallback de inicialização; código e CSS órfãos.
-- Nenhuma autenticação, lista `NOTAS_*`, Graph, SharePoint, Power Automate, permissão ou dado real foi criado ou alterado.
+- A SPA `/notas/` continua sem dado real. A POC separada `/notas-integracao/` usa autenticação existente e duas listas `NOTAS_POC_*` isoladas, com permissões herdadas e sem dado real no GitHub Pages.
 
 ## 1. Leitura obrigatória antes de trabalhar
 
@@ -65,7 +65,7 @@ Estas decisões foram aprovadas na conversa com o responsável pelo projeto:
 7. Todos os colaboradores atuais do site/Arquivo Digital deverão acessar o módulo de notas.
 8. As novas estruturas serão separadas das listas e bibliotecas atuais, usando o prefixo `NOTAS_`.
 9. A aplicação será acessada por `https://escolaieda.com/notas/` e por um cartão no painel `/admin/`.
-10. Nesta etapa, estão autorizados documentação, scripts de POC e protótipo estático local do módulo de notas. Nenhum recurso Microsoft 365 deve ser criado ainda sem aprovação explícita.
+10. Em 25/08/2026, o responsável autorizou explicitamente a criação e o teste real da POC isolada: workbook privado, listas `NOTAS_POC_*`, adaptador Graph, páginas autenticadas e add-in. Essa autorização não se estende às listas definitivas `NOTAS_*`, Power Automate, banco oficial, implantação em massa nem alteração das estruturas operacionais existentes.
 11. A navegação desta fase deve conter somente `Notas` e `Boletim`; novas guias serão reconstruídas individualmente, mediante pedido e validação próprios.
 12. Não restaurar Estatísticas como guia separada nem novas guias reaproveitando código/CSS removido. `Boletim` já foi reconstruído como módulo independente; preservar essa separação.
 13. Enquanto houver dados fictícios, a impressão da ficha deve trazer marca visível de modelo sem validade.
@@ -691,7 +691,7 @@ O projeto só poderá ser considerado concluído quando:
 - validar conectores e limites no tenant A1;
 - confirmar URIs cadastradas no aplicativo Entra;
 - validar com o responsável a versão integrada de `/notas/#notas` após `aqui7.txt`, incluindo ausência da aba separada `Estatísticas`, compatibilidade dos hashes `#estatisticas`/`#movimento` redirecionando para `#notas`, ficha com seletores Turma/Período controlando tabela, insights, cards, ranking, gráfico, donut e painel contextual, recuperação por trimestre/anual com texto sem quebra, `TODAS AS TURMAS` exibindo aviso na grade e sem contadores nos insights laterais, seção analítica preservando os elementos aprovados contra `anexo 7.png`/`anexo 12.png`, clique em disciplina sem recriar barras, nomes de alunos em caixa alta, prévia do aluno escondida na leitura normal e aberta somente no hover/foco com foto maior, painel lateral opaco/legível e com fechamento externo, filtro compacto, tabela sem atraso de rolagem, temas claro/mono aplicados à ficha e à análise, e ausência de termos de demonstração na superfície principal antes de considerar a aba visualmente fechada;
-- provisionar listas `NOTAS_*` somente depois da aprovação e de script idempotente em modo simulação;
+- manter as listas definitivas `NOTAS_*` sem provisionamento até aprovação própria; as duas listas isoladas `NOTAS_POC_*` já foram autorizadas, criadas por script idempotente e possuem rollback guardado;
 - substituir fixtures fictícios por consultas reais somente após as listas e permissões existirem.
 
 ### 17.1 Problemas comuns e soluções confirmadas
@@ -740,6 +740,18 @@ Ao concluir:
 Exceção da regra de publicação: não fazer commit/push apenas se o responsável pedir explicitamente para deixar a alteração local. Tags, criação/alteração de listas `NOTAS_*`, SharePoint, Graph, Power Automate, permissões e Entra ID continuam exigindo autorização explícita separada.
 
 ## 19. Registro de continuidade
+
+### 25/08/2026 — POC real do novo modelo, add-in e chegada imediata
+
+- O responsável autorizou expressamente estudo completo, criação de recursos isolados, login institucional, publicação de páginas de teste e uso de dados reais de Nina fora do Git.
+- Foi gerado `Modelo_Notas_Nina_2026_POC.xlsx`, sem VBA e sem vínculos externos, com 690 posições estruturais, 376 linhas ativas e 3.384 valores numéricos reconciliados sem divergência.
+- O workbook privado foi enviado ao OneDrive institucional em `_POC_NOTAS_SYNC_2026`; seu link organizacional não deve ser colocado no repositório público.
+- Foram criadas `NOTAS_POC_MODELO_NINA` e `NOTAS_POC_EVENTOS`, com permissões herdadas e sem alteração das listas operacionais do Arquivo Digital.
+- `/notas-integracao/modelo/` e `/notas-integracao/receptor/` carregam dados somente após autenticação Microsoft e usam Graph como adaptador de prova; o GitHub Pages hospeda apenas código.
+- O modelo e o add-in emitem `grade.changed` sem aguardar cálculo e `grade.recalculated` como segunda fase correlacionada. Idempotência e sequência impedem duplicação lógica e regressão silenciosa.
+- O teste real via terminal registrou chegada/aplicação de `grade.changed` em 1.927 ms, `grade.recalculated` em 1.335 ms e reversão em 1.280 ms; duplicata rejeitada e snapshot restaurado.
+- OpenAPI, AsyncAPI e manifesto Office foram validados; os testes locais, auditoria de dados e auditoria visual responsiva passaram. Nenhum nome real foi encontrado nos arquivos de texto do worktree.
+- A POC comprova a aplicabilidade do transporte e do modelo, mas não torna o SharePoint a API definitiva, não substitui o banco oficial e não autoriza distribuição ampla do add-in.
 
 ### 12/07/2026 — compactação visual, logo íntegra e anéis trimestrais corrigidos
 

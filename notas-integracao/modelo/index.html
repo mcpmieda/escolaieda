@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Modelo de Notas · POC Protegida</title>
+  <link rel="icon" href="../../imagens/favicon.png" type="image/png">
+  <link rel="stylesheet" href="../css/integracao.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">IÊ</div><div><strong>Novo modelo de notas</strong><span>POC com baseline privado de Nina</span></div></div>
+      <div class="top-actions"><a class="button secondary" href="../receptor/" target="_blank" rel="noopener">Abrir receptor</a><button class="button secondary hidden" id="logoutButton" type="button">Sair</button></div>
+    </header>
+    <section class="hero">
+      <div><p class="eyebrow">Link 1 · modelo simulado</p><h1>Edite e acompanhe a chegada</h1><p>Cada valor válido gera <strong>grade.changed</strong> imediatamente. Total, recuperação e nota final seguem em <strong>grade.recalculated</strong>.</p></div>
+      <div class="status-pill" id="connectionStatus" data-state="working"><strong>Verificando acesso</strong><span>Nenhum dado foi carregado.</span></div>
+    </section>
+
+    <section class="card auth-card" id="authView">
+      <h2>Acesso institucional necessário</h2>
+      <p>Os nomes e as notas reais permanecem no Microsoft 365 da escola. Entre com uma conta que já possua acesso ao site ARQUIVODIGITAL.</p>
+      <button class="button" id="loginButton" type="button">Entrar com Microsoft</button>
+    </section>
+
+    <section id="modelView" class="hidden" aria-busy="true">
+      <div class="card toolbar">
+        <label class="field"><span>Turma</span><select id="classFilter"></select></label>
+        <label class="field"><span>Componente</span><select id="componentFilter"></select></label>
+        <div class="toolbar-note"><strong id="modelCount">0 lançamentos</strong><br>Envio: 250 ms · receptor: atualização a cada 1 s</div>
+      </div>
+      <div class="card table-card">
+        <div class="table-meta"><strong>TB_LANCAMENTOS · campos editáveis</strong><span>Vazio é diferente de zero.</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="name">Aluno</th><th>T1</th><th>T2</th><th>T3</th><th>Total</th><th>Rec. T1</th><th>Rec. T2</th><th>Rec. T3</th><th>Total Rec.</th><th>Nota Final</th><th>Sync</th></tr></thead>
+            <tbody id="modelBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    <p class="live-region" id="liveRegion" aria-live="polite"></p>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

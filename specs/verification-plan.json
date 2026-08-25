@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "spec_fingerprint": "cdf190a13b38a071ae2c0b0872cb4ba057406e6e9db51052e6c73aac99021d2a",
+  "criteria": [
+    {
+      "id": "AC-001",
+      "priority": "must",
+      "preferred_evidence": [
+        "test",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "test", "ref": "scripts/criar-modelo-notas-v2.ps1", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-002",
+      "priority": "must",
+      "preferred_evidence": [
+        "browser",
+        "test"
+      ],
+      "evidence": [
+        {"kind": "browser", "ref": "scripts/auditoria-visual-notas-integracao.mjs", "gate": "package:test:visual"},
+        {"kind": "test", "ref": "scripts/testes-notas-integracao.mjs", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-003",
+      "priority": "must",
+      "preferred_evidence": [
+        "browser",
+        "test"
+      ],
+      "evidence": [
+        {"kind": "browser", "ref": "VERIFICATION.md", "gate": "package:test:visual"},
+        {"kind": "test", "ref": "scripts/testes-notas-integracao.mjs", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-004",
+      "priority": "must",
+      "preferred_evidence": [
+        "test",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "test", "ref": "scripts/testar-chegada-notas-poc.ps1", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-005",
+      "priority": "must",
+      "preferred_evidence": [
+        "test",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "test", "ref": "scripts/testes-notas-integracao.mjs", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-006",
+      "priority": "must",
+      "preferred_evidence": [
+        "test",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "test", "ref": "scripts/testes-notas-integracao.mjs", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-007",
+      "priority": "must",
+      "preferred_evidence": [
+        "browser",
+        "test"
+      ],
+      "evidence": [
+        {"kind": "browser", "ref": "scripts/auditoria-visual-notas-integracao.mjs", "gate": "package:test:visual"},
+        {"kind": "test", "ref": "scripts/testes-notas-integracao.mjs", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-008",
+      "priority": "must",
+      "preferred_evidence": [
+        "test",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "test", "ref": "scripts/auditar-dados-reais-poc.ps1", "gate": "package:test"}
+      ]
+    },
+    {
+      "id": "AC-009",
+      "priority": "must",
+      "preferred_evidence": [
+        "browser",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "browser", "ref": "VERIFICATION.md", "gate": "package:test:visual"}
+      ]
+    },
+    {
+      "id": "AC-010",
+      "priority": "must",
+      "preferred_evidence": [
+        "test",
+        "gate"
+      ],
+      "evidence": [
+        {"kind": "test", "ref": "scripts/testar-chegada-notas-poc.ps1", "gate": "package:test"}
+      ]
+    }
+  ]
+}
