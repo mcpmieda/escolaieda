@@ -1010,9 +1010,18 @@
   </script>
   <script type="module">
     const destinoLogin = sessionStorage.getItem("escolaIedaDestinoLogin");
+    const destinosPermitidos = new Set([
+      "/notas-integracao/modelo/",
+      "/notas-integracao/receptor/",
+      "/notas-integracao/central/"
+    ]);
+    const destinoSeguro = destinosPermitidos.has(destinoLogin) ? destinoLogin : null;
     const retornoMicrosoft = window.location.search.includes("code=") || window.location.hash.includes("code=");
 
-    if(destinoLogin || retornoMicrosoft){
+    if(destinoSeguro && retornoMicrosoft){
+      sessionStorage.removeItem("escolaIedaDestinoLogin");
+      window.location.replace(destinoSeguro + window.location.search + window.location.hash);
+    } else if(retornoMicrosoft){
       const { PublicClientApplication } = await import("https://esm.sh/@azure/msal-browser@5.11.0");
       const msalRetorno = new PublicClientApplication({
         auth:{
@@ -1031,10 +1040,6 @@
         .then((response) => {
           if(response?.account){
             msalRetorno.setActiveAccount(response.account);
-          }
-          if(destinoLogin){
-            sessionStorage.removeItem("escolaIedaDestinoLogin");
-            window.location.replace(destinoLogin);
           }
         })
         .catch((erro) => {

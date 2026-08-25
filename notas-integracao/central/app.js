@@ -47,7 +47,7 @@ async function showCentral() {
   setStatus("Acesso confirmado", "Exemplos anonimizados de homologação.", "ok");
 }
 
-elements.login.addEventListener("click", async () => { try { await auth.login({ popup: true }); await showCentral(); } catch (error) { setStatus("Acesso não concluído", error.message || "Tente novamente.", "error"); } });
+elements.login.addEventListener("click", () => auth.login());
 elements.logout.addEventListener("click", async () => { await auth.logout(); });
 elements.search.addEventListener("input", () => renderModels(elements.search.value));
 document.getElementById("newImportButton").addEventListener("click", () => { elements.live.textContent = "O novo job será criado pela futura operação POST /v1/import-jobs; nenhuma alteração foi executada nesta demonstração."; });

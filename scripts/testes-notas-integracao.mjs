@@ -77,9 +77,9 @@ test("modelo emite edição antes do recálculo e usa debounce de 250 ms", () =>
   assert.doesNotMatch(app, /record\.Sequencia\s*=\s*recalculatedSequence/);
 });
 
-test("modelo conclui o login sem abandonar a página de teste", () => {
+test("modelo inicia retorno controlado para a página de origem", () => {
   const app = read("notas-integracao/modelo/app.js");
-  assert.match(app, /auth\.login\(\{ popup: true \}\)/);
+  assert.match(app, /auth\.login\(\)/);
 });
 
 test("add-in monitora TB_LANCAMENTOS por worksheet.onChanged", () => {
@@ -96,9 +96,27 @@ test("receptor exclui eventos anteriores à abertura das métricas de latência"
   assert.match(app, /baselineIds\.add\(event\.EventId\)/);
 });
 
-test("receptor conclui o login sem abandonar a página de teste", () => {
+test("receptor inicia retorno controlado para a página de origem", () => {
   const app = read("notas-integracao/receptor/app.js");
-  assert.match(app, /auth\.login\(\{ popup: true \}\)/);
+  assert.match(app, /auth\.login\(\)/);
+});
+
+test("raiz encaminha o retorno Microsoft para a página que iniciou o login", () => {
+  const home = read("index.html");
+  assert.match(home, /destinoSeguro && retornoMicrosoft/);
+  assert.match(home, /window\.location\.replace\(destinoSeguro \+ window\.location\.search \+ window\.location\.hash\)/);
+  assert.match(home, /destinosPermitidos\.has\(destinoLogin\)/);
+});
+
+test("central usa o mesmo retorno controlado", () => {
+  const app = read("notas-integracao/central/app.js");
+  assert.match(app, /auth\.login\(\)/);
+  assert.doesNotMatch(app, /auth\.login\(\{ popup: true \}\)/);
+});
+
+test("autenticação grava o destino antes de sair para a Microsoft", () => {
+  const auth = read("notas-integracao/js/auth.js");
+  assert.ok(auth.indexOf('sessionStorage.setItem("escolaIedaDestinoLogin", window.location.pathname)') < auth.indexOf("this.msal.loginRedirect(request)"));
 });
 
 test("manifesto usa HTTPS, ExcelApi e permissão ReadWriteDocument", () => {
