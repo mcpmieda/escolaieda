@@ -120,7 +120,14 @@ function schedule() {
   timer = window.setInterval(poll, INTEGRATION_CONFIG.pollingMs);
 }
 
-elements.loginButton.addEventListener("click", () => auth.login());
+elements.loginButton.addEventListener("click", async () => {
+  try {
+    await auth.login({ popup: true });
+    await start();
+  } catch (error) {
+    setConnection("Acesso não concluído", error.message || "Não foi possível concluir o login.", "error");
+  }
+});
 elements.logoutButton.addEventListener("click", () => auth.logout());
 elements.pauseButton.addEventListener("click", () => {
   paused = !paused;

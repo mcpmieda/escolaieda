@@ -179,7 +179,14 @@ queue.addEventListener("error", (event) => {
 window.addEventListener("online", () => queue.retry());
 elements.classFilter.addEventListener("change", refreshComponents);
 elements.componentFilter.addEventListener("change", renderModel);
-elements.loginButton.addEventListener("click", () => auth.login());
+elements.loginButton.addEventListener("click", async () => {
+  try {
+    await auth.login({ popup: true });
+    await start();
+  } catch (error) {
+    setConnection("Acesso não concluído", error.message || "Não foi possível concluir o login.", "error");
+  }
+});
 elements.logoutButton.addEventListener("click", () => auth.logout());
 
 async function start() {

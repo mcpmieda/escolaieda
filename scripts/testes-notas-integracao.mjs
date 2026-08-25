@@ -77,6 +77,11 @@ test("modelo emite edição antes do recálculo e usa debounce de 250 ms", () =>
   assert.doesNotMatch(app, /record\.Sequencia\s*=\s*recalculatedSequence/);
 });
 
+test("modelo conclui o login sem abandonar a página de teste", () => {
+  const app = read("notas-integracao/modelo/app.js");
+  assert.match(app, /auth\.login\(\{ popup: true \}\)/);
+});
+
 test("add-in monitora TB_LANCAMENTOS por worksheet.onChanged", () => {
   const app = read("notas-integracao/addin/app.js");
   assert.match(app, /sheet\.onChanged\.add\(handleWorksheetChange\)/);
@@ -89,6 +94,11 @@ test("receptor exclui eventos anteriores à abertura das métricas de latência"
   const app = read("notas-integracao/receptor/app.js");
   assert.match(app, /baselineIds\.has\(event\.EventId\)/);
   assert.match(app, /baselineIds\.add\(event\.EventId\)/);
+});
+
+test("receptor conclui o login sem abandonar a página de teste", () => {
+  const app = read("notas-integracao/receptor/app.js");
+  assert.match(app, /auth\.login\(\{ popup: true \}\)/);
 });
 
 test("manifesto usa HTTPS, ExcelApi e permissão ReadWriteDocument", () => {
