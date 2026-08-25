@@ -114,6 +114,12 @@ test("central usa o mesmo retorno controlado", () => {
   assert.doesNotMatch(app, /auth\.login\(\{ popup: true \}\)/);
 });
 
+test("páginas forçam a versão vigente do fluxo de login", () => {
+  for (const file of ["notas-integracao/modelo/index.html", "notas-integracao/receptor/index.html", "notas-integracao/central/index.html"]) {
+    assert.match(read(file), /app\.js\?v=20260825-3/);
+  }
+});
+
 test("autenticação grava o destino antes de sair para a Microsoft", () => {
   const auth = read("notas-integracao/js/auth.js");
   assert.ok(auth.indexOf('sessionStorage.setItem("escolaIedaDestinoLogin", window.location.pathname)') < auth.indexOf("this.msal.loginRedirect(request)"));
