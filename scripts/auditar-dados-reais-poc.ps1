@@ -21,9 +21,10 @@ try {
   $table = $workbook.Worksheets.Item("LANCAMENTOS").ListObjects.Item("TB_LANCAMENTOS")
   $range = $table.DataBodyRange
   $values = $range.Value2
+  $nameColumn = $table.ListColumns.Item("AlunoNome").Index
   $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
   for ($row = 1; $row -le $range.Rows.Count; $row++) {
-    $name = [string]$values[$row, 8]
+    $name = [string]$values[$row, $nameColumn]
     if (-not [string]::IsNullOrWhiteSpace($name) -and $name.Trim().Length -ge 7 -and $name.Trim() -match '\s') { [void]$names.Add($name.Trim()) }
   }
 

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node scripts/testes-notas.mjs && node scripts/testes-notas-integracao.mjs",
+    "test": "node scripts/testes-notas.mjs && node scripts/testes-notas-integracao.mjs && node scripts/testes-modelo-professor-v3.mjs",
     "test:visual": "node scripts/auditoria-visual-notas-integracao.mjs"
   }
 }

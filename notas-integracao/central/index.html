@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Central de modelos · Banco de Notas</title>
+  <link rel="stylesheet" href="../css/integracao.css">
+</head>
+<body>
+  <main class="shell central-shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">IÊ</div><div><strong>Central de modelos do professor</strong><span>Importação, validação, compartilhamento e conexão</span></div></div>
+      <div class="top-actions"><a class="button secondary" href="../">Integração de notas</a><button class="button secondary hidden" id="logoutButton" type="button">Sair</button></div>
+    </header>
+
+    <section class="hero compact-hero">
+      <div><p class="eyebrow">Homologação · teacher-model-v3</p><h1>Um modelo por professor, sob controle</h1><p>O assistente lê o XLSB nativo, conserva a experiência visual e prepara uma cópia segura para SharePoint, Entra e o futuro Banco de Notas.</p></div>
+      <div class="status-pill" id="centralStatus" data-state="working"><strong>Verificando acesso</strong><span>Nenhum dado real foi carregado.</span></div>
+    </section>
+
+    <section class="card auth-card" id="authView">
+      <h2>Acesso institucional necessário</h2>
+      <p>A central só deve listar professores, arquivos e destinatários depois da autenticação Microsoft e da autorização efetiva.</p>
+      <button class="button" id="loginButton" type="button">Entrar com Microsoft</button>
+    </section>
+
+    <section id="centralView" class="hidden" aria-busy="false">
+      <div class="metrics">
+        <article class="card metric"><span>Modelos preparados</span><strong>2</strong><small>Homologação local</small></article>
+        <article class="card metric"><span>Aguardando revisão</span><strong>2</strong><small>Nenhum compartilhamento automático</small></article>
+        <article class="card metric"><span>Sincronização</span><strong>Desativada</strong><small>Kill switch padrão</small></article>
+        <article class="card metric"><span>Contrato</span><strong>v3</strong><small>API e eventos versionados</small></article>
+      </div>
+
+      <section class="card workflow-card" aria-labelledby="workflowTitle">
+        <div class="section-heading"><div><p class="eyebrow">Assistente de importação</p><h2 id="workflowTitle">Fluxo controlado</h2></div><button class="button" id="newImportButton" type="button">Nova importação</button></div>
+        <ol class="workflow" aria-label="Etapas do assistente">
+          <li data-state="done"><strong>1. Analisar XLSB</strong><span>Estrutura e integridade</span></li>
+          <li data-state="done"><strong>2. Gerar XLSX</strong><span>Visual preservado, sem VBA</span></li>
+          <li data-state="current"><strong>3. Validar</strong><span>Valores, mapeamento e segurança</span></li>
+          <li><strong>4. Revisar destinatário</strong><span>Conta Entra e permissão</span></li>
+          <li><strong>5. Compartilhar</strong><span>SharePoint/OneDrive</span></li>
+          <li><strong>6. Conectar</strong><span>Banco de Notas</span></li>
+        </ol>
+      </section>
+
+      <div class="central-grid">
+        <section class="card model-list" aria-labelledby="modelsTitle">
+          <div class="section-heading"><div><p class="eyebrow">Inventário</p><h2 id="modelsTitle">Modelos em homologação</h2></div><label class="search-field"><span class="live-region">Pesquisar</span><input id="modelSearch" type="search" placeholder="Professor, turma ou disciplina"></label></div>
+          <div class="table-wrap central-table-wrap">
+            <table class="central-table">
+              <thead><tr><th>Professor</th><th>Escopo detectado</th><th>Etapa</th><th>Integração</th><th>Ação</th></tr></thead>
+              <tbody id="modelRows"></tbody>
+            </table>
+          </div>
+          <p class="empty hidden" id="emptyModels">Nenhum modelo corresponde à pesquisa.</p>
+        </section>
+
+        <aside class="card inspector" aria-labelledby="configTitle">
+          <div><p class="eyebrow">Configuração</p><h2 id="configTitle">Decisões críticas</h2><p>Os padrões abaixo podem ser alterados por ambiente sem reconstruir o arquivo.</p></div>
+          <dl class="config-list" id="configList"></dl>
+          <button class="button secondary" id="reviewButton" type="button">Revisar antes de compartilhar</button>
+        </aside>
+      </div>
+    </section>
+    <p class="live-region" id="liveRegion" aria-live="polite"></p>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

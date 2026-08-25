@@ -1,228 +1,46 @@
 {
   "schema_version": 1,
-  "goal": "Comprovar, com dados reais de Nina mantidos fora do Git, que um novo modelo de lançamento e um add-in Excel podem enviar alterações de notas imediatamente a um receptor autenticado e reconciliá-las sem divergência com o legado.",
+  "goal": "Desenvolver e homologar um modelo Excel distribuível que preserve a experiência visual da agenda legada, converta cada professor a partir do XLSB nativo, sincronize alterações imediatamente e deixe contratos, central e documentação prontos para o futuro banco de notas.",
   "change_type": "functional",
   "risk": "high",
   "scope": {
-    "in": [
-      "modelo limpo .xlsx derivado da agenda de Nina, sem VBA nem vínculos externos",
-      "simulador web autenticado do novo modelo",
-      "add-in Office.js com monitoramento de alterações, fila, retry e idempotência",
-      "receptor web autenticado com atualização quase em tempo real",
-      "persistência de POC em listas SharePoint isoladas com prefixo NOTAS_POC_",
-      "contratos OpenAPI e AsyncAPI para a futura API do banco de notas",
-      "reconciliação entre valores de origem, modelo, evento recebido e snapshot",
-      "publicação estática pelo GitHub Pages existente e arquivo privado no OneDrive institucional"
-    ],
-    "out": [
-      "substituir as 18 agendas dos professores",
-      "declarar o novo banco como fonte oficial",
-      "publicar nomes ou notas reais no GitHub Pages, no Git ou em logs",
-      "alterar listas operacionais do Arquivo Digital",
-      "implantar credenciais, segredo de cliente, conector premium ou serviço pago",
-      "concluir regras pedagógicas ainda não aprovadas além das fórmulas já comprovadas na agenda de Nina"
-    ]
+    "in": ["conversor professor-a-professor a partir de XLSB nativo", "modelo XLSX de Nina com dados reais mantido fora do Git", "homologação também contra a agenda de Alanna sem publicar dados reais", "continuidade visual de abas, dimensões, cores, formatos condicionais, proteção e navegação", "remoção de VBA, conexões e vínculos externos do arquivo distribuído", "mapeamento técnico oculto entre célula visual e lançamento normalizado", "add-in preparado para mudanças em células visuais e em tabela normalizada", "central de modelos, contratos API e configurações para importação, compartilhamento e sincronização", "dossiê técnico e de auditoria autocontido"],
+    "out": ["tornar a POC a fonte oficial de notas", "substituir automaticamente todos os arquivos dos professores nesta entrega", "publicar dados reais no Git, GitHub Pages ou logs", "implantar o banco de notas definitivo", "conceder compartilhamentos reais em massa sem revisão humana"]
   },
-  "assumptions": [
-    "A conta SECRETARIA@escolaieda.com está autorizada no site ARQUIVODIGITAL e no OneDrive institucional.",
-    "O aplicativo Entra já publicado aceita o redirect da raiz de escolaieda.com e possui consentimento delegado para User.Read e Sites.ReadWrite.All.",
-    "Na POC, o Microsoft Graph/SharePoint é o adaptador de persistência; o contrato HTTP próprio representa a fronteira futura e não será apresentado como backend já implantado.",
-    "Chegada imediata significa que o evento de edição é enviado sem aguardar o recálculo completo da planilha; a meta observável da POC é exibição no receptor em até 3 segundos em condição normal.",
-    "Os dados reais permanecem em recursos autenticados do Microsoft 365 e em artefatos locais privados fora do worktree Git."
-  ],
+  "assumptions": ["A aparência conhecida pelo professor é estável, mas sua implementação técnica pode ser simplificada.", "SharePoint guarda o arquivo mestre e o professor recebe acesso por identidade Entra; o banco futuro é a autoridade das notas confirmadas.", "A relação de alunos será vinculada por assistente manual de poucos cliques até existir uma integração oficial.", "Decisões pedagógicas não confirmadas serão parâmetros versionados, não constantes espalhadas no workbook ou no add-in.", "A entrega local com dados reais é restrita; somente código, contratos e exemplos fictícios podem ser publicados."],
   "invariants": [
-    {
-      "id": "INV-001",
-      "statement": "Nenhum nome, nota, CPF, INEP ou linha real de Nina pode ser incorporado a arquivo versionado ou resposta pública do GitHub Pages."
-    },
-    {
-      "id": "INV-002",
-      "statement": "Cada evento material possui EventId e IdempotencyKey estáveis; repetição da mesma chave não produz uma segunda alteração lógica."
-    },
-    {
-      "id": "INV-003",
-      "statement": "Uma sequência mais antiga nunca substitui silenciosamente o valor confirmado por uma sequência mais nova para a mesma chave de lançamento."
-    },
-    {
-      "id": "INV-004",
-      "statement": "Nota vazia permanece ausente e não é normalizada para zero; zero digitado permanece zero explícito."
-    },
-    {
-      "id": "INV-005",
-      "statement": "No modelo Nina validado, Total é a soma de NotaT1, NotaT2 e NotaT3; TotalRec é a soma de RecT1, RecT2 e RecT3; NotaFinal é o maior entre Total e TotalRec."
-    },
-    {
-      "id": "INV-006",
-      "statement": "O evento grade.changed é emitido a partir da edição aceita sem aguardar cálculo completo; grade.recalculated é uma segunda fase correlacionada quando os derivados estiverem estáveis."
-    },
-    {
-      "id": "INV-007",
-      "statement": "Leitura e escrita de dados reais exigem token Microsoft válido e autorização efetiva no recurso SharePoint; ocultar controles no cliente não conta como autorização."
-    }
+    {"id":"INV-101","statement":"O conversor nunca altera o XLSB de origem e só substitui uma saída quando o operador usa confirmação explícita."},
+    {"id":"INV-102","statement":"Nenhum XLSX distribuído contém VBA, conexão de dados ou vínculo externo de workbook."},
+    {"id":"INV-103","statement":"Nome do aluno serve apenas para conferência; a identidade técnica usa ano, turma, componente e identificador estável de matrícula, com linha de origem apenas como fallback transitório."},
+    {"id":"INV-104","statement":"Célula vazia é ausência e zero digitado é valor explícito."},
+    {"id":"INV-105","statement":"Toda célula editável sincronizada possui exatamente um mapeamento ativo e uma chave de lançamento determinística."},
+    {"id":"INV-106","statement":"grade.changed é criado após a edição aceita sem esperar recálculo global; derivados usam evento correlacionado posterior quando necessário."},
+    {"id":"INV-107","statement":"Idempotência, ordenação e autorização são aplicadas pelo serviço; o add-in não é autoridade de segurança."},
+    {"id":"INV-108","statement":"Alterações de regra, faixa, fórmula, conexão, compartilhamento e relação são versionadas em configuração auditável."},
+    {"id":"INV-109","statement":"Dados reais de Nina e Alanna não entram no Git, em páginas públicas nem no corpo do dossiê de auditoria."}
   ],
   "data_contracts": [
-    {
-      "name": "modelo-notas-v2",
-      "authority": "arquivo .xlsx privado e snapshot NOTAS_POC_MODELO_NINA durante a POC",
-      "rows": "uma posição de estudante por turma e componente",
-      "identity": "AnoLetivo|TurmaCodigo|ComponenteCodigo|LinhaOrigem"
-    },
-    {
-      "name": "grade-event-v1",
-      "authority": "log append-only NOTAS_POC_EVENTOS durante a POC; futura API conforme contratos em api/",
-      "identity": "EventId e IdempotencyKey",
-      "ordering": "Sequence monotônica por origem e SourceRevision"
-    },
-    {
-      "name": "tb-export-notas-v1",
-      "authority": "contrato legado de reconciliação TB_EXPORT_NOTAS",
-      "columns": 16
-    }
+    {"name":"teacher-model-v3","authority":"arquivo mestre no SharePoint e cadastro do futuro banco","identity":"modelId + version","contains":"configuração, lançamentos, mapeamento de células e exportação"},
+    {"name":"cell-map-v1","authority":"tabela técnica TB_MAPEAMENTO_CELULAS","identity":"worksheet + address","maps_to":"gradeKey + field + period + sourceRevision"},
+    {"name":"import-job-v1","authority":"futuro serviço de importação","identity":"jobId","states":["draft","analyzed","generated","validated","ready_to_share","shared","connected","failed"]},
+    {"name":"grade-event-v1","authority":"log append-only do serviço","identity":"eventId + idempotencyKey","ordering":"sequence monotônica por modelo/origem"}
   ],
   "interfaces": [
-    {
-      "name": "modelo-web-poc",
-      "consumer": "colaborador autenticado",
-      "provider": "GitHub Pages + Microsoft Graph",
-      "contract": "notas-integracao/modelo/"
-    },
-    {
-      "name": "excel-add-in",
-      "consumer": "Excel Desktop ou Excel para a Web",
-      "provider": "Office.js hospedado no GitHub Pages",
-      "contract": "notas-integracao/addin/manifest.xml"
-    },
-    {
-      "name": "receptor-web-poc",
-      "consumer": "colaborador autenticado",
-      "provider": "GitHub Pages + Microsoft Graph",
-      "contract": "notas-integracao/receptor/"
-    },
-    {
-      "name": "future-grade-sync-api",
-      "consumer": "add-in, simulador, rotinas de reconciliação e banco de notas",
-      "provider": "futuro serviço institucional",
-      "contract": "api/notas-sync-v1.openapi.yaml"
-    }
+    {"name":"modelo-excel-professor","consumer":"professor","provider":"SharePoint/OneDrive + Excel","contract":"teacher-model-v3"},
+    {"name":"excel-add-in","consumer":"modelo Excel","provider":"Office.js","contract":"cell-map-v1 + grade-event-v1"},
+    {"name":"central-modelos","consumer":"secretaria/gestão","provider":"aplicação web autenticada","contract":"api/notas-sync-v1.openapi.yaml"},
+    {"name":"assistente-importacao","consumer":"secretaria/gestão","provider":"conversor local e futura API","contract":"import-job-v1"},
+    {"name":"future-notes-api","consumer":"add-in, central e banco","provider":"futuro serviço institucional","contract":"OpenAPI e AsyncAPI versionados"}
   ],
   "acceptance_criteria": [
-    {
-      "id": "AC-001",
-      "priority": "must",
-      "given": "a agenda real de Nina aberta somente para leitura",
-      "when": "o gerador produz o novo modelo .xlsx",
-      "then": [
-        "o modelo contém 690 posições e a mesma quantidade de linhas ativas observada na origem",
-        "os nove campos numéricos das linhas ativas são reconciliados sem divergência",
-        "o arquivo não contém VBA nem vínculos externos",
-        "as fórmulas derivadas obedecem INV-005"
-      ],
-      "verification": ["test", "gate"]
-    },
-    {
-      "id": "AC-002",
-      "priority": "must",
-      "given": "um visitante sem sessão Microsoft ou sem acesso ao site",
-      "when": "abre o modelo web ou o receptor",
-      "then": [
-        "nenhuma nota ou nome real é carregado",
-        "a interface solicita autenticação ou informa acesso negado"
-      ],
-      "verification": ["browser", "test"]
-    },
-    {
-      "id": "AC-003",
-      "priority": "must",
-      "given": "um colaborador autenticado altera uma nota válida no modelo web",
-      "when": "a edição é aceita",
-      "then": [
-        "grade.changed é enfileirado em até 300 ms sem aguardar recálculo completo",
-        "o receptor exibe o evento em até 3 segundos em condição normal",
-        "a medição registra clientSentAt, serverCreatedAt e observedAt sem registrar valores em log público"
-      ],
-      "verification": ["browser", "test"]
-    },
-    {
-      "id": "AC-004",
-      "priority": "must",
-      "given": "o mesmo evento é reenviado por retry ou reconexão",
-      "when": "a persistência recebe IdempotencyKey repetida",
-      "then": [
-        "existe uma única alteração lógica",
-        "o cliente trata conflito de chave como confirmação idempotente"
-      ],
-      "verification": ["test", "gate"]
-    },
-    {
-      "id": "AC-005",
-      "priority": "must",
-      "given": "eventos da mesma nota chegam fora de ordem",
-      "when": "uma sequência antiga tenta atualizar o snapshot",
-      "then": [
-        "o valor mais novo permanece",
-        "o evento antigo continua auditável como obsoleto"
-      ],
-      "verification": ["test", "gate"]
-    },
-    {
-      "id": "AC-006",
-      "priority": "must",
-      "given": "o add-in está conectado a um workbook com TB_LANCAMENTOS",
-      "when": "uma célula editável muda",
-      "then": [
-        "o add-in identifica registro, campo, valor anterior e valor novo",
-        "usa o mesmo contrato grade-event-v1 do simulador",
-        "falha transitória fica em fila local limitada e é repetida com backoff"
-      ],
-      "verification": ["test", "gate"]
-    },
-    {
-      "id": "AC-007",
-      "priority": "must",
-      "given": "o receptor autenticado está aberto",
-      "when": "novos eventos são persistidos",
-      "then": [
-        "a lista é atualizada sem recarregar a página",
-        "o evento correlacionado grade.recalculated aparece separado de grade.changed",
-        "estado vazio, loading, erro, offline e retry são compreensíveis"
-      ],
-      "verification": ["browser", "test"]
-    },
-    {
-      "id": "AC-008",
-      "priority": "must",
-      "given": "o código e os artefatos estão prontos para publicação",
-      "when": "os gates de segurança são executados",
-      "then": [
-        "não há segredo, token ou dado real versionado",
-        "inputs são validados e inseridos no DOM sem HTML não confiável",
-        "operações protegidas rejeitam ausência de token"
-      ],
-      "verification": ["test", "gate"]
-    },
-    {
-      "id": "AC-009",
-      "priority": "must",
-      "given": "a publicação e os recursos POC foram criados",
-      "when": "os links finais são abertos",
-      "then": [
-        "modelo web e receptor respondem por HTTPS",
-        "o workbook privado abre por link organizacional",
-        "o commit implantado e os IDs dos recursos POC são registrados sem dados sensíveis"
-      ],
-      "verification": ["browser", "gate"]
-    },
-    {
-      "id": "AC-010",
-      "priority": "must",
-      "given": "a origem, o snapshot e os eventos da execução de prova",
-      "when": "a reconciliação final é executada",
-      "then": [
-        "cada chave testada apresenta o mesmo valor na origem esperada, no modelo e no snapshot",
-        "duplicatas e divergências são zero ou ficam explicitamente reportadas",
-        "a reversão restaura o valor inicial da célula usada no teste"
-      ],
-      "verification": ["test", "gate"]
-    }
+    {"id":"AC-101","priority":"must","given":"a agenda XLSB de Nina ou Alanna aberta em modo seguro","when":"o conversor gera um modelo","then":["a origem permanece byte a byte inalterada","o resultado é XLSX sem VBA, conexões e vínculos externos","todas as abas visíveis e sua ordem são preservadas","dimensões, cores e formatações condicionais das áreas pedagógicas são preservadas"],"verification":["test","gate"]},
+    {"id":"AC-102","priority":"must","given":"uma aba de trimestre ou recuperação com células de nota editáveis","when":"o mapeamento técnico é construído","then":["cada célula tem exatamente uma chave e um campo","células decorativas ou bloqueadas não são mapeadas","a tabela normalizada reproduz os valores da origem sem divergência"],"verification":["test","gate"]},
+    {"id":"AC-103","priority":"must","given":"o professor altera uma célula mapeada","when":"o add-in recebe worksheet.onChanged","then":["grade.changed é enfileirado em até 300 ms","não ocorre cálculo global obrigatório antes do envio","repetição ou falha transitória respeita idempotência e retry limitado"],"verification":["test","browser"]},
+    {"id":"AC-104","priority":"must","given":"uma célula não mapeada, protegida ou fora da faixa configurada","when":"ela muda","then":["nenhum evento de nota é criado","o motivo pode ser auditado sem expor nome ou valor real"],"verification":["test"]},
+    {"id":"AC-105","priority":"must","given":"o modelo homologado de Nina","when":"notas reais são comparadas com o XLSB nativo","then":["valores de entrada e derivados equivalentes coincidem","vazio e zero permanecem distintos","o relatório informa somente contagens e hashes, sem identidades"],"verification":["test","gate"]},
+    {"id":"AC-106","priority":"must","given":"o mesmo processo aplicado à agenda de Alanna","when":"a homologação cruzada é executada","then":["turmas, disciplinas e segunda disciplina quando existente são detectadas sem código específico para a professora","o modelo passa pelos mesmos gates de segurança e estrutura"],"verification":["test","gate"]},
+    {"id":"AC-107","priority":"must","given":"um operador na central","when":"analisa, gera, valida, lista e prepara compartilhamento","then":["o estado do import job é visível","destinatário Entra e permissões exigem confirmação","ambiente, endpoint, relação, regra de cálculo e sincronização são configuráveis"],"verification":["browser","test"]},
+    {"id":"AC-108","priority":"must","given":"uma implantação futura do banco","when":"a equipe usa o dossiê e contratos entregues","then":["consegue identificar serviços, links, recursos, esquema, configuração, segurança, testes, rollback e passos de integração sem depender de outro documento"],"verification":["review","gate"]},
+    {"id":"AC-109","priority":"must","given":"código e artefatos prontos","when":"gates de privacidade e segurança são executados","then":["nenhum dado real ou segredo está versionado","operações protegidas exigem token e autorização efetiva","o modelo pode ter a sincronização desativada por kill switch"],"verification":["test","gate"]}
   ]
 }

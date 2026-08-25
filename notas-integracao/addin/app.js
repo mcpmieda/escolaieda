@@ -3,6 +3,7 @@ import { InstitutionalAuth } from "../js/auth.js";
 import { GraphClient } from "../js/graph-client.js";
 import { NotesSyncClient, SerialEventQueue } from "../js/sync-client.js";
 import { editableFields, calculateDerived, nextSequence, gradeKey } from "../js/domain.js";
+import { buildMappingIndex, mappedEntriesForChange, mappingRecord } from "./workbook-adapter.js";
 
 const elements = {
   status: document.getElementById("addinStatus"), connect: document.getElementById("connectButton"),
@@ -13,20 +14,24 @@ const graph = new GraphClient(auth);
 const sync = new NotesSyncClient(graph);
 const queue = new SerialEventQueue(sync);
 const workbookSession = crypto.randomUUID();
-let changeHandler = null;
+let changeHandlers = [];
 let connected = false;
+let workbookMode = "normalized";
+let mappingIndex = new Map();
+const localValues = new Map();
+const localSequences = new Map();
 
 function status(message) { elements.status.textContent = message; }
 
-function buildEvent(record, { eventType, field, before, after, sequence, correlationId, derivedValues, address }) {
+function buildEvent(record, { eventType, field, before, after, sequence, correlationId, derivedValues, address, worksheet = "LANCAMENTOS" }) {
   return {
     schemaVersion: 1,
     eventId: crypto.randomUUID(),
     idempotencyKey: `excel:${workbookSession}:${sequence}:${field}:${eventType}`,
     correlationId,
     eventType,
-    gradeKey: gradeKey(record),
-    source: { kind: "excel-addin", workbookId: `excel-nina-${workbookSession}`, worksheetId: "LANCAMENTOS", cellAddress: address },
+    gradeKey: record.GradeKey || gradeKey(record),
+    source: { kind: "excel-addin", workbookId: `teacher-model-${workbookSession}`, worksheetId: worksheet, cellAddress: address },
     field,
     valueBefore: before,
     valueAfter: after,
@@ -35,6 +40,47 @@ function buildEvent(record, { eventType, field, before, after, sequence, correla
     sourceRevision: workbookSession,
     clientSentAt: new Date().toISOString()
   };
+}
+
+async function loadVisualMapping() {
+  return Excel.run(async (context) => {
+    const sheet = context.workbook.worksheets.getItem("MAPEAMENTO");
+    const table = sheet.tables.getItem("TB_MAPEAMENTO_CELULAS");
+    const headers = table.getHeaderRowRange();
+    const body = table.getDataBodyRange();
+    headers.load("values"); body.load("values");
+    await context.sync();
+    const names = headers.values[0];
+    return body.values.map((values) => Object.fromEntries(names.map((name, index) => [name, values[index]])));
+  });
+}
+
+async function readMappedValue(worksheet, address) {
+  return Excel.run(async (context) => {
+    const range = context.workbook.worksheets.getItem(worksheet).getRange(address);
+    range.load("values");
+    await context.sync();
+    return range.values[0][0];
+  });
+}
+
+async function handleMappedChange(worksheet, event) {
+  if (!connected || event.changeType === "Unknown") return;
+  const entries = mappedEntriesForChange(mappingIndex, worksheet, event.address);
+  for (const entry of entries) {
+    const value = await readMappedValue(worksheet, entry.Address);
+    const after = value === "" || value == null ? null : Number(value);
+    if (after != null && !Number.isFinite(after)) continue;
+    const localKey = `${worksheet}!${entry.Address}`;
+    const before = localValues.has(localKey) ? localValues.get(localKey) : null;
+    localValues.set(localKey, after);
+    const sequence = nextSequence(localSequences.get(localKey) || 0);
+    localSequences.set(localKey, sequence);
+    queue.enqueue(buildEvent(mappingRecord(entry), {
+      eventType: "grade.changed", field: entry.Field, before, after, sequence,
+      correlationId: crypto.randomUUID(), address: entry.Address, worksheet
+    }));
+  }
 }
 
 async function readChangedCells(address) {
@@ -113,14 +159,28 @@ async function handleWorksheetChange(event) {
 }
 
 async function registerHandler() {
-  await Excel.run(async (context) => {
-    const sheet = context.workbook.worksheets.getItem("LANCAMENTOS");
-    const table = sheet.tables.getItem(INTEGRATION_CONFIG.modelTable);
-    table.load("name");
-    await context.sync();
-    changeHandler = sheet.onChanged.add(handleWorksheetChange);
-    await context.sync();
-  });
+  try {
+    const rows = await loadVisualMapping();
+    mappingIndex = buildMappingIndex(rows);
+    workbookMode = "visual-mapped";
+    await Excel.run(async (context) => {
+      for (const worksheet of mappingIndex.keys()) {
+        const sheet = context.workbook.worksheets.getItem(worksheet);
+        changeHandlers.push(sheet.onChanged.add((event) => handleMappedChange(worksheet, event)));
+      }
+      await context.sync();
+    });
+  } catch {
+    workbookMode = "normalized";
+    await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getItem("LANCAMENTOS");
+      const table = sheet.tables.getItem(INTEGRATION_CONFIG.modelTable);
+      table.load("name");
+      await context.sync();
+      changeHandlers.push(sheet.onChanged.add(handleWorksheetChange));
+      await context.sync();
+    });
+  }
 }
 
 async function connect() {
@@ -134,7 +194,7 @@ async function connect() {
     connected = true;
     elements.disconnect.disabled = false;
     elements.retry.disabled = false;
-    status("Monitoramento ativo. Edite uma nota em TB_LANCAMENTOS.");
+    status(workbookMode === "visual-mapped" ? "Monitoramento ativo nas abas visuais do professor." : "Monitoramento ativo em TB_LANCAMENTOS.");
   } catch (error) {
     elements.connect.disabled = false;
     status(error.message || "Não foi possível iniciar o monitoramento.");
@@ -143,9 +203,9 @@ async function connect() {
 
 async function disconnect() {
   connected = false;
-  if (changeHandler) {
-    await Excel.run(async (context) => { changeHandler.remove(); await context.sync(); });
-    changeHandler = null;
+  if (changeHandlers.length) {
+    await Excel.run(async (context) => { for (const handler of changeHandlers) handler.remove(); await context.sync(); });
+    changeHandlers = [];
   }
   elements.connect.disabled = false;
   elements.disconnect.disabled = true;

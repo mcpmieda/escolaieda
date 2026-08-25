@@ -6,8 +6,10 @@ Esta área hospeda somente a aplicação estática e o manifesto do add-in. Nome
 
 - modelo simulado: `https://escolaieda.com/notas-integracao/modelo/`;
 - receptor ao vivo: `https://escolaieda.com/notas-integracao/receptor/`;
+- central de modelos: `https://escolaieda.com/notas-integracao/central/`;
 - add-in: `https://escolaieda.com/notas-integracao/addin/manifest.xml`;
 - contrato OpenAPI: `https://escolaieda.com/api/notas-sync-v1.openapi.yaml`;
+- contrato OpenAPI de modelos/importação: `https://escolaieda.com/api/modelos-professor-v1.openapi.yaml`;
 - contrato AsyncAPI: `https://escolaieda.com/api/notas-sync-events-v1.asyncapi.yaml`.
 
 O workbook de Nina é privado e seu link organizacional deve ser entregue fora do repositório.
